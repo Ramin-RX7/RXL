@@ -1,0 +1,41 @@
+{
+	"name":"rx7",
+	"displayName":"%displayName%",
+	"description":"%description%",
+	"version":"1.0.0",
+	"publisher":"vscode",
+	"license":"MIT",
+	"engines":{"vscode":"*"},
+	"activationEvents":["onLanguage:rx7"],
+	"main":"./dist/pythonMain",
+	"browser":"./dist/browser/pythonMain",
+	"extensionKind":["ui","workspace","web"],
+	"contributes":{
+		"languages":[
+		   {
+			"id":"python",
+			"extensions":[".rx",".rx7"],
+			"aliases":["RX","rx7"],
+			"filenames":["RXfile"],
+			"firstLine":"^#!\\s*/?.*\\bRX7[0-9.-]*\\b",
+			"configuration":"./language-configuration.json"
+			}
+		],
+		"grammars":[
+			   {
+				"language":"rx",
+				"scopeName":"source.python",
+				"path":"./syntaxes/MagicPython.tmLanguage.json"
+				},
+			   {"scopeName":"source.regexp.python",
+				"path":"./syntaxes/MagicRegExp.tmLanguage.json"
+				}
+		   ]
+	   },
+	   "scripts": {
+		   "compile": "gulp compile-extension:python",
+		   "watch": "gulp watch-extension:python",
+		   "update-grammar": "node ../../build/npm/update-grammar.js MagicStack/MagicPython grammars/MagicPython.tmLanguage ./syntaxes/MagicPython.tmLanguage.json grammars/MagicRegExp.tmLanguage ./syntaxes/MagicRegExp.tmLanguage.json"
+	   }
+   
+   }

@@ -1,0 +1,29 @@
+import rx7.lite as shortcut
+print = shortcut.style.print
+import rx7.lite as shortcut
+
+print('Hello World!')
+hello = shortcut.hello
+files = shortcut.files
+print('Middle')
+
+@shortcut.check_type
+def x():
+    pass
+
+    @shortcut.check_type
+    def myfunc():
+        pass
+
+mymodule = shortcut.mymodule
+print('End')
+
+terminal = shortcut.terminal
+Tuple = shortcut.Tuple
+record = shortcut.record
+style = shortcut.style
+random = shortcut.random
+internet = shortcut.internet
+datetime = shortcut.datetime
+system = shortcut.system
+files = shortcut.files

@@ -1,0 +1,25 @@
+import subprocess, os, time, sys
+
+print('Waiting For Response From Python ...')
+while True:
+    if os.path.exists('C:\\Program Files\\Python38\\Lib\\site-packages\\pip'):
+        break
+
+time.sleep(3)
+print('Done')
+
+print('Installing RX Language ...')
+subprocess.getoutput('pip install rx7')
+print('Done)
+
+
+print('Installing Requirements Packages ...')
+Requirements=['colored', 'psutil', 'requests', 'pyautogui', 'keyboard',
+              'mouse', 'pyscreeze', 'whois', 'win10toast']
+Total = len(Requirements)
+
+for i,Package in enumerate(Requirements, 1):
+    sys.stdout.write(f'\rInstalling Packages: |{i*"█"}{(Total-i)*" "}| {i}/{Total}')
+    subprocess.getoutput(f'pip install {Package}')
+print()
+print('Done')

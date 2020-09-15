@@ -1,0 +1,20 @@
+print : stylized
+module_name : shortcut
+method : lite
+
+
+
+print('Hello World!')
+Include files, hello
+print('Middle')
+
+def x():
+    pass
+
+    def myfunc():
+        pass
+
+Load mymodule
+print('End')
+
+Include *
