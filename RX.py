@@ -7,6 +7,7 @@ print = rx.style.print
 
 #rx.cls()
 
+
 #< CHANGES >#
 r"""
  C:\Users\IRANIAN\.vscode\extensions\ms-python.python-2020.8.105369\package.json   (1637)
@@ -223,4 +224,6 @@ SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3])
 
 rx.write('result.txt', '\n'.join(SOURCE))
 import os
-#os.system('python result.txt')
+##os.system('python result.txt')
+
+
