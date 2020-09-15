@@ -222,9 +222,8 @@ SOURCE = Read_File()
 SOURCE = Define_Structure(SOURCE)
 SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3])
 
+
 rx.write('result.txt', '\n'.join(SOURCE))
+
 import os
 ##os.system('python result.txt')
-
-
-
