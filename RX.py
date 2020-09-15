@@ -85,14 +85,12 @@ def Get_Args():
     print('ARGS:  '+str(args))
 
 
-
-
-
 #< Reading File >#
 def Read_File():
     with open(sys.argv[1]) as f:
         SOURCE = f.read().split('\n')
     return SOURCE
+
 
 #< Module Name and Version  <method,module_name,print> >#
 def Define_Structure(SOURCE):
