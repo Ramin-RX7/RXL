@@ -216,6 +216,7 @@ def Syntax(SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION):
     return SOURCE
 
 
+
 # START OF THE CODE:
 Get_Args()
 SOURCE = Read_File()
