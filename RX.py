@@ -75,10 +75,17 @@ def Get_Args():
     args = parser.parse_args()
     
     if args.options:
-        print("OPTION NAME       DEFAULT VALUE       DESCRYPTION")
-        print()
-        print('modulename        sc                  Shortcut for RX Tools and functions')
-
+        print('BASE OPTIONS:')
+        print("  OPTION NAME       DEFAULT VALUE       DESCRYPTION")
+        print('  ModuleName        sc                  Shortcut for RX Tools and functions (also "Module_Name")')
+        print('  Method            normal              Method of loading tools.')
+        print('                                          Valid Choices: [normal,[lite,fast]] (also Version)')
+        print('OPTIONS:')
+        print("  OPTION NAME       DEFAULT VALUE       DESCRYPTION")
+        print('  func_type_checker True                Check if argument of a function is in wrong type')
+        print('                                          (REGEX:  (func|function)_?(type|arg|param)_?(scanner|checker) )')
+        print('\n')
+        print('"OPTIONS" SHOULD BE DEFINED AFTER "BASE OPTIONS"')
 
         sys.exit()
 
@@ -105,13 +112,14 @@ def Define_Structure(SOURCE):
             sys.exit()
 
     class NameError(Exception):
-        def __init__(self, attribute=None, value=None, line_text='', line_nom=0, correct_list=[], msg=None):
-            #super().__init__(f"Already Defined {attribute}")
+        def __init__(self, 
+                attribute=None, value=None, line_text='', 
+                line_nom=0, correct_list=[], msg=None):
             print('Traceback (most recent call last):')
             print(f'  File "{sys.argv[1]}", line {line_nom}, in <module>')
             print('    '+line_text)
             if not msg:
-                print(f"NameError: '{attribute}' can not be ")
+                print(f"NameError: '{attribute}' can not be {value}. Valid Choices: {correct_list}")
             else:
                 print(f"NameError: {msg}")
             sys.exit()
@@ -138,6 +146,7 @@ def Define_Structure(SOURCE):
             StripLow = line.strip().lower()
             if BASED:
                 raise DefinedError('Method/Version', line, SOURCE[:5].index(line))
+            pass
             if StripLow.endswith('lite') or StripLow.endswith('fast'):
                 MODULE_VERSION = 'rx7.lite'
             elif not StripLow.endswith('normal'):
@@ -156,12 +165,10 @@ def Define_Structure(SOURCE):
         #< Function Type Scanner >#
         elif re.search(r'^(func|function)_?(type|arg|param)_?(scanner|checker)\s*:\s*\w*', line):
             BASED = True
-            if line.strip().endswith('True'):
-                TYPE_SCANNER = True
-            elif line.endswith('False'):
+            if line.endswith('False'):
                 TYPE_SCANNER = False
-            else:
-                raise NameError('metho', stripped, line, SOURCE[:5].index(line), ['lite','normal'])
+            elif not line.strip().endswith('True'):
+                raise NameError('func_type_checker', stripped, line, SOURCE[:5].index(line), "[True,False]")
         
         SOURCE.remove(line)
 
