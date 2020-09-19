@@ -252,7 +252,8 @@ def Syntax(SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION):
 def Add_Verbose(SOURCE, VERBOSE):
     if VERBOSE:
         SOURCE.insert(0, f'ProgramStartTime= {START_TIME}')
-        SOURCE.insert(-2, r'''print(f'\n\nExecution Time:  {round(__import__("time").time()-ProgramStartTime,3)}\n')''')
+        EXECUTE_TIME_TEXT = '{round(__import__("time").time()-ProgramStartTime,3)}'
+        SOURCE.insert(-2, fr'''print(f'\n\nExecution Time:  {EXECUTE_TIME_TEXT}\n')''')
 
 
     return SOURCE
