@@ -1,3 +1,4 @@
+ProgramStartTime= 1600557228.3517277
 import rx7.lite as shortcut
 print = shortcut.style.print
 
@@ -5,11 +6,11 @@ print('Hello World!')
 files = shortcut.files
 print('Middle')
 
-@shortcut.check_type
+@shortcut.Check_Type
 def x():
     pass
 
-    @shortcut.check_type
+    @shortcut.Check_Type
     def myfunc():
         pass
 
@@ -22,9 +23,9 @@ Tuple = shortcut.Tuple
 record = shortcut.record
 style = shortcut.style
 random = shortcut.random
-internet = shortcut.internet
-datetime = shortcut.datetime
 system = shortcut.system
 files = shortcut.files
+print(f'\n\nExecution Time:  {round(__import__("time").time()-ProgramStartTime,3)}\n')
+
 
 __import__("getpass").getpass("Press [Enter] to Exit")

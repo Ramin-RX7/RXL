@@ -1,11 +1,15 @@
 import sys
 import re
+import time
+
+START_TIME = time.time()
 
 import rx7.lite as rx
 
 print = rx.style.print
 
 #rx.cls()
+
 
 
 #< CHANGES >#
@@ -31,13 +35,13 @@ r"""
 
 
 # TODO:
-#   CHECK IF FILE EXISTS
+#   
 
 
 
 
-CLASSES = ('files'   , 'system', 'datetime',
-           'internet', 'random', 'style'   , 
+CLASSES = ('files'   , 'system', #'datetime',
+           'random', 'style'   , #'internet', 
            'record'  , 'Tuple' , 'terminal')
 
 
@@ -49,7 +53,7 @@ def Get_Args():
         print('Console Will be added in next versions','dodger_blue_1')
         sys.exit()
 
-    if len(sys.argv) > 2:
+    if len(sys.argv) > 3:
         print('Argument Parser Will be added in next versions','dodger_blue_1')
         sys.exit()
 
@@ -91,13 +95,14 @@ def Get_Args():
         print("  OPTION NAME       DEFAULT VALUE       DESCRYPTION")
         print('  func_type_checker True                Check if argument of a function is in wrong type')
         print('                                          (REGEX:  (func|function)_?(type|arg|param)_?(scanner|checker) )')
+        print('  Exit              True                Exit after executing the code or not')
         print()
         print('"OPTIONS" SHOULD BE DEFINED AFTER "BASE OPTIONS"', style='bold')
 
         sys.exit()
 
     #print('ARGS:  '+str(args))
-    return args.FILE
+    return args.FILE, args.info
 
 
 #< Reading File >#
@@ -105,7 +110,7 @@ def Read_File(filepath):
     if rx.files.exists(filepath):
         with open(filepath) as f:
             SOURCE = f.read().split('\n')
-        return SOURCE
+        return SOURCE + ['\n']
     print(f"RX: can't open file '{sys.argv[1]}': [Errno 2] No such file") #or directory
 
 
@@ -180,9 +185,16 @@ def Define_Structure(SOURCE):
             elif not line.strip().endswith('True'):
                 raise NameError('func_type_checker', stripped, line, SOURCE[:5].index(line), "[True,False]")
         
+        #< Exit >#
         elif re.search(r'^(Exit|Quit)\s*:\s*\w*', line):
-            #SOURCE.append('__import__("os").system('pause')')
-            SOURCE.append('__import__("getpass").getpass("Press [Enter] to Exit")')
+            if line.strip().lower().endswith('false'):
+                #SOURCE.append('__import__("os").system('pause')')
+                SOURCE.append('__import__("getpass").getpass("Press [Enter] to Exit")')
+            elif not line.strip().lower().endswith('true'):
+                stripped = line[line.index(':')+1:].strip()
+                raise NameError('Exit', stripped, line, SOURCE[:5].index(line), ['True','False'])
+
+
         SOURCE.remove(line)
 
 
@@ -228,9 +240,19 @@ def Syntax(SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION):
         elif Text.strip().startswith('def '):
             if TYPE_SCANNER:
                 indent = Text.index('def ')
-                SOURCE.insert(Line_Nom-1, f'{" "*indent}@{MODULE_SHORTCUT}.check_type')
+                SOURCE.insert(Line_Nom-1, f'{" "*indent}@{MODULE_SHORTCUT}.Check_Type')
             Skip = True
     
+
+
+    return SOURCE
+
+
+#< Verbose >#
+def Add_Verbose(SOURCE, VERBOSE):
+    if VERBOSE:
+        SOURCE.insert(0, f'ProgramStartTime= {START_TIME}')
+        SOURCE.insert(-2, r'''print(f'\n\nExecution Time:  {round(__import__("time").time()-ProgramStartTime,3)}\n')''')
 
 
     return SOURCE
@@ -239,15 +261,17 @@ def Syntax(SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION):
 
 
 
+
 # START OF THE CODE:
-FILE   = Get_Args()
+ARGS = Get_Args()
+FILE   = ARGS[0]
 SOURCE = Read_File(FILE)
 SOURCE = Define_Structure(SOURCE)
 SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3])
-
+SOURCE = Add_Verbose(SOURCE, ARGS[1])
 
 rx.write('result.txt', '\n'.join(SOURCE))
 #rx.files.hide('result.txt')
 
 import os
-##os.system('python result.txt')
+os.system('python result.txt')
