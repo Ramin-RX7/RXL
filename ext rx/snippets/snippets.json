@@ -174,26 +174,33 @@
     },
 
     
+
+
+    "__name__==__main__": {
+        "prefix": "if __name__ == '__main__'",
+        "body": ["if __name__ == \"__main__\":", "    ${1:pass}"],
+        "description": "Code snippet for a `if __name__ == \"__main__\": ...` block"
+    },
+    "from import": {
+        "prefix": "from import",
+        "body": ["from ${1:package} import ${2:object}"],
+        "description": "Code snippet for \"from MODULE import OBJECT\""
+    },
+
+
     "include all": {
         "prefix": "include all",
         "body": "Include *\n",
-        "description": "RX: Load All Packages from RX Tools"
+        "description": "Load All Packages from \"Tools\""
     },
     "include": {
         "prefix": "include",
         "body": ["Include ${1:package}"],
-        "description": "RX: Code snippet for Loading package from RX Tools"
+        "description": "Code snippet for Loading package from \"Tools\""
     },
-    "__name__==__main__": {
-        "prefix": "if __name__ == '__main__'",
-        "body": ["if __name__ == \"__main__\":", "    ${1:pass}"],
-        "description": "Code snippet for a `if __name__ == \"__main__\": ...` block By RX"
-    },
-    "from import": {
-        "prefix": "from ",
-        "body": ["from ${1:package}: ${2:object}"],
-        "description": "Code snippet for \"from MODULE import OBJECT\""
+    "function type checker":{
+        "prefix": "func_type_checker",
+        "body": ["Func_Type_Checker: ${1:False}"],
+        "description": "Code snippet for \"Func_Type_checker\""
     }
-
-    
 }
