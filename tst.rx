@@ -1,11 +1,11 @@
-print : stylized
-module_name : shortcut
-method : lite
-
+Module_Name : shortcut
+Method : lite
+Print : stylized
+Exit : False
 
 
 print('Hello World!')
-Include files, hello
+Include files
 print('Middle')
 
 def x():
@@ -14,7 +14,7 @@ def x():
     def myfunc():
         pass
 
-Load mymodule
+Load files, Tuple
 print('End')
 
 Include *

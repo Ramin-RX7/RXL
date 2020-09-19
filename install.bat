@@ -7,5 +7,6 @@ echo.
 python .\instal
 echo.
 echo RX Language Has Been Installed Successfully
+rem ADD TO PATH
 echo.
 pause

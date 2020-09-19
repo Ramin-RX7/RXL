@@ -23,6 +23,13 @@ r"""
  1784   | include        (and much more)
 """
 
+r"""
+ git add . && git commit
+ vsce publish VERSION
+"""
+
+
+
 # TODO:
 #   CHECK IF FILE EXISTS
 
@@ -89,26 +96,29 @@ def Get_Args():
 
         sys.exit()
 
-    print('ARGS:  '+str(args))
+    #print('ARGS:  '+str(args))
+    return args.FILE
 
 
 #< Reading File >#
-def Read_File():
-    with open(sys.argv[1]) as f:
-        SOURCE = f.read().split('\n')
-    return SOURCE
+def Read_File(filepath):
+    if rx.files.exists(filepath):
+        with open(filepath) as f:
+            SOURCE = f.read().split('\n')
+        return SOURCE
+    print(f"RX: can't open file '{sys.argv[1]}': [Errno 2] No such file") #or directory
 
 
 #< Module Name and Version  <method,module_name,print> >#
 def Define_Structure(SOURCE):
 
-    class DefinedError(Exception):
+    class BaseDefinedError(Exception):
         def __init__(self, attribute, line_text, line_nom):
             #super().__init__(f"Already Defined {attribute}")
             print('Traceback (most recent call last):')
             print(f'  File "{sys.argv[1]}", line {line_nom}, in <module>')
             print('    '+line_text)
-            print(f"DefinedError: '{attribute}' can not be defined after setting module [OPTIONS]")
+            print(f"BaseDefinedError: '{attribute}' can not be defined after setting module [OPTIONS]")
             sys.exit()
 
     class NameError(Exception):
@@ -132,9 +142,9 @@ def Define_Structure(SOURCE):
     for line in SOURCE[:5]:
 
         #< Get Shortcut Name >#
-        if re.search(r'^(ModuleName|Module_Name)\s*:\s*',line):
+        if re.search(r'^(ModuleName|Module_Name)\s*:\s*\w*',line):
             if BASED:
-                raise DefinedError('Modulename', line, SOURCE[:5].index(line))
+                raise BaseDefinedError('Modulename', line, SOURCE[:5].index(line))
             stripped = line[line.index(':')+1:].strip()
             if re.search(r'\w+', stripped).group() == stripped:
                 MODULE_SHORTCUT = str(stripped)
@@ -145,7 +155,7 @@ def Define_Structure(SOURCE):
         elif re.search(r'^(Method|Version)\s*:\s*\w*', line):
             StripLow = line.strip().lower()
             if BASED:
-                raise DefinedError('Method/Version', line, SOURCE[:5].index(line))
+                raise BaseDefinedError('Method/Version', line, SOURCE[:5].index(line))
             pass
             if StripLow.endswith('lite') or StripLow.endswith('fast'):
                 MODULE_VERSION = 'rx7.lite'
@@ -170,6 +180,9 @@ def Define_Structure(SOURCE):
             elif not line.strip().endswith('True'):
                 raise NameError('func_type_checker', stripped, line, SOURCE[:5].index(line), "[True,False]")
         
+        elif re.search(r'^(Exit|Quit)\s*:\s*\w*', line):
+            #SOURCE.append('__import__("os").system('pause')')
+            SOURCE.append('__import__("getpass").getpass("Press [Enter] to Exit")')
         SOURCE.remove(line)
 
 
@@ -199,7 +212,7 @@ def Syntax(SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION):
             else:
                 Packages = re.split(r'\s*,\s*', Text)
                 Packages[0]= Packages[0][4:].strip() if Packages[0].startswith('Load') else Packages[0][8:].strip()
-            print(Packages)
+            #print(Packages)
             SOURCE.remove(Text)
             for package in Packages:
                 if package not in CLASSES:
@@ -227,13 +240,14 @@ def Syntax(SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION):
 
 
 # START OF THE CODE:
-Get_Args()
-SOURCE = Read_File()
+FILE   = Get_Args()
+SOURCE = Read_File(FILE)
 SOURCE = Define_Structure(SOURCE)
 SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3])
 
 
 rx.write('result.txt', '\n'.join(SOURCE))
+#rx.files.hide('result.txt')
 
 import os
 ##os.system('python result.txt')

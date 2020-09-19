@@ -1,9 +1,7 @@
 import rx7.lite as shortcut
 print = shortcut.style.print
-import rx7.lite as shortcut
 
 print('Hello World!')
-hello = shortcut.hello
 files = shortcut.files
 print('Middle')
 
@@ -15,7 +13,8 @@ def x():
     def myfunc():
         pass
 
-mymodule = shortcut.mymodule
+Tuple = shortcut.Tuple
+files = shortcut.files
 print('End')
 
 terminal = shortcut.terminal
@@ -27,3 +26,5 @@ internet = shortcut.internet
 datetime = shortcut.datetime
 system = shortcut.system
 files = shortcut.files
+
+__import__("getpass").getpass("Press [Enter] to Exit")
