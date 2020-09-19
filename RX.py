@@ -68,8 +68,7 @@ def Get_Args():
 
     parser.add_argument(
         '-o','--options',
-        action='store_true',
-        help='Show options of RX language interpreter',
+        action='store_true'
     )
 
 
