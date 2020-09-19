@@ -23,6 +23,9 @@ r"""
  1784   | include        (and much more)
 """
 
+# TODO:
+#   CHECK IF FILE EXISTS
+
 
 
 
@@ -31,8 +34,10 @@ CLASSES = ('files'   , 'system', 'datetime',
            'record'  , 'Tuple' , 'terminal')
 
 
+
 #< Get Arguments >#
 def Get_Args():
+    
     if len(sys.argv) == 1:
         print('Console Will be added in next versions','dodger_blue_1')
         sys.exit()
@@ -57,14 +62,12 @@ def Get_Args():
 
     parser.add_argument(
         'FILE',
-        metavar='FILE',
-        type=str,
+        metavar='FILE', type=str, nargs='?',
         help='File to execute with RX language'
     )
 
     parser.add_argument(
-        '-',
-        metavar='--options',
+        '-o','--options',
         action='store_true',
         help='Show options of RX language interpreter',
     )
@@ -73,17 +76,17 @@ def Get_Args():
     args = parser.parse_args()
     
     if args.options:
-        print('BASE OPTIONS:')
-        print("  OPTION NAME       DEFAULT VALUE       DESCRYPTION")
+        print('BASE OPTIONS:', style='bold')
+        print("  OPTION NAME       DEFAULT VALUE       DESCRYPTION", style='bold')
         print('  ModuleName        sc                  Shortcut for RX Tools and functions (also "Module_Name")')
         print('  Method            normal              Method of loading tools.')
         print('                                          Valid Choices: [normal,[lite,fast]] (also Version)')
-        print('OPTIONS:')
+        print('OPTIONS:', style='bold')
         print("  OPTION NAME       DEFAULT VALUE       DESCRYPTION")
         print('  func_type_checker True                Check if argument of a function is in wrong type')
         print('                                          (REGEX:  (func|function)_?(type|arg|param)_?(scanner|checker) )')
-        print('\n')
-        print('"OPTIONS" SHOULD BE DEFINED AFTER "BASE OPTIONS"')
+        print()
+        print('"OPTIONS" SHOULD BE DEFINED AFTER "BASE OPTIONS"', style='bold')
 
         sys.exit()
 
