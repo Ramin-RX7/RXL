@@ -70,8 +70,6 @@ def Get_Args():
     )
 
 
-
-    # Execute the parse_args() method
     args = parser.parse_args()
     
     if args.options:
