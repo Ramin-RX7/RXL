@@ -12,11 +12,11 @@ def x():
     @shortcut.Check_Type
     def myfunc():
         pass
-
+             HELO = 2
 Tuple = shortcut.Tuple
 files = shortcut.files
 print('End')
-
+          XX = 'sdfsafdsfa'
 terminal = shortcut.terminal
 Tuple = shortcut.Tuple
 record = shortcut.record
@@ -24,6 +24,8 @@ style = shortcut.style
 random = shortcut.random
 system = shortcut.system
 files = shortcut.files
+
+
 
 
 

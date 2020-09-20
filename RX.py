@@ -42,6 +42,7 @@ r"""
 
 # TODO:
 #   CONST Variable
+#   Stop Imports
 
 
 
@@ -214,6 +215,7 @@ def Define_Structure(SOURCE):
 #< Syntax >#
 def Syntax(SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION):
     Skip = False
+    CONSTS = set()
     for Line_Nom,Text in enumerate(SOURCE, 1):
         
         #< When Adding An Extra Line Like Decorators >#
@@ -250,7 +252,16 @@ def Syntax(SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION):
             Skip = True
     
 
+        elif Text.strip().startswith('Const '):
+            #if Text.startswith(' '): raise LateDefine("'Const' Must Be Defined In The Main Scope")
+            if re.search(r'^Const\s+([A-Z]|_)+\s*=\s*', Text.strip()):
+                INDENT = re.search(r'Const\s+([A-Z]|_)+\s*=\s*', Text).start()
+                striped = Text.strip()
+                SOURCE.remove(Text)
+                SOURCE.insert(Line_Nom-1, INDENT*' ' + striped[striped.index(' ')+1:])
+                CONSTS.add(striped[striped.index(' '):striped.index('=')].strip())
 
+    print(CONSTS)
     return SOURCE
 
 
@@ -286,4 +297,4 @@ rx.write('result.txt', '\n'.join(SOURCE))
 #rx.files.hide('result.txt')
 
 import os
-os.system('python result.txt')
+#os.system('python result.txt')

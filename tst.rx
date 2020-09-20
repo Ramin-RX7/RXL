@@ -13,10 +13,10 @@ def x():
 
     def myfunc():
         pass
-
+             Const HELO = 2
 Load files, Tuple
 print('End')
-
+          Const XX = 'sdfsafdsfa'
 Include *
 
 
