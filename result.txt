@@ -1,4 +1,3 @@
-ProgramStartTime= 1600557672.1408632
 import rx7.lite as shortcut
 print = shortcut.style.print
 
@@ -25,7 +24,7 @@ style = shortcut.style
 random = shortcut.random
 system = shortcut.system
 files = shortcut.files
-print(f'\n\nExecution Time:  {round(__import__("time").time()-ProgramStartTime,3)}\n')
+
 
 
 __import__("getpass").getpass("Press [Enter] to Exit")

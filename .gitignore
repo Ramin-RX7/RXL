@@ -127,3 +127,5 @@ dmypy.json
 # VS CODE
 .vscode/
 *.exe
+result.txt
+tst.rx

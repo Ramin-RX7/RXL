@@ -26,29 +26,35 @@ r"""
  1751  "builtin-types": {
  1784   | include        (and much more)
 """
-
+#< VS Ext >#
 r"""
  git add . && git commit
  vsce publish VERSION
 """
+#< WHEN APP READY >#
+r"""
+ #setx /M path "%path%;E:\ramin\Coding\GitHub\RX-Language"
+ #C:\Users\IRANIAN\AppData\Roaming\ActiveState\bin;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;D:\Programs\Coding\Git\cmd;C:\Users\IRANIAN\AppData\Local\Programs\Python\Python37;C:\Users\IRANIAN\AppData\Local\Programs\Python\Python37\Scripts;D:\Programs\Microsoft VS Code\bin;C:\Users\IRANIAN\AppData\Local\GitHubDesktop\bin;C:\Users\IRANIAN\AppData\Roaming\npm
+"""
+
 
 
 
 # TODO:
-#   
+#   CONST Variable
 
 
 
 
-CLASSES = ('files'   , 'system', #'datetime',
-           'random', 'style'   , #'internet', 
-           'record'  , 'Tuple' , 'terminal')
+CLASSES = ('files'  , 'system' , #'datetime' ,
+           'random' , 'style'  , #'internet' , 
+           'record' , 'Tuple'  , 'terminal' ,)
 
 
 
 #< Get Arguments >#
 def Get_Args():
-    
+    print(sys.argv)
     if len(sys.argv) == 1:
         print('Console Will be added in next versions','dodger_blue_1')
         sys.exit()
@@ -249,8 +255,13 @@ def Syntax(SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION):
 
 
 #< Verbose >#
-def Add_Verbose(SOURCE, VERBOSE):
+def Add_Verbose(SOURCE, FILE, VERBOSE):
     if VERBOSE:
+        import datetime
+        print(f'Start RX Language at "{datetime.datetime.now()}"')
+        print(f'Running  {FILE}')
+        print('\n')
+
         SOURCE.insert(0, f'ProgramStartTime= {START_TIME}')
         EXECUTE_TIME_TEXT = '{round(__import__("time").time()-ProgramStartTime,3)}'
         SOURCE.insert(-2, fr'''print(f'\n\nExecution Time:  {EXECUTE_TIME_TEXT}\n')''')
@@ -269,7 +280,7 @@ FILE   = ARGS[0]
 SOURCE = Read_File(FILE)
 SOURCE = Define_Structure(SOURCE)
 SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3])
-SOURCE = Add_Verbose(SOURCE, ARGS[1])
+SOURCE = Add_Verbose(SOURCE, FILE, ARGS[1])
 
 rx.write('result.txt', '\n'.join(SOURCE))
 #rx.files.hide('result.txt')

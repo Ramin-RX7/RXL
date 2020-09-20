@@ -10,7 +10,7 @@ print('Done')
 
 print('Installing RX Language ...')
 subprocess.getoutput('pip install rx7')
-print('Done)
+print('Done')
 
 
 print('Installing Requirements Packages ...')
