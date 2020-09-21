@@ -20,7 +20,13 @@ def x():
              Const HELO = 2
 Load files, Tuple
 print('End')
-          Const XX = 'sdfsafdsfa'
+Const XX = 'sdfsafdsfa'
 Include *
-Const XX = 'sadf'
+Const X = 'sadf'
 
+import os
+
+print()
+class fu:
+    pass
+Const HELO = ''

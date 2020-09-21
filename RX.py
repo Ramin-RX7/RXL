@@ -79,11 +79,12 @@ class ERRORS:
     
     class ConstantError(Exception):
         def __init__(self,
-          Line_Nom, Line_Def, Line_Text, Attribute, File):
+          Line_Nom=0, Line_Def=0, Line_Text='', Attribute='', File='', msg=None):
             print( 'Traceback (most recent call last):')
             print(f'  File "{File}", line {Line_Nom}, in <module>')
             print( '    '+Line_Text)
-            print(f"ConstantError: Redefinition of '{Attribute}' (Already Defined At Line {Line_Def})")
+            end = msg if msg else f"Redefinition of '{Attribute}' (Already Defined At Line {Line_Def})"
+            print("ConstantError: "+ end)
             sys.exit()
 
 #< Get Arguments >#
@@ -156,7 +157,6 @@ def Read_File(filepath):
 
 #< Module Name and Version  <method,module_name,print> >#
 def Define_Structure(SOURCE, FILE):
-
     MODULE_VERSION  = 'rx7'
     MODULE_SHORTCUT = 'sc'
     PRINT_TYPE = 'print'
@@ -164,22 +164,25 @@ def Define_Structure(SOURCE, FILE):
     BASED = False
 
     CONSTS = set()
+    #< Checking Constant Variables >#
     for Line_Nom,Text in enumerate(SOURCE, 1):
         if Text.strip().startswith('Const '):
             #if Text.startswith(' '): raise LateDefine("'Const' Must Be Defined In The Main Scope")
-            if re.search(r'^Const\s+([A-Z]|_)+\s*=\s*', Text.strip()):
-                INDENT = re.search(r'Const\s+([A-Z]|_)+\s*=\s*', Text).start()
+            if re.search(r'^Const\s+([A-Za-z]|_)+\s*=\s*', Text.strip()):
+                INDENT = re.search(r'Const\s+([A-Za-z]|_)+\s*=\s*', Text).start()
                 striped = Text.strip()
                 SOURCE.remove(Text)
                 SOURCE.insert(Line_Nom-1, INDENT*' ' + striped[striped.index(' ')+1:])
                 CONST = striped[striped.index(' '):striped.index('=')].strip()
                 if CONST != CONST.upper():
-                    raise ERRORS.ConstantError(Line_Nom, CONST[1], Text.strip(), CONST[0], FILE)
+                    raise ERRORS.ConstantError(Line_Nom=Line_Nom, 
+                                               Line_Text=Text.strip(), 
+                                               File=FILE, 
+                                               msg='Constant Variable Name Must be UPPERCASE')
                 for item in CONSTS:
                     if CONST == item[0]:
                         raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)                    
                 CONSTS.add((CONST, Line_Nom))
-    print(CONSTS)
 
 
     for line in SOURCE[:5]:
@@ -242,6 +245,7 @@ def Define_Structure(SOURCE, FILE):
     SOURCE.insert(1,f'print = {PRINT_TYPE}')
     SOURCE.insert(2,'')
 
+    print(CONSTS)
     return SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION, CONSTS
 
 
@@ -252,22 +256,10 @@ def Syntax(SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION, FILE, CONSTS):
         
         #print(str(Line_Nom)+' '+Text)
 
-
         #< When Adding An Extra Line Like Decorators >#
         if Skip:
             Skip = False
             continue
-
-        if True:
-            #< Check Constants >#
-            for CONST in CONSTS:
-                if (CONST[0] in Text) and ('=' in Text) and (not re.search(r'def \w+\(', Text)):
-                    if re.search(CONST[0] + r'\s*=\s*', Text):
-                        #if 'Const' in Text:
-                            raise ERRORS.ConstantError(Line_Nom, CONST[1], Text.strip(), CONST[0], FILE)
-                        #raise TypeError('Can not change Constant')
-      
-        pass
 
         #< Importing Tools :  <include,load> >#
         if re.search(r'^(Load|Include) \s*(\w+,?)?', Text.strip()):
@@ -294,7 +286,19 @@ def Syntax(SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION, FILE, CONSTS):
                 indent = Text.index('def ')
                 SOURCE.insert(Line_Nom-1, f'{" "*indent}@{MODULE_SHORTCUT}.Check_Type')
             Skip = True
-    
+
+        pass
+      
+        if True:
+            #< Check Constants >#
+            for CONST in CONSTS:
+                if (CONST[0] in Text) and ('=' in Text) and (not re.search(r'def \w+\(', Text)):
+                    if re.search(CONST[0] + r'\s*=\s*', Text):
+                        #if 'Const' in Text:
+                            raise ERRORS.ConstantError(Line_Nom, CONST[1], Text.strip(), CONST[0], FILE)
+                        #raise TypeError('Can not change Constant')
+          
+
 
     print(CONSTS)
     return SOURCE
