@@ -53,31 +53,37 @@ CLASSES = ('files'  , 'system' , #'datetime' ,
            'random' , 'style'  , #'internet' , 
            'record' , 'Tuple'  , 'terminal' ,)
 
-
+#< List of all errors >#
 class ERRORS:
     class BaseDefinedError(Exception):
-        def __init__(self, attribute, line_text, line_nom):
+        def __init__(self, attribute, line_text, line_nom, File):
             #super().__init__(f"Already Defined {attribute}")
-            print('Traceback (most recent call last):')
-            print(f'  File "{sys.argv[1]}", line {line_nom}, in <module>')
-            print('    '+line_text)
+            print( 'Traceback (most recent call last):')
+            print(f'  File "{File}", line {line_nom}, in <module>')
+            print( '    '+line_text)
             print(f"BaseDefinedError: '{attribute}' can not be defined after setting module [OPTIONS]")
             sys.exit()
 
     class NameError(Exception):
         def __init__(self, 
-                attribute=None, value=None, line_text='', 
+                File, attribute=None, value=None, line_text='', 
                 line_nom=0, correct_list=[], msg=None):
-            print('Traceback (most recent call last):')
-            print(f'  File "{sys.argv[1]}", line {line_nom}, in <module>')
-            print('    '+line_text)
+            print( 'Traceback (most recent call last):')
+            print(f'  File "{File}", line {line_nom}, in <module>')
+            print( '    '+line_text)
             if not msg:
                 print(f"NameError: '{attribute}' can not be {value}. Valid Choices: {correct_list}")
             else:
                 print(f"NameError: {msg}")
             sys.exit()
-
-
+    class ConstantError(Exception):
+        def __init__(self,
+          Line_Nom, Line_Def, Line_Text, Attribute, File):
+            print( 'Traceback (most recent call last):')
+            print(f'  File "{File}", line {Line_Nom}, in <module>')
+            print( '    '+Line_Text)
+            print(f"ConstantError: Redefinition of '{Attribute}' (Already Defined At Line {Line_Def})")
+            sys.exit()
 
 #< Get Arguments >#
 def Get_Args():
@@ -144,40 +150,41 @@ def Read_File(filepath):
         with open(filepath) as f:
             SOURCE = f.read().split('\n')
         return SOURCE + ['\n']
-    print(f"RX: can't open file '{sys.argv[1]}': [Errno 2] No such file") #or directory
+    print(f"RX: can't open file '{filepath}': [Errno 2] No such file") #or directory
 
 
 #< Module Name and Version  <method,module_name,print> >#
-def Define_Structure(SOURCE):
+def Define_Structure(SOURCE, FILE):
 
     MODULE_VERSION  = 'rx7'
     MODULE_SHORTCUT = 'sc'
     PRINT_TYPE = 'print'
     TYPE_SCANNER = True
     BASED = False
+    REMOVE =  True
     for line in SOURCE[:5]:
 
         #< Get Shortcut Name >#
         if re.search(r'^(ModuleName|Module_Name)\s*:\s*\w*',line):
             if BASED:
-                raise ERRORS.BaseDefinedError('Modulename', line, SOURCE[:5].index(line))
+                raise ERRORS.BaseDefinedError('Modulename', line, SOURCE[:5].index(line), FILE)
             stripped = line[line.index(':')+1:].strip()
             if re.search(r'\w+', stripped).group() == stripped:
                 MODULE_SHORTCUT = str(stripped)
             else:
-                raise ERRORS.NameError(msg='Invalid Value For  modulename/module_name')
+                raise ERRORS.NameError(msg='Invalid Value For  modulename/module_name', File=FILE)
 
         #< Get Version (Method) of Tools >#
         elif re.search(r'^(Method|Version)\s*:\s*\w*', line):
             StripLow = line.strip().lower()
             if BASED:
-                raise ERRORS.BaseDefinedError('Method/Version', line, SOURCE[:5].index(line))
+                raise ERRORS.BaseDefinedError('Method/Version', line, SOURCE[:5].index(line), FILE)
             pass
             if StripLow.endswith('lite') or StripLow.endswith('fast'):
                 MODULE_VERSION = 'rx7.lite'
             elif not StripLow.endswith('normal'):
                 stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.NameError('method', stripped, line, SOURCE[:5].index(line), ['lite','normal'])
+                raise ERRORS.NameError(FILE, 'method', stripped, line, SOURCE[:5].index(line), ['lite','normal'])
 
         #< Print Function Method >#
         elif re.search(r'^Print\s*:\s*\w*', line):
@@ -186,7 +193,7 @@ def Define_Structure(SOURCE):
                 PRINT_TYPE = f'{MODULE_SHORTCUT}.style.print'
             elif not line.strip().lower().endswith('normal'):
                 stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.NameError('print', stripped, line, SOURCE[:5].index(line), ['lite','normal'])
+                raise ERRORS.NameError(FILE, 'print', stripped, line, SOURCE[:5].index(line), ['lite','normal'])
 
         #< Function Type Scanner >#
         elif re.search(r'^(func|function)_?(type|arg|param)_?(scanner|checker)\s*:\s*\w*', line):
@@ -194,19 +201,23 @@ def Define_Structure(SOURCE):
             if line.endswith('False'):
                 TYPE_SCANNER = False
             elif not line.strip().endswith('True'):
-                raise ERRORS.NameError('func_type_checker', stripped, line, SOURCE[:5].index(line), "[True,False]")
+                raise ERRORS.NameError(FILE, 'func_type_checker', stripped, line, SOURCE[:5].index(line), "[True,False]")
         
         #< Exit at the end >#
         elif re.search(r'^(Exit|Quit)\s*:\s*\w*', line):
             if line.strip().lower().endswith('false'):
                 #SOURCE.append('__import__("os").system('pause')')
+                REMOVE = False
+                #SOURCE[SOURCE.index(line)] = ''
                 SOURCE.append('__import__("getpass").getpass("Press [Enter] to Exit")')
             elif not line.strip().lower().endswith('true'):
                 stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.NameError('Exit', stripped, line, SOURCE[:5].index(line), ['True','False'])
+                raise ERRORS.NameError(FILE, 'Exit', stripped, line, SOURCE[:5].index(line), ['True','False'])
 
-
-        SOURCE.remove(line)
+        if REMOVE:
+            SOURCE.remove(line)
+        else:
+            REMOVE=True
 
 
     SOURCE[0] = f'import {MODULE_VERSION} as {MODULE_SHORTCUT}'
@@ -217,17 +228,29 @@ def Define_Structure(SOURCE):
 
 
 #< Syntax >#
-def Syntax(SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION):
+def Syntax(SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION, FILE):
     Skip = False
     CONSTS = set()
     for Line_Nom,Text in enumerate(SOURCE, 1):
         
+        #print(str(Line_Nom)+' '+Text)
+
+
         #< When Adding An Extra Line Like Decorators >#
         if Skip:
             Skip = False
             continue
-        
-        #print(str(Line_Nom)+' '+Text)
+
+        if True:
+            #< Check Constants >#
+            for CONST in CONSTS:
+                if (CONST[0] in Text) and ('=' in Text) and (not re.search(r'def \w+\(', Text)):
+                    if re.search(CONST[0] + r'\s*=\s*', Text):
+                        #if 'Const' in Text:
+                            raise ERRORS.ConstantError(Line_Nom, CONST[1], Text.strip(), CONST[0], FILE)
+                        #raise TypeError('Can not change Constant')
+      
+        pass
 
         #< Importing Tools :  <include,load> >#
         if re.search(r'^(Load|Include) \s*(\w+,?)?', Text.strip()):
@@ -241,7 +264,7 @@ def Syntax(SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION):
             for package in Packages:
                 if package not in CLASSES:
                     print('Traceback (most recent call last):')
-                    print(f'  File "{sys.argv[1]}", line {Line_Nom}, in <module>')
+                    print(f'  File "{FILE}", line {Line_Nom}, in <module>')
                     print('    '+Text)
                     print(f"AttributeError: module '{MODULE_VERSION}' has no attribute '{package}'")
                     sys.exit()
@@ -263,19 +286,11 @@ def Syntax(SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION):
                 striped = Text.strip()
                 SOURCE.remove(Text)
                 SOURCE.insert(Line_Nom-1, INDENT*' ' + striped[striped.index(' ')+1:])
-                CONSTS.add(striped[striped.index(' '):striped.index('=')].strip())
+                CONST = striped[striped.index(' '):striped.index('=')].strip()
+                if CONST != CONST.upper():
+                    raise TypeError
+                CONSTS.add((striped[striped.index(' '):striped.index('=')].strip(), Line_Nom))
 
-        pass
-        
-        if True:
-            #< Check Constants >#
-            for CONST in CONSTS:
-                if (CONST in Text) and ('=' in Text) and (not re.search(r'def \w+\(', Text)):
-                    if re.search(CONST + r'\s*=\s*', Text):
-                        if 'Const' in Text:
-                            raise TypeError('Constant Alredy defined')
-                        raise TypeError('Can not change constant')
-                        
 
     print(CONSTS)
     return SOURCE
@@ -305,8 +320,8 @@ def Add_Verbose(SOURCE, FILE, VERBOSE):
 ARGS = Get_Args()
 FILE   = ARGS[0]
 SOURCE = Read_File(FILE)
-SOURCE = Define_Structure(SOURCE)
-SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3])
+SOURCE = Define_Structure(SOURCE, FILE)
+SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE)
 SOURCE = Add_Verbose(SOURCE, FILE, ARGS[1])
 
 rx.write('result.txt', '\n'.join(SOURCE))

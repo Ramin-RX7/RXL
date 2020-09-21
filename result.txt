@@ -1,9 +1,15 @@
 import rx7.lite as shortcut
 print = shortcut.style.print
 
+
 print('Hello World!')
 files = shortcut.files
 print('Middle')
+
+class X:
+    @shortcut.Check_Type
+    def func():
+        pass
 
 @shortcut.Check_Type
 def x():
@@ -24,7 +30,7 @@ style = shortcut.style
 random = shortcut.random
 system = shortcut.system
 files = shortcut.files
-XX = ''
+
 
 
 

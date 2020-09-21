@@ -8,6 +8,10 @@ print('Hello World!')
 Include files
 print('Middle')
 
+class X:
+    def func():
+        pass
+
 def x():
     pass
 
@@ -18,5 +22,5 @@ Load files, Tuple
 print('End')
           Const XX = 'sdfsafdsfa'
 Include *
-Const XX = ''
+
 
