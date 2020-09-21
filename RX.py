@@ -76,6 +76,7 @@ class ERRORS:
             else:
                 print(f"NameError: {msg}")
             sys.exit()
+    
     class ConstantError(Exception):
         def __init__(self,
           Line_Nom, Line_Def, Line_Text, Attribute, File):
@@ -161,7 +162,26 @@ def Define_Structure(SOURCE, FILE):
     PRINT_TYPE = 'print'
     TYPE_SCANNER = True
     BASED = False
-    REMOVE =  True
+
+    CONSTS = set()
+    for Line_Nom,Text in enumerate(SOURCE, 1):
+        if Text.strip().startswith('Const '):
+            #if Text.startswith(' '): raise LateDefine("'Const' Must Be Defined In The Main Scope")
+            if re.search(r'^Const\s+([A-Z]|_)+\s*=\s*', Text.strip()):
+                INDENT = re.search(r'Const\s+([A-Z]|_)+\s*=\s*', Text).start()
+                striped = Text.strip()
+                SOURCE.remove(Text)
+                SOURCE.insert(Line_Nom-1, INDENT*' ' + striped[striped.index(' ')+1:])
+                CONST = striped[striped.index(' '):striped.index('=')].strip()
+                if CONST != CONST.upper():
+                    raise ERRORS.ConstantError(Line_Nom, CONST[1], Text.strip(), CONST[0], FILE)
+                for item in CONSTS:
+                    if CONST == item[0]:
+                        raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)                    
+                CONSTS.add((CONST, Line_Nom))
+    print(CONSTS)
+
+
     for line in SOURCE[:5]:
 
         #< Get Shortcut Name >#
@@ -173,6 +193,7 @@ def Define_Structure(SOURCE, FILE):
                 MODULE_SHORTCUT = str(stripped)
             else:
                 raise ERRORS.NameError(msg='Invalid Value For  modulename/module_name', File=FILE)
+            SOURCE.remove(line)
 
         #< Get Version (Method) of Tools >#
         elif re.search(r'^(Method|Version)\s*:\s*\w*', line):
@@ -185,6 +206,7 @@ def Define_Structure(SOURCE, FILE):
             elif not StripLow.endswith('normal'):
                 stripped = line[line.index(':')+1:].strip()
                 raise ERRORS.NameError(FILE, 'method', stripped, line, SOURCE[:5].index(line), ['lite','normal'])
+            SOURCE.remove(line)
 
         #< Print Function Method >#
         elif re.search(r'^Print\s*:\s*\w*', line):
@@ -194,6 +216,7 @@ def Define_Structure(SOURCE, FILE):
             elif not line.strip().lower().endswith('normal'):
                 stripped = line[line.index(':')+1:].strip()
                 raise ERRORS.NameError(FILE, 'print', stripped, line, SOURCE[:5].index(line), ['lite','normal'])
+            SOURCE.remove(line)
 
         #< Function Type Scanner >#
         elif re.search(r'^(func|function)_?(type|arg|param)_?(scanner|checker)\s*:\s*\w*', line):
@@ -202,35 +225,29 @@ def Define_Structure(SOURCE, FILE):
                 TYPE_SCANNER = False
             elif not line.strip().endswith('True'):
                 raise ERRORS.NameError(FILE, 'func_type_checker', stripped, line, SOURCE[:5].index(line), "[True,False]")
-        
+            SOURCE.remove(line)
+
         #< Exit at the end >#
         elif re.search(r'^(Exit|Quit)\s*:\s*\w*', line):
             if line.strip().lower().endswith('false'):
                 #SOURCE.append('__import__("os").system('pause')')
-                REMOVE = False
                 #SOURCE[SOURCE.index(line)] = ''
                 SOURCE.append('__import__("getpass").getpass("Press [Enter] to Exit")')
             elif not line.strip().lower().endswith('true'):
                 stripped = line[line.index(':')+1:].strip()
                 raise ERRORS.NameError(FILE, 'Exit', stripped, line, SOURCE[:5].index(line), ['True','False'])
 
-        if REMOVE:
-            SOURCE.remove(line)
-        else:
-            REMOVE=True
-
 
     SOURCE[0] = f'import {MODULE_VERSION} as {MODULE_SHORTCUT}'
     SOURCE.insert(1,f'print = {PRINT_TYPE}')
     SOURCE.insert(2,'')
 
-    return SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION
+    return SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION, CONSTS
 
 
 #< Syntax >#
-def Syntax(SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION, FILE):
+def Syntax(SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION, FILE, CONSTS):
     Skip = False
-    CONSTS = set()
     for Line_Nom,Text in enumerate(SOURCE, 1):
         
         #print(str(Line_Nom)+' '+Text)
@@ -278,19 +295,6 @@ def Syntax(SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION, FILE):
                 SOURCE.insert(Line_Nom-1, f'{" "*indent}@{MODULE_SHORTCUT}.Check_Type')
             Skip = True
     
-        # Add Constant
-        elif Text.strip().startswith('Const '):
-            #if Text.startswith(' '): raise LateDefine("'Const' Must Be Defined In The Main Scope")
-            if re.search(r'^Const\s+([A-Z]|_)+\s*=\s*', Text.strip()):
-                INDENT = re.search(r'Const\s+([A-Z]|_)+\s*=\s*', Text).start()
-                striped = Text.strip()
-                SOURCE.remove(Text)
-                SOURCE.insert(Line_Nom-1, INDENT*' ' + striped[striped.index(' ')+1:])
-                CONST = striped[striped.index(' '):striped.index('=')].strip()
-                if CONST != CONST.upper():
-                    raise TypeError
-                CONSTS.add((striped[striped.index(' '):striped.index('=')].strip(), Line_Nom))
-
 
     print(CONSTS)
     return SOURCE
@@ -321,7 +325,7 @@ ARGS = Get_Args()
 FILE   = ARGS[0]
 SOURCE = Read_File(FILE)
 SOURCE = Define_Structure(SOURCE, FILE)
-SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE)
+SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, SOURCE[4])
 SOURCE = Add_Verbose(SOURCE, FILE, ARGS[1])
 
 rx.write('result.txt', '\n'.join(SOURCE))
