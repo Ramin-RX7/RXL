@@ -33,6 +33,7 @@ r"""
 """
 #< WHEN APP READY >#
 r"""
+ %USERPROFILE%
  #setx /M path "%path%;E:\ramin\Coding\GitHub\RX-Language"
  #C:\Users\IRANIAN\AppData\Roaming\ActiveState\bin;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;D:\Programs\Coding\Git\cmd;C:\Users\IRANIAN\AppData\Local\Programs\Python\Python37;C:\Users\IRANIAN\AppData\Local\Programs\Python\Python37\Scripts;D:\Programs\Microsoft VS Code\bin;C:\Users\IRANIAN\AppData\Local\GitHubDesktop\bin;C:\Users\IRANIAN\AppData\Roaming\npm
 """
@@ -43,6 +44,7 @@ r"""
 # TODO:
 #   CONST Variable
 #   Stop Imports
+#   Add <>
 
 
 
@@ -50,6 +52,30 @@ r"""
 CLASSES = ('files'  , 'system' , #'datetime' ,
            'random' , 'style'  , #'internet' , 
            'record' , 'Tuple'  , 'terminal' ,)
+
+
+class ERRORS:
+    class BaseDefinedError(Exception):
+        def __init__(self, attribute, line_text, line_nom):
+            #super().__init__(f"Already Defined {attribute}")
+            print('Traceback (most recent call last):')
+            print(f'  File "{sys.argv[1]}", line {line_nom}, in <module>')
+            print('    '+line_text)
+            print(f"BaseDefinedError: '{attribute}' can not be defined after setting module [OPTIONS]")
+            sys.exit()
+
+    class NameError(Exception):
+        def __init__(self, 
+                attribute=None, value=None, line_text='', 
+                line_nom=0, correct_list=[], msg=None):
+            print('Traceback (most recent call last):')
+            print(f'  File "{sys.argv[1]}", line {line_nom}, in <module>')
+            print('    '+line_text)
+            if not msg:
+                print(f"NameError: '{attribute}' can not be {value}. Valid Choices: {correct_list}")
+            else:
+                print(f"NameError: {msg}")
+            sys.exit()
 
 
 
@@ -124,28 +150,6 @@ def Read_File(filepath):
 #< Module Name and Version  <method,module_name,print> >#
 def Define_Structure(SOURCE):
 
-    class BaseDefinedError(Exception):
-        def __init__(self, attribute, line_text, line_nom):
-            #super().__init__(f"Already Defined {attribute}")
-            print('Traceback (most recent call last):')
-            print(f'  File "{sys.argv[1]}", line {line_nom}, in <module>')
-            print('    '+line_text)
-            print(f"BaseDefinedError: '{attribute}' can not be defined after setting module [OPTIONS]")
-            sys.exit()
-
-    class NameError(Exception):
-        def __init__(self, 
-                attribute=None, value=None, line_text='', 
-                line_nom=0, correct_list=[], msg=None):
-            print('Traceback (most recent call last):')
-            print(f'  File "{sys.argv[1]}", line {line_nom}, in <module>')
-            print('    '+line_text)
-            if not msg:
-                print(f"NameError: '{attribute}' can not be {value}. Valid Choices: {correct_list}")
-            else:
-                print(f"NameError: {msg}")
-            sys.exit()
-
     MODULE_VERSION  = 'rx7'
     MODULE_SHORTCUT = 'sc'
     PRINT_TYPE = 'print'
@@ -156,24 +160,24 @@ def Define_Structure(SOURCE):
         #< Get Shortcut Name >#
         if re.search(r'^(ModuleName|Module_Name)\s*:\s*\w*',line):
             if BASED:
-                raise BaseDefinedError('Modulename', line, SOURCE[:5].index(line))
+                raise ERRORS.BaseDefinedError('Modulename', line, SOURCE[:5].index(line))
             stripped = line[line.index(':')+1:].strip()
             if re.search(r'\w+', stripped).group() == stripped:
                 MODULE_SHORTCUT = str(stripped)
             else:
-                raise NameError(msg='Invalid Value For  modulename/module_name')
+                raise ERRORS.NameError(msg='Invalid Value For  modulename/module_name')
 
         #< Get Version (Method) of Tools >#
         elif re.search(r'^(Method|Version)\s*:\s*\w*', line):
             StripLow = line.strip().lower()
             if BASED:
-                raise BaseDefinedError('Method/Version', line, SOURCE[:5].index(line))
+                raise ERRORS.BaseDefinedError('Method/Version', line, SOURCE[:5].index(line))
             pass
             if StripLow.endswith('lite') or StripLow.endswith('fast'):
                 MODULE_VERSION = 'rx7.lite'
             elif not StripLow.endswith('normal'):
                 stripped = line[line.index(':')+1:].strip()
-                raise NameError('method', stripped, line, SOURCE[:5].index(line), ['lite','normal'])
+                raise ERRORS.NameError('method', stripped, line, SOURCE[:5].index(line), ['lite','normal'])
 
         #< Print Function Method >#
         elif re.search(r'^Print\s*:\s*\w*', line):
@@ -182,7 +186,7 @@ def Define_Structure(SOURCE):
                 PRINT_TYPE = f'{MODULE_SHORTCUT}.style.print'
             elif not line.strip().lower().endswith('normal'):
                 stripped = line[line.index(':')+1:].strip()
-                raise NameError('print', stripped, line, SOURCE[:5].index(line), ['lite','normal'])
+                raise ERRORS.NameError('print', stripped, line, SOURCE[:5].index(line), ['lite','normal'])
 
         #< Function Type Scanner >#
         elif re.search(r'^(func|function)_?(type|arg|param)_?(scanner|checker)\s*:\s*\w*', line):
@@ -190,16 +194,16 @@ def Define_Structure(SOURCE):
             if line.endswith('False'):
                 TYPE_SCANNER = False
             elif not line.strip().endswith('True'):
-                raise NameError('func_type_checker', stripped, line, SOURCE[:5].index(line), "[True,False]")
+                raise ERRORS.NameError('func_type_checker', stripped, line, SOURCE[:5].index(line), "[True,False]")
         
-        #< Exit >#
+        #< Exit at the end >#
         elif re.search(r'^(Exit|Quit)\s*:\s*\w*', line):
             if line.strip().lower().endswith('false'):
                 #SOURCE.append('__import__("os").system('pause')')
                 SOURCE.append('__import__("getpass").getpass("Press [Enter] to Exit")')
             elif not line.strip().lower().endswith('true'):
                 stripped = line[line.index(':')+1:].strip()
-                raise NameError('Exit', stripped, line, SOURCE[:5].index(line), ['True','False'])
+                raise ERRORS.NameError('Exit', stripped, line, SOURCE[:5].index(line), ['True','False'])
 
 
         SOURCE.remove(line)
@@ -251,7 +255,7 @@ def Syntax(SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION):
                 SOURCE.insert(Line_Nom-1, f'{" "*indent}@{MODULE_SHORTCUT}.Check_Type')
             Skip = True
     
-
+        # Add Constant
         elif Text.strip().startswith('Const '):
             #if Text.startswith(' '): raise LateDefine("'Const' Must Be Defined In The Main Scope")
             if re.search(r'^Const\s+([A-Z]|_)+\s*=\s*', Text.strip()):
@@ -260,6 +264,18 @@ def Syntax(SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION):
                 SOURCE.remove(Text)
                 SOURCE.insert(Line_Nom-1, INDENT*' ' + striped[striped.index(' ')+1:])
                 CONSTS.add(striped[striped.index(' '):striped.index('=')].strip())
+
+        pass
+        
+        if True:
+            #< Check Constants >#
+            for CONST in CONSTS:
+                if (CONST in Text) and ('=' in Text) and (not re.search(r'def \w+\(', Text)):
+                    if re.search(CONST + r'\s*=\s*', Text):
+                        if 'Const' in Text:
+                            raise TypeError('Constant Alredy defined')
+                        raise TypeError('Can not change constant')
+                        
 
     print(CONSTS)
     return SOURCE

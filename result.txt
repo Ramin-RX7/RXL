@@ -24,7 +24,7 @@ style = shortcut.style
 random = shortcut.random
 system = shortcut.system
 files = shortcut.files
-
+XX = ''
 
 
 
