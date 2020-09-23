@@ -42,16 +42,20 @@ r"""
 
 
 # TODO:
-#   CONST Variable
+#   
+###########
+# XXX:
+#   CONST at the beginning
 #   Stop Imports
 #   Add <>
-
+#   Cls
 
 
 
 CLASSES = ('files'  , 'system' , #'datetime' ,
            'random' , 'style'  , #'internet' , 
            'record' , 'Tuple'  , 'terminal' ,)
+
 
 #< List of all errors >#
 class ERRORS:
@@ -86,6 +90,7 @@ class ERRORS:
             end = msg if msg else f"Redefinition of '{Attribute}' (Already Defined At Line {Line_Def})"
             print("ConstantError: "+ end)
             sys.exit()
+
 
 #< Get Arguments >#
 def Get_Args():
@@ -153,10 +158,11 @@ def Read_File(filepath):
             SOURCE = f.read().split('\n')
         return SOURCE + ['\n']
     print(f"RX: can't open file '{filepath}': [Errno 2] No such file") #or directory
-
+    sys.exit()
 
 #< Module Name and Version  <method,module_name,print> >#
 def Define_Structure(SOURCE, FILE):
+    #] Default Values
     MODULE_VERSION  = 'rx7'
     MODULE_SHORTCUT = 'sc'
     PRINT_TYPE = 'print'
@@ -246,11 +252,17 @@ def Define_Structure(SOURCE, FILE):
     SOURCE.insert(2,'')
 
     print(CONSTS)
-    return SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION, CONSTS
+    return (SOURCE, 
+            MODULE_VERSION, MODULE_SHORTCUT,
+            TYPE_SCANNER, CONSTS,)
 
 
 #< Syntax >#
-def Syntax(SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION, FILE, CONSTS):
+def Syntax(SOURCE, 
+           MODULE_VERSION, MODULE_SHORTCUT,
+           TYPE_SCANNER, CONSTS, 
+           FILE):
+
     Skip = False
     for Line_Nom,Text in enumerate(SOURCE, 1):
         
@@ -289,14 +301,14 @@ def Syntax(SOURCE, MODULE_SHORTCUT, TYPE_SCANNER, MODULE_VERSION, FILE, CONSTS):
 
         pass
       
-        if True:
-            #< Check Constants >#
-            for CONST in CONSTS:
-                if (CONST[0] in Text) and ('=' in Text) and (not re.search(r'def \w+\(', Text)):
-                    if re.search(CONST[0] + r'\s*=\s*', Text):
-                        #if 'Const' in Text:
-                            raise ERRORS.ConstantError(Line_Nom, CONST[1], Text.strip(), CONST[0], FILE)
-                        #raise TypeError('Can not change Constant')
+        #if True:
+        #< Check Constants >#
+        for CONST in CONSTS:
+            if (CONST[0] in Text) and ('=' in Text) and (not re.search(r'def \w+\(', Text)):
+                if re.search(CONST[0] + r'\s*=\s*', Text):
+                    #if 'Const' in Text:
+                        raise ERRORS.ConstantError(Line_Nom, CONST[1], Text.strip(), CONST[0], FILE)
+                    #raise TypeError('Can not change Constant')
           
 
 
@@ -324,12 +336,12 @@ def Add_Verbose(SOURCE, FILE, VERBOSE):
 
 
 
-# START OF THE CODE:
+#< START OF THE CODE >#
 ARGS = Get_Args()
 FILE   = ARGS[0]
 SOURCE = Read_File(FILE)
 SOURCE = Define_Structure(SOURCE, FILE)
-SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, SOURCE[4])
+SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], SOURCE[4], FILE)
 SOURCE = Add_Verbose(SOURCE, FILE, ARGS[1])
 
 rx.write('result.txt', '\n'.join(SOURCE))
