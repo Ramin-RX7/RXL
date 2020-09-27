@@ -31,3 +31,9 @@ class fu:
     pass
 Const HELO = ''
 
+
+
+#invalid.deprecated.backtick.python   red
+#support.type.exception.python        green
+#support.variable.magic.python        blue
+

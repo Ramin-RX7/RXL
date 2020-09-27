@@ -25,6 +25,8 @@ r"""
  1025  "class-declarations": {
  1751  "builtin-types": {
  1784   | include        (and much more)
+ 366   "rx-class-names": {
+ 362   "include": "#rx-class-names"
 """
 #< VS Ext >#
 r"""
@@ -42,7 +44,7 @@ r"""
 
 
 # TODO:
-#   
+#   END OF LINES ERROR IN RED
 ###########
 # XXX:
 #   CONST at the beginning
