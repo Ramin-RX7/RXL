@@ -8,7 +8,6 @@ import rx7.lite as rx
 
 print = rx.style.print
 
-#rx.cls()
 
 
 
@@ -45,7 +44,7 @@ r"""
 
 # TODO:
 #   END OF LINES ERROR IN RED
-#   reload(module) for console
+#   try & except for KeyboardInterrupt
 ###########
 # XXX:
 #   CONST at the beginning
@@ -95,17 +94,17 @@ class ERRORS:
             sys.exit()
 
 
-
-def wait_for_input(prompt):
-    '''
-    Prompt  input(prompt)  until sth is given
-    '''
-    answer= ''
-    while not answer:
-        answer = input(prompt)
-    return answer
-
+#< Interactive RX Shell >#
 def Console():
+    def wait_for_input(prompt):
+        '''
+        Prompt  input(prompt)  until sth is given
+        '''
+        answer= ''
+        while not answer:
+            answer = input(prompt)
+        return answer
+
     from importlib import reload
 
     PRE= ['import rx7.lite as sc','print = sc.style.print']
@@ -136,20 +135,13 @@ def Console():
             print(str(type(e))[8:-2]+':  ' + str(e), 'red')
 
 
-
-
-
-
-
-
-
 #< Get Arguments >#
 def Get_Args():
+
     print('ARGS:  '+str(sys.argv))
+    
     if len(sys.argv) == 1:
         Console()
-        #print('Console Will be added in next versions','dodger_blue_1')
-        #sys.exit()
 
     if len(sys.argv) > 3:
         print('Argument Parser Will be added in next versions','dodger_blue_1')
@@ -160,7 +152,7 @@ def Get_Args():
     parser = argparse.ArgumentParser(
         'RX', allow_abbrev=True,
         description='"RX Language Executer"',
-        
+
     )
 
     parser.add_argument(
@@ -212,6 +204,7 @@ def Read_File(filepath):
     print(f"RX: can't open file '{filepath}': [Errno 2] No such file") #or directory
     sys.exit()
 
+
 #< Module Name and Version  <method,module_name,print> >#
 def Define_Structure(SOURCE, FILE):
     #] Default Values
@@ -241,6 +234,9 @@ def Define_Structure(SOURCE, FILE):
                     if CONST == item[0]:
                         raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)                    
                 CONSTS.add((CONST, Line_Nom))
+        for item in CONSTS:
+            if Text.strip().startswith(item[0]):
+                raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
 
 
     for line in SOURCE[:5]:
@@ -320,8 +316,9 @@ def Syntax(SOURCE,
         
         #print(str(Line_Nom)+' '+Text)
 
+
         #< When Adding An Extra Line Like Decorators >#
-        if Skip:
+        if Skip or Text.strip().startswith('#'):
             Skip = False
             continue
 
@@ -351,17 +348,18 @@ def Syntax(SOURCE,
                 SOURCE.insert(Line_Nom-1, f'{" "*indent}@{MODULE_SHORTCUT}.Check_Type')
             Skip = True
 
+
         pass
       
         #if True:
         #< Check Constants >#
-        for CONST in CONSTS:
+        '''for CONST in CONSTS:
             if (CONST[0] in Text) and ('=' in Text) and (not re.search(r'def \w+\(', Text)):
                 if re.search(CONST[0] + r'\s*=\s*', Text):
                     #if 'Const' in Text:
                         raise ERRORS.ConstantError(Line_Nom, CONST[1], Text.strip(), CONST[0], FILE)
                     #raise TypeError('Can not change Constant')
-          
+        '''  
 
 
     print(CONSTS)
@@ -403,5 +401,6 @@ if __name__ == "__main__":
 
         import os
         #os.system('python result.txt')
+
     except KeyboardInterrupt:
         print('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)','red')
