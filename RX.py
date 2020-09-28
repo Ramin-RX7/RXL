@@ -45,6 +45,7 @@ r"""
 
 # TODO:
 #   END OF LINES ERROR IN RED
+#   reload(module) for console
 ###########
 # XXX:
 #   CONST at the beginning
@@ -94,12 +95,61 @@ class ERRORS:
             sys.exit()
 
 
+
+def wait_for_input(prompt):
+    '''
+    Prompt  input(prompt)  until sth is given
+    '''
+    answer= ''
+    while not answer:
+        answer = input(prompt)
+    return answer
+
+def Console():
+    from importlib import reload
+
+    PRE= ['import rx7.lite as sc','print = sc.style.print']
+    rx.write('Console.py', '\n'.join(PRE)+'\n')
+    import Console
+    while True:
+        new = wait_for_input('RX:Console> ')
+        if new.lower() in ('exit','quit','end'):
+            sys.exit()
+        if re.search('(rm|remove)_?print(s)?', new.lower()):
+            Content = rx.read('Console.py')
+            for line in Content:
+                if 'print(' in line:
+                    Content.remove(line)
+                    rx.write('Console.py', '\n'.join(Content))
+                    break
+            continue
+
+
+        rx.write('Console.py', new+'\n', 'a')
+        
+        try:
+            reload(Console)
+        except Exception as e:
+            ERROR = str(e)
+            if '(Console.py,' in ERROR:
+                ERROR = ERROR[:ERROR.index('(Console.py,')]
+            print(str(type(e))[8:-2]+':  ' + str(e), 'red')
+
+
+
+
+
+
+
+
+
 #< Get Arguments >#
 def Get_Args():
-    print(sys.argv)
+    print('ARGS:  '+str(sys.argv))
     if len(sys.argv) == 1:
-        print('Console Will be added in next versions','dodger_blue_1')
-        sys.exit()
+        Console()
+        #print('Console Will be added in next versions','dodger_blue_1')
+        #sys.exit()
 
     if len(sys.argv) > 3:
         print('Argument Parser Will be added in next versions','dodger_blue_1')
@@ -339,15 +389,19 @@ def Add_Verbose(SOURCE, FILE, VERBOSE):
 
 
 #< START OF THE CODE >#
-ARGS = Get_Args()
-FILE   = ARGS[0]
-SOURCE = Read_File(FILE)
-SOURCE = Define_Structure(SOURCE, FILE)
-SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], SOURCE[4], FILE)
-SOURCE = Add_Verbose(SOURCE, FILE, ARGS[1])
+if __name__ == "__main__":
+    try:
+        ARGS = Get_Args()
+        FILE   = ARGS[0]
+        SOURCE = Read_File(FILE)
+        SOURCE = Define_Structure(SOURCE, FILE)
+        SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], SOURCE[4], FILE)
+        SOURCE = Add_Verbose(SOURCE, FILE, ARGS[1])
 
-rx.write('result.txt', '\n'.join(SOURCE))
-#rx.files.hide('result.txt')
+        rx.write('result.txt', '\n'.join(SOURCE))
+        #rx.files.hide('result.txt')
 
-import os
-#os.system('python result.txt')
+        import os
+        #os.system('python result.txt')
+    except KeyboardInterrupt:
+        print('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)','red')
