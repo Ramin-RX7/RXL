@@ -31,6 +31,15 @@ r"""
 r"""
  git add . && git commit
  vsce publish VERSION
+ 
+ Colors:
+  invalid.deprecated.backtick.python   red
+  support.type.exception.python        green
+  support.variable.magic.python        blue light
+  variable.other.constant.ruby         dodger_blue!
+  storage.type.class.python            blue dark
+  support.function.builtin.python      yellow
+  keyword.control.flow.python          purple
 """
 #< WHEN APP READY >#
 r"""
@@ -43,14 +52,16 @@ r"""
 
 
 # TODO:
-#   END OF LINES ERROR IN RED
-#   try & except for KeyboardInterrupt
+ #>  END OF LINES ERROR IN RED
+ #>  switch & case
 ###########
 # XXX:
-#   CONST at the beginning
-#   Stop Imports
-#   Add <>
-#   Cls
+ #>  CONST at the beginning
+ #>  Stop Imports
+ #>  Add <>
+ #>  Cls
+ #>  New Errors Ext Color
+ #>  try & except for KeyboardInterrupt
 
 
 
@@ -349,18 +360,6 @@ def Syntax(SOURCE,
             Skip = True
 
 
-        pass
-      
-        #if True:
-        #< Check Constants >#
-        '''for CONST in CONSTS:
-            if (CONST[0] in Text) and ('=' in Text) and (not re.search(r'def \w+\(', Text)):
-                if re.search(CONST[0] + r'\s*=\s*', Text):
-                    #if 'Const' in Text:
-                        raise ERRORS.ConstantError(Line_Nom, CONST[1], Text.strip(), CONST[0], FILE)
-                    #raise TypeError('Can not change Constant')
-        '''  
-
 
     print(CONSTS)
     return SOURCE
@@ -400,7 +399,7 @@ if __name__ == "__main__":
         #rx.files.hide('result.txt')
 
         import os
-        #os.system('python result.txt')
+        os.system('python result.txt')
 
     except KeyboardInterrupt:
         print('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)','red')

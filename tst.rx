@@ -1,4 +1,4 @@
-Module_Name : shortcut
+Module_Name : ms
 Method : lite
 Print : stylized
 Exit : False
@@ -17,7 +17,7 @@ def x():
 
     def myfunc(x):
         pass
-             Const HELO = 2
+Const HELO = 2
 Load files, Tuple
 print('End')
 Const XX = 'sdfsafdsfa'
@@ -29,11 +29,9 @@ import os
 print()
 class fu:
     pass
+
 #HELO = ''
 
-#sc.wait()
+ms.wait(10)
 
-#invalid.deprecated.backtick.python   red
-#support.type.exception.python        green
-#support.variable.magic.python        blue
 

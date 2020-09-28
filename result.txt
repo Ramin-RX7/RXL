@@ -1,36 +1,36 @@
-import rx7.lite as shortcut
-print = shortcut.style.print
+import rx7.lite as ms
+print = ms.style.print
 
 
 
 print('Hello World!')
-files = shortcut.files
+files = ms.files
 print('Middle')
 
 class X:
-    @shortcut.Check_Type
+    @ms.Check_Type
     def func():
         pass
 
-@shortcut.Check_Type
+@ms.Check_Type
 def x():
     pass
 
-    @shortcut.Check_Type
+    @ms.Check_Type
     def myfunc(x):
         pass
-             HELO = 2
-Tuple = shortcut.Tuple
-files = shortcut.files
+HELO = 2
+Tuple = ms.Tuple
+files = ms.files
 print('End')
 XX = 'sdfsafdsfa'
-terminal = shortcut.terminal
-Tuple = shortcut.Tuple
-record = shortcut.record
-style = shortcut.style
-random = shortcut.random
-system = shortcut.system
-files = shortcut.files
+terminal = ms.terminal
+Tuple = ms.Tuple
+record = ms.record
+style = ms.style
+random = ms.random
+system = ms.system
+files = ms.files
 X = 'sadf'
 
 import os
@@ -38,13 +38,11 @@ import os
 print()
 class fu:
     pass
+
 #HELO = ''
 
-#sc.wait()
+ms.wait(10)
 
-#invalid.deprecated.backtick.python   red
-#support.type.exception.python        green
-#support.variable.magic.python        blue
 
 
 
