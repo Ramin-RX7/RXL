@@ -54,6 +54,7 @@ r"""
 # TODO:
  #>  END OF LINES ERROR IN RED
  #>  switch & case
+ #>  Execute file by importing it instead of os.system (to control SyntaxErrors)
 ###########
 # XXX:
  #>  CONST at the beginning
@@ -359,9 +360,37 @@ def Syntax(SOURCE,
                 SOURCE.insert(Line_Nom-1, f'{" "*indent}@{MODULE_SHORTCUT}.Check_Type')
             Skip = True
 
+        # Switch and Case
+        elif re.search(r'^(?P<indent>\s*)(S|s)witch\s+\w+\s*:\s*', Text):
+            SEARCH = re.search(r'^(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:\s*', Text)
+            indent = len(SEARCH.group('indent'))
+            
+            rules = 0
+            for nom2,line2 in enumerate(SOURCE[Line_Nom:], 1):
+                if not line2:
+                    continue
+                if not re.search(r'^(?P<indent2>\s*)\w+', line2) and  not rules:
+                    #new = len(re.search(r'^(?P<indent2>\s*)', line2).group('indent2'))
+                    LAST_LINE = nom2 + Line_Nom -1
+                    break
+            else:
+                LAST_LINE = -1
+                
+                
+            SOURCE.remove(Text)
+            for Line,snc in enumerate(SOURCE[Line_Nom-1:LAST_LINE], Line_Nom):
+                SEARCH_VALUE = re.search(r'^(C|c)ase\s+(?P<VALUE>\w+):\s*', snc.strip())
+                if SEARCH_VALUE:
+                    if not re.search(r'^elif \w+\s+==', SOURCE[Line-1].strip()):
+                        SOURCE[Line-1] =   ' '*(indent+4) + SOURCE[Line-1]
+                    else:
+                        raise TypeError
+                    SOURCE[Line-1] = f'{(indent+4)*" "}elif {SEARCH.group("VARIABLE")} == {SEARCH_VALUE.group("VALUE")}:'
+            SOURCE.insert(Line_Nom-1, f'{(indent+4)*" "}if False:pass')
+            
 
 
-    print(CONSTS)
+
     return SOURCE
 
 
@@ -399,7 +428,7 @@ if __name__ == "__main__":
         #rx.files.hide('result.txt')
 
         import os
-        os.system('python result.txt')
+        #os.system('python result.txt')
 
     except KeyboardInterrupt:
         print('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)','red')
