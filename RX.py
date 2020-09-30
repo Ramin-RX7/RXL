@@ -64,6 +64,7 @@ r"""
  #>  New Errors Ext Color
  #>  try & except for KeyboardInterrupt
  #>  Remove prints in console script auromaticly?
+ #>  improve Indentation checking
 
 
 
@@ -227,20 +228,23 @@ def Read_File(filepath):
     sys.exit()
 
 
-#< Module Name and Version  <method,module_name,print> >#
+#< Module Name and Version  <Method,Module_Name,Print,Indent,Const> >#
 def Define_Structure(SOURCE, FILE):
-    #] Default Values
-    MODULE_VERSION  = 'rx7'
-    MODULE_SHORTCUT = 'sc'
-    PRINT_TYPE = 'print'
-    TYPE_SCANNER = True
-    BASED = False
+    #] Checking Indentation
+    INDENT_OUTPUT = rx.terminal.getoutput('python reindent.py -d '+FILE)
+    if len(INDENT_OUTPUT):
+        INDENT_OUTPUT = INDENT_OUTPUT.split('\n')
+        LINE = INDENT_OUTPUT[-4]
+        LINE_NOM = LINE[LINE.index('line ')+5:]
+        raise ERRORS.IndentionError(LINE_NOM, INDENT_OUTPUT[-3][4:],FILE)
 
 
+    #< Const Vars && Indents >#
     CONSTS = set()
     INDENT = 0
-    #< Checking Constant Variables >#
+
     for Line_Nom,Text in enumerate(SOURCE, 1):
+        #] Consts
         if Text.strip().startswith('Const '):
             #if Text.startswith(' '): raise LateDefine("'Const' Must Be Defined In The Main Scope")
             if re.search(r'^Const\s+([A-Za-z]|_)+\s*=\s*', Text.strip()):
@@ -262,12 +266,20 @@ def Define_Structure(SOURCE, FILE):
             if Text.strip().startswith(item[0]):
                 raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
         
+        #] Indent
         if Text.strip().endswith(':'):
             INDENT = len(re.search(r'^(?P<indent>\s*).*', Text).group('indent'))
             INDENT_NEXT = len(re.search(r'^(?P<indent>\s*).*', SOURCE[Line_Nom]).group('indent'))
             if INDENT_NEXT <= INDENT:
-                raise ERRORS.IndentionError(Line_Nom, SOURCE[Line_Nom], FILE)
+                raise ERRORS.IndentionError(Line_Nom+1, SOURCE[Line_Nom], FILE)
 
+
+    #< OPTIONS >#
+    MODULE_VERSION  = 'rx7'
+    MODULE_SHORTCUT = 'sc'
+    PRINT_TYPE = 'print'
+    TYPE_SCANNER = True
+    BASED = False
 
     for line in SOURCE[:5]:
 
@@ -324,10 +336,10 @@ def Define_Structure(SOURCE, FILE):
                 stripped = line[line.index(':')+1:].strip()
                 raise ERRORS.NameError(FILE, 'Exit', stripped, line, SOURCE[:5].index(line), ['True','False'])
 
-
     SOURCE[0] = f'import {MODULE_VERSION} as {MODULE_SHORTCUT}'
     SOURCE.insert(1,f'print = {PRINT_TYPE}')
     SOURCE.insert(2,'')
+
 
     print(CONSTS)
     return (SOURCE, 
