@@ -57,12 +57,13 @@ r"""
  #>  Execute file by importing it instead of os.system (to control SyntaxErrors)
 ###########
 # XXX:
- #>  CONST at the beginning
- #>  Stop Imports
+ #>  CONST at the beginning?
+ #>  Stop Imports?
  #>  Add <>
- #>  Cls
+ #>  Cls?
  #>  New Errors Ext Color
  #>  try & except for KeyboardInterrupt
+ #>  Remove prints in console script auromaticly?
 
 
 
@@ -103,6 +104,15 @@ class ERRORS:
             print( '    '+Line_Text)
             end = msg if msg else f"Redefinition of '{Attribute}' (Already Defined At Line {Line_Def})"
             print("ConstantError: "+ end)
+            sys.exit()
+
+    class IndentionError(Exception):
+        def __init__(self,
+          Line_Nom=0, Line_Text='', File=''):
+            print( 'Traceback (most recent call last):')
+            print(f'  File "{File}", line {Line_Nom}, in <module>')
+            print( '    '+Line_Text)
+            print("IndentationError: expected an indented block")
             sys.exit()
 
 
@@ -226,7 +236,9 @@ def Define_Structure(SOURCE, FILE):
     TYPE_SCANNER = True
     BASED = False
 
+
     CONSTS = set()
+    INDENT = 0
     #< Checking Constant Variables >#
     for Line_Nom,Text in enumerate(SOURCE, 1):
         if Text.strip().startswith('Const '):
@@ -249,6 +261,12 @@ def Define_Structure(SOURCE, FILE):
         for item in CONSTS:
             if Text.strip().startswith(item[0]):
                 raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
+        
+        if Text.strip().endswith(':'):
+            INDENT = len(re.search(r'^(?P<indent>\s*).*', Text).group('indent'))
+            INDENT_NEXT = len(re.search(r'^(?P<indent>\s*).*', SOURCE[Line_Nom]).group('indent'))
+            if INDENT_NEXT <= INDENT:
+                raise ERRORS.IndentionError(Line_Nom, SOURCE[Line_Nom], FILE)
 
 
     for line in SOURCE[:5]:
@@ -381,12 +399,13 @@ def Syntax(SOURCE,
             for Line,snc in enumerate(SOURCE[Line_Nom-1:LAST_LINE], Line_Nom):
                 SEARCH_VALUE = re.search(r'^(C|c)ase\s+(?P<VALUE>\w+):\s*', snc.strip())
                 if SEARCH_VALUE:
-                    if not re.search(r'^elif \w+\s+==', SOURCE[Line-1].strip()):
-                        SOURCE[Line-1] =   ' '*(indent+4) + SOURCE[Line-1]
-                    else:
+                    if re.search(r'^elif \w+\s+==', SOURCE[Line-1].strip()):
                         raise TypeError
-                    SOURCE[Line-1] = f'{(indent+4)*" "}elif {SEARCH.group("VARIABLE")} == {SEARCH_VALUE.group("VALUE")}:'
-            SOURCE.insert(Line_Nom-1, f'{(indent+4)*" "}if False:pass')
+                    else:
+                        pass#SOURCE[Line-1] =   ' '*(indent+4) + SOURCE[Line-1]
+                    
+                    SOURCE[Line-1] = f'{(indent)*" "}elif {SEARCH.group("VARIABLE")} == {SEARCH_VALUE.group("VALUE")}:' #+4
+            SOURCE.insert(Line_Nom-1, f'{(indent)*" "}if False:pass')
             
 
 
