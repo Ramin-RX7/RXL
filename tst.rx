@@ -11,6 +11,7 @@ print('Middle')
 class X:
     def func():
         pass
+       sad 
 
 def x():
     pass

@@ -231,7 +231,7 @@ def Read_File(filepath):
 #< Module Name and Version  <Method,Module_Name,Print,Indent,Const> >#
 def Define_Structure(SOURCE, FILE):
     #] Checking Indentation
-    INDENT_OUTPUT = rx.terminal.getoutput('python reindent.py -d '+FILE)
+    INDENT_OUTPUT = rx.terminal.getoutput('python reindent.py -d -n '+FILE)
     if len(INDENT_OUTPUT):
         INDENT_OUTPUT = INDENT_OUTPUT.split('\n')
         LINE = INDENT_OUTPUT[-4]
