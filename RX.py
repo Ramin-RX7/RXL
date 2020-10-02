@@ -50,7 +50,7 @@ r"""
 
 
 
-
+#### EXT: RUN FILE
 # TODO:
  #>  END OF LINES ERROR IN RED
  #>  switch & case
@@ -67,6 +67,8 @@ r"""
  #>  improve Indentation checking
 
 
+
+RX_PATH = rx.files.abspath(__file__)[:-6]
 
 CLASSES = ('files'  , 'system' , #'datetime' ,
            'random' , 'style'  , #'internet' , 
@@ -130,22 +132,28 @@ def Console():
 
     from importlib import reload
 
+    rx.system.chdir(RX_PATH)
+
     PRE= ['import rx7.lite as sc','print = sc.style.print']
     rx.write('Console.py', '\n'.join(PRE)+'\n')
     import Console
     while True:
-        new = wait_for_input('RX:Console> ')
-        if new.lower() in ('exit','quit','end'):
+        try:
+            new = wait_for_input('RX:Console> ')
+            if new.lower() in ('exit','quit','end'):
+                rx.files.remove('Console.py')
+                sys.exit()
+            if re.search('(rm|remove)_?print(s)?', new.lower()):
+                Content = rx.read('Console.py')
+                for line in Content:
+                    if 'print(' in line:
+                        Content.remove(line)
+                        rx.write('Console.py', '\n'.join(Content))
+                        break
+                continue
+        except (KeyboardInterrupt,EOFError):
+            rx.files.remove('Console.py')
             sys.exit()
-        if re.search('(rm|remove)_?print(s)?', new.lower()):
-            Content = rx.read('Console.py')
-            for line in Content:
-                if 'print(' in line:
-                    Content.remove(line)
-                    rx.write('Console.py', '\n'.join(Content))
-                    break
-            continue
-
 
         rx.write('Console.py', new+'\n', 'a')
         
@@ -231,7 +239,7 @@ def Read_File(filepath):
 #< Module Name and Version  <Method,Module_Name,Print,Indent,Const> >#
 def Define_Structure(SOURCE, FILE):
     #] Checking Indentation
-    INDENT_OUTPUT = rx.terminal.getoutput('python reindent.py -d -n '+FILE)
+    INDENT_OUTPUT = rx.terminal.getoutput(f'python {RX_PATH}\\reindent.py -d -n '+FILE)
     if len(INDENT_OUTPUT):
         INDENT_OUTPUT = INDENT_OUTPUT.split('\n')
         LINE = INDENT_OUTPUT[-4]
@@ -267,7 +275,7 @@ def Define_Structure(SOURCE, FILE):
                 raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
         
         #] Indent
-        if Text.strip().endswith(':'):
+        if Text.strip().endswith(':')  and  not Text.strip().startswith('#'):
             INDENT = len(re.search(r'^(?P<indent>\s*).*', Text).group('indent'))
             INDENT_NEXT = len(re.search(r'^(?P<indent>\s*).*', SOURCE[Line_Nom]).group('indent'))
             if INDENT_NEXT <= INDENT:
@@ -358,7 +366,6 @@ def Syntax(SOURCE,
         
         #print(str(Line_Nom)+' '+Text)
 
-
         #< When Adding An Extra Line Like Decorators >#
         if Skip or Text.strip().startswith('#'):
             Skip = False
@@ -391,7 +398,7 @@ def Syntax(SOURCE,
             Skip = True
 
         # Switch and Case
-        elif re.search(r'^(?P<indent>\s*)(S|s)witch\s+\w+\s*:\s*', Text):
+        elif re.search(r'^\s*(S|s)witch\s+\w+\s*:\s*', Text):
             SEARCH = re.search(r'^(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:\s*', Text)
             indent = len(SEARCH.group('indent'))
             
@@ -405,8 +412,9 @@ def Syntax(SOURCE,
                     break
             else:
                 LAST_LINE = -1
-                
-                
+            print(Line_Nom)
+            print(LAST_LINE)
+
             SOURCE.remove(Text)
             for Line,snc in enumerate(SOURCE[Line_Nom-1:LAST_LINE], Line_Nom):
                 SEARCH_VALUE = re.search(r'^(C|c)ase\s+(?P<VALUE>\w+):\s*', snc.strip())

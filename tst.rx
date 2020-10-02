@@ -11,7 +11,7 @@ print('Middle')
 class X:
     def func():
         pass
-       sad 
+        sad 
 
 def x():
     pass
@@ -34,7 +34,7 @@ class fu:
 switch x:
     case 1:
         print('1')
-       #das
+        x
     case 2:
         print('2')
     case 3:
