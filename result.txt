@@ -10,13 +10,13 @@ print('Middle')
 class X:
     @ms.Check_Type
     def func():
-        pass
+        passllks
         sad 
 
 @ms.Check_Type
 def x():
     pass
-
+R
     @ms.Check_Type
     def myfunc(x):
         pass

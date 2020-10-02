@@ -55,6 +55,7 @@ r"""
  #>  END OF LINES ERROR IN RED
  #>  switch & case
  #>  Execute file by importing it instead of os.system (to control SyntaxErrors)
+ #>  Errors in red Color
 ###########
 # XXX:
  #>  CONST at the beginning?
@@ -143,14 +144,14 @@ def Console():
             if new.lower() in ('exit','quit','end'):
                 rx.files.remove('Console.py')
                 sys.exit()
-            if re.search('(rm|remove)_?print(s)?', new.lower()):
+            '''if re.search('(rm|remove)_?print(s)?', new.lower()):
                 Content = rx.read('Console.py')
                 for line in Content:
-                    if 'print(' in line:
+                    if re.search(r'^print\s*\(', line):
                         Content.remove(line)
                         rx.write('Console.py', '\n'.join(Content))
                         break
-                continue
+                continue'''
         except (KeyboardInterrupt,EOFError):
             rx.files.remove('Console.py')
             sys.exit()
@@ -158,12 +159,14 @@ def Console():
         rx.write('Console.py', new+'\n', 'a')
         
         try:
+            if re.search(r'^print\s*\(', rx.read('Console.py').splitlines()[-1].strip()):
+                rx.write('Console.py', rx.read('Console.py').splitlines()[:-1])
             reload(Console)
         except Exception as e:
             ERROR = str(e)
             if '(Console.py,' in ERROR:
                 ERROR = ERROR[:ERROR.index('(Console.py,')]
-            print(str(type(e))[8:-2]+':  ' + str(e), 'red')
+            print(str(type(e))[8:-2]+':  ' + ERROR, 'red')
 
 
 #< Get Arguments >#
@@ -357,8 +360,8 @@ def Define_Structure(SOURCE, FILE):
 
 #< Syntax >#
 def Syntax(SOURCE, 
-           MODULE_VERSION, MODULE_SHORTCUT,
-           TYPE_SCANNER, CONSTS, 
+           MODULE_VERSION ,  MODULE_SHORTCUT,
+           TYPE_SCANNER   ,  CONSTS, 
            FILE):
 
     Skip = False
@@ -412,8 +415,6 @@ def Syntax(SOURCE,
                     break
             else:
                 LAST_LINE = -1
-            print(Line_Nom)
-            print(LAST_LINE)
 
             SOURCE.remove(Text)
             for Line,snc in enumerate(SOURCE[Line_Nom-1:LAST_LINE], Line_Nom):
