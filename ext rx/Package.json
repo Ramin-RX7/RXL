@@ -2,7 +2,7 @@
 	"name": "rx-lang",
 	"displayName": "RX",
 	"description": "Syntax Highlight for RX Language",
-	"version": "0.1.1",
+	"version": "0.1.5",
 	"publisher": "RaminRX7",
 	"engines": {
 		"vscode": "^1.49.0"
@@ -10,29 +10,33 @@
 	"categories": [
 		"Programming Languages"
 	],
-	
 	"activationEvents": [
-		"onCommand:extension.helloWorld",
-		"onCommand:extension.ShowSelectedText",
-		"onCommand:extension.terminal"
-	  ],
+		"onCommand:extension.TEST",
+		"onCommand:extension.run"
+	],
 	"main": "./out/extension.js",
-	
 	"contributes": {
 		"commands": [
 			{
-				"command": "extension.helloWorld",
-				"title": "Hello World"
-			},
-			{				
-				"command": "extension.ShowSelectedText",
-				"title": "Show Selected Text"
-			},
-			{				
-				"command": "extension.terminal",
-				"title": "terminal"
+				"command": "extension.TEST",
+				"title": "RX: TEST"
 			}
 		],
+		"keybindings": [
+			{
+				"command": "extension.run",
+				"key": "shift+enter",
+				"when": "editorLangId == rx && !replaceInputFocussed"
+			},
+			{
+				"command": "extension.run",
+				"key": "ctrl+shift+r x",
+				"when": "!replaceInputFocussed"
+			}
+		],
+		"repository": {
+			"private": true
+		  },
 
 
 		"languages": [
@@ -63,18 +67,10 @@
 			}
 		]
 	},
-	"__metadata": {
-		"id": "e7b9123a-7151-4d09-94cc-541579ac5d78",
-		"publisherId": "e9008b5c-cc92-47e4-9d71-30ce11beab77",
-		"publisherDisplayName": "Ramin-RX"
-	},
 	"scripts": {
-		"vscode:prepublish": "yarn run compile",
-		"compile": "tsc -p ./",
-		"lint": "eslint src --ext ts",
-		"watch": "tsc -watch -p ./",
-		"pretest": "yarn run compile && yarn run lint",
-		"test": "node ./out/test/runTest.js"
+		"lint": "eslint .",
+		"pretest": "npm run lint",
+		"test": "node ./test/runTest.js"
 	},
 	"devDependencies": {
 		"@types/vscode": "^1.49.0",
@@ -82,11 +78,14 @@
 		"@types/mocha": "^8.0.0",
 		"@types/node": "^14.0.27",
 		"eslint": "^7.9.0",
-		"@typescript-eslint/eslint-plugin": "^4.1.1",
-		"@typescript-eslint/parser": "^4.1.1",
 		"glob": "^7.1.6",
 		"mocha": "^8.1.3",
 		"typescript": "^4.0.2",
 		"vscode-test": "^1.4.0"
+	},
+	"__metadata": {
+		"id": "e7b9123a-7151-4d09-94cc-541579ac5d78",
+		"publisherId": "e9008b5c-cc92-47e4-9d71-30ce11beab77",
+		"publisherDisplayName": "Ramin-RX"
 	}
 }

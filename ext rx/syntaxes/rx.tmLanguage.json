@@ -14,6 +14,8 @@
 			"include": "#expression"
 		}
 	],
+
+
 	"repository": {
 		"impossible": {
 			"comment": "This is a special rule that should be used where no match is desired. It is not a good idea to match something like '1{0}' because in some cases that can result in infinite loops in token generation. So the rule instead matches and impossible expression to allow a match to fail and move to the next token.",
@@ -329,11 +331,13 @@
 				{
 					"include": "#function-call"
 				},
-				{
-					"include": "#builtin-functions"
-				},
+				
 				{
 					"include": "#builtin-types"
+				},
+				
+				{
+					"include": "#builtin-functions"
 				},
 				{
 					"include": "#builtin-exceptions"
@@ -358,9 +362,94 @@
 				},
 				{
 					"include": "#line-continuation"
+				},
+
+				
+
+				
+				{"include": "#rx-class-funcs"},
+				{"include": "#rx-class-name"},
+				{"include": "#rx-rxnsc"}
+				
+
+				
+
+
+
+			]
+		},
+
+
+
+		"rx-rxnsc": {
+			"patterns": [
+				{
+					"name": "support.variable.magic.python",
+					"match": "(?x)\n  \\b(?<!\\.)(rx|sc)\\b\n"
 				}
 			]
 		},
+
+
+
+		"rx-class-name": {
+			"patterns": [
+				{
+					"name": "support.function.builtin.python",
+					"match": "(?x)\n  \\b(?<!\\.)((rx|sc).)?(\n    (R|r)andom | (S|s)tyle | (S|s)ystem | (F|f)iles | (T|t)erminal\n  )\\b\n"
+				}
+			]
+		},
+		
+		"rx-class-funcs": {
+			"patterns": [
+				{
+					"name": "support.type.exception.python",
+					"match": "(?x)\n  \\b(?<!\\.)((rx|sc).)?(F|f)iles.(\n    size | delete | rename | abspath | exists | mdftime | acstime | move | copy | hide | read_only | read | write | isdir | isfile | is_hidden | is_readonly | search_file | search_content | mkdir | generate_tree\n  )\\b\n"
+				},
+
+				{
+					"name": "support.type.exception.python",
+					"match": "(?x)\n  \\b(?<!\\.)((rx|sc).)?(S|s)ystem.(\n    accname | pid | chdir | SHUT_DOWN | RESTART | terminal_size | cwd | ip_global | ip_local | ram_total | ram_used | ram_free | boot_time | device_name | ip_website | win10_notification | cpu_count | pyshell_execute_bit | pids\n  )\\b\n"
+				},
+
+				{
+					"name": "support.type.exception.python",
+					"match": "(?x)\n  \\b(?<!\\.)((rx|sc).)?(R|r)andom.(\n    integer | O1 | number | shuffle | choose\n  )\\b\n"
+				},
+
+				{
+					"name": "support.type.exception.python",
+					"match": "(?x)\n  \\b(?<!\\.)((rx|sc).)?(S|s)tyle.(\n    print | switch | switch_default\n  )\\b\n"
+				},
+
+				{
+					"name": "support.type.exception.python",
+					"match": "(?x)\n  \\b(?<!\\.)((rx|sc).)?(T|t)erminal.(\n    run | getoutput\n  )\\b\n"
+				}
+			]
+		},
+
+
+
+
+
+		
+
+
+
+
+
+		
+
+
+
+
+
+
+
+
+
 		"expression-base": {
 			"comment": "valid Python expressions with comments and line continuation",
 			"patterns": [
@@ -1749,7 +1838,7 @@
 		},
 		"builtin-types": {
 			"name": "support.type.python",
-			"match": "(?x)\n  (?<!\\.) \\b(\n   Tuple | Check_Type | bool | bytearray | bytes | classmethod | complex | dict\n    | float | frozenset | int | list | object | property\n    | set | slice | staticmethod | str | tuple | type\n\n    (?# Although 'super' is not a type, it's related to types,\n        and is special enough to be highlighted differently from\n        other built-ins)\n    | super\n  )\\b\n"
+			"match": "(?x)\n  (?<!\\.) \\b(\n  Const | Check_Type | Tuple | bool | bytearray | bytes | classmethod | complex | dict\n    | float | frozenset | int | list | object | property\n    | set | slice | staticmethod | str | tuple | type\n\n    (?# Although 'super' is not a type, it's related to types,\n        and is special enough to be highlighted differently from\n        other built-ins)\n    | super\n  )\\b\n"
 		},
 		"magic-function-names": {
 			"comment": "these methods have magic interpretation by python and are generally called\nindirectly through syntactic constructs\n",
@@ -1780,7 +1869,7 @@
 			]
 		},
 		"illegal-names": {
-			"match": "(?x)\n  \\b(?:\n    (\n      Include | Load | Module_Name | Method | Func_Type_Checker | Print | Exit\n      | and | assert | async | await | break | class | continue | def | const\n      | del | elif | else | except | finally | for | from | global\n      | if | in | is | (?<=\\.)lambda | lambda(?=\\s*[\\.=])\n      | nonlocal | not | or | pass | raise | return | try | while | with\n      | yield\n    ) | (\n      as | import\n    )\n  )\\b\n",
+			"match": "(?x)\n  \\b(?:\n    (\n      switch | case | Include | Load | Modulename | Method | Func_Type_Checker | Print\n      | and | assert | async | await | break | class | continue | def | const\n      | del | elif | else | except | finally | for | from | global\n      | if | in | is | (?<=\\.)lambda | lambda(?=\\s*[\\.=])\n      | nonlocal | not | or | pass | raise | return | try | while | with\n      | yield\n    ) | (\n      as | import\n    )\n  )\\b\n",
 			"captures": {
 				"1": {
 					"name": "keyword.control.flow.python"

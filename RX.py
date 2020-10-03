@@ -56,6 +56,7 @@ r"""
  #>  switch & case
  #>  Execute file by importing it instead of os.system (to control SyntaxErrors)
  #>  Errors in red Color
+ #>  Do_While loop
 ###########
 # XXX:
  #>  CONST at the beginning?
@@ -144,7 +145,7 @@ def Console():
             if new.lower() in ('exit','quit','end'):
                 rx.files.remove('Console.py')
                 sys.exit()
-            '''if re.search('(rm|remove)_?print(s)?', new.lower()):
+            r'''if re.search('(rm|remove)_?print(s)?', new.lower()):
                 Content = rx.read('Console.py')
                 for line in Content:
                     if re.search(r'^print\s*\(', line):
