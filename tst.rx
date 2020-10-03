@@ -10,12 +10,10 @@ print('Middle')
 
 class X:
     def func():
-        passllks
-        sad 
+        pass
 
 def x():
     pass
-R
     def myfunc(x):
         pass
 Const HELO = 2

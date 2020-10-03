@@ -2,11 +2,19 @@ import sys
 import re
 import time
 
+
+
 START_TIME = time.time()
 
 import rx7.lite as rx
 
+
+
+
 print = rx.style.print
+
+rx.cls()
+
 
 
 
@@ -52,21 +60,21 @@ r"""
 
 #### EXT: RUN FILE
 # TODO:
- #>  END OF LINES ERROR IN RED
- #>  switch & case
+ #!  END OF LINES ERROR IN RED  {!WTF!}
  #>  Execute file by importing it instead of os.system (to control SyntaxErrors)
  #>  Errors in red Color
- #>  Do_While loop
+ #✘  Do_While loop
 ###########
 # XXX:
  #>  CONST at the beginning?
  #>  Stop Imports?
  #>  Add <>
- #>  Cls?
  #>  New Errors Ext Color
- #>  try & except for KeyboardInterrupt
- #>  Remove prints in console script auromaticly?
- #>  improve Indentation checking
+ #?  improve Indentation checking
+ #?  improve switch & case
+ #✓  try & except for KeyboardInterrupt
+ #✓  Remove prints in console script automaticly?
+ #✓  Cls?
 
 
 
@@ -145,14 +153,6 @@ def Console():
             if new.lower() in ('exit','quit','end'):
                 rx.files.remove('Console.py')
                 sys.exit()
-            r'''if re.search('(rm|remove)_?print(s)?', new.lower()):
-                Content = rx.read('Console.py')
-                for line in Content:
-                    if re.search(r'^print\s*\(', line):
-                        Content.remove(line)
-                        rx.write('Console.py', '\n'.join(Content))
-                        break
-                continue'''
         except (KeyboardInterrupt,EOFError):
             rx.files.remove('Console.py')
             sys.exit()
@@ -160,14 +160,17 @@ def Console():
         rx.write('Console.py', new+'\n', 'a')
         
         try:
-            if re.search(r'^print\s*\(', rx.read('Console.py').splitlines()[-1].strip()):
-                rx.write('Console.py', rx.read('Console.py').splitlines()[:-1])
             reload(Console)
         except Exception as e:
             ERROR = str(e)
             if '(Console.py,' in ERROR:
                 ERROR = ERROR[:ERROR.index('(Console.py,')]
             print(str(type(e))[8:-2]+':  ' + ERROR, 'red')
+            rx.write('Console.py', '\n'.join(rx.read('Console.py').splitlines()[:-1])+'\n', 'w')
+
+        if re.search(r'^print\s*\(', rx.read('Console.py').splitlines()[-1].strip()):
+            rx.write('Console.py', '\n'.join(rx.read('Console.py').splitlines()[:-1])+'\n')
+
 
 
 #< Get Arguments >#
