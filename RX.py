@@ -12,7 +12,7 @@ import rx7.lite as rx
 
 print = rx.style.print
 
-rx.cls()
+#rx.cls()
 
 
 
@@ -59,22 +59,29 @@ r"""
 
 #### EXT: RUN FILE
 # TODO:
+ #>  Add <>  (<> for arrays | Const for str&int&float)
  #>  Execute file by importing it instead of os.system (to control SyntaxErrors)
  #>  Errors in red Color
  #X  Catch Error in Running file
  #X  Do_While loop
  #!  END OF LINES ERROR IN RED  {!WTF!}
 ###########
-# XXX:
+# NOTE:
  #>  CONST at the beginning?
  #>  Stop Imports?
- #>  Add <>
  #>  New Errors Ext Color
  #?  improve Indentation checking
  #?  improve switch & case
  #✓  try & except for KeyboardInterrupt
  #✓  Remove prints in console script automaticly?
  #✓  Cls?
+###########
+# XXX!:
+ #!  Things like Consts can be defined in 1 line if
+ #!  Terminal is slow for loading each time
+ #!  0.35 seconds are spent for what
+ #!  if if statement is more than 1 line it will be indent error
+ #!  why exe doesn't accept args
 
 
 
@@ -273,7 +280,7 @@ def Define_Structure(SOURCE, FILE):
                                                Line_Text=Text.strip(), 
                                                File=FILE, 
                                                msg='Constant Variable Name Must be UPPERCASE')
-                for item in CONSTS:
+                for item in CONSTS: #] Check if Const X is already defined
                     if CONST == item[0]:
                         raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)                    
                 CONSTS.add((CONST, Line_Nom))
@@ -397,14 +404,13 @@ def Syntax(SOURCE,
                 SOURCE.insert(Line_Nom-1, f'{package} = {MODULE_SHORTCUT}.{package}')
             continue
 
-        # Func annot checker
-        elif Text.strip().startswith('def '):
-            if TYPE_SCANNER:
-                indent = Text.index('def ')
-                SOURCE.insert(Line_Nom-1, f'{" "*indent}@{MODULE_SHORTCUT}.Check_Type')
+        #] Func Type checker
+        elif Text.strip().startswith('def ') and TYPE_SCANNER:
+            indent = Text.index('def ')
+            SOURCE.insert(Line_Nom-1, f'{" "*indent}@{MODULE_SHORTCUT}.Check_Type')
             Skip = True
 
-        # Switch and Case
+        #] Switch and Case
         elif re.search(r'^\s*(S|s)witch\s+\w+\s*:\s*', Text):
             SEARCH = re.search(r'^(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:\s*', Text)
             indent = len(SEARCH.group('indent'))
@@ -470,9 +476,9 @@ if __name__ == "__main__":
         SOURCE = Add_Verbose(SOURCE, FILE, ARGS[1])
 
 
-        rx.write('result.py', '\n'.join(SOURCE))
-        rx.write('result', '\n'.join(SOURCE))
-        #rx.files.hide('result.txt')
+        rx.write('_RX_Py.py', '\n'.join(SOURCE))
+        rx.write('translated', '\n'.join(SOURCE))
+        rx.files.hide('_RX_Py.py')
 
 
         import os
@@ -481,12 +487,12 @@ if __name__ == "__main__":
         try:
             #print(time.time()-START_TIME,'red',style='bold')
             #t=time.time()
-            import result
+            import _RX_Py
             #print(time.time()-t,'red',style='bold')
         except Exception as E:
             raise E
         finally:
-            rx.files.remove('result.py')
+            rx.files.remove('_RX_Py.py')
             '''
             print('Traceback (most recent call last):')
             print(f'  File "{FILE}" in  "UNDEFINED"')
