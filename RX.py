@@ -3,7 +3,6 @@ import re
 import time
 
 
-
 START_TIME = time.time()
 
 import rx7.lite as rx
@@ -60,10 +59,11 @@ r"""
 
 #### EXT: RUN FILE
 # TODO:
- #!  END OF LINES ERROR IN RED  {!WTF!}
  #>  Execute file by importing it instead of os.system (to control SyntaxErrors)
  #>  Errors in red Color
- #✘  Do_While loop
+ #X  Catch Error in Running file
+ #X  Do_While loop
+ #!  END OF LINES ERROR IN RED  {!WTF!}
 ###########
 # XXX:
  #>  CONST at the beginning?
@@ -141,7 +141,7 @@ def Console():
         return answer
 
     from importlib import reload
-
+    
     rx.system.chdir(RX_PATH)
 
     PRE= ['import rx7.lite as sc','print = sc.style.print']
@@ -333,7 +333,7 @@ def Define_Structure(SOURCE, FILE):
             SOURCE.remove(line)
 
         #< Function Type Scanner >#
-        elif re.search(r'^(func|function)_?(type|arg|param)_?(scanner|checker)\s*:\s*\w*', line):
+        elif re.search(r'^((F|f)unc|(F|f)unction)_?((T|t)ype|(A|a)rg|(P|p)aram)_?((S|s)canner|(C|c)hecker)\s*:\s*\w*', line):
             BASED = True
             if line.endswith('False'):
                 TYPE_SCANNER = False
@@ -356,7 +356,7 @@ def Define_Structure(SOURCE, FILE):
     SOURCE.insert(2,'')
 
 
-    print(CONSTS)
+    #print(CONSTS)
     return (SOURCE, 
             MODULE_VERSION, MODULE_SHORTCUT,
             TYPE_SCANNER, CONSTS,)
@@ -447,9 +447,10 @@ def Add_Verbose(SOURCE, FILE, VERBOSE):
         print('\n')
 
         SOURCE.insert(0, f'ProgramStartTime= {START_TIME}')
-        EXECUTE_TIME_TEXT = '{round(__import__("time").time()-ProgramStartTime,3)}'
-        SOURCE.insert(-2, fr'''print(f'\n\nExecution Time:  {EXECUTE_TIME_TEXT}\n')''')
-
+        EXECUTE_TIME_TEXT = 'round(__import__("time").time()-ProgramStartTime,3)'
+        SOURCE.insert(-1, 'EXECUTE_TIME_TEXT='+EXECUTE_TIME_TEXT) #{EXECUTE_TIME_TEXT-.35}/
+        SOURCE.insert(-1, r'''print(f'\n\nExecution Time:  {EXECUTE_TIME_TEXT}\n')''')
+        #print(SOURCE[-3])
 
     return SOURCE
 
@@ -468,11 +469,30 @@ if __name__ == "__main__":
         SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], SOURCE[4], FILE)
         SOURCE = Add_Verbose(SOURCE, FILE, ARGS[1])
 
-        rx.write('result.txt', '\n'.join(SOURCE))
+
+        rx.write('result.py', '\n'.join(SOURCE))
+        rx.write('result', '\n'.join(SOURCE))
         #rx.files.hide('result.txt')
+
 
         import os
         #os.system('python result.txt')
 
+        try:
+            #print(time.time()-START_TIME,'red',style='bold')
+            #t=time.time()
+            import result
+            #print(time.time()-t,'red',style='bold')
+        except Exception as E:
+            raise E
+        finally:
+            rx.files.remove('result.py')
+            '''
+            print('Traceback (most recent call last):')
+            print(f'  File "{FILE}" in  "UNDEFINED"')
+            print(e, 'red')
+            sys.exit()
+            '''
+            
     except KeyboardInterrupt:
         print('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)','red')

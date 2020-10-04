@@ -128,5 +128,6 @@ dmypy.json
 .vscode/
 *.exe
 result.txt
+result
 tst.rx
 Console.py

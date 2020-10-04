@@ -1,7 +1,8 @@
 Module_Name : ms
 Method : lite
 Print : stylized
-Exit : False
+Func_Type_Checker: False
+#Exit : False
 
 
 print('Hello World!')
@@ -22,7 +23,8 @@ print('End')
 Const XX = 'sdfsafdsfa'
 Include *
 Const X = 'sadf'
-
+def hello(x):
+    x+3
 import os
 
 print()
@@ -40,4 +42,5 @@ switch x:
 
 #HELO = ''
 
-ms.wait(10)
+#ms.wait(10)
+
