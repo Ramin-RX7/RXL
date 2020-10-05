@@ -42,5 +42,5 @@ switch x:
 
 #HELO = ''
 
-ms.wait(10)
+#ms.wait(10)
 

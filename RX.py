@@ -12,7 +12,7 @@ import rx7.lite as rx
 
 print = rx.style.print
 
-#rx.cls()
+rx.cls()
 
 
 
@@ -64,7 +64,7 @@ r"""
  #>  Errors in red Color
  #X  Catch Error in Running file
  #X  Do_While loop
- #!  END OF LINES ERROR IN RED  {!WTF!}
+ #!  END OF LINES ERROR IN RED
 ###########
 # NOTE:
  #>  CONST at the beginning?
@@ -77,11 +77,14 @@ r"""
  #✓  Cls?
 ###########
 # XXX!:
- #!  Things like Consts can be defined in 1 line if
+ #!  CONSTs:
+     #  can be defined in 1 line if
+     #  multi definition of variables in 1 line (with ;)     ==>   check for name and = sign after it
  #!  Terminal is slow for loading each time
  #!  0.35 seconds are spent for what
  #!  if if statement is more than 1 line it will be indent error
  #!  why exe doesn't accept args
+
 
 
 
@@ -183,7 +186,7 @@ def Console():
 #< Get Arguments >#
 def Get_Args():
 
-    print('ARGS:  '+str(sys.argv))
+    #print('ARGS:  '+str(sys.argv))
     
     if len(sys.argv) == 1:
         Console()
@@ -263,7 +266,7 @@ def Define_Structure(SOURCE, FILE):
 
     #< Const Vars && Indents >#
     CONSTS = set()
-    INDENT = 0
+    #INDENT = 0
 
     for Line_Nom,Text in enumerate(SOURCE, 1):
         #] Consts
@@ -282,12 +285,33 @@ def Define_Structure(SOURCE, FILE):
                                                msg='Constant Variable Name Must be UPPERCASE')
                 for item in CONSTS: #] Check if Const X is already defined
                     if CONST == item[0]:
-                        raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)                    
+                        raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
                 CONSTS.add((CONST, Line_Nom))
+
+
+        elif re.search(r'^\w+\s*=\s*<.*>', Text.strip()):
+            search = re.search(r'(?P<Indent>\s*)(?P<VarName>\w+)\s*=\s*<(?P<Content>.*)>', Text)
+            Content = search.group('Content')
+            TYPE_ERROR = False
+            try:
+                Content = eval(Content)
+                if type(Content) != tuple:
+                    TYPE_ERROR = True
+            except Exception as e:
+                raise e from None
+            #else:
+            if TYPE_ERROR:
+                raise TypeError(f"ArrayConst can not be '{type(Content)}' type (Use 'Const' keyword)")
+            VarName = search.group('VarName')
+            #Indent = len(search.group('Indent'))            
+            CONSTS.add((VarName, Line_Nom))
+
+
         for item in CONSTS:
             if Text.strip().startswith(item[0]):
                 raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
-        
+
+
         #] Indent
         if Text.strip().endswith(':')  and  not Text.strip().startswith('#'):
             INDENT = len(re.search(r'^(?P<indent>\s*).*', Text).group('indent'))
@@ -490,7 +514,10 @@ if __name__ == "__main__":
             import _RX_Py
             #print(time.time()-t,'red',style='bold')
         except Exception as E:
-            raise E
+            #raise E
+            print('Traceback (most recent call last):','red')
+            print('  More Information Soon...','red')
+            print(str(type(E))[8:-2]+': '+str(E), 'red', style='bold')
         finally:
             rx.files.remove('_RX_Py.py')
             '''
