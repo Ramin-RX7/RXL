@@ -17,6 +17,11 @@ def x():
     pass
     def myfunc(x):
         pass
+    if ('x' and
+'y'):
+        print('hello')
+        #d
+x()
 Const HELO = 2
 Load files, Tuple
 print('End')

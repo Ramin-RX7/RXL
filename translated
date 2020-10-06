@@ -15,6 +15,11 @@ def x():
     pass
     def myfunc(x):
         pass
+    if ('x' and
+'y'):
+        print('hello')
+        #d
+x()
 HELO = 2
 Tuple = ms.Tuple
 files = ms.files
@@ -47,7 +52,7 @@ elif x == 3:
 
 #HELO = ''
 
-ms.wait(10)
+#ms.wait(10)
 
 
 

@@ -12,7 +12,6 @@ import rx7.lite as rx
 
 print = rx.style.print
 
-rx.cls()
 
 
 
@@ -59,9 +58,8 @@ r"""
 
 #### EXT: RUN FILE
 # TODO:
- #>  Add <>  (<> for arrays | Const for str&int&float)
- #>  Execute file by importing it instead of os.system (to control SyntaxErrors)
- #>  Errors in red Color
+ #>  Improve Exception Catching when runing file
+ #O  Errors in red Color
  #X  Catch Error in Running file
  #X  Do_While loop
  #!  END OF LINES ERROR IN RED
@@ -72,18 +70,17 @@ r"""
  #>  New Errors Ext Color
  #?  improve Indentation checking
  #?  improve switch & case
- #✓  try & except for KeyboardInterrupt
- #✓  Remove prints in console script automaticly?
- #✓  Cls?
 ###########
 # XXX!:
  #!  CONSTs:
-     #  can be defined in 1 line if
-     #  multi definition of variables in 1 line (with ;)     ==>   check for name and = sign after it
- #!  Terminal is slow for loading each time
+     #✓ can be defined in 1 line if
+     #✓ multi definition of variables in 1 line (with ;)
+ #!  Terminal is slow for loading code from first each time
  #!  0.35 seconds are spent for what
  #!  if if statement is more than 1 line it will be indent error
  #!  why exe doesn't accept args
+
+
 
 
 
@@ -139,54 +136,10 @@ class ERRORS:
             sys.exit()
 
 
-#< Interactive RX Shell >#
-def Console():
-    def wait_for_input(prompt):
-        '''
-        Prompt  input(prompt)  until sth is given
-        '''
-        answer= ''
-        while not answer:
-            answer = input(prompt)
-        return answer
-
-    from importlib import reload
-    
-    rx.system.chdir(RX_PATH)
-
-    PRE= ['import rx7.lite as sc','print = sc.style.print']
-    rx.write('Console.py', '\n'.join(PRE)+'\n')
-    import Console
-    while True:
-        try:
-            new = wait_for_input('RX:Console> ')
-            if new.lower() in ('exit','quit','end'):
-                rx.files.remove('Console.py')
-                sys.exit()
-        except (KeyboardInterrupt,EOFError):
-            rx.files.remove('Console.py')
-            sys.exit()
-
-        rx.write('Console.py', new+'\n', 'a')
-        
-        try:
-            reload(Console)
-        except Exception as e:
-            ERROR = str(e)
-            if '(Console.py,' in ERROR:
-                ERROR = ERROR[:ERROR.index('(Console.py,')]
-            print(str(type(e))[8:-2]+':  ' + ERROR, 'red')
-            rx.write('Console.py', '\n'.join(rx.read('Console.py').splitlines()[:-1])+'\n', 'w')
-
-        if re.search(r'^print\s*\(', rx.read('Console.py').splitlines()[-1].strip()):
-            rx.write('Console.py', '\n'.join(rx.read('Console.py').splitlines()[:-1])+'\n')
-
-
-
 #< Get Arguments >#
 def Get_Args():
 
-    #print('ARGS:  '+str(sys.argv))
+    print('ARGS:  '+str(sys.argv))
     
     if len(sys.argv) == 1:
         Console()
@@ -243,6 +196,49 @@ def Get_Args():
     return args.FILE, args.info
 
 
+#< Interactive RX Shell >#
+def Console():
+    def wait_for_input(prompt):
+        '''
+        Prompt  input(prompt)  until sth is given
+        '''
+        answer= ''
+        while not answer:
+            answer = input(prompt)
+        return answer
+
+    from importlib import reload
+    
+    rx.system.chdir(RX_PATH)
+
+    PRE= ['import rx7.lite as sc','print = sc.style.print']
+    rx.write('Console.py', '\n'.join(PRE)+'\n')
+    import Console
+    while True:
+        try:
+            new = wait_for_input('RX:Console> ')
+            if new.lower() in ('exit','quit','end'):
+                rx.files.remove('Console.py')
+                sys.exit()
+        except (KeyboardInterrupt,EOFError):
+            rx.files.remove('Console.py')
+            sys.exit()
+
+        rx.write('Console.py', new+'\n', 'a')
+        
+        try:
+            reload(Console)
+        except Exception as e:
+            ERROR = str(e)
+            if '(Console.py,' in ERROR:
+                ERROR = ERROR[:ERROR.index('(Console.py,')]
+            print(str(type(e))[8:-2]+':  ' + ERROR, 'red')
+            rx.write('Console.py', '\n'.join(rx.read('Console.py').splitlines()[:-1])+'\n', 'w')
+
+        if re.search(r'^print\s*\(', rx.read('Console.py').splitlines()[-1].strip()):
+            rx.write('Console.py', '\n'.join(rx.read('Console.py').splitlines()[:-1])+'\n')
+
+
 #< Reading File >#
 def Read_File(filepath):
     if rx.files.exists(filepath):
@@ -258,6 +254,7 @@ def Define_Structure(SOURCE, FILE):
     #] Checking Indentation
     INDENT_OUTPUT = rx.terminal.getoutput(f'python {RX_PATH}\\reindent.py -d -n '+FILE)
     if len(INDENT_OUTPUT):
+        print('REINDENT')
         INDENT_OUTPUT = INDENT_OUTPUT.split('\n')
         LINE = INDENT_OUTPUT[-4]
         LINE_NOM = LINE[LINE.index('line ')+5:]
@@ -266,10 +263,11 @@ def Define_Structure(SOURCE, FILE):
 
     #< Const Vars && Indents >#
     CONSTS = set()
+    Keywords = ('for', 'while', 'if', 'else', 'elif', 'except')
     #INDENT = 0
 
     for Line_Nom,Text in enumerate(SOURCE, 1):
-        #] Consts
+        #] Const Var
         if Text.strip().startswith('Const '):
             #if Text.startswith(' '): raise LateDefine("'Const' Must Be Defined In The Main Scope")
             if re.search(r'^Const\s+([A-Za-z]|_)+\s*=\s*', Text.strip()):
@@ -288,7 +286,7 @@ def Define_Structure(SOURCE, FILE):
                         raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
                 CONSTS.add((CONST, Line_Nom))
 
-
+        #] Const Array
         elif re.search(r'^\w+\s*=\s*<.*>', Text.strip()):
             search = re.search(r'(?P<Indent>\s*)(?P<VarName>\w+)\s*=\s*<(?P<Content>.*)>', Text)
             Content = search.group('Content')
@@ -308,15 +306,20 @@ def Define_Structure(SOURCE, FILE):
 
 
         for item in CONSTS:
-            if Text.strip().startswith(item[0]):
-                raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
-
+            if re.search(rf'( |;){item}\s*(\[.+\])?\s*=\s*.+', Text):  # \s*.+  {?} 
+                if not Text.strip().startswith('def')  and  not Text.strip().startswith('#'):
+                    raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
 
         #] Indent
         if Text.strip().endswith(':')  and  not Text.strip().startswith('#'):
+            if Text.strip().startswith(Keywords):
+                continue
+            
             INDENT = len(re.search(r'^(?P<indent>\s*).*', Text).group('indent'))
             INDENT_NEXT = len(re.search(r'^(?P<indent>\s*).*', SOURCE[Line_Nom]).group('indent'))
+
             if INDENT_NEXT <= INDENT:
+                print('RX')
                 raise ERRORS.IndentionError(Line_Nom+1, SOURCE[Line_Nom], FILE)
 
 
@@ -494,6 +497,7 @@ if __name__ == "__main__":
     try:
         ARGS = Get_Args()
         FILE   = ARGS[0]
+        rx.cls()
         SOURCE = Read_File(FILE)
         SOURCE = Define_Structure(SOURCE, FILE)
         SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], SOURCE[4], FILE)
@@ -506,7 +510,7 @@ if __name__ == "__main__":
 
 
         import os
-        #os.system('python result.txt')
+        #os.system('python _RX_Py.py')
 
         try:
             #print(time.time()-START_TIME,'red',style='bold')
