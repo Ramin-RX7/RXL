@@ -136,6 +136,19 @@ class ERRORS:
             print("IndentationError: expected an indented block")
             sys.exit()
 
+    class UndefinedError(Exception):
+        def __init__(self, msg='', File=''):
+            print( 'Traceback (most recent call last):')
+            print(f'  File "{File}", in/out <module>')
+            print( 'UndefinedError: Something Went Wrong. ')#, end='')
+            if msg:
+                print('  Possible Error: ','red')
+                print('    '+msg, 'red')
+            else:
+                print('  Please Check Your code for Possible Issues','red')
+                print('  If You are Sure It is a Bug Please Report This to the Maintainer','red')
+            sys.exit()
+
 
 #< Get Arguments >#
 def Get_Args():
@@ -257,6 +270,14 @@ def Define_Structure(SOURCE, FILE):
     if len(INDENT_OUTPUT):
         print('REINDENT')
         INDENT_OUTPUT = INDENT_OUTPUT.split('\n')
+        if INDENT_OUTPUT[-1].startswith('tokenize.TokenError'):
+            raise ERRORS.UndefinedError('SyntaxError: a parantheses is still open',FILE)
+        elif INDENT_OUTPUT[-1].startswith('IndentationError'):
+            LINE = INDENT_OUTPUT[-4]
+            LINE_NOM = LINE[LINE.index('line ')+5:]
+            raise ERRORS.IndentionError(LINE_NOM, INDENT_OUTPUT[-3][4:],FILE)
+        else:
+            raise ERRORS.UndefinedError
         LINE = INDENT_OUTPUT[-4]
         LINE_NOM = LINE[LINE.index('line ')+5:]
         raise ERRORS.IndentionError(LINE_NOM, INDENT_OUTPUT[-3][4:],FILE)
@@ -292,7 +313,7 @@ def Define_Structure(SOURCE, FILE):
                 CONSTS.add((CONST, Line_Nom))
 
         #] Const Array
-        elif re.search(r'^\w+\s*=\s*<.*>', Text.strip()):
+        elif re.search(r'^\w+\s*=\s*<.+>', Text.strip()):
             search = re.search(r'(?P<Indent>\s*)(?P<VarName>\w+)\s*=\s*<(?P<Content>.*)>', Text)
             Content = search.group('Content')
             TYPE_ERROR = False
@@ -300,14 +321,19 @@ def Define_Structure(SOURCE, FILE):
                 Content = eval(Content)
                 if type(Content) != tuple:
                     TYPE_ERROR = True
+            except NameError:
+                pass
             except Exception as e:
                 raise e from None
             #else:
-            if TYPE_ERROR:
-                raise TypeError(f"ArrayConst can not be '{type(Content)}' type (Use 'Const' keyword)")
             VarName = search.group('VarName')
-            #Indent = len(search.group('Indent'))            
+            if TYPE_ERROR:
+                #raise TypeError(f"ArrayConst can not be '{type(Content)}' type (Use 'Const' keyword)")
+                Type_Content = str(type(Content))[8:-2]
+                print(f"'<>' is for Arrays, Try to use 'Const' keyword for type ",'red', end='')
+                print(f"'{Type_Content}'  ({FILE}:{Line_Nom}:{VarName})", 'red')#, style='bold')
             CONSTS.add((VarName, Line_Nom))
+            SOURCE[Line_Nom-1] = f'{VarName} = {Content}'
 
 
         for item in CONSTS:
@@ -464,7 +490,7 @@ def Syntax(SOURCE,
 
             SOURCE.remove(Text)
             for Line,snc in enumerate(SOURCE[Line_Nom-1:LAST_LINE], Line_Nom):
-                SEARCH_VALUE = re.search(r'^(C|c)ase\s+(?P<VALUE>\w+):\s*', snc.strip())
+                SEARCH_VALUE = re.search(r'^(C|c)ase\s+(?P<VALUE>.+):\s*', snc.strip())
                 if SEARCH_VALUE:
                     if re.search(r'^elif \w+\s+==', SOURCE[Line-1].strip()):
                         raise TypeError

@@ -22,6 +22,12 @@ def x():
         print('hello')
         #d
 x()
+
+
+ArrConst  = <'1',x(),'2','3'>
+ArrConst2 = <'1'>
+print(ArrConst)
+
 Const HELO = 2
 Load files, Tuple
 print('End')
@@ -40,15 +46,14 @@ switch x:
     case 1:
         print('1')
         x
-    case 2:
+    case (2,4:
         print('2')
     case 3:
         print('3')
-if ('d' and 
-        'df'):
-print('x')
+       d
+if ('d' and 'df'):
+    print('x')
 
 #HELO = ''
 
 #ms.wait(10)
-
