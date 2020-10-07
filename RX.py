@@ -65,11 +65,12 @@ r"""
  #!  END OF LINES ERROR IN RED
 ###########
 # NOTE:
+ #>  Option for run translated or import it
  #>  CONST at the beginning?
  #>  Stop Imports?
  #>  New Errors Ext Color
- #?  improve Indentation checking
- #?  improve switch & case
+ #?  Improve switch & case
+ #✓  Improve Indentation checking
 ###########
 # XXX!:
  #!  CONSTs:
@@ -267,6 +268,10 @@ def Define_Structure(SOURCE, FILE):
     #INDENT = 0
 
     for Line_Nom,Text in enumerate(SOURCE, 1):
+        
+        if Text.strip().startswith('#'):
+            continue
+
         #] Const Var
         if Text.strip().startswith('Const '):
             #if Text.startswith(' '): raise LateDefine("'Const' Must Be Defined In The Main Scope")
@@ -311,14 +316,18 @@ def Define_Structure(SOURCE, FILE):
                     raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
 
         #] Indent
-        if Text.strip().endswith(':')  and  not Text.strip().startswith('#'):
-            if Text.strip().startswith(Keywords):
-                continue
-            
-            INDENT = len(re.search(r'^(?P<indent>\s*).*', Text).group('indent'))
-            INDENT_NEXT = len(re.search(r'^(?P<indent>\s*).*', SOURCE[Line_Nom]).group('indent'))
+        if Text.strip().startswith(Keywords):
+            BREAK = False
+            LINE = int(Line_Nom)
+            while not BREAK:
+                if SOURCE[LINE-1].strip().endswith(':'):
+                    BREAK = True
+                else:
+                    LINE += 1
 
-            if INDENT_NEXT <= INDENT:
+            INDENT = len(re.search(r'^(?P<indent>\s*).*', Text).group('indent'))
+            INDENT_START = len(re.search(r'^(?P<indent>\s*).*', SOURCE[LINE]).group('indent'))
+            if INDENT_START <= INDENT:
                 print('RX')
                 raise ERRORS.IndentionError(Line_Nom+1, SOURCE[Line_Nom], FILE)
 

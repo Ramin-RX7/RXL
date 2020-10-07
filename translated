@@ -49,6 +49,9 @@ elif x == 2:
         print('2')
 elif x == 3:
         print('3')
+if ('d' and 
+        'df'):
+print('x')
 
 #HELO = ''
 
