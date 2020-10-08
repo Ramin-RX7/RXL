@@ -54,7 +54,8 @@ r"""
  #C:\Users\IRANIAN\AppData\Roaming\ActiveState\bin;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;D:\Programs\Coding\Git\cmd;C:\Users\IRANIAN\AppData\Local\Programs\Python\Python37;C:\Users\IRANIAN\AppData\Local\Programs\Python\Python37\Scripts;D:\Programs\Microsoft VS Code\bin;C:\Users\IRANIAN\AppData\Local\GitHubDesktop\bin;C:\Users\IRANIAN\AppData\Roaming\npm
 """
 
-
+"""
+################################################################################
 
 #### EXT: RUN FILE
 # TODO:
@@ -80,6 +81,16 @@ r"""
  #!  0.35 seconds are spent for what
  #!  if if statement is more than 1 line it will be indent error
  #!  why exe doesn't accept args
+
+########################################
+
+# Release TODO:
+ #> Check instal:  PrependPath=1
+ #> Make .exe with cxfreeze && copy .exe fileS in py/scripts dir
+ #>
+
+################################################################################
+"""
 
 
 
@@ -266,7 +277,8 @@ def Read_File(filepath):
 #< Module Name and Version  <Method,Module_Name,Print,Indent,Const> >#
 def Define_Structure(SOURCE, FILE):
     #] Checking Indentation
-    INDENT_OUTPUT = rx.terminal.getoutput(f'python {RX_PATH}\\reindent.py -d -n '+FILE)
+    #INDENT_OUTPUT = rx.terminal.getoutput(f'python {RX_PATH}\\reindent.py -d -n '+FILE)
+    INDENT_OUTPUT = rx.terminal.getoutput(f'python -m reindent -d -n '+FILE)
     if len(INDENT_OUTPUT):
         print('REINDENT')
         INDENT_OUTPUT = INDENT_OUTPUT.split('\n')
