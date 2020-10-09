@@ -60,34 +60,36 @@ r"""
 #### EXT: RUN FILE
 # TODO:
  #>  Improve Exception Catching when runing file
- #O  Errors in red Color
+ #>  reindent->rx for indent checking or opposite?
+ #?  Errors in red Color
  #X  Catch Error in Running file
  #X  Do_While loop
  #!  END OF LINES ERROR IN RED
 ###########
 # NOTE:
- #>  Option for run translated or import it
+ #>  Option for run translated or import it (import will ignore "if __name__ ...")
  #>  CONST at the beginning?
  #>  Stop Imports?
  #>  New Errors Ext Color
+ #>  Package installer like pip? (if 3rd-party modules)
  #?  Improve switch & case
- #✓  Improve Indentation checking
 ###########
 # XXX!:
- #!  CONSTs:
-     #✓ can be defined in 1 line if
-     #✓ multi definition of variables in 1 line (with ;)
+ #>  CONSTs:
+       #>  After NameError rest of code will be ignored
+ #>  No Support for args
  #!  Terminal is slow for loading code from first each time
  #!  0.35 seconds are spent for what
- #!  if if statement is more than 1 line it will be indent error
  #!  why exe doesn't accept args
+ #✓  if if statement is more than 1 line it will be indent error
 
 ########################################
 
 # Release TODO:
  #> Check instal:  PrependPath=1
  #> Make .exe with cxfreeze && copy .exe fileS in py/scripts dir
- #>
+ #> Auto install famous 3rd-parties (requests-urllib3)
+ #> ".rx" to ".exe" 
 
 ################################################################################
 """
