@@ -1,10 +1,11 @@
-import rx7.lite as ms
-print = ms.style.print
+import rx7.lite as sc
+print = sc.style.print
 
+#Exit : False
 
 
 print('Hello World!')
-files = ms.files
+files = sc.files
 print('Middle')
 
 class X:
@@ -23,25 +24,26 @@ x()
 
 
 ArrConst = '1',x(),'2','3'
-ArrConst2 = 1
+#ArrConst2 = <'1'>
 print(ArrConst)
 
 HELO = 2
-Tuple = ms.Tuple
-files = ms.files
 print('End')
 XX = 'sdfsafdsfa'
-terminal = ms.terminal
-Tuple = ms.Tuple
-record = ms.record
-style = ms.style
-random = ms.random
-system = ms.system
-files = ms.files
+terminal = sc.terminal
+Tuple = sc.Tuple
+record = sc.record
+style = sc.style
+random = sc.random
+system = sc.system
+files = sc.files
 X = 'sadf'
 def hello(x):
     x+3
 import os
+
+#Load xxx
+#print(xxx.p)
 
 print()
 class fu:
@@ -49,17 +51,18 @@ class fu:
 
 if False:pass
 elif x == 1:
-    print('1')
-    x
+        print('1')
+        x
 elif x == (2,4):
-    print('2')
+        print('2')
 elif x == 3:
-    print('3')
-if ('d' and
-        'df'):
+        print('3')
+        d
+if ('d' and 'df'):
     print('x')
-        sdf
 
 #HELO = ''
 
 #ms.wait(10)
+
+

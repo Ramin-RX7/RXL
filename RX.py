@@ -61,6 +61,7 @@ r"""
 # TODO:
  #>  Improve Exception Catching when runing file
  #>  reindent->rx for indent checking or opposite?
+ #>  Load Packages
  #?  Errors in red Color
  #X  Catch Error in Running file
  #X  Do_While loop
@@ -160,6 +161,22 @@ class ERRORS:
             else:
                 print('  Please Check Your code for Possible Issues','red')
                 print('  If You are Sure It is a Bug Please Report This to the Maintainer','red')
+            sys.exit()
+
+    class ModuleNotFoundError(Exception):
+        def __init__(self, File, Name=None, line_text='', line_nom=0):
+            print( 'Traceback (most recent call last):')
+            print(f'  File "{File}", line {line_nom}, in <module>')
+            print( '    '+line_text)
+            print(f"ModuleNotFoundError: No module named '{Name}'")
+            sys.exit()
+
+    class AttributeError(Exception):
+        def __init__(self,File, Line_Nom, Line_Text, Module_Version, Attribute):
+            print('Traceback (most recent call last):')
+            print(f'  File "{File}", line {Line_Nom}, in <module>')
+            print('    '+Line_Text)
+            print(f"AttributeError: module '{Module_Version}' has no attribute '{Attribute}'")
             sys.exit()
 
 
@@ -388,6 +405,7 @@ def Define_Structure(SOURCE, FILE):
             stripped = line[line.index(':')+1:].strip()
             if re.search(r'\w+', stripped).group() == stripped:
                 MODULE_SHORTCUT = str(stripped)
+                print(MODULE_SHORTCUT,'red')
             else:
                 raise ERRORS.NameError(msg='Invalid Value For  modulename/module_name', File=FILE)
             SOURCE.remove(line)
@@ -462,21 +480,17 @@ def Syntax(SOURCE,
             continue
 
         #< Importing Tools :  <include,load> >#
-        if re.search(r'^(Load|Include) \s*(\w+,?)?', Text.strip()):
+        if re.search(r'^(I|i)nclude \s*(\w+,?)?', Text.strip()):
             if re.search(r'^Include \s*\*', Text):
                 Packages = list(CLASSES)
             else:
                 Packages = re.split(r'\s*,\s*', Text)
-                Packages[0]= Packages[0][4:].strip() if Packages[0].startswith('Load') else Packages[0][8:].strip()
+                Packages[0]= Packages[0][8:].strip()
             #print(Packages)
             SOURCE.remove(Text)
             for package in Packages:
                 if package not in CLASSES:
-                    print('Traceback (most recent call last):')
-                    print(f'  File "{FILE}", line {Line_Nom}, in <module>')
-                    print('    '+Text)
-                    print(f"AttributeError: module '{MODULE_VERSION}' has no attribute '{package}'")
-                    sys.exit()
+                    raise ERRORS.AttributeError(FILE,Line_Nom,Line_Text,MODULE_VERSION,package)
                 SOURCE.insert(Line_Nom-1, f'{package} = {MODULE_SHORTCUT}.{package}')
             continue
 
@@ -514,6 +528,21 @@ def Syntax(SOURCE,
                     SOURCE[Line-1] = f'{(indent)*" "}elif {SEARCH.group("VARIABLE")} == {SEARCH_VALUE.group("VALUE")}:' #+4
             SOURCE.insert(Line_Nom-1, f'{(indent)*" "}if False:pass')
             
+        #] Load User-Defined Modules
+        elif re.search(r'^(L|l)oad \s*(\w+,?)?', Text.strip()):
+            Packages = re.split(r'\s*,\s*', Text)
+            Packages[0]= Packages[0][4:].strip()
+            
+            print(Packages)
+            #sys.exit()
+            SOURCE.remove(Text)
+            for package in Packages:
+                if rx.files.exists(f'{package}.rx7'):
+                    SOURCE.insert(Line_Nom-1,f"{MODULE_SHORTCUT}.files.rename('{package}.rx7','{package}.py');import {package};{MODULE_SHORTCUT}.files.rename('{package}.py','{package}.rx7')")
+                else:
+                    raise ERRORS.ModuleNotFoundError(FILE, package, Text, Line_Nom)
+                
+
 
 
 
@@ -567,7 +596,7 @@ if __name__ == "__main__":
             import _RX_Py
             #print(time.time()-t,'red',style='bold')
         except Exception as E:
-            #raise E
+            raise E
             print('Traceback (most recent call last):','red')
             print('  More Information Soon...','red')
             print(str(type(E))[8:-2]+': '+str(E), 'red', style='bold')

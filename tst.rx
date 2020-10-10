@@ -1,4 +1,4 @@
-Module_Name : ms
+Modulename : ms
 Method : lite
 Print : stylized
 Func_Type_Checker: False
@@ -25,11 +25,10 @@ x()
 
 
 ArrConst  = <'1',x(),'2','3'>
-ArrConst2 = <'1'>
+#ArrConst2 = <'1'>
 print(ArrConst)
 
 Const HELO = 2
-Load files, Tuple
 print('End')
 Const XX = 'sdfsafdsfa'
 Include *
@@ -37,6 +36,9 @@ Const X = 'sadf'
 def hello(x):
     x+3
 import os
+
+#Load xxx
+#print(xxx.p)
 
 print()
 class fu:
@@ -46,11 +48,11 @@ switch x:
     case 1:
         print('1')
         x
-    case (2,4:
+    case (2,4):
         print('2')
     case 3:
         print('3')
-       d
+        d
 if ('d' and 'df'):
     print('x')
 
