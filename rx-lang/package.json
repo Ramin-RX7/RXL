@@ -12,7 +12,9 @@
 	],
 	"activationEvents": [
 		"onCommand:extension.TEST",
-		"onCommand:extension.run"
+		"onCommand:extension.run",
+		"onCommand:extension.debug",
+		"onCommand:extension.debugonly"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -20,6 +22,10 @@
 			{
 				"command": "extension.TEST",
 				"title": "RX: TEST"
+			},
+			{
+				"command": "extension.run",
+				"title": "RX: Run Active File in Terminal"
 			}
 		],
 		"keybindings": [
@@ -32,13 +38,23 @@
 				"command": "extension.run",
 				"key": "ctrl+shift+r x",
 				"when": "!replaceInputFocussed"
+			},
+			{
+				"command": "extension.debug",
+				"key": "f5",
+				"when": "!replaceInputFocussed && editorLangId == rx"
+			},
+			{
+				"command": "extension.debugonly",
+				"key": "f5",
+				"when": "!replaceInputFocussed && editorLangId == rx"
 			}
 		],
+
+
 		"repository": {
 			"private": true
-		  },
-
-
+		},
 		"languages": [
 			{
 				"id": "rx",

@@ -38,27 +38,39 @@ function followEditorChange() {
 
 
 // Run RX File
-async function run(){
+async function run(dbug=0){
     //vscode.window.showInformationMessage('RX Language extension has been successfully activated');
     
     let editor = vscode.window.activeTextEditor;
     if (editor && !editor.document.isUntitled) {editor.document.save();}
     
-    var terminal = vscode.window.activeTerminal;
-    if (terminal){
+    var terminal_run = vscode.window.activeTerminal;
+    if (terminal_run){
         changeDirectory();
     }
     else{
         create_terminal_currentdir();
         await sleep(2000);
     }
-    var terminal = vscode.window.activeTerminal;
+    terminal_run = vscode.window.activeTerminal;
     if (editor && !editor.document.isUntitled){
         //let FN = path.basename(editor.document.fileName);
-        terminal.sendText(`\x03python -m RX ${path.basename(editor.document.fileName)}`,true);
+        switch (dbug) {
+            case 0:
+                terminal_run.sendText(`RX ${path.basename(editor.document.fileName)}`,true);
+                break;
+        
+            case 1:
+                terminal_run.sendText(`RX ${path.basename(editor.document.fileName)} -d`,true);
+                break;
+    
+            case 2:
+                terminal_run.sendText(`RX ${path.basename(editor.document.fileName)} --debug`,true);
+                break;
+        }
     }
     else {
-        terminal.sendText(`\x03python -m RX`,true);
+        terminal_run.sendText(`RX`,true);  //"\x03"
     }
 }
 function sleep(ms) {
@@ -66,29 +78,44 @@ function sleep(ms) {
 }
 function changeDirectory() {
     var editor = vscode.window.activeTextEditor
-    var terminal = vscode.window.activeTerminal;
+    var terminal_chdir = vscode.window.activeTerminal;
     var _a, _b;
     let uri = (_b = (_a = vscode.window.activeTextEditor) === null || _a === void 0 ? void 0 : _a.document) === null || _b === void 0 ? void 0 : _b.uri;
-    if (uri && terminal && editor && !editor.document.isUntitled) {
-        terminal.sendText(`\x03 ${path.dirname(uri.fsPath).slice(0,2)}`, true);
-        terminal.sendText(`cd "${path.dirname(uri.fsPath)}"`, true);
+    if (uri && terminal_chdir && editor && !editor.document.isUntitled) {
+        if (terminal_chdir.name == 'python'){
+            terminal_chdir.sendText(`\x1A`,true); 
+        }
+        else {
+            terminal_chdir.sendText(`\x03`);
+        }
+        terminal_chdir.sendText(`${path.dirname(uri.fsPath).slice(0,2)}`, true);
+        terminal_chdir.sendText(`cd "${path.dirname(uri.fsPath)}"`, true);
       }
 }
 function create_terminal_currentdir(){
-    var terminal = vscode.window.activeTerminal;
-    if (!terminal){
+    var terminal_createterminal = vscode.window.activeTerminal;
+    if (!terminal_createterminal){
         var editor = vscode.window.activeTextEditor;
         if (editor && !editor.document.isUntitled){
             var FN = path.dirname(editor.document.fileName); //.uri.fsPath
-            return false;
         }
         else {var FN = 'C:\\'}
         
-        var terminal = vscode.window.createTerminal( {cwd:FN} );
-        terminal.show(false);
+        terminal_createterminal = vscode.window.createTerminal( {cwd:FN} );
+        terminal_createterminal.show(false);
     }
 }
 var Run = vscode.commands.registerCommand('extension.run', run)
+
+// Debuggers
+function debug(){
+    run(1)
+}
+let Debug = vscode.commands.registerCommand('extension.debug', debug);
+function debug_only(){
+    run(2)
+}
+let Debug_Only = vscode.commands.registerCommand('extension.debugonly', debug_only);
 
 
 
@@ -108,8 +135,12 @@ function show_selected_text() {
 };
 var ShowSelectedText = vscode.commands.registerCommand('extension.ShowSelectedText', show_selected_text)
 
-// {USEFULL}
 
+
+
+
+
+// {USEFULL}
 /*
 var editor = vscode.window.activeTextEditor
 //] ACTIVE FILE
@@ -133,6 +164,16 @@ editor.viewColumn.toString()            // In which Column
 
 
 
+
+
+
+
+
+
+
+
+
+
 function activate(context) {
     console.log('RX Language extension has been successfully activated');
     
@@ -142,20 +183,16 @@ function activate(context) {
 
 
     function Test(){
-    
-        var editor = vscode.window.activeTextEditor;
-        //var X = editor.selection;
-        //vscode.window.showErrorMessage(X)
+        var t = vscode.window.activeTerminal;
+        vscode.window.showErrorMessage(t.name);
     }
-
-
     let TEST = vscode.commands.registerCommand('extension.TEST', Test);
     context.subscriptions.push(TEST);
 
 
-
-
-
+    context.subscriptions.push(Run);
+    context.subscriptions.push(Debug);
+    context.subscriptions.push(Debug_Only);
 
 
 
