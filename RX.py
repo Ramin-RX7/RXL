@@ -59,6 +59,7 @@ r"""
 
 #### EXT: RUN FILE
 # TODO:
+ #>  Debug Function in (--debug for debug-only && -d for run+debug)
  #>  Improve Exception Catching when runing file
  #>  reindent->rx for indent checking or opposite?
  #>  Load Packages
@@ -189,9 +190,9 @@ def Get_Args():
     if len(sys.argv) == 1:
         Console()
 
-    if len(sys.argv) > 3:
-        print('Argument Parser Will be added in next versions','dodger_blue_1')
-        sys.exit()
+    #if len(sys.argv) > 3:
+    #    print('Argument Parser Will be added in next versions','dodger_blue_1')
+    #    sys.exit()
 
     import argparse
 
@@ -204,7 +205,7 @@ def Get_Args():
     parser.add_argument(
         '-i', '--info',
         action='store_true',
-        help='Show information about running file'
+        help='Show information about running file (Verbose option in other apps)'
     )
 
     parser.add_argument(
@@ -215,7 +216,20 @@ def Get_Args():
 
     parser.add_argument(
         '-o','--options',
-        action='store_true'
+        action='store_true',
+        help='Show Options to Customize File-Run and Exit'
+    )
+
+    parser.add_argument(
+        '-d',
+        action='store_true',
+        help='Debug file/code/syntax Before running it and print Mistakes in Red color'
+    )
+
+    parser.add_argument(
+        '--debug',
+        action='store_true',
+        help='Debug-Only mode. This will not run file. It just Debugs it'
     )
 
 
@@ -237,8 +251,13 @@ def Get_Args():
 
         sys.exit()
 
+
+    if args.debug:
+        args.d = True
+
     #print('ARGS:  '+str(args))
-    return args.FILE, args.info
+    #sys.exit()
+    return args.FILE, args.info, args.d, args.debug
 
 
 #< Interactive RX Shell >#
@@ -295,7 +314,7 @@ def Read_File(filepath):
 
 
 #< Module Name and Version  <Method,Module_Name,Print,Indent,Const> >#
-def Define_Structure(SOURCE, FILE):
+def Define_Structure(SOURCE, FILE, DEBUG):
     #] Checking Indentation
     #INDENT_OUTPUT = rx.terminal.getoutput(f'python {RX_PATH}\\reindent.py -d -n '+FILE)
     INDENT_OUTPUT = rx.terminal.getoutput(f'python -m reindent -d -n '+FILE)
@@ -326,7 +345,7 @@ def Define_Structure(SOURCE, FILE):
             continue
 
         #] Const Var
-        if Text.strip().startswith('Const '):
+        elif Text.strip().startswith('Const '):
             #if Text.startswith(' '): raise LateDefine("'Const' Must Be Defined In The Main Scope")
             if re.search(r'^Const\s+([A-Za-z]|_)+\s*=\s*', Text.strip()):
                 INDENT = re.search(r'Const\s+([A-Za-z]|_)+\s*=\s*', Text).start()
@@ -343,6 +362,22 @@ def Define_Structure(SOURCE, FILE):
                     if CONST == item[0]:
                         raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
                 CONSTS.add((CONST, Line_Nom))
+
+        #] Indent
+        elif Text.strip().startswith(Keywords):
+            BREAK = False
+            LINE = int(Line_Nom)
+            while not BREAK:
+                if SOURCE[LINE-1].strip().endswith(':'):
+                    BREAK = True
+                else:
+                    LINE += 1
+
+            INDENT = len(re.search(r'^(?P<indent>\s*).*', Text).group('indent'))
+            INDENT_START = len(re.search(r'^(?P<indent>\s*).*', SOURCE[LINE]).group('indent'))
+            if INDENT_START <= INDENT:
+                print('RX')
+                raise ERRORS.IndentionError(Line_Nom+1, SOURCE[Line_Nom], FILE)
 
         #] Const Array
         elif re.search(r'^\w+\s*=\s*<.+>', Text.strip()):
@@ -362,32 +397,16 @@ def Define_Structure(SOURCE, FILE):
             if TYPE_ERROR:
                 #raise TypeError(f"ArrayConst can not be '{type(Content)}' type (Use 'Const' keyword)")
                 Type_Content = str(type(Content))[8:-2]
-                print(f"'<>' is for Arrays, Try to use 'Const' keyword for type ",'red', end='')
-                print(f"'{Type_Content}'  ({FILE}:{Line_Nom}:{VarName})", 'red')#, style='bold')
+                if DEBUG:
+                    print(f"'<>' is for Arrays, Try to use 'Const' keyword for type ",'red', end='')
+                    print(f"'{Type_Content}'  ({FILE}:{Line_Nom}:{VarName})", 'red')#, style='bold')
             CONSTS.add((VarName, Line_Nom))
             SOURCE[Line_Nom-1] = f'{VarName} = {Content}'
-
 
         for item in CONSTS:
             if re.search(rf'( |;){item}\s*(\[.+\])?\s*=\s*.+', Text):  # \s*.+  {?} 
                 if not Text.strip().startswith('def')  and  not Text.strip().startswith('#'):
                     raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
-
-        #] Indent
-        if Text.strip().startswith(Keywords):
-            BREAK = False
-            LINE = int(Line_Nom)
-            while not BREAK:
-                if SOURCE[LINE-1].strip().endswith(':'):
-                    BREAK = True
-                else:
-                    LINE += 1
-
-            INDENT = len(re.search(r'^(?P<indent>\s*).*', Text).group('indent'))
-            INDENT_START = len(re.search(r'^(?P<indent>\s*).*', SOURCE[LINE]).group('indent'))
-            if INDENT_START <= INDENT:
-                print('RX')
-                raise ERRORS.IndentionError(Line_Nom+1, SOURCE[Line_Nom], FILE)
 
 
     #< OPTIONS >#
@@ -577,7 +596,7 @@ if __name__ == "__main__":
         FILE   = ARGS[0]
         rx.cls()
         SOURCE = Read_File(FILE)
-        SOURCE = Define_Structure(SOURCE, FILE)
+        SOURCE = Define_Structure(SOURCE, FILE, ARGS[2])
         SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], SOURCE[4], FILE)
         SOURCE = Add_Verbose(SOURCE, FILE, ARGS[1])
 
@@ -593,7 +612,8 @@ if __name__ == "__main__":
         try:
             #print(time.time()-START_TIME,'red',style='bold')
             #t=time.time()
-            import _RX_Py
+            if not ARGS[3]:
+                import _RX_Py
             #print(time.time()-t,'red',style='bold')
         except Exception as E:
             raise E
