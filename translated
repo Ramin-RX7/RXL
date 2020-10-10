@@ -1,11 +1,10 @@
-import rx7.lite as sc
-print = sc.style.print
+import rx7.lite as ms
+print = ms.style.print
 
-#Exit : False
 
 
 print('Hello World!')
-files = sc.files
+files = ms.files
 print('Middle')
 
 class X:
@@ -30,13 +29,13 @@ print(ArrConst)
 HELO = 2
 print('End')
 XX = 'sdfsafdsfa'
-terminal = sc.terminal
-Tuple = sc.Tuple
-record = sc.record
-style = sc.style
-random = sc.random
-system = sc.system
-files = sc.files
+terminal = ms.terminal
+Tuple = ms.Tuple
+record = ms.record
+style = ms.style
+random = ms.random
+system = ms.system
+files = ms.files
 X = 'sadf'
 def hello(x):
     x+3

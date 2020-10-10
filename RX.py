@@ -109,10 +109,11 @@ CLASSES = ('files'  , 'system' , #'datetime' ,
 
 #< List of all errors >#
 class ERRORS:
+    TRACEBACK = 'Traceback (most recent call last):'
     class BaseDefinedError(Exception):
         def __init__(self, attribute, line_text, line_nom, File):
+            print(ERRORS.TRACEBACK)
             #super().__init__(f"Already Defined {attribute}")
-            print( 'Traceback (most recent call last):')
             print(f'  File "{File}", line {line_nom}, in <module>')
             print( '    '+line_text)
             print(f"BaseDefinedError: '{attribute}' can not be defined after setting module [OPTIONS]")
@@ -394,14 +395,14 @@ def Define_Structure(SOURCE, FILE):
     MODULE_SHORTCUT = 'sc'
     PRINT_TYPE = 'print'
     TYPE_SCANNER = True
-    BASED = False
+    #BASED = False
 
     for line in SOURCE[:5]:
 
         #< Get Shortcut Name >#
-        if re.search(r'^(ModuleName|Module_Name)\s*:\s*\w*',line):
-            if BASED:
-                raise ERRORS.BaseDefinedError('Modulename', line, SOURCE[:5].index(line), FILE)
+        if re.search(r'^((M|m)odule_?(N|n)ame)\s*:\s*\w+',line):
+            #if BASED:
+            #    raise ERRORS.BaseDefinedError('Modulename', line, SOURCE[:5].index(line), FILE)
             stripped = line[line.index(':')+1:].strip()
             if re.search(r'\w+', stripped).group() == stripped:
                 MODULE_SHORTCUT = str(stripped)
@@ -412,10 +413,9 @@ def Define_Structure(SOURCE, FILE):
 
         #< Get Version (Method) of Tools >#
         elif re.search(r'^(Method|Version)\s*:\s*\w*', line):
+            #if BASED:
+            #    raise ERRORS.BaseDefinedError('Method/Version', line, SOURCE[:5].index(line), FILE)
             StripLow = line.strip().lower()
-            if BASED:
-                raise ERRORS.BaseDefinedError('Method/Version', line, SOURCE[:5].index(line), FILE)
-            pass
             if StripLow.endswith('lite') or StripLow.endswith('fast'):
                 MODULE_VERSION = 'rx7.lite'
             elif not StripLow.endswith('normal'):
@@ -425,17 +425,17 @@ def Define_Structure(SOURCE, FILE):
 
         #< Print Function Method >#
         elif re.search(r'^Print\s*:\s*\w*', line):
-            BASED = True
+            #BASED = True
             if line.strip().lower().endswith('stylized'):
-                PRINT_TYPE = f'{MODULE_SHORTCUT}.style.print'
+                PRINT_TYPE = 'stylized'
             elif not line.strip().lower().endswith('normal'):
                 stripped = line[line.index(':')+1:].strip()
                 raise ERRORS.NameError(FILE, 'print', stripped, line, SOURCE[:5].index(line), ['lite','normal'])
             SOURCE.remove(line)
 
-        #< Function Type Scanner >#
+        #< Function Type Scanner >#          TODO: # Make it Shorter!
         elif re.search(r'^((F|f)unc|(F|f)unction)_?((T|t)ype|(A|a)rg|(P|p)aram)_?((S|s)canner|(C|c)hecker)\s*:\s*\w*', line):
-            BASED = True
+            #BASED = True     # No Need to do it
             if line.endswith('False'):
                 TYPE_SCANNER = False
             elif not line.strip().endswith('True'):
@@ -453,7 +453,7 @@ def Define_Structure(SOURCE, FILE):
                 raise ERRORS.NameError(FILE, 'Exit', stripped, line, SOURCE[:5].index(line), ['True','False'])
 
     SOURCE[0] = f'import {MODULE_VERSION} as {MODULE_SHORTCUT}'
-    SOURCE.insert(1,f'print = {PRINT_TYPE}')
+    SOURCE.insert(1,f"print = {MODULE_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}")
     SOURCE.insert(2,'')
 
 
