@@ -2,7 +2,7 @@
 	"name": "rx-lang",
 	"displayName": "RX",
 	"description": "Syntax Highlight for RX Language",
-	"version": "0.1.5",
+	"version": "0.1.6",
 	"publisher": "RaminRX7",
 	"engines": {
 		"vscode": "^1.49.0"
@@ -50,8 +50,6 @@
 				"when": "!replaceInputFocussed && editorLangId == rx"
 			}
 		],
-
-
 		"repository": {
 			"private": true
 		},

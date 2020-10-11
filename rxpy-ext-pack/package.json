@@ -1,0 +1,22 @@
+{
+    "name": "rxpy-ext-pack",
+    "displayName": "RX_Py Pack",
+    "description": "Extension Pack for RX and Python",
+	"publisher": "RaminRX7",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.50.0"
+    },
+    "categories": [
+        "Extension Packs"
+    ],
+    "extensionPack": [ 
+        "RaminRX7.rx-lang",
+        "ms-python.python",
+        "aaron-bond.better-comments",
+        "CoenraadS.bracket-pair-colorizer-2",
+        "ionutvmi.path-autocomplete",
+        "njpwerner.autodocstring",
+        "PKief.material-icon-theme"
+    ]
+}

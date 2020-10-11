@@ -37,6 +37,7 @@ r"""
 r"""
  git add . && git commit
  vsce publish VERSION
+ brs326qo5vgc774pezvenvixu4sj3c2lbwgqv66uwzsopcocl6ea
  
  Colors:
   invalid.deprecated.backtick.python   red
@@ -76,18 +77,18 @@ r"""
  #>  Package installer like pip? (if 3rd-party modules)
  #?  Improve switch & case
 ###########
-# XXX!:
+# BUG:
  #>  CONSTs:
        #>  After NameError rest of code will be ignored
  #>  No Support for args
- #!  Terminal is slow for loading code from first each time
- #!  0.35 seconds are spent for what
- #!  why exe doesn't accept args
+ #X  Terminal is slow for loading code from first each time
+ #X  0.35 seconds are spent for what
+ #X  why exe doesn't accept args
  #✓  if if statement is more than 1 line it will be indent error
 
 ########################################
 
-# Release TODO:
+# TODO (Release):
  #> Check instal:  PrependPath=1
  #> Make .exe with cxfreeze && copy .exe fileS in py/scripts dir
  #> Auto install famous 3rd-parties (requests-urllib3)
@@ -493,12 +494,12 @@ def Syntax(SOURCE,
         
         #print(str(Line_Nom)+' '+Text)
 
-        #< When Adding An Extra Line Like Decorators >#
+        #] When Adding An Extra Line Like Decorators
         if Skip or Text.strip().startswith('#'):
             Skip = False
             continue
 
-        #< Importing Tools :  <include,load> >#
+        #] Importing Tools :  <include,load>
         if re.search(r'^(I|i)nclude \s*(\w+,?)?', Text.strip()):
             if re.search(r'^Include \s*\*', Text):
                 Packages = list(CLASSES)
@@ -509,7 +510,7 @@ def Syntax(SOURCE,
             SOURCE.remove(Text)
             for package in Packages:
                 if package not in CLASSES:
-                    raise ERRORS.AttributeError(FILE,Line_Nom,Line_Text,MODULE_VERSION,package)
+                    raise ERRORS.AttributeError(FILE,Line_Nom,Text,MODULE_VERSION,package)
                 SOURCE.insert(Line_Nom-1, f'{package} = {MODULE_SHORTCUT}.{package}')
             continue
 
@@ -592,7 +593,7 @@ def Add_Verbose(SOURCE, FILE, VERBOSE):
 #< START OF THE CODE >#
 if __name__ == "__main__":
     try:
-        ARGS = Get_Args()
+        ARGS = Get_Args()  # {0:FILE , 1:info , 2:d , 3:debug}
         FILE   = ARGS[0]
         rx.cls()
         SOURCE = Read_File(FILE)
@@ -613,7 +614,7 @@ if __name__ == "__main__":
             #print(time.time()-START_TIME,'red',style='bold')
             #t=time.time()
             if not ARGS[3]:
-                import _RX_Py
+                import _RX_Py 
             #print(time.time()-t,'red',style='bold')
         except Exception as E:
             raise E

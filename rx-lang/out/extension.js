@@ -46,7 +46,7 @@ async function run(dbug=0){
     
     var terminal_run = vscode.window.activeTerminal;
     if (terminal_run){
-        changeDirectory();
+        await changeDirectory();
     }
     else{
         create_terminal_currentdir();
@@ -82,6 +82,7 @@ function changeDirectory() {
     var _a, _b;
     let uri = (_b = (_a = vscode.window.activeTextEditor) === null || _a === void 0 ? void 0 : _a.document) === null || _b === void 0 ? void 0 : _b.uri;
     if (uri && terminal_chdir && editor && !editor.document.isUntitled) {
+        
         if (terminal_chdir.name == 'python'){
             terminal_chdir.sendText(`\x1A`,true); 
         }
@@ -90,7 +91,9 @@ function changeDirectory() {
         }
         terminal_chdir.sendText(`${path.dirname(uri.fsPath).slice(0,2)}`, true);
         terminal_chdir.sendText(`cd "${path.dirname(uri.fsPath)}"`, true);
-      }
+        
+        //vscode.commands.executeCommand('workbench.action.terminal.sendSequence',{"text":"cd \"${fileDirname}\"\u000D"});
+    }
 }
 function create_terminal_currentdir(){
     var terminal_createterminal = vscode.window.activeTerminal;
@@ -103,18 +106,16 @@ function create_terminal_currentdir(){
         
         terminal_createterminal = vscode.window.createTerminal( {cwd:FN} );
         terminal_createterminal.show(false);
+        
+        vscode.commands.executeCommand('workbench.action.terminal.newWithCwd',{ "cwd": "${fileDirname}" });
     }
 }
 var Run = vscode.commands.registerCommand('extension.run', run)
 
 // Debuggers
-function debug(){
-    run(1)
-}
+function debug(){ run(1) }
 let Debug = vscode.commands.registerCommand('extension.debug', debug);
-function debug_only(){
-    run(2)
-}
+function debug_only(){ run(2) }
 let Debug_Only = vscode.commands.registerCommand('extension.debugonly', debug_only);
 
 
@@ -184,7 +185,8 @@ function activate(context) {
 
     function Test(){
         var t = vscode.window.activeTerminal;
-        vscode.window.showErrorMessage(t.name);
+        //vscode.window.showErrorMessage(t.name);
+        vscode.commands.executeCommand('workbench.action.terminal.sendSequence',{"text":"cd /d \"${fileDirname}\"\u000D"})
     }
     let TEST = vscode.commands.registerCommand('extension.TEST', Test);
     context.subscriptions.push(TEST);
