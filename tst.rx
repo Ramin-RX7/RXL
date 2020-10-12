@@ -37,7 +37,7 @@ def hello(x):
     x+3
 import os
 
-#Load xxx
+Load x
 #print(xxx.p)
 
 print()

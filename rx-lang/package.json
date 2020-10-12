@@ -2,8 +2,9 @@
 	"name": "rx-lang",
 	"displayName": "RX",
 	"description": "Syntax Highlight for RX Language",
-	"version": "0.1.6",
+	"version": "0.1.7",
 	"publisher": "RaminRX7",
+	"icon": "RX.jpg",
 	"engines": {
 		"vscode": "^1.49.0"
 	},

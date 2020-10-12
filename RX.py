@@ -57,13 +57,14 @@ r"""
 
 """
 ################################################################################
+# CHARS:  {✓ | ? | > | ! | X}
 
 #### EXT: RUN FILE
 # TODO:
- #>  Debug Function in (--debug for debug-only && -d for run+debug)
  #>  Improve Exception Catching when runing file
  #>  reindent->rx for indent checking or opposite?
- #>  Load Packages
+ #?  Load Packages
+ #?  Debug Function in (--debug for debug-only && -d for run+debug)
  #?  Errors in red Color
  #X  Catch Error in Running file
  #X  Do_While loop
@@ -81,6 +82,7 @@ r"""
  #>  CONSTs:
        #>  After NameError rest of code will be ignored
  #>  No Support for args
+ #?  Ignore module loading output error
  #X  Terminal is slow for loading code from first each time
  #X  0.35 seconds are spent for what
  #X  why exe doesn't accept args
@@ -89,7 +91,7 @@ r"""
 ########################################
 
 # TODO (Release):
- #> Check instal:  PrependPath=1
+ #> Check instal:  PrependPath=1 (also for pip and scripts/*.exe)
  #> Make .exe with cxfreeze && copy .exe fileS in py/scripts dir
  #> Auto install famous 3rd-parties (requests-urllib3)
  #> ".rx" to ".exe" 
@@ -182,11 +184,22 @@ class ERRORS:
             print(f"AttributeError: module '{Module_Version}' has no attribute '{Attribute}'")
             sys.exit()
 
+    class LoadError(Exception):
+        def __init__(self, Module, error=False):
+            print(ERRORS.TRACEBACK)
+            print(f'  Loading Module "{Module}" Resulted in an Error', 'red' if error else 'default')
+            if error:
+                print(error)
+            else:
+                print(f'    Module {Module} Returned Output When Loading')
+                print(f'LoadError: Make Sure There is No Print/Output in Module "{Module}"', 'red')
+            sys.exit()
+
 
 #< Get Arguments >#
 def Get_Args():
 
-    print('ARGS:  '+str(sys.argv))
+    #print('ARGS:  '+str(sys.argv))
     
     if len(sys.argv) == 1:
         Console()
@@ -233,6 +246,12 @@ def Get_Args():
         help='Debug-Only mode. This will not run file. It just Debugs it'
     )
 
+    parser.add_argument(
+        '-MT',
+        action='store_true',
+        help='Module Test. Not Very Usefull For Beginers'
+    )
+
 
     args = parser.parse_args()
     
@@ -258,7 +277,7 @@ def Get_Args():
 
     #print('ARGS:  '+str(args))
     #sys.exit()
-    return args.FILE, args.info, args.d, args.debug
+    return args.FILE, args.info, args.d, args.debug, args.MT
 
 
 #< Interactive RX Shell >#
@@ -426,7 +445,6 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             stripped = line[line.index(':')+1:].strip()
             if re.search(r'\w+', stripped).group() == stripped:
                 MODULE_SHORTCUT = str(stripped)
-                print(MODULE_SHORTCUT,'red')
             else:
                 raise ERRORS.NameError(msg='Invalid Value For  modulename/module_name', File=FILE)
             SOURCE.remove(line)
@@ -499,7 +517,7 @@ def Syntax(SOURCE,
             Skip = False
             continue
 
-        #] Importing Tools :  <include,load>
+        #] Importing Tools
         if re.search(r'^(I|i)nclude \s*(\w+,?)?', Text.strip()):
             if re.search(r'^Include \s*\*', Text):
                 Packages = list(CLASSES)
@@ -558,7 +576,17 @@ def Syntax(SOURCE,
             SOURCE.remove(Text)
             for package in Packages:
                 if rx.files.exists(f'{package}.rx7'):
-                    SOURCE.insert(Line_Nom-1,f"{MODULE_SHORTCUT}.files.rename('{package}.rx7','{package}.py');import {package};{MODULE_SHORTCUT}.files.rename('{package}.py','{package}.rx7')")
+                    pack_out = rx.terminal.getoutput(f'python RX.py {package}.rx7 -MT').strip()
+                    if len(pack_out):
+                        #print(pack_out)
+                        #print(pack_out.splitlines()[-1], 'green')
+                        if re.search(r'^\w+Error', pack_out.splitlines()[-1]):
+                            raise ERRORS.LoadError(package,pack_out.splitlines()[-1])
+                        else:
+                            #print(pack_out,'green')
+                            #sys.exit()
+                            raise ERRORS.LoadError(package)
+                    SOURCE.insert(Line_Nom-1,f"{MODULE_SHORTCUT}.files.copy('{package}.rx7','{package}.py');import {package};{MODULE_SHORTCUT}.files.remove('{package}.py')")
                 else:
                     raise ERRORS.ModuleNotFoundError(FILE, package, Text, Line_Nom)
                 
@@ -593,7 +621,7 @@ def Add_Verbose(SOURCE, FILE, VERBOSE):
 #< START OF THE CODE >#
 if __name__ == "__main__":
     try:
-        ARGS = Get_Args()  # {0:FILE , 1:info , 2:d , 3:debug}
+        ARGS = Get_Args()  # {0:FILE , 1:info , 2:d , 3:debug, 4:MT}
         FILE   = ARGS[0]
         rx.cls()
         SOURCE = Read_File(FILE)
@@ -617,7 +645,8 @@ if __name__ == "__main__":
                 import _RX_Py 
             #print(time.time()-t,'red',style='bold')
         except Exception as E:
-            raise E
+            if ARGS[4]:
+                raise E
             print('Traceback (most recent call last):','red')
             print('  More Information Soon...','red')
             print(str(type(E))[8:-2]+': '+str(E), 'red', style='bold')

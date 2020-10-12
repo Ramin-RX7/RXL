@@ -1,0 +1,4 @@
+new = 'adsf'
+new2 = 3
+print('dsfdf')
+raise TypeError
