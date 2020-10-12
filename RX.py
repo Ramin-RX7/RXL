@@ -61,6 +61,7 @@ r"""
 
 #### EXT: RUN FILE
 # TODO:
+ #>  If Error happens in Loading module, .py file will remains
  #>  Improve Exception Catching when runing file
  #>  reindent->rx for indent checking or opposite?
  #?  Load Packages
@@ -109,6 +110,11 @@ RX_PATH = rx.files.abspath(__file__)[:-6]
 CLASSES = ('files'  , 'system' , #'datetime' ,
            'random' , 'style'  , #'internet' , 
            'record' , 'Tuple'  , 'terminal' ,)
+
+LOADED_PACKAGES = []
+rx.files.mkdir('__LIB__')
+rx.write('__LIB__/__init__.py')
+rx.files.hide('__LIB__')
 
 
 #< List of all errors >#
@@ -252,6 +258,18 @@ def Get_Args():
         help='Module Test. Not Very Usefull For Beginers'
     )
 
+    parser.add_argument(
+        '-T2P',
+        action='store_true',
+        help='Translate To Python'
+    )
+
+    """
+    parser.add_argument(
+        'PROG_ARGS',
+        action='store', 
+        nargs=argparse.REMAINDER)
+    """
 
     args = parser.parse_args()
     
@@ -277,7 +295,7 @@ def Get_Args():
 
     #print('ARGS:  '+str(args))
     #sys.exit()
-    return args.FILE, args.info, args.d, args.debug, args.MT
+    return args.FILE, args.info, args.d, args.debug, args.MT, args.T2P#, args.PROG_ARGS
 
 
 #< Interactive RX Shell >#
@@ -509,7 +527,7 @@ def Syntax(SOURCE,
 
     Skip = False
     for Line_Nom,Text in enumerate(SOURCE, 1):
-        
+
         #print(str(Line_Nom)+' '+Text)
 
         #] When Adding An Extra Line Like Decorators
@@ -572,27 +590,22 @@ def Syntax(SOURCE,
             Packages[0]= Packages[0][4:].strip()
             
             print(Packages)
-            #sys.exit()
             SOURCE.remove(Text)
             for package in Packages:
                 if rx.files.exists(f'{package}.rx7'):
-                    pack_out = rx.terminal.getoutput(f'python RX.py {package}.rx7 -MT').strip()
+                    pack_out = rx.terminal.getoutput(f'python RX.py {package}.rx7 -MT -T2P').strip()
                     if len(pack_out):
-                        #print(pack_out)
-                        #print(pack_out.splitlines()[-1], 'green')
                         if re.search(r'^\w+Error', pack_out.splitlines()[-1]):
                             raise ERRORS.LoadError(package,pack_out.splitlines()[-1])
                         else:
-                            #print(pack_out,'green')
-                            #sys.exit()
                             raise ERRORS.LoadError(package)
-                    SOURCE.insert(Line_Nom-1,f"{MODULE_SHORTCUT}.files.copy('{package}.rx7','{package}.py');import {package};{MODULE_SHORTCUT}.files.remove('{package}.py')")
+                    
+                    rx.files.move(f'{package}.py', f'__LIB__/{package}.py')
+                    LOADED_PACKAGES.append(package)
+                    SOURCE.insert(Line_Nom-1,f"from __LIB__ import {package};{MODULE_SHORTCUT}.files.remove('__LIB__/{package}.py')")
                 else:
                     raise ERRORS.ModuleNotFoundError(FILE, package, Text, Line_Nom)
                 
-
-
-
 
     return SOURCE
 
@@ -614,6 +627,14 @@ def Add_Verbose(SOURCE, FILE, VERBOSE):
     return SOURCE
 
 
+def Clean_Up():
+    for package in LOADED_PACKAGES:
+        try:
+            rx.files.remove(f'__LIB__', force=True)
+        except:
+            pass
+import atexit
+atexit.register(Clean_Up)
 
 
 
@@ -621,7 +642,7 @@ def Add_Verbose(SOURCE, FILE, VERBOSE):
 #< START OF THE CODE >#
 if __name__ == "__main__":
     try:
-        ARGS = Get_Args()  # {0:FILE , 1:info , 2:d , 3:debug, 4:MT}
+        ARGS = Get_Args()  # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P}
         FILE   = ARGS[0]
         rx.cls()
         SOURCE = Read_File(FILE)
@@ -641,12 +662,23 @@ if __name__ == "__main__":
         try:
             #print(time.time()-START_TIME,'red',style='bold')
             #t=time.time()
+            if ARGS[5]:
+                if FILE:
+                    rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
+                else:
+                    print('Error in Parsing(T2P): With -T2P You Need To Specify FILE', 'red')
             if not ARGS[3]:
-                import _RX_Py 
+                if FILE:
+                    import _RX_Py
+                else:
+                    print('Error in Parsing(TM): No FILE is Given', 'red')
+                    sys.exit()
             #print(time.time()-t,'red',style='bold')
+
         except Exception as E:
             if ARGS[4]:
                 raise E
+            raise E
             print('Traceback (most recent call last):','red')
             print('  More Information Soon...','red')
             print(str(type(E))[8:-2]+': '+str(E), 'red', style='bold')

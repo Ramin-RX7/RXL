@@ -1,7 +1,67 @@
-import rx7 as sc
-print = print
+import rx7.lite as ms
+print = ms.style.print
 
-new2 = 3
-print('dsfdf')
-raise TypeError
+
+
+print('Hello World!')
+files = ms.files
+print('Middle')
+
+class X:
+    def func():
+        pass
+
+def x():
+    pass
+    def myfunc(x):
+        pass
+    if ('x' and
+'y'):
+        print('hello')
+        #d
+x()
+
+
+ArrConst = '1',x(),'2','3'
+#ArrConst2 = <'1'>
+print(ArrConst)
+
+HELO = 2
+print('End')
+XX = 'sdfsafdsfa'
+terminal = ms.terminal
+Tuple = ms.Tuple
+record = ms.record
+style = ms.style
+random = ms.random
+system = ms.system
+files = ms.files
+X = 'sadf'
+def hello(x):
+    x+3
+import os
+
+from __LIB__ import x;ms.files.remove('__LIB__/x.py')
+print(x.var, 'green')
+
+ms.wait(2)
+class fu:
+    pass
+
+if False:pass
+elif x == 1:
+        print('1')
+        x
+elif x == (2,4):
+        print('2')
+elif x == 3:
+        print('3')
+        d
+if ('d' and 'df'):
+    print('x')
+
+#HELO = ''
+
+#ms.wait(10)
+
 

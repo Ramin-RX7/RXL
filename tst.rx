@@ -38,9 +38,9 @@ def hello(x):
 import os
 
 Load x
-#print(xxx.p)
+print(x.var, 'green')
 
-print()
+ms.wait(2)
 class fu:
     pass
 
