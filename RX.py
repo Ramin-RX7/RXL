@@ -1,60 +1,3 @@
-import sys
-import re
-import time
-
-
-START_TIME = time.time()
-
-import rx7.lite as rx
-
-
-
-
-print = rx.style.print
-
-
-
-
-
-
-#< CHANGES >#
-r"""
- C:\Users\IRANIAN\.vscode\extensions\ms-python.python-2020.8.105369\package.json   (1637)
- C:\Users\IRANIAN\.vscode\extensions\ms-python.python-2020.8.105369\snippets\python.json   (END)
- D:\Programs\Microsoft VS Code\resources\app\extensions\rx\language-configuration.json 13
- 
- D:\Programs\Microsoft VS Code\resources\app\extensions\python\syntaxes\MagicPython.tmLanguage.json
- (1746 at the end) 276
- 33    "include": "#class-declarations"
- 280   "name": "storage.type.classx.python",
- 1025  "class-declarations": {
- 1751  "builtin-types": {
- 1784   | include        (and much more)
- 366   "rx-class-names": {
- 362   "include": "#rx-class-names"
-"""
-#< VS Ext >#
-r"""
- git add . && git commit
- vsce publish VERSION
- brs326qo5vgc774pezvenvixu4sj3c2lbwgqv66uwzsopcocl6ea
- 
- Colors:
-  invalid.deprecated.backtick.python   red
-  support.type.exception.python        green
-  support.variable.magic.python        blue light
-  variable.other.constant.ruby         dodger_blue!
-  storage.type.class.python            blue dark
-  support.function.builtin.python      yellow
-  keyword.control.flow.python          purple
-"""
-#< WHEN APP READY >#
-r"""
- %USERPROFILE%
- #setx /M path "%path%;E:\ramin\Coding\GitHub\RX-Language"
- #C:\Users\IRANIAN\AppData\Roaming\ActiveState\bin;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;D:\Programs\Coding\Git\cmd;C:\Users\IRANIAN\AppData\Local\Programs\Python\Python37;C:\Users\IRANIAN\AppData\Local\Programs\Python\Python37\Scripts;D:\Programs\Microsoft VS Code\bin;C:\Users\IRANIAN\AppData\Local\GitHubDesktop\bin;C:\Users\IRANIAN\AppData\Roaming\npm
-"""
-
 """
 ################################################################################
 # CHARS:  {✓ | ? | > | ! | X}
@@ -103,10 +46,64 @@ r"""
 ################################################################################
 """
 
+#] CHANGES
+r"""
+ C:\Users\IRANIAN\.vscode\extensions\ms-python.python-2020.8.105369\package.json   (1637)
+ C:\Users\IRANIAN\.vscode\extensions\ms-python.python-2020.8.105369\snippets\python.json   (END)
+ D:\Programs\Microsoft VS Code\resources\app\extensions\rx\language-configuration.json 13
+ 
+ D:\Programs\Microsoft VS Code\resources\app\extensions\python\syntaxes\MagicPython.tmLanguage.json
+ (1746 at the end) 276
+ 33    "include": "#class-declarations"
+ 280   "name": "storage.type.classx.python",
+ 1025  "class-declarations": {
+ 1751  "builtin-types": {
+ 1784   | include        (and much more)
+ 366   "rx-class-names": {
+ 362   "include": "#rx-class-names"
+"""
+#] VS Ext
+r"""
+ git add . && git commit
+ vsce publish VERSION
+ brs326qo5vgc774pezvenvixu4sj3c2lbwgqv66uwzsopcocl6ea
+ 
+ Colors:
+  invalid.deprecated.backtick.python   red
+  support.type.exception.python        green
+  support.variable.magic.python        blue light
+  variable.other.constant.ruby         dodger_blue!
+  storage.type.class.python            blue dark
+  support.function.builtin.python      yellow
+  keyword.control.flow.python          purple
+"""
+#] WHEN APP READY
+r"""
+ %USERPROFILE%
+ #setx /M path "%path%;E:\ramin\Coding\GitHub\RX-Language"
+ #C:\Users\IRANIAN\AppData\Roaming\ActiveState\bin;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;D:\Programs\Coding\Git\cmd;C:\Users\IRANIAN\AppData\Local\Programs\Python\Python37;C:\Users\IRANIAN\AppData\Local\Programs\Python\Python37\Scripts;D:\Programs\Microsoft VS Code\bin;C:\Users\IRANIAN\AppData\Local\GitHubDesktop\bin;C:\Users\IRANIAN\AppData\Roaming\npm
+"""
 
 
 
 
+
+
+
+
+import sys
+import re
+import time
+
+
+START_TIME = time.time()
+
+import rx7.lite as rx
+print(time.time()-START_TIME)
+
+
+
+print = rx.style.print
 
 RX_PATH = rx.files.abspath(__file__)[:-6]
 
@@ -115,10 +112,17 @@ CLASSES = ('files'  , 'system' , #'datetime' ,
            'record' , 'Tuple'  , 'terminal' ,)
 
 LOADED_PACKAGES = []
-rx.files.mkdir('__RX_LIB__')
-rx.write('__RX_LIB__/__init__.py')
-rx.files.hide('__RX_LIB__')
 
+
+
+
+#< Make Things Ready For Running >#   0.035
+def Setup_Env():
+    rx.files.mkdir('__RX_LIB__')
+    rx.write('__RX_LIB__/__init__.py')
+    rx.files.hide('__RX_LIB__')
+Setup_Env()
+print(time.time()-START_TIME)
 
 #< List of all errors >#
 class ERRORS:
@@ -634,6 +638,7 @@ def Add_Verbose(SOURCE, FILE, VERBOSE):
 
     return SOURCE
 
+
 #< Clean Everything Which is Not Needed >#
 def Clean_Up():
     for package in LOADED_PACKAGES:
@@ -647,29 +652,29 @@ atexit.register(Clean_Up)
 
 
 
+
 #< START OF THE CODE >#
 if __name__ == "__main__":
     try:
+        '''if time.time()-START_TIME>0.40:
+            print('Run Speed is Very Low. Restarting App', 'red')
+            rx.terminal.run('python '+' '.join(sys.argv))
+            sys.exit()
+        '''
         ARGS = Get_Args()  # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P}
         FILE   = ARGS[0]
-        rx.cls()
+        #rx.cls()
         SOURCE = Read_File(FILE)
         SOURCE = Define_Structure(SOURCE, FILE, ARGS[2])
         SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], SOURCE[4], FILE)
         SOURCE = Add_Verbose(SOURCE, FILE, ARGS[1])
-
 
         rx.write('_RX_Py.py', '\n'.join(SOURCE))
         rx.write('translated', '\n'.join(SOURCE))
         rx.files.hide('_RX_Py.py')
 
 
-        import os
-        #os.system('python _RX_Py.py')
-
         try:
-            #print(time.time()-START_TIME,'red',style='bold')
-            #t=time.time()
             if ARGS[5]:
                 if FILE:
                     rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
@@ -677,11 +682,12 @@ if __name__ == "__main__":
                     print('Error in Parsing(T2P): With -T2P You Need To Specify FILE', 'red')
             if not ARGS[3]:
                 if FILE:
+                    import os
+                    #os.system('python _RX_Py.py')
                     import _RX_Py
                 else:
                     print('Error in Parsing(TM): No FILE is Given', 'red')
                     sys.exit()
-            #print(time.time()-t,'red',style='bold')
 
         except Exception as E:
             if ARGS[4]:

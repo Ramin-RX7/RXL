@@ -37,8 +37,9 @@ def hello(x):
     x+3
 import os
 
-Load x
-print(x.var, 'green')
+#Load x
+#print(x.var, 'green')
+
 
 #ms.wait(5)
 class fu:
