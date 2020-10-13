@@ -84,6 +84,7 @@ r"""
        #>  After NameError rest of code will be ignored
  #>  No Support for args
  #?  Ignore module loading output error
+ #X  Get Remaining Args for PROGRAM
  #X  Terminal is slow for loading code from first each time
  #X  0.35 seconds are spent for what
  #X  why exe doesn't accept args
@@ -97,6 +98,8 @@ r"""
  #> Auto install famous 3rd-parties (requests-urllib3)
  #> ".rx" to ".exe" 
 
+####
+   #Loading Modules Are 10-1000x faster (But Tanslate Takes 0.4!)
 ################################################################################
 """
 
@@ -112,9 +115,9 @@ CLASSES = ('files'  , 'system' , #'datetime' ,
            'record' , 'Tuple'  , 'terminal' ,)
 
 LOADED_PACKAGES = []
-rx.files.mkdir('__LIB__')
-rx.write('__LIB__/__init__.py')
-rx.files.hide('__LIB__')
+rx.files.mkdir('__RX_LIB__')
+rx.write('__RX_LIB__/__init__.py')
+rx.files.hide('__RX_LIB__')
 
 
 #< List of all errors >#
@@ -600,12 +603,17 @@ def Syntax(SOURCE,
                         else:
                             raise ERRORS.LoadError(package)
                     
-                    rx.files.move(f'{package}.py', f'__LIB__/{package}.py')
+                    rx.files.move(f'{package}.py', f'__RX_LIB__/{package}.py')
                     LOADED_PACKAGES.append(package)
-                    SOURCE.insert(Line_Nom-1,f"from __LIB__ import {package};{MODULE_SHORTCUT}.files.remove('__LIB__/{package}.py')")
+                    #SOURCE.insert(Line_Nom-1,f"from __RX_LIB__ import {package};{MODULE_SHORTCUT}.files.remove('__RX_LIB__/{package}.py')")
+                    SOURCE.insert(Line_Nom-1,f"{package} = {MODULE_SHORTCUT}.import_module('{package}.rx7')") #;{MODULE_SHORTCUT}.files.remove('__RX_LIB__/{package}.py')
                 else:
                     raise ERRORS.ModuleNotFoundError(FILE, package, Text, Line_Nom)
                 
+        #] Memory Location of Object
+        elif re.search(r'''[,\(\[\{\+=: ]&\w+''', Text): #[^a-zA-Z0-9'"]
+            Search=re.search(r' ?&(\w+)', Text)
+            SOURCE[Line_Nom-1] = Text.replace(Search.group(),f'hex(id({Search.group(1)}))')
 
     return SOURCE
 
@@ -626,11 +634,11 @@ def Add_Verbose(SOURCE, FILE, VERBOSE):
 
     return SOURCE
 
-
+#< Clean Everything Which is Not Needed >#
 def Clean_Up():
     for package in LOADED_PACKAGES:
         try:
-            rx.files.remove(f'__LIB__', force=True)
+            rx.files.remove(f'__RX_LIB__', force=True)
         except:
             pass
 import atexit

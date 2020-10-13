@@ -24,7 +24,7 @@ x()
 
 ArrConst = '1',x(),'2','3'
 #ArrConst2 = <'1'>
-print(ArrConst)
+print(hex(id(ArrConst)))
 
 HELO = 2
 print('End')
@@ -41,10 +41,10 @@ def hello(x):
     x+3
 import os
 
-from __LIB__ import x;ms.files.remove('__LIB__/x.py')
+x = ms.import_module('x.rx7')
 print(x.var, 'green')
 
-ms.wait(2)
+#ms.wait(5)
 class fu:
     pass
 

@@ -26,7 +26,7 @@ x()
 
 ArrConst  = <'1',x(),'2','3'>
 #ArrConst2 = <'1'>
-print(ArrConst)
+print(&ArrConst)
 
 Const HELO = 2
 print('End')
@@ -40,7 +40,7 @@ import os
 Load x
 print(x.var, 'green')
 
-ms.wait(2)
+#ms.wait(5)
 class fu:
     pass
 
