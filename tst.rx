@@ -41,7 +41,7 @@ import os
 #print(x.var, 'green')
 
 
-#ms.wait(5)
+#ms.wait(2)
 class fu:
     pass
 

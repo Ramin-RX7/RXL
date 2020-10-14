@@ -361,9 +361,10 @@ def Read_File(filepath):
 #< Module Name and Version  <Method,Module_Name,Print,Indent,Const> >#
 def Define_Structure(SOURCE, FILE, DEBUG):
     #] Checking Indentation
-    #INDENT_OUTPUT = rx.terminal.getoutput(f'python {RX_PATH}\\reindent.py -d -n '+FILE)
-    INDENT_OUTPUT = rx.terminal.getoutput(f'python -m reindent -d -n '+FILE)
-    if len(INDENT_OUTPUT):
+    """    
+     #INDENT_OUTPUT = rx.terminal.getoutput(f'python {RX_PATH}\\reindent.py -d -n '+FILE)
+     INDENT_OUTPUT = rx.terminal.getoutput(f'python reindent.py {FILE}')
+     if len(INDENT_OUTPUT):
         print('REINDENT')
         INDENT_OUTPUT = INDENT_OUTPUT.split('\n')
         if INDENT_OUTPUT[-1].startswith('tokenize.TokenError'):
@@ -373,12 +374,18 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             LINE_NOM = LINE[LINE.index('line ')+5:]
             raise ERRORS.IndentionError(LINE_NOM, INDENT_OUTPUT[-3][4:],FILE)
         else:
+            print('\n'.join(INDENT_OUTPUT))
+            sys.exit()
             raise ERRORS.UndefinedError
         LINE = INDENT_OUTPUT[-4]
         LINE_NOM = LINE[LINE.index('line ')+5:]
         raise ERRORS.IndentionError(LINE_NOM, INDENT_OUTPUT[-3][4:],FILE)
-
-
+    """
+    import IndentCheck
+    IndentCheck.check(FILE)
+    #"""
+    
+    
     #< Const Vars && Indents >#
     CONSTS = set()
     Keywords = ('for', 'while', 'if', 'else', 'elif', 'except')
@@ -645,8 +652,9 @@ def Clean_Up():
             rx.files.remove(f'__RX_LIB__', force=True)
         except:
             pass
+            raise
 import atexit
-atexit.register(Clean_Up)
+#atexit.register(Clean_Up)
 
 
 
@@ -700,7 +708,9 @@ if __name__ == "__main__":
             print('  More Information Soon...','red')
             print(str(type(E))[8:-2]+': '+str(E), 'red', style='bold')
         finally:
+            rx.files.remove(f'__RX_LIB__', force=True)
             rx.files.remove('_RX_Py.py')
+            #rx.files.remove('__pycache__', force=True)
             '''
             print('Traceback (most recent call last):')
             print(f'  File "{FILE}" in  "UNDEFINED"')
