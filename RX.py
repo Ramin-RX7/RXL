@@ -99,11 +99,12 @@ import time
 START_TIME = time.time()
 
 import rx7.lite as rx
-print(time.time()-START_TIME)
 
 
 
 print = rx.style.print
+print(f'ImpRX7 :: {time.time()-START_TIME}','green')
+t = rx.Record()
 
 RX_PATH = rx.files.abspath(__file__)[:-6]
 
@@ -121,8 +122,7 @@ def Setup_Env():
     rx.files.mkdir('__RX_LIB__')
     rx.write('__RX_LIB__/__init__.py')
     rx.files.hide('__RX_LIB__')
-Setup_Env()
-print(time.time()-START_TIME)
+
 
 #< List of all errors >#
 class ERRORS:
@@ -623,18 +623,17 @@ def Syntax(SOURCE,
 
 
 #< Verbose >#
-def Add_Verbose(SOURCE, FILE, VERBOSE):
-    if VERBOSE:
-        import datetime
-        print(f'Start RX Language at "{datetime.datetime.now()}"')
-        print(f'Running  {FILE}')
-        print('\n')
+def Add_Verbose(SOURCE, FILE):
+    import datetime
+    print(f'Start RX Language at "{datetime.datetime.now()}"')
+    print(f'Running  {FILE}')
+    print('\n')
 
-        SOURCE.insert(0, f'ProgramStartTime= {START_TIME}')
-        EXECUTE_TIME_TEXT = 'round(__import__("time").time()-ProgramStartTime,3)'
-        SOURCE.insert(-1, 'EXECUTE_TIME_TEXT='+EXECUTE_TIME_TEXT) #{EXECUTE_TIME_TEXT-.35}/
-        SOURCE.insert(-1, r'''print(f'\n\nExecution Time:  {EXECUTE_TIME_TEXT}\n')''')
-        #print(SOURCE[-3])
+    SOURCE.insert(0, f'ProgramStartTime= {START_TIME}')
+    EXECUTE_TIME_TEXT = 'round(__import__("time").time()-ProgramStartTime,3)'
+    SOURCE.insert(-1, 'EXECUTE_TIME_TEXT='+EXECUTE_TIME_TEXT) #{EXECUTE_TIME_TEXT-.35}/
+    SOURCE.insert(-1, r'''print(f'\n\nExecution Time:  {EXECUTE_TIME_TEXT}\n')''')
+    #print(SOURCE[-3])
 
     return SOURCE
 
@@ -661,18 +660,22 @@ if __name__ == "__main__":
             rx.terminal.run('python '+' '.join(sys.argv))
             sys.exit()
         '''
+        Setup_Env()  #] 0.03
+        
         ARGS = Get_Args()  # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P}
         FILE   = ARGS[0]
         #rx.cls()
         SOURCE = Read_File(FILE)
         SOURCE = Define_Structure(SOURCE, FILE, ARGS[2])
+        print(f'DefStr :: {t.last_lap()}','green')
         SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], SOURCE[4], FILE)
-        SOURCE = Add_Verbose(SOURCE, FILE, ARGS[1])
-
+        if ARGS[1]:
+            SOURCE = Add_Verbose(SOURCE, FILE)
         rx.write('_RX_Py.py', '\n'.join(SOURCE))
         rx.write('translated', '\n'.join(SOURCE))
-        rx.files.hide('_RX_Py.py')
-
+        #rx.files.hide('_RX_Py.py')
+        import win32api, win32con
+        win32api.SetFileAttributes('_RX_Py.py',win32con.FILE_ATTRIBUTE_HIDDEN)
 
         try:
             if ARGS[5]:
