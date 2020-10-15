@@ -1,36 +1,43 @@
 """
 ################################################################################
-# CHARS:  {✓ | ? | > | ! | X}
+# CHARS:  {✓ , ? , > , ! , X}
 
 #### EXT: RUN FILE
 # TODO:
- #>  If Error happens in Loading module, .py file will remains
+ #>  
+ #>  Until:if not --- Unless:while not --- foreach:for
+ #>  Improve switch & case: No break
+ #>  Create SuperLite Module
+ #>  goto for For loops with naming For loops
+ #>  do_when
  #>  Improve Exception Catching when runing file
  #>  reindent->rx for indent checking or opposite?
- #?  Load Packages
+ #>  Do_While loop
+ #>  Load Modules:
+       #> If Error happens in Loading module, .py file will remains
  #?  Debug Function in (--debug for debug-only && -d for run+debug)
- #?  Errors in red Color
  #X  Catch Error in Running file
- #X  Do_While loop
  #!  END OF LINES ERROR IN RED
 ###########
 # NOTE:
+ #>  Generate=yield=Null
+ #>  Save Cache ?
  #>  Option for run translated or import it (import will ignore "if __name__ ...")
  #>  CONST at the beginning?
  #>  Stop Imports?
  #>  New Errors Ext Color
  #>  Package installer like pip? (if 3rd-party modules)
- #?  Improve switch & case
 ###########
 # BUG:
  #>  CONSTs:
-       #>  After NameError rest of code will be ignored
+       #!  After NameError rest of code will be ignored
  #>  No Support for args
+ #?  Errors in red Color
  #?  Ignore module loading output error
  #X  Get Remaining Args for PROGRAM
  #X  Terminal is slow for loading code from first each time
- #X  0.35 seconds are spent for what
- #X  why exe doesn't accept args
+ #✓  why exe doesn't accept args
+ #✓  0.35 seconds are spent for what
  #✓  if if statement is more than 1 line it will be indent error
 
 ########################################
@@ -98,7 +105,8 @@ import time
 
 START_TIME = time.time()
 
-import rx7.lite as rx
+#import rx7.lite as rx
+import RX_SuperLite as rx
 
 
 
@@ -381,9 +389,9 @@ def Define_Structure(SOURCE, FILE, DEBUG):
         LINE_NOM = LINE[LINE.index('line ')+5:]
         raise ERRORS.IndentionError(LINE_NOM, INDENT_OUTPUT[-3][4:],FILE)
     """
+    #{???}autopep8 -i script.py
     import IndentCheck
     IndentCheck.check(FILE)
-    #"""
     
     
     #< Const Vars && Indents >#
@@ -680,10 +688,8 @@ if __name__ == "__main__":
         if ARGS[1]:
             SOURCE = Add_Verbose(SOURCE, FILE)
         rx.write('_RX_Py.py', '\n'.join(SOURCE))
-        rx.write('translated', '\n'.join(SOURCE))
-        #rx.files.hide('_RX_Py.py')
-        import win32api, win32con
-        win32api.SetFileAttributes('_RX_Py.py',win32con.FILE_ATTRIBUTE_HIDDEN)
+        #rx.write('translated', '\n'.join(SOURCE))
+        rx.files.hide('_RX_Py.py')
 
         try:
             if ARGS[5]:
@@ -695,6 +701,7 @@ if __name__ == "__main__":
                 if FILE:
                     import os
                     #os.system('python _RX_Py.py')
+                    print(f'B_Run :: {time.time()-START_TIME}','green')
                     import _RX_Py
                 else:
                     print('Error in Parsing(TM): No FILE is Given', 'red')
