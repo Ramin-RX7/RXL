@@ -111,7 +111,7 @@ import RX_SuperLite as rx
 
 
 print = rx.style.print
-print(f'ImpRX7 :: {time.time()-START_TIME}','green')
+#print(f'ImpRX7 :: {time.time()-START_TIME}','green')
 t = rx.Record()
 
 RX_PATH = rx.files.abspath(__file__)[:-6]
@@ -640,8 +640,9 @@ def Syntax(SOURCE,
 #< Verbose >#
 def Add_Verbose(SOURCE, FILE):
     import datetime
-    print(f'Start RX Language at "{datetime.datetime.now()}"')
-    print(f'Running  {FILE}')
+    NOW = str(datetime.datetime.now())
+    print(f'''Start RX Language at "{NOW[:NOW.rindex('.')+5]}"''')
+    print(f'Running  "{FILE}"')
     print('\n')
 
     SOURCE.insert(0, f'ProgramStartTime= {START_TIME}')
@@ -671,8 +672,11 @@ import atexit
 #< START OF THE CODE >#
 if __name__ == "__main__":
     try:
-        '''if time.time()-START_TIME>0.40:
+        #print(f'START :: {time.time()-START_TIME}','green')
+        '''
+        if time.time()-START_TIME>0.025:
             print('Run Speed is Very Low. Restarting App', 'red')
+            sys.exit()
             rx.terminal.run('python '+' '.join(sys.argv))
             sys.exit()
         '''
@@ -680,10 +684,10 @@ if __name__ == "__main__":
         
         ARGS = Get_Args()  # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P}
         FILE   = ARGS[0]
-        #rx.cls()
+        rx.cls()
         SOURCE = Read_File(FILE)
         SOURCE = Define_Structure(SOURCE, FILE, ARGS[2])
-        print(f'DefStr :: {t.last_lap()}','green')
+        #print(f'DefStr :: {t.last_lap()}','green')
         SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], SOURCE[4], FILE)
         if ARGS[1]:
             SOURCE = Add_Verbose(SOURCE, FILE)
@@ -701,7 +705,7 @@ if __name__ == "__main__":
                 if FILE:
                     import os
                     #os.system('python _RX_Py.py')
-                    print(f'B_Run :: {time.time()-START_TIME}','green')
+                    #print(f'B_Run :: {time.time()-START_TIME}','green')
                     import _RX_Py
                 else:
                     print('Error in Parsing(TM): No FILE is Given', 'red')

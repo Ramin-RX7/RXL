@@ -3,6 +3,16 @@ import subprocess
 import shutil
 import time
 
+def cls():
+    '''
+    You can use this function if you want to clear the environment.
+    '''
+    if __import__('platform').system() == "Windows":
+        os.system('cls')
+    else:
+        os.system('clear')
+clear = cls
+
 class record:
     def __init__(self):
         self.__start= time.time()
