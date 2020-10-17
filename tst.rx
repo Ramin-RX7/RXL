@@ -1,9 +1,9 @@
-Module_Name : ms
-Method : lite
 Print : stylized
-Func_Type_Checker: False
-#Exit : False
-
+Module-Name : ms
+Method : lite
+Func-Type-Checker: False
+#End-Quit : True
+End-Exit : True
 
 print('Hello World!')
 Include files

@@ -1869,7 +1869,7 @@
 			]
 		},
 		"illegal-names": {
-			"match": "(?x)\n  \\b(?:\n    (\n      switch | case | Include | Load | Module_Name | Method | Func_Type_Checker | Print\n      | and | assert | async | await | break | class | continue | def | const\n      | del | elif | else | except | finally | for | from | global\n      | if | in | is | (?<=\\.)lambda | lambda(?=\\s*[\\.=])\n      | nonlocal | not | or | pass | raise | return | try | while | with\n      | yield\n    ) | (\n      as | import\n    )\n  )\\b\n",
+			"match": "(?x)\n  \\b(?:\n    (\n      (End-)?(Exit|Quit) | switch | case | (I|i)nclude | (L|l)oad | Module(-|_)(N|n)ame | (Method|Package(_|-)Version) | Func(_|-)Type(-|_)Checker | Print | const\n      | and | assert | async | await | break | class | continue | def\n      | del | elif | else | except | finally | for | from | global\n      | if | in | is | (?<=\\.)lambda | lambda(?=\\s*[\\.=])\n      | nonlocal | not | or | pass | raise | return | try | while | with\n      | yield\n    ) | (\n      as | import\n    )\n  )\\b\n",
 			"captures": {
 				"1": {
 					"name": "keyword.control.flow.python"

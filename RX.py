@@ -4,7 +4,7 @@
 
 #### EXT: RUN FILE
 # TODO:
- #>  
+ #>  func:def(:None)?
  #>  Until:if not --- Unless:while not --- foreach:for
  #>  Improve switch & case: No break
  #>  Create SuperLite Module
@@ -289,18 +289,18 @@ def Get_Args():
     args = parser.parse_args()
     
     if args.options:
-        print('BASE OPTIONS:', style='bold')
-        print("  OPTION NAME       DEFAULT VALUE       DESCRYPTION", style='bold')
-        print('  ModuleName        sc                  Shortcut for RX Tools and functions (also "Module_Name")')
-        print('  Method            normal              Method of loading tools.')
-        print('                                          Valid Choices: [normal,[lite,fast]] (also Version)')
-        print('OPTIONS:', style='bold')
-        print("  OPTION NAME       DEFAULT VALUE       DESCRYPTION")
-        print('  func_type_checker True                Check if argument of a function is in wrong type')
-        print('                                          (REGEX:  (func|function)_?(type|arg|param)_?(scanner|checker) )')
-        print('  Exit              True                Exit after executing the code or not')
-        print()
-        print('"OPTIONS" SHOULD BE DEFINED AFTER "BASE OPTIONS"', style='bold')
+        print('BASE OPTIONS:'                                                                                                , style='bold')
+        print("  OPTION NAME       DEFAULT VALUE       DESCRYPTION"                                                          , style='bold')
+        print('  Module-Name       sc                  Shortcut for RX Tools and functions (also "Modulename")'                            )
+        print('  Method            normal              Method of loading tools.'                                                           )
+        print('                                          Valid Choices: [normal,[lite,fast]] (also "Package-Version)"'                     )
+        print('OPTIONS:'                                                                                                     , style='bold')
+        print("  OPTION NAME       DEFAULT VALUE       DESCRYPTION"                                                                        )
+        print('  Func_Type_Checker True                Check if argument of a function is in wrong type'                                   )
+       #print('                                          (REGEX:  (func|function)-?(type|arg|param)-?(scanner|checker) )'                  )
+        print('  Exit              True                Exit after executing the code or not'                                               )
+        print(                                                                                                                             )
+       #print('"OPTIONS" SHOULD BE DEFINED AFTER "BASE OPTIONS"'                                                             , style='bold')
 
         sys.exit()
 
@@ -465,7 +465,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
 
         for item in CONSTS:
             if re.search(rf'( |;){item}\s*(\[.+\])?\s*=\s*.+', Text):  # \s*.+  {?} 
-                if not Text.strip().startswith('def')  and  not Text.strip().startswith('#'):
+                if not Text.strip().startswith('def ')  and  not Text.strip().startswith('#'):
                     raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
 
 
@@ -476,10 +476,10 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     TYPE_SCANNER = True
     #BASED = False
 
-    for line in SOURCE[:5]:
+    for line in SOURCE[:7]:
 
         #< Get Shortcut Name >#
-        if re.search(r'^((M|m)odule_?(N|n)ame)\s*:\s*\w+',line):
+        if re.search(r'^((M|m)odule(-|_)?(N|n)ame)\s*:\s*\w+',line):
             #if BASED:
             #    raise ERRORS.BaseDefinedError('Modulename', line, SOURCE[:5].index(line), FILE)
             stripped = line[line.index(':')+1:].strip()
@@ -490,7 +490,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             SOURCE.remove(line)
 
         #< Get Version (Method) of Tools >#
-        elif re.search(r'^(Method|Version)\s*:\s*\w*', line):
+        elif re.search(r'^(Method|Package(-|_)Version)\s*:\s*\w*', line):
             #if BASED:
             #    raise ERRORS.BaseDefinedError('Method/Version', line, SOURCE[:5].index(line), FILE)
             StripLow = line.strip().lower()
@@ -498,7 +498,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 MODULE_VERSION = 'rx7.lite'
             elif not StripLow.endswith('normal'):
                 stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.NameError(FILE, 'method', stripped, line, SOURCE[:5].index(line), ['lite','normal'])
+                raise ERRORS.NameError(FILE, 'Method', stripped, line, SOURCE[:5].index(line), ['lite','normal'])
             SOURCE.remove(line)
 
         #< Print Function Method >#
@@ -512,7 +512,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             SOURCE.remove(line)
 
         #< Function Type Scanner >#          TODO: # Make it Shorter!
-        elif re.search(r'^((F|f)unc|(F|f)unction)_?((T|t)ype|(A|a)rg|(P|p)aram)_?((S|s)canner|(C|c)hecker)\s*:\s*\w*', line):
+        elif re.search(r'^((F|f)unc|(F|f)unction)(-|_)?((T|t)ype|(A|a)rg|(P|p)aram)(-|_)?((S|s)canner|(C|c)hecker)\s*:\s*\w*', line):
             #BASED = True     # No Need to do it
             if line.endswith('False'):
                 TYPE_SCANNER = False
@@ -521,7 +521,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             SOURCE.remove(line)
 
         #< Exit at the end >#
-        elif re.search(r'^(Exit|Quit)\s*:\s*\w*', line):
+        elif re.search(r'^(End(-|_))?(Exit|Quit)\s*:\s*\w*', line):
             if line.strip().lower().endswith('false'):
                 #SOURCE.append('__import__("os").system('pause')')
                 #SOURCE[SOURCE.index(line)] = ''
@@ -529,6 +529,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             elif not line.strip().lower().endswith('true'):
                 stripped = line[line.index(':')+1:].strip()
                 raise ERRORS.NameError(FILE, 'Exit', stripped, line, SOURCE[:5].index(line), ['True','False'])
+            SOURCE.remove(line)
 
     SOURCE[0] = f'import {MODULE_VERSION} as {MODULE_SHORTCUT}'
     SOURCE.insert(1,f"print = {MODULE_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}")
@@ -692,7 +693,7 @@ if __name__ == "__main__":
         if ARGS[1]:
             SOURCE = Add_Verbose(SOURCE, FILE)
         rx.write('_RX_Py.py', '\n'.join(SOURCE))
-        #rx.write('translated', '\n'.join(SOURCE))
+        rx.write('translated', '\n'.join(SOURCE))
         rx.files.hide('_RX_Py.py')
 
         try:
@@ -718,16 +719,16 @@ if __name__ == "__main__":
             print('Traceback (most recent call last):','red')
             print('  More Information Soon...','red')
             print(str(type(E))[8:-2]+': '+str(E), 'red', style='bold')
-        finally:
-            rx.files.remove(f'__RX_LIB__', force=True)
-            rx.files.remove('_RX_Py.py')
-            #rx.files.remove('__pycache__', force=True)
             '''
             print('Traceback (most recent call last):')
             print(f'  File "{FILE}" in  "UNDEFINED"')
             print(e, 'red')
             sys.exit()
             '''
+        finally:
+            rx.files.remove(f'__RX_LIB__', force=True)
+            rx.files.remove('_RX_Py.py')
+            #rx.files.remove('__pycache__', force=True)
             
     except KeyboardInterrupt:
         print('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)','red')
