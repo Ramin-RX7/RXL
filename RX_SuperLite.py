@@ -1,7 +1,4 @@
-import os
-import subprocess
-import shutil
-import time
+import os,subprocess,shutil,time
 
 def cls():
     '''
@@ -11,7 +8,6 @@ def cls():
         os.system('cls')
     else:
         os.system('clear')
-clear = cls
 
 class record:
     def __init__(self):
@@ -32,6 +28,7 @@ Record = record
 class Terminal:
     run = os.system
     getoutput = subprocess.getoutput
+    set_title = __import__('win32api').SetConsoleTitle
 terminal = Terminal
 
 class style:
@@ -152,3 +149,4 @@ write = files.write
 
 class system:
     chdir = os.chdir
+System = system

@@ -30,9 +30,12 @@ print(&ArrConst)
 
 Const HELO = 2
 print('End')
+"""
 Const XX = 'sdfsafdsfa'
 Include *
-Const X = 'sadf'
+"""
+Include Terminal
+XX = 'sadf'
 def hello(x):
     x+3
 import os

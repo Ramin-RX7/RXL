@@ -4,6 +4,7 @@
 
 #### EXT: RUN FILE
 # TODO:
+ #>  Array
  #>  func:def(:None)?
  #>  Until:if not --- Unless:while not --- foreach:for
  #>  Improve switch & case: No break
@@ -315,6 +316,7 @@ def Get_Args():
 
 #< Interactive RX Shell >#
 def Console():
+    rx.terminal.set_title('RX - Console')
     def wait_for_input(prompt):
         '''
         Prompt  input(prompt)  until sth is given
@@ -414,11 +416,12 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 SOURCE.insert(Line_Nom-1, INDENT*' ' + striped[striped.index(' ')+1:])
                 CONST = striped[striped.index(' '):striped.index('=')].strip()
                 if CONST != CONST.upper():
+                    #] maybe it should be just a warning
                     raise ERRORS.ConstantError(Line_Nom=Line_Nom, 
                                                Line_Text=Text.strip(), 
                                                File=FILE, 
                                                msg='Constant Variable Name Must be UPPERCASE')
-                for item in CONSTS: #] Check if Const X is already defined
+                for item in CONSTS:  #] Check if Const X is already defined
                     if CONST == item[0]:
                         raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
                 CONSTS.add((CONST, Line_Nom))
@@ -464,7 +467,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             SOURCE[Line_Nom-1] = f'{VarName} = {Content}'
 
         for item in CONSTS:
-            if re.search(rf'( |;){item}\s*(\[.+\])?\s*=\s*.+', Text):  # \s*.+  {?} 
+            if re.search(rf'( |;){item}\s*(\[.+\])?\s*=\s*[^=]+', Text):  # \s*.+  {?} 
                 if not Text.strip().startswith('def ')  and  not Text.strip().startswith('#'):
                     raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
 
@@ -548,18 +551,37 @@ def Syntax(SOURCE,
            TYPE_SCANNER   ,  CONSTS, 
            FILE):
 
-    Skip = False
+    Skip = 0
     for Line_Nom,Text in enumerate(SOURCE, 1):
 
         #print(str(Line_Nom)+' '+Text)
 
         #] When Adding An Extra Line Like Decorators
-        if Skip or Text.strip().startswith('#'):
-            Skip = False
+        if Skip:
+            Skip = Skip-1
+            continue
+        if Text.strip().startswith('#'):
             continue
 
+        # Ignore Docstrings
+        elif Text.strip().endswith('"""'):
+            if "'''" in Text and Text.index("'''")>Text.index('"""'):
+                continue
+            for line_in_str,text_in_str in enumerate(SOURCE[Line_Nom:],1):
+                if '"""' in text_in_str:
+                    Skip = line_in_str
+                    print(Skip)
+        elif Text.strip().endswith("'''"):
+            #if '"""' in Text and Text.index('"""')>Text.index("'''"):
+            #    continue
+            for line_in_str,text_in_str in enumerate(SOURCE[Line_Nom:],1):
+                if "'''" in text_in_str:
+                    Skip = line_in_str
+                    print(Skip)
+
+
         #] Importing Tools
-        if re.search(r'^(I|i)nclude \s*(\w+,?)?', Text.strip()):
+        elif re.search(r'^(I|i)nclude \s*(\w+,?)?', Text.strip()):
             if re.search(r'^Include \s*\*', Text):
                 Packages = list(CLASSES)
             else:
@@ -577,7 +599,7 @@ def Syntax(SOURCE,
         elif Text.strip().startswith('def ') and TYPE_SCANNER:
             indent = Text.index('def ')
             SOURCE.insert(Line_Nom-1, f'{" "*indent}@{MODULE_SHORTCUT}.Check_Type')
-            Skip = True
+            Skip = 1
 
         #] Switch and Case
         elif re.search(r'^\s*(S|s)witch\s+\w+\s*:\s*', Text):
@@ -606,7 +628,7 @@ def Syntax(SOURCE,
                     
                     SOURCE[Line-1] = f'{(indent)*" "}elif {SEARCH.group("VARIABLE")} == {SEARCH_VALUE.group("VALUE")}:' #+4
             SOURCE.insert(Line_Nom-1, f'{(indent)*" "}if False:pass')
-            
+
         #] Load User-Defined Modules
         elif re.search(r'^(L|l)oad \s*(\w+,?)?', Text.strip()):
             Packages = re.split(r'\s*,\s*', Text)
@@ -629,7 +651,7 @@ def Syntax(SOURCE,
                     SOURCE.insert(Line_Nom-1,f"{package} = {MODULE_SHORTCUT}.import_module('{package}.rx7')") #;{MODULE_SHORTCUT}.files.remove('__RX_LIB__/{package}.py')
                 else:
                     raise ERRORS.ModuleNotFoundError(FILE, package, Text, Line_Nom)
-                
+
         #] Memory Location of Object
         elif re.search(r'''[,\(\[\{\+=: ]&\w+''', Text): #[^a-zA-Z0-9'"]
             Search=re.search(r' ?&(\w+)', Text)
@@ -657,13 +679,10 @@ def Add_Verbose(SOURCE, FILE):
 
 #< Clean Everything Which is Not Needed >#
 def Clean_Up():
-    for package in LOADED_PACKAGES:
-        try:
-            rx.files.remove(f'__RX_LIB__', force=True)
-        except:
-            pass
-            raise
-import atexit
+    rx.files.remove(f'__RX_LIB__', force=True)
+    rx.files.remove('_RX_Py.py')
+    #rx.files.remove('__pycache__', force=True)
+#import atexit
 #atexit.register(Clean_Up)
 
 
@@ -682,10 +701,10 @@ if __name__ == "__main__":
             sys.exit()
         '''
         Setup_Env()  #] 0.03
-        
+        #rx.terminal.set_title('RX')
         ARGS = Get_Args()  # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P}
         FILE   = ARGS[0]
-        rx.cls()
+        #rx.cls()
         SOURCE = Read_File(FILE)
         SOURCE = Define_Structure(SOURCE, FILE, ARGS[2])
         #print(f'DefStr :: {t.last_lap()}','green')
@@ -695,22 +714,25 @@ if __name__ == "__main__":
         rx.write('_RX_Py.py', '\n'.join(SOURCE))
         rx.write('translated', '\n'.join(SOURCE))
         rx.files.hide('_RX_Py.py')
-
+        #print(f'Write :: {t.last_lap()}','green')
         try:
             if ARGS[5]:
                 if FILE:
                     rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
                 else:
                     print('Error in Parsing(T2P): With -T2P You Need To Specify FILE', 'red')
+            
             if not ARGS[3]:
                 if FILE:
                     import os
                     #os.system('python _RX_Py.py')
-                    #print(f'B_Run :: {time.time()-START_TIME}','green')
+                    print(f'B_Run :: {time.time()-START_TIME}','green')
+                    rx.terminal.set_title(f'RX - {os.path.basename(FILE)}')
                     import _RX_Py
                 else:
                     print('Error in Parsing(TM): No FILE is Given', 'red')
                     sys.exit()
+
 
         except Exception as E:
             if ARGS[4]:
@@ -726,9 +748,10 @@ if __name__ == "__main__":
             sys.exit()
             '''
         finally:
-            rx.files.remove(f'__RX_LIB__', force=True)
-            rx.files.remove('_RX_Py.py')
-            #rx.files.remove('__pycache__', force=True)
-            
+            Clean_Up()
+            #rx.files.remove(f'__RX_LIB__', force=True)
+            #rx.files.remove('_RX_Py.py')
+            #rx.files.remove('__pycache__', force=True)            
+
     except KeyboardInterrupt:
         print('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)','red')

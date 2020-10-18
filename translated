@@ -27,15 +27,12 @@ print(hex(id(ArrConst)))
 
 HELO = 2
 print('End')
+"""
 XX = 'sdfsafdsfa'
-terminal = ms.terminal
-Tuple = ms.Tuple
-record = ms.record
-style = ms.style
-random = ms.random
-system = ms.system
+Include *
+"""
 files = ms.files
-X = 'sadf'
+XX = 'sadf'
 def hello(x):
     x+3
 import os
