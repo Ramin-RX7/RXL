@@ -662,8 +662,8 @@ def Syntax(SOURCE,
         elif Reg:=re.search(r'until \s*(?P<Expression>.+):', Text.strip()):
             SOURCE[Line_Nom-1] = f"if not ({Reg.group('Expression')}):"
         elif Reg:=re.search(r'unless \s*(?P<Expression>.+):', Text.strip()):
-            SOURCE[Line_Nom-1] = f"if not ({Reg.group('Expression')}):"
-        elif Reg:=re.search(r'foreach \s*(?P<Expression>.+):', Text.strip()):
+            SOURCE[Line_Nom-1] = f"while not ({Reg.group('Expression')}):"
+        elif Reg:=re.search(r'foreach \s*(?P<Expression>\w+ in \w+):', Text.strip()):  #Changed .+ to \w+
             SOURCE[Line_Nom-1] = f"if not ({Reg.group('Expression')}):"
 
 
