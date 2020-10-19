@@ -26,20 +26,24 @@ ArrConst = '1',x(),'2','3'
 print(hex(id(ArrConst)))
 
 HELO = 2
-print('End')
+
+
 """
 XX = 'sdfsafdsfa'
 Include *
 """
-files = ms.files
+Terminal = ms.Terminal
 XX = 'sadf'
 def hello(x):
-    x+3
+    files = ms.files
+    terminal = ms.terminal
+    Files = ms.Files
 import os
 
 #Load x
 #print(x.var, 'green')
-
+if not (XX):
+ print('No XX')
 
 #ms.wait(2)
 class fu:
@@ -47,16 +51,18 @@ class fu:
 
 if False:pass
 elif x == 1:
-        print('1')
+        print('case1')
         x
 elif x == (2,4):
-        print('2')
+        print('case2')
 elif x == 3:
-        print('3')
+        print('case3')
         d
-if ('d' and 'df'):
-    print('x')
+if ('d' and
+'df'):
+    print('2 line if')
 
+print('End')
 #HELO = ''
 
 #ms.wait(10)

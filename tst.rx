@@ -29,7 +29,8 @@ ArrConst  = <'1',x(),'2','3'>
 print(&ArrConst)
 
 Const HELO = 2
-print('End')
+
+
 """
 Const XX = 'sdfsafdsfa'
 Include *
@@ -37,12 +38,13 @@ Include *
 Include Terminal
 XX = 'sadf'
 def hello(x):
-    x+3
+    Include Files, terminal ,  files
 import os
 
 #Load x
 #print(x.var, 'green')
-
+until XX:
+ print('No XX')
 
 #ms.wait(2)
 class fu:
@@ -50,16 +52,18 @@ class fu:
 
 switch x:
     case 1:
-        print('1')
+        print('case1')
         x
     case (2,4):
-        print('2')
+        print('case2')
     case 3:
-        print('3')
+        print('case3')
         d
-if ('d' and 'df'):
-    print('x')
+if ('d' and
+'df'):
+    print('2 line if')
 
+print('End')
 #HELO = ''
 
 #ms.wait(10)

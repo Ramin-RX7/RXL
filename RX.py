@@ -4,10 +4,10 @@
 
 #### EXT: RUN FILE
 # TODO:
+ #>  Split line by strings, check_syntax spliteds ,connect them again
  #>  Array
  #>  func:def(:None)?
- #>  Until:if not --- Unless:while not --- foreach:for
- #>  Improve switch & case: No break
+ #>  Improve switch & case: No break - Default
  #>  Create SuperLite Module
  #>  goto for For loops with naming For loops
  #>  do_when
@@ -19,9 +19,10 @@
  #?  Debug Function in (--debug for debug-only && -d for run+debug)
  #X  Catch Error in Running file
  #!  END OF LINES ERROR IN RED
+ #✓  Until:if not --- Unless:while not --- foreach:for
 ###########
 # NOTE:
- #>  Generate=yield=Null
+ #>  Generate:yield(:None)?
  #>  Save Cache ?
  #>  Option for run translated or import it (import will ignore "if __name__ ...")
  #>  CONST at the beginning?
@@ -117,9 +118,10 @@ t = rx.Record()
 
 RX_PATH = rx.files.abspath(__file__)[:-6]
 
-CLASSES = ('files'  , 'system' , #'datetime' ,
-           'random' , 'style'  , #'internet' , 
-           'record' , 'Tuple'  , 'terminal' ,)
+CLASSES = (['files','System','random','style','record','terminal','Tuple'],
+           ['Files','Random','Record','Terminal','system','style','Tuple']
+            #'internet', 'Internet'
+           )
 
 LOADED_PACKAGES = []
 
@@ -552,10 +554,11 @@ def Syntax(SOURCE,
            FILE):
 
     Skip = 0
+    XXX= False
     for Line_Nom,Text in enumerate(SOURCE, 1):
-
+        
         #print(str(Line_Nom)+' '+Text)
-
+        
         #] When Adding An Extra Line Like Decorators
         if Skip:
             Skip = Skip-1
@@ -564,35 +567,33 @@ def Syntax(SOURCE,
             continue
 
         # Ignore Docstrings
-        elif Text.strip().endswith('"""'):
-            if "'''" in Text and Text.index("'''")>Text.index('"""'):
-                continue
-            for line_in_str,text_in_str in enumerate(SOURCE[Line_Nom:],1):
-                if '"""' in text_in_str:
-                    Skip = line_in_str
-                    print(Skip)
-        elif Text.strip().endswith("'''"):
-            #if '"""' in Text and Text.index('"""')>Text.index("'''"):
-            #    continue
-            for line_in_str,text_in_str in enumerate(SOURCE[Line_Nom:],1):
-                if "'''" in text_in_str:
-                    Skip = line_in_str
-                    print(Skip)
+        elif '"""' in Text  and  not ("'''" in Text and Text.index('"""')>Text.index("'''")):
+            if not '"""' in Text[Text.index('"""')+3:]:
+                for line_in_str,text_in_str in enumerate(SOURCE[Line_Nom:],1):
+                    if '"""' in text_in_str:
+                        Skip = line_in_str
+                        #print(Skip)
+        elif '"""' in Text:
+            if not "'''" in Text[Text.index("'''")+3:]:
+                for line_in_str,text_in_str in enumerate(SOURCE[Line_Nom:],1):
+                    if "'''" in text_in_str:
+                        Skip = line_in_str
+                        #print(Skip)
 
 
         #] Importing Tools
-        elif re.search(r'^(I|i)nclude \s*(\w+,?)?', Text.strip()):
-            if re.search(r'^Include \s*\*', Text):
-                Packages = list(CLASSES)
+        elif Regex:=re.search(r'^(?P<Indent>\s*)(I|i)nclude \s*(\w+,?|\*)?', Text):
+            Indent = Regex.group('Indent')
+            if re.search(r'^(I|i)nclude\s*\*', Text.strip()):
+                Packages = list(CLASSES[0])
             else:
                 Packages = re.split(r'\s*,\s*', Text)
-                Packages[0]= Packages[0][8:].strip()
-            #print(Packages)
+                Packages[0]= Packages[0][len(Indent)+8:].strip()
             SOURCE.remove(Text)
             for package in Packages:
-                if package not in CLASSES:
+                if package not in CLASSES[0]+CLASSES[1]:
                     raise ERRORS.AttributeError(FILE,Line_Nom,Text,MODULE_VERSION,package)
-                SOURCE.insert(Line_Nom-1, f'{package} = {MODULE_SHORTCUT}.{package}')
+                SOURCE.insert(Line_Nom-1, f'{Indent}{package} = {MODULE_SHORTCUT}.{package}')
             continue
 
         #] Func Type checker
@@ -602,7 +603,7 @@ def Syntax(SOURCE,
             Skip = 1
 
         #] Switch and Case
-        elif re.search(r'^\s*(S|s)witch\s+\w+\s*:\s*', Text):
+        elif re.search(r'^\s*(S|s)witch\s+\w+\s*:', Text.strip()):
             SEARCH = re.search(r'^(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:\s*', Text)
             indent = len(SEARCH.group('indent'))
             
@@ -657,6 +658,15 @@ def Syntax(SOURCE,
             Search=re.search(r' ?&(\w+)', Text)
             SOURCE[Line_Nom-1] = Text.replace(Search.group(),f'hex(id({Search.group(1)}))')
 
+        #] until & unless & foreach
+        elif Reg:=re.search(r'until \s*(?P<Expression>.+):', Text.strip()):
+            SOURCE[Line_Nom-1] = f"if not ({Reg.group('Expression')}):"
+        elif Reg:=re.search(r'unless \s*(?P<Expression>.+):', Text.strip()):
+            SOURCE[Line_Nom-1] = f"if not ({Reg.group('Expression')}):"
+        elif Reg:=re.search(r'foreach \s*(?P<Expression>.+):', Text.strip()):
+            SOURCE[Line_Nom-1] = f"if not ({Reg.group('Expression')}):"
+
+
     return SOURCE
 
 
@@ -681,7 +691,7 @@ def Add_Verbose(SOURCE, FILE):
 def Clean_Up():
     rx.files.remove(f'__RX_LIB__', force=True)
     rx.files.remove('_RX_Py.py')
-    #rx.files.remove('__pycache__', force=True)
+    rx.files.remove('__pycache__', force=True)
 #import atexit
 #atexit.register(Clean_Up)
 
