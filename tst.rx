@@ -28,9 +28,9 @@ x()
 #ArrConst2 = <'1'>
 #print(&ArrConst)
 
-Const HELO = 2
+HELO = <2,>
 #def x():
-HELO ='d'
+ #HELO ='d'
 
 """
 #Const XX = 'sdfsafdsfa'
@@ -57,8 +57,8 @@ switch x:
         x
     case (2,4):
         print('case2')
-    case 3:
-        print('case3')
+    case (3,4):
+   print('case3')
         d
 if ('d' and
 'df'):

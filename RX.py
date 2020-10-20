@@ -4,6 +4,7 @@
 
 #### EXT: RUN FILE
 # TODO:
+ #>  Indent check for ":" with getting first-line-indent and start-line-indent
  #>  Split line by strings, check_syntax spliteds ,connect them again
  #>  Array
  #>  func:def(:None)?
@@ -103,6 +104,7 @@ r"""
 import sys
 import re
 import time
+import argparse
 
 
 START_TIME = time.time()
@@ -232,7 +234,6 @@ def Get_Args():
     #    print('Argument Parser Will be added in next versions','dodger_blue_1')
     #    sys.exit()
 
-    import argparse
 
     parser = argparse.ArgumentParser(
         'RX', allow_abbrev=True,
@@ -333,31 +334,31 @@ def Console():
     rx.system.chdir(RX_PATH)
 
     PRE= ['import rx7.lite as sc','print = sc.style.print']
-    rx.write('Console.py', '\n'.join(PRE)+'\n')
-    import Console
+    rx.write('_Console_.py', '\n'.join(PRE)+'\n')
+    import _Console_
     while True:
         try:
             new = wait_for_input('RX:Console> ')
             if new.lower() in ('exit','quit','end'):
-                rx.files.remove('Console.py')
+                rx.files.remove('_Console_.py')
                 sys.exit()
         except (KeyboardInterrupt,EOFError):
-            rx.files.remove('Console.py')
+            rx.files.remove('_Console_.py')
             sys.exit()
 
-        rx.write('Console.py', new+'\n', 'a')
+        rx.write('_Console_.py', new+'\n', 'a')
         
         try:
-            reload(Console)
+            reload(_Console_)
         except Exception as e:
             ERROR = str(e)
-            if '(Console.py,' in ERROR:
-                ERROR = ERROR[:ERROR.index('(Console.py,')]
+            if '(_Console_.py,' in ERROR:
+                ERROR = ERROR[:ERROR.index('(_Console_.py,')]
             print(str(type(e))[8:-2]+':  ' + ERROR, 'red')
-            rx.write('Console.py', '\n'.join(rx.read('Console.py').splitlines()[:-1])+'\n', 'w')
+            rx.write('_Console_.py', '\n'.join(rx.read('_Console_.py').splitlines()[:-1])+'\n', 'w')
 
-        if re.search(r'^print\s*\(', rx.read('Console.py').splitlines()[-1].strip()):
-            rx.write('Console.py', '\n'.join(rx.read('Console.py').splitlines()[:-1])+'\n')
+        if re.search(r'^print\s*\(', rx.read('_Console_.py').splitlines()[-1].strip()):
+            rx.write('_Console_.py', '\n'.join(rx.read('_Console_.py').splitlines()[:-1])+'\n')
 
 
 #< Reading File >#
@@ -366,7 +367,7 @@ def Read_File(filepath):
         with open(filepath) as f:
             SOURCE = f.read().split('\n')
         return SOURCE + ['\n']
-    print(f"RX: can't open file '{filepath}': [Errno 2] No such file") #or directory
+    print(f"RX> can't open file '{filepath}': No such file", 'red') #or directory
     sys.exit()
 
 
@@ -400,16 +401,22 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     
     #< Const Vars && Indents >#
     CONSTS = set()
-    Keywords = ('for', 'while', 'if', 'else', 'elif', 'except')
+    Keywords = ('for', 'while', 'if', 'else', 'elif', 'except', 'case')
     #INDENT = 0
 
     for Line_Nom,Text in enumerate(SOURCE, 1):
-        
+
         if Text.strip().startswith('#'):
             continue
-
+        """
+        for item in CONSTS:
+            striped = Text.strip()
+            if re.search(rf'( |;|^$){item[0]}\s*(\[.+\])?\s*=\s*[^=]+', Text):  # \s*.+  {?} 
+                if not striped.startswith('def ')  and  not striped.startswith('#'):
+                    raise ERRORS.ConstantError(Line_Nom, item[1], striped, item[0], FILE)
+        
         #] Const Var
-        elif Text.strip().startswith('Const '):
+        if Text.strip().startswith('Const '):
             #if Text.startswith(' '): raise LateDefine("'Const' Must Be Defined In The Main Scope")
             if re.search(r'^Const\s+([A-Za-z]|_)+\s*=\s*', Text.strip()):
                 INDENT = re.search(r'Const\s+([A-Za-z]|_)+\s*=\s*', Text).start()
@@ -427,22 +434,6 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                     if CONST == item[0]:
                         raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
                 CONSTS.add((CONST, Line_Nom))
-
-        #] Indent
-        elif Text.strip().startswith(Keywords):
-            BREAK = False
-            LINE = int(Line_Nom)
-            while not BREAK:
-                if SOURCE[LINE-1].strip().endswith(':'):
-                    BREAK = True
-                else:
-                    LINE += 1
-
-            INDENT = len(re.search(r'^(?P<indent>\s*).*', Text).group('indent'))
-            INDENT_START = len(re.search(r'^(?P<indent>\s*).*', SOURCE[LINE]).group('indent'))
-            if INDENT_START <= INDENT:
-                print('RX')
-                raise ERRORS.IndentionError(Line_Nom+1, SOURCE[Line_Nom], FILE)
 
         #] Const Array
         elif re.search(r'^\w+\s*=\s*<.+>', Text.strip()):
@@ -468,10 +459,25 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             CONSTS.add((VarName, Line_Nom))
             SOURCE[Line_Nom-1] = f'{VarName} = {Content}'
 
-        for item in CONSTS:
-            if re.search(rf'( |;){item[0]}\s*(\[.+\])?\s*=\s*[^=]+', Text):  # \s*.+  {?} 
-                if not Text.strip().startswith('def ')  and  not Text.strip().startswith('#'):
-                    raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
+        """
+        #"""
+        #] Indent
+        if Text.strip().startswith(Keywords):
+            BREAK = False
+            LINE = int(Line_Nom)
+            while not BREAK:
+                if SOURCE[LINE-1].strip().endswith(':'):
+                    BREAK = True
+                else:
+                    LINE += 1
+
+            INDENT = len(re.search(r'^(?P<indent>\s*).*', Text).group('indent'))
+            INDENT_START = len(re.search(r'^(?P<indent>\s*).*', SOURCE[LINE]).group('indent'))
+            if INDENT_START <= INDENT:
+                print('RX')
+                raise ERRORS.IndentionError(Line_Nom+1, SOURCE[Line_Nom], FILE)
+        #"""
+
 
 
     #< OPTIONS >#
@@ -553,12 +559,24 @@ def Syntax(SOURCE,
            TYPE_SCANNER   ,  CONSTS, 
            FILE):
 
+
+    CONSTS = set()
+    Keywords = ('for'   , 'while', 'if'   , 'else'  , 'elif',
+                'except', 'def'#  , 'until', 'unless', 'case'
+                )
     Skip = 0
-    XXX= False
+    
     for Line_Nom,Text in enumerate(SOURCE, 1):
-        
+
         #print(str(Line_Nom)+' '+Text)
         
+        for item in CONSTS:
+            striped = Text.strip()
+            if re.search(rf'( |;|^$){item[0]}\s*(\[.+\])?\s*=\s*[^=]+', Text):  # \s*.+  {?} 
+                if not striped.startswith('def ')  and  not striped.startswith('#'):
+                    raise ERRORS.ConstantError(Line_Nom, item[1], striped, item[0], FILE)
+
+
         #] When Adding An Extra Line Like Decorators
         if Skip:
             Skip = Skip-1
@@ -626,7 +644,7 @@ def Syntax(SOURCE,
                     else:
                         pass#SOURCE[Line-1] =   ' '*(indent+4) + SOURCE[Line-1]
                     
-                    SOURCE[Line-1] = f'{(indent)*" "}elif {SEARCH.group("VARIABLE")} == {SEARCH_VALUE.group("VALUE")}:' #+4
+                    SOURCE[Line-1] = f'{(indent)*" "}elif {Regex.group("VARIABLE")} == {SEARCH_VALUE.group("VALUE")}:' #+4
             SOURCE.insert(Line_Nom-1, f'{(indent)*" "}if False:pass')
 
         #] Load User-Defined Modules
@@ -663,7 +681,72 @@ def Syntax(SOURCE,
         elif Reg:=re.search(r'unless \s*(?P<Expression>.+):', Text.strip()):
             SOURCE[Line_Nom-1] = f"if not ({Reg.group('Expression')}):"
         elif Reg:=re.search(r'foreach \s*(?P<Expression>.+):', Text.strip()):
-            SOURCE[Line_Nom-1] = f"if not ({Reg.group('Expression')}):"
+            SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('foreach', 'for', 1)
+        elif Reg:=re.search(r'func \s*(?P<Expression>.+)', Text.strip()):
+            SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('func', 'def', 1)
+
+        #] Const Var
+        elif Text.strip().startswith('Const '):
+            #if Text.startswith(' '): raise LateDefine("'Const' Must Be Defined In The Main Scope")
+            if re.search(r'^Const\s+([A-Za-z]|_)+\s*=\s*', Text.strip()):
+                INDENT = re.search(r'Const\s+([A-Za-z]|_)+\s*=\s*', Text).start()
+                striped = Text.strip()
+                SOURCE.remove(Text)
+                SOURCE.insert(Line_Nom-1, INDENT*' ' + striped[striped.index(' ')+1:])
+                CONST = striped[striped.index(' '):striped.index('=')].strip()
+                if CONST != CONST.upper():
+                    #] maybe it should be just a warning
+                    raise ERRORS.ConstantError(Line_Nom=Line_Nom, 
+                                               Line_Text=Text.strip(), 
+                                               File=FILE, 
+                                               msg='Constant Variable Name Must be UPPERCASE')
+                for item in CONSTS:  #] Check if Const X is already defined
+                    if CONST == item[0]:
+                        raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
+                CONSTS.add((CONST, Line_Nom))
+        
+        #] Const Array
+        elif re.search(r'^\w+\s*=\s*<.+>', Text.strip()):
+            search = re.search(r'(?P<Indent>\s*)(?P<VarName>\w+)\s*=\s*<(?P<Content>.*)>', Text)
+            Content = search.group('Content')
+            TYPE_ERROR = False
+            try:
+                Content = eval(Content)
+                if type(Content) != tuple:
+                    TYPE_ERROR = True
+            except NameError:
+                pass
+            except Exception as e:
+                raise e from None
+            #else:
+            VarName = search.group('VarName')
+            if TYPE_ERROR:
+                #raise TypeError(f"ArrayConst can not be '{type(Content)}' type (Use 'Const' keyword)")
+                Type_Content = str(type(Content))[8:-2]
+                if DEBUG:
+                    print(f"'<>' is for Arrays, Try to use 'Const' keyword for type ",'red', end='')
+                    print(f"'{Type_Content}'  ({FILE}:{Line_Nom}:{VarName})", 'red')#, style='bold')
+            CONSTS.add((VarName, Line_Nom))
+            print(SOURCE[Line_Nom-1], 'red')
+            SOURCE[Line_Nom-1] = f'{VarName} = {Content}'
+        """
+        #] Indent
+        if Text.strip().startswith(Keywords):
+            BREAK = False
+            LINE = int(Line_Nom)
+            while not BREAK:
+                if SOURCE[LINE-1].strip().endswith(':'):
+                    BREAK = True
+                else:
+                    LINE += 1
+
+            INDENT = len(re.search(r'^(?P<indent>\s*).*', Text).group('indent'))
+            INDENT_START = len(re.search(r'^(?P<indent>\s*).*', SOURCE[LINE]).group('indent'))
+            if INDENT_START <= INDENT:
+                print('RX')
+                raise ERRORS.IndentionError(Line_Nom+1, SOURCE[Line_Nom], FILE)
+        """
+
 
 
     return SOURCE
