@@ -137,10 +137,10 @@ def Setup_Env():
 
 #< List of all errors >#
 class ERRORS:
-    TRACEBACK = 'Traceback (most recent call last):'
+    #TRACEBACK = 'Traceback (most recent call last):'
     class BaseDefinedError(Exception):
         def __init__(self, attribute, line_text, line_nom, File):
-            print(ERRORS.TRACEBACK)
+            print('Traceback (most recent call last):')
             #super().__init__(f"Already Defined {attribute}")
             print(f'  File "{File}", line {line_nom}, in <module>')
             print( '    '+line_text)
@@ -210,7 +210,7 @@ class ERRORS:
 
     class LoadError(Exception):
         def __init__(self, Module, error=False):
-            print(ERRORS.TRACEBACK)
+            print('Traceback (most recent call last):')
             print(f'  Loading Module "{Module}" Resulted in an Error', 'red' if error else 'default')
             if error:
                 print(error)
@@ -469,7 +469,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             SOURCE[Line_Nom-1] = f'{VarName} = {Content}'
 
         for item in CONSTS:
-            if re.search(rf'( |;){item}\s*(\[.+\])?\s*=\s*[^=]+', Text):  # \s*.+  {?} 
+            if re.search(rf'( |;){item[0]}\s*(\[.+\])?\s*=\s*[^=]+', Text):  # \s*.+  {?} 
                 if not Text.strip().startswith('def ')  and  not Text.strip().startswith('#'):
                     raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
 
@@ -603,9 +603,8 @@ def Syntax(SOURCE,
             Skip = 1
 
         #] Switch and Case
-        elif re.search(r'^\s*(S|s)witch\s+\w+\s*:', Text.strip()):
-            SEARCH = re.search(r'^(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:\s*', Text)
-            indent = len(SEARCH.group('indent'))
+        elif Regex:=re.search(r'^\s*(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text):
+            indent = len(Regex.group('indent'))
             
             rules = 0
             for nom2,line2 in enumerate(SOURCE[Line_Nom:], 1):
@@ -662,8 +661,8 @@ def Syntax(SOURCE,
         elif Reg:=re.search(r'until \s*(?P<Expression>.+):', Text.strip()):
             SOURCE[Line_Nom-1] = f"if not ({Reg.group('Expression')}):"
         elif Reg:=re.search(r'unless \s*(?P<Expression>.+):', Text.strip()):
-            SOURCE[Line_Nom-1] = f"while not ({Reg.group('Expression')}):"
-        elif Reg:=re.search(r'foreach \s*(?P<Expression>\w+ in \w+):', Text.strip()):  #Changed .+ to \w+
+            SOURCE[Line_Nom-1] = f"if not ({Reg.group('Expression')}):"
+        elif Reg:=re.search(r'foreach \s*(?P<Expression>.+):', Text.strip()):
             SOURCE[Line_Nom-1] = f"if not ({Reg.group('Expression')}):"
 
 
@@ -747,7 +746,7 @@ if __name__ == "__main__":
         except Exception as E:
             if ARGS[4]:
                 raise E
-            raise E
+            #raise E
             print('Traceback (most recent call last):','red')
             print('  More Information Soon...','red')
             print(str(type(E))[8:-2]+': '+str(E), 'red', style='bold')

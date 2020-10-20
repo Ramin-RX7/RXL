@@ -2,9 +2,8 @@ Print : stylized
 Module-Name : ms
 Method : lite
 Func-Type-Checker: False
-#End-Quit : True
-End-Exit : True
 
+End-Exit : True
 print('Hello World!')
 Include files
 print('Middle')
@@ -13,6 +12,7 @@ class X:
     def func():
         pass
 
+Include files
 def x():
     pass
     def myfunc(x):
@@ -24,16 +24,17 @@ def x():
 x()
 
 
-ArrConst  = <'1',x(),'2','3'>
+#ArrConst  = <'1',x(),'2','3'>
 #ArrConst2 = <'1'>
-print(&ArrConst)
+#print(&ArrConst)
 
 Const HELO = 2
-
+#def x():
+HELO ='d'
 
 """
-Const XX = 'sdfsafdsfa'
-Include *
+#Const XX = 'sdfsafdsfa'
+#Include *
 """
 Include Terminal
 XX = 'sadf'

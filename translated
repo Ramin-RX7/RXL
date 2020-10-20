@@ -1,7 +1,6 @@
 import rx7.lite as ms
 print = ms.style.print
 
-
 print('Hello World!')
 files = ms.files
 print('Middle')
@@ -10,6 +9,7 @@ class X:
     def func():
         pass
 
+files = ms.files
 def x():
     pass
     def myfunc(x):
@@ -21,16 +21,17 @@ def x():
 x()
 
 
-ArrConst = '1',x(),'2','3'
+#ArrConst  = <'1',x(),'2','3'>
 #ArrConst2 = <'1'>
-print(hex(id(ArrConst)))
+#print(&ArrConst)
 
 HELO = 2
-
+#def x():
+HELO ='d'
 
 """
-XX = 'sdfsafdsfa'
-Include *
+#Const XX = 'sdfsafdsfa'
+#Include *
 """
 Terminal = ms.Terminal
 XX = 'sadf'
