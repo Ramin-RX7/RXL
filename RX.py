@@ -4,12 +4,11 @@
 
 #### EXT: RUN FILE
 # TODO:
+ #>  When Keyword for Calling specifiec function when condition comes True
  #>  Indent check for ":" with getting first-line-indent and start-line-indent
  #>  Split line by strings, check_syntax spliteds ,connect them again
  #>  Array
- #>  func:def(:None)?
  #>  Improve switch & case: No break - Default
- #>  Create SuperLite Module
  #>  goto for For loops with naming For loops
  #>  do_when
  #>  Improve Exception Catching when runing file
@@ -23,6 +22,8 @@
  #✓  Until:if not --- Unless:while not --- foreach:for
 ###########
 # NOTE:
+ #>  Create RX App with Menu:
+        #>  Create SuperLite Module
  #>  Generate:yield(:None)?
  #>  Save Cache ?
  #>  Option for run translated or import it (import will ignore "if __name__ ...")
@@ -30,6 +31,7 @@
  #>  Stop Imports?
  #>  New Errors Ext Color
  #>  Package installer like pip? (if 3rd-party modules)
+ #>  def(:None)?
 ###########
 # BUG:
  #>  CONSTs:
@@ -71,6 +73,7 @@ r"""
  1784   | include        (and much more)
  366   "rx-class-names": {
  362   "include": "#rx-class-names"
+ 1373  "function-declaration": {
 """
 #] VS Ext
 r"""
@@ -115,6 +118,7 @@ import RX_SuperLite as rx
 
 
 print = rx.style.print
+Error = rx.style.log_error
 #print(f'ImpRX7 :: {time.time()-START_TIME}','green')
 t = rx.Record()
 
@@ -146,7 +150,7 @@ class ERRORS:
             #super().__init__(f"Already Defined {attribute}")
             print(f'  File "{File}", line {line_nom}, in <module>')
             print( '    '+line_text)
-            print(f"BaseDefinedError: '{attribute}' can not be defined after setting module [OPTIONS]")
+            Error(f"BaseDefinedError: '{attribute}' can not be defined after setting module [OPTIONS]")
             sys.exit()
 
     class NameError(Exception):
@@ -159,7 +163,7 @@ class ERRORS:
             if not msg:
                 print(f"NameError: '{attribute}' can not be {value}. Valid Choices: {correct_list}")
             else:
-                print(f"NameError: {msg}")
+                Error(f"NameError: {msg}")
             sys.exit()
     
     class ConstantError(Exception):
@@ -169,7 +173,7 @@ class ERRORS:
             print(f'  File "{File}", line {Line_Nom}, in <module>')
             print( '    '+Line_Text)
             end = msg if msg else f"Redefinition of '{Attribute}' (Already Defined At Line {Line_Def})"
-            print("ConstantError: "+ end)
+            Error("ConstantError: "+ end)
             sys.exit()
 
     class IndentionError(Exception):
@@ -178,7 +182,7 @@ class ERRORS:
             print( 'Traceback (most recent call last):')
             print(f'  File "{File}", line {Line_Nom}, in <module>')
             print( '    '+Line_Text)
-            print("IndentationError: expected an indented block")
+            Error("IndentationError: expected an indented block")
             sys.exit()
 
     class UndefinedError(Exception):
@@ -199,7 +203,7 @@ class ERRORS:
             print( 'Traceback (most recent call last):')
             print(f'  File "{File}", line {line_nom}, in <module>')
             print( '    '+line_text)
-            print(f"ModuleNotFoundError: No module named '{Name}'")
+            Error(f"ModuleNotFoundError: No module named '{Name}'")
             sys.exit()
 
     class AttributeError(Exception):
@@ -207,7 +211,7 @@ class ERRORS:
             print('Traceback (most recent call last):')
             print(f'  File "{File}", line {Line_Nom}, in <module>')
             print('    '+Line_Text)
-            print(f"AttributeError: module '{Module_Version}' has no attribute '{Attribute}'")
+            Error(f"AttributeError: module '{Module_Version}' has no attribute '{Attribute}'")
             sys.exit()
 
     class LoadError(Exception):
@@ -218,7 +222,7 @@ class ERRORS:
                 print(error)
             else:
                 print(f'    Module {Module} Returned Output When Loading')
-                print(f'LoadError: Make Sure There is No Print/Output in Module "{Module}"', 'red')
+                Error(f'LoadError: Make Sure There is No Print/Output in Module "{Module}"')
             sys.exit()
 
 
@@ -474,7 +478,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             INDENT = len(re.search(r'^(?P<indent>\s*).*', Text).group('indent'))
             INDENT_START = len(re.search(r'^(?P<indent>\s*).*', SOURCE[LINE]).group('indent'))
             if INDENT_START <= INDENT:
-                print('RX')
+                print('RX_Err','red')
                 raise ERRORS.IndentionError(Line_Nom+1, SOURCE[Line_Nom], FILE)
         #"""
 
@@ -792,11 +796,11 @@ if __name__ == "__main__":
             rx.terminal.run('python '+' '.join(sys.argv))
             sys.exit()
         '''
-        Setup_Env()  #] 0.03
         #rx.terminal.set_title('RX')
         ARGS = Get_Args()  # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P}
         FILE   = ARGS[0]
         #rx.cls()
+        Setup_Env()  #] 0.03
         SOURCE = Read_File(FILE)
         SOURCE = Define_Structure(SOURCE, FILE, ARGS[2])
         #print(f'DefStr :: {t.last_lap()}','green')
