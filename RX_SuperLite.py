@@ -1,4 +1,4 @@
-import os,subprocess,shutil,time
+import os,subprocess,shutil,time,socket
 
 def cls():
     '''
@@ -31,9 +31,10 @@ class Terminal:
     set_title = __import__('win32api').SetConsoleTitle
 terminal = Terminal
 
+
+from colored import fg,bg,attr
 class style:
     def __init__(self,text,color='default',BG='black'):
-        from colored import fg,bg,attr
         try:
             color= color.lower()
             BG=BG.lower()
@@ -83,7 +84,6 @@ class style:
     @staticmethod
     def log_error(text, color='red', BG='default', style='bold'):
         globals()['style'].print(text, color, BG, style=style)
-
 Style = style
 
 
@@ -152,4 +152,6 @@ write = files.write
 
 class system:
     chdir = os.chdir
+    accname = os.getlogin
+    device_name = socket.gethostname
 System = system

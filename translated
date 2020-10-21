@@ -12,7 +12,7 @@ class X:
 files = ms.files
 def x():
     pass
-    def myfunc(x):
+     def myfunc(x):
         pass
     if ('x' and 
 'y'):

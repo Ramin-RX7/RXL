@@ -108,6 +108,7 @@ import sys
 import re
 import time
 import argparse
+import datetime
 
 
 START_TIME = time.time()
@@ -123,6 +124,7 @@ Error = rx.style.log_error
 t = rx.Record()
 
 RX_PATH = rx.files.abspath(__file__)[:-6]
+__version__ = '1.0.0'
 
 CLASSES = (['files','System','random','style','record','terminal','Tuple'],
            ['Files','Random','Record','Terminal','system','style','Tuple']
@@ -147,7 +149,6 @@ class ERRORS:
     class BaseDefinedError(Exception):
         def __init__(self, attribute, line_text, line_nom, File):
             print('Traceback (most recent call last):')
-            #super().__init__(f"Already Defined {attribute}")
             print(f'  File "{File}", line {line_nom}, in <module>')
             print( '    '+line_text)
             Error(f"BaseDefinedError: '{attribute}' can not be defined after setting module [OPTIONS]")
@@ -230,13 +231,16 @@ class ERRORS:
 def Get_Args():
 
     #print('ARGS:  '+str(sys.argv))
-    
+
     if len(sys.argv) == 1:
         Console()
+        #Menu()
+        sys.exit()
 
     #if len(sys.argv) > 3:
     #    print('Argument Parser Will be added in next versions','dodger_blue_1')
     #    sys.exit()
+
 
 
     parser = argparse.ArgumentParser(
@@ -321,13 +325,24 @@ def Get_Args():
     return args.FILE, args.info, args.d, args.debug, args.MT, args.T2P#, args.PROG_ARGS
 
 
+#< Menu >#
+def Menu():
+    import datetime
+    NOW = str(datetime.datetime.now())
+    print(f'RX v{__version__} Running on {rx.system.device_name()}::{rx.system.accname()}')
+    print('''
+        {1}--Console
+        {2}--System Info
+
+    ''')
+
+
 #< Interactive RX Shell >#
 def Console():
+    NOW = str(datetime.datetime.now())
+    print(f'RX v{__version__} Running on {rx.system.device_name()}::{rx.system.accname()}')
     rx.terminal.set_title('RX - Console')
     def wait_for_input(prompt):
-        '''
-        Prompt  input(prompt)  until sth is given
-        '''
         answer= ''
         while not answer:
             answer = input(prompt)
@@ -336,7 +351,6 @@ def Console():
     from importlib import reload
     
     rx.system.chdir(RX_PATH)
-
     PRE= ['import rx7.lite as sc','print = sc.style.print']
     rx.write('_Console_.py', '\n'.join(PRE)+'\n')
     import _Console_
@@ -367,7 +381,7 @@ def Console():
 
 #< Reading File >#
 def Read_File(filepath):
-    if rx.files.exists(filepath):
+    if filepath and rx.files.exists(filepath):
         with open(filepath) as f:
             SOURCE = f.read().split('\n')
         return SOURCE + ['\n']
@@ -401,88 +415,6 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     #{???}autopep8 -i script.py
     import IndentCheck
     IndentCheck.check(FILE)
-    
-    
-    #< Const Vars && Indents >#
-    CONSTS = set()
-    Keywords = ('for', 'while', 'if', 'else', 'elif', 'except', 'case')
-    #INDENT = 0
-
-    for Line_Nom,Text in enumerate(SOURCE, 1):
-
-        if Text.strip().startswith('#'):
-            continue
-        """
-        for item in CONSTS:
-            striped = Text.strip()
-            if re.search(rf'( |;|^$){item[0]}\s*(\[.+\])?\s*=\s*[^=]+', Text):  # \s*.+  {?} 
-                if not striped.startswith('def ')  and  not striped.startswith('#'):
-                    raise ERRORS.ConstantError(Line_Nom, item[1], striped, item[0], FILE)
-        
-        #] Const Var
-        if Text.strip().startswith('Const '):
-            #if Text.startswith(' '): raise LateDefine("'Const' Must Be Defined In The Main Scope")
-            if re.search(r'^Const\s+([A-Za-z]|_)+\s*=\s*', Text.strip()):
-                INDENT = re.search(r'Const\s+([A-Za-z]|_)+\s*=\s*', Text).start()
-                striped = Text.strip()
-                SOURCE.remove(Text)
-                SOURCE.insert(Line_Nom-1, INDENT*' ' + striped[striped.index(' ')+1:])
-                CONST = striped[striped.index(' '):striped.index('=')].strip()
-                if CONST != CONST.upper():
-                    #] maybe it should be just a warning
-                    raise ERRORS.ConstantError(Line_Nom=Line_Nom, 
-                                               Line_Text=Text.strip(), 
-                                               File=FILE, 
-                                               msg='Constant Variable Name Must be UPPERCASE')
-                for item in CONSTS:  #] Check if Const X is already defined
-                    if CONST == item[0]:
-                        raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
-                CONSTS.add((CONST, Line_Nom))
-
-        #] Const Array
-        elif re.search(r'^\w+\s*=\s*<.+>', Text.strip()):
-            search = re.search(r'(?P<Indent>\s*)(?P<VarName>\w+)\s*=\s*<(?P<Content>.*)>', Text)
-            Content = search.group('Content')
-            TYPE_ERROR = False
-            try:
-                Content = eval(Content)
-                if type(Content) != tuple:
-                    TYPE_ERROR = True
-            except NameError:
-                pass
-            except Exception as e:
-                raise e from None
-            #else:
-            VarName = search.group('VarName')
-            if TYPE_ERROR:
-                #raise TypeError(f"ArrayConst can not be '{type(Content)}' type (Use 'Const' keyword)")
-                Type_Content = str(type(Content))[8:-2]
-                if DEBUG:
-                    print(f"'<>' is for Arrays, Try to use 'Const' keyword for type ",'red', end='')
-                    print(f"'{Type_Content}'  ({FILE}:{Line_Nom}:{VarName})", 'red')#, style='bold')
-            CONSTS.add((VarName, Line_Nom))
-            SOURCE[Line_Nom-1] = f'{VarName} = {Content}'
-
-        """
-        #"""
-        #] Indent
-        if Text.strip().startswith(Keywords):
-            BREAK = False
-            LINE = int(Line_Nom)
-            while not BREAK:
-                if SOURCE[LINE-1].strip().endswith(':'):
-                    BREAK = True
-                else:
-                    LINE += 1
-
-            INDENT = len(re.search(r'^(?P<indent>\s*).*', Text).group('indent'))
-            INDENT_START = len(re.search(r'^(?P<indent>\s*).*', SOURCE[LINE]).group('indent'))
-            if INDENT_START <= INDENT:
-                print('RX_Err','red')
-                raise ERRORS.IndentionError(Line_Nom+1, SOURCE[Line_Nom], FILE)
-        #"""
-
-
 
     #< OPTIONS >#
     MODULE_VERSION  = 'rx7'
@@ -554,13 +486,13 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     #print(CONSTS)
     return (SOURCE, 
             MODULE_VERSION, MODULE_SHORTCUT,
-            TYPE_SCANNER, CONSTS,)
+            TYPE_SCANNER)
 
 
 #< Syntax >#
 def Syntax(SOURCE, 
            MODULE_VERSION ,  MODULE_SHORTCUT,
-           TYPE_SCANNER   ,  CONSTS, 
+           TYPE_SCANNER   ,
            FILE):
 
 
@@ -733,11 +665,12 @@ def Syntax(SOURCE,
             CONSTS.add((VarName, Line_Nom))
             print(SOURCE[Line_Nom-1], 'red')
             SOURCE[Line_Nom-1] = f'{VarName} = {Content}'
-        """
+        
         #] Indent
-        if Text.strip().startswith(Keywords):
+        elif Text.strip().endswith(':'):#.startswith(Keywords):
             BREAK = False
             LINE = int(Line_Nom)
+            T = str(Text)
             while not BREAK:
                 if SOURCE[LINE-1].strip().endswith(':'):
                     BREAK = True
@@ -747,9 +680,9 @@ def Syntax(SOURCE,
             INDENT = len(re.search(r'^(?P<indent>\s*).*', Text).group('indent'))
             INDENT_START = len(re.search(r'^(?P<indent>\s*).*', SOURCE[LINE]).group('indent'))
             if INDENT_START <= INDENT:
-                print('RX')
+                print('RX_Err','red')
                 raise ERRORS.IndentionError(Line_Nom+1, SOURCE[Line_Nom], FILE)
-        """
+        
 
 
 
@@ -758,7 +691,6 @@ def Syntax(SOURCE,
 
 #< Verbose >#
 def Add_Verbose(SOURCE, FILE):
-    import datetime
     NOW = str(datetime.datetime.now())
     print(f'''Start RX Language at "{NOW[:NOW.rindex('.')+5]}"''')
     print(f'Running  "{FILE}"')
@@ -785,6 +717,8 @@ def Clean_Up():
 
 
 
+
+
 #< START OF THE CODE >#
 if __name__ == "__main__":
     try:
@@ -804,7 +738,7 @@ if __name__ == "__main__":
         SOURCE = Read_File(FILE)
         SOURCE = Define_Structure(SOURCE, FILE, ARGS[2])
         #print(f'DefStr :: {t.last_lap()}','green')
-        SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], SOURCE[4], FILE)
+        SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE)
         if ARGS[1]:
             SOURCE = Add_Verbose(SOURCE, FILE)
         rx.write('_RX_Py.py', '\n'.join(SOURCE))
