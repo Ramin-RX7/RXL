@@ -40,6 +40,7 @@
  #X  Unable to run file with double clicking
  #X  Get Remaining Args for PROGRAM
  #X  Terminal is slow for loading code from first each time
+ #X  Every Load takes 0.2
  #✓  Errors in red Color
  #✓  why exe doesn't accept args
 
@@ -132,6 +133,7 @@ CLASSES = (['files','System','random','style','record','terminal','Tuple'],
 
 LOADED_PACKAGES = []
 
+Lines_Added = 0
 
 
 
@@ -148,7 +150,7 @@ class ERRORS:
     class BaseDefinedError(Exception):
         def __init__(self, attribute, line_text, line_nom, File):
             print('Traceback (most recent call last):')
-            print(f'  File "{File}", line {line_nom}, in <module>')
+            print(f'  File "{File}", line {line_nom-Lines_Added}, in <module>')
             print( '    '+line_text)
             Error(f"BaseDefinedError: '{attribute}' can not be defined after setting module [OPTIONS]")
             sys.exit()
@@ -158,7 +160,7 @@ class ERRORS:
                 File, attribute=None, value=None, line_text='', 
                 line_nom=0, correct_list=[], msg=None):
             print( 'Traceback (most recent call last):')
-            print(f'  File "{File}", line {line_nom}, in <module>')
+            print(f'  File "{File}", line {line_nom-Lines_Added}, in <module>')
             print( '    '+line_text)
             if not msg:
                 print(f"NameError: '{attribute}' can not be {value}. Valid Choices: {correct_list}")
@@ -170,7 +172,7 @@ class ERRORS:
         def __init__(self,
           Line_Nom=0, Line_Def=0, Line_Text='', Attribute='', File='', msg=None):
             print( 'Traceback (most recent call last):')
-            print(f'  File "{File}", line {Line_Nom}, in <module>')
+            print(f'  File "{File}", line {Line_Nom-Lines_Added}, in <module>')
             print( '    '+Line_Text)
             end = msg if msg else f"Redefinition of '{Attribute}' (Already Defined At Line {Line_Def})"
             Error("ConstantError: "+ end)
@@ -180,7 +182,7 @@ class ERRORS:
         def __init__(self,
           Line_Nom=0, Line_Text='', File=''):
             print( 'Traceback (most recent call last):')
-            print(f'  File "{File}", line {Line_Nom}, in <module>')
+            print(f'  File "{File}", line {Line_Nom-Lines_Added}, in <module>')
             print( '    '+Line_Text)
             Error("IndentationError: expected an indented block")
             sys.exit()
@@ -201,7 +203,7 @@ class ERRORS:
     class ModuleNotFoundError(Exception):
         def __init__(self, File, Name=None, line_text='', line_nom=0):
             print( 'Traceback (most recent call last):')
-            print(f'  File "{File}", line {line_nom}, in <module>')
+            print(f'  File "{File}", line {line_nom-Lines_Added}, in <module>')
             print( '    '+line_text)
             Error(f"ModuleNotFoundError: No module named '{Name}'")
             sys.exit()
@@ -209,7 +211,7 @@ class ERRORS:
     class AttributeError(Exception):
         def __init__(self,File, Line_Nom, Line_Text, Module_Version, Attribute):
             print('Traceback (most recent call last):')
-            print(f'  File "{File}", line {Line_Nom}, in <module>')
+            print(f'  File "{File}", line {Line_Nom-Lines_Added}, in <module>')
             print('    '+Line_Text)
             Error(f"AttributeError: module '{Module_Version}' has no attribute '{Attribute}'")
             sys.exit()
@@ -532,9 +534,16 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             SOURCE[ln] = ''
             Changeable.append(ln)
 
+    if len(Changeable):
+        SOURCE[Changeable[0]] = f'import {MODULE_VERSION} as {MODULE_SHORTCUT}'
+    else:
+        SOURCE.insert(0, f'import {MODULE_VERSION} as {MODULE_SHORTCUT}')
+    if len(Changeable)>1:
+        SOURCE[Changeable[1]] = f"print = {MODULE_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}"
+    else:
+        SOURCE.insert(1, f"print = {MODULE_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}")
 
-    SOURCE[Changeable[0]] = f'import {MODULE_VERSION} as {MODULE_SHORTCUT}'
-    SOURCE[Changeable[1]] = f"print = {MODULE_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}"
+
 
 
     #print(CONSTS)
@@ -599,18 +608,22 @@ def Syntax(SOURCE,
             else:
                 Packages = re.split(r'\s*,\s*', Text)
                 Packages[0]= Packages[0][len(Indent)+8:].strip()
-            SOURCE.remove(Text)
+            #SOURCE.remove(Text)
+            To_Add = str(Indent)
             for package in Packages:
                 if package not in CLASSES[0]+CLASSES[1]:
                     raise ERRORS.AttributeError(FILE,Line_Nom,Text,MODULE_VERSION,package)
-                SOURCE.insert(Line_Nom-1, f'{Indent}{package} = {MODULE_SHORTCUT}.{package}')
-            continue
+                #SOURCE.insert(Line_Nom-1, f'{Indent}{package} = {MODULE_SHORTCUT}.{package}')
+                To_Add += f'{package}={MODULE_SHORTCUT}.{package};'
+            SOURCE[Line_Nom-1] = To_Add
+            # continue  # do it to all?
 
         #] Func Type checker
-        elif Striped.startswith('def ') and TYPE_SCANNER:
+        elif Striped.startswith('def ') and TYPE_SCANNER:  # Make it regex?
             indent = Text.index('def ')
             SOURCE.insert(Line_Nom-1, f'{" "*indent}@{MODULE_SHORTCUT}.Check_Type')
             Skip = 1
+            Added_Lines += 1
 
         #] Switch and Case
         elif Regex:=re.search(r'^\s*(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text):
@@ -627,7 +640,8 @@ def Syntax(SOURCE,
             else:
                 LAST_LINE = -1
 
-            SOURCE.remove(Text)
+            #SOURCE.remove(Text)
+            SOURCE[Line_Nom-1] = f'{(indent)*" "}if False:pass'
             for Line,snc in enumerate(SOURCE[Line_Nom-1:LAST_LINE], Line_Nom):
                 SEARCH_VALUE = re.search(r'^(C|c)ase\s+(?P<VALUE>.+):\s*', snc.strip())
                 if SEARCH_VALUE:
@@ -635,9 +649,8 @@ def Syntax(SOURCE,
                         raise TypeError
                     else:
                         pass#SOURCE[Line-1] =   ' '*(indent+4) + SOURCE[Line-1]
-                    
                     SOURCE[Line-1] = f'{(indent)*" "}elif {Regex.group("VARIABLE")} == {SEARCH_VALUE.group("VALUE")}:' #+4
-            SOURCE.insert(Line_Nom-1, f'{(indent)*" "}if False:pass')
+            #SOURCE.insert(Line_Nom-1, f'{(indent)*" "}if False:pass')
 
         #] Load User-Defined Modules
         elif Regex:=re.search(r'^(?P<indent>\s*)(L|l)oad \s*(\w+,?)?', Text.strip()):
@@ -645,23 +658,30 @@ def Syntax(SOURCE,
             Packages = re.split(r'\s*,\s*', Text)
             Packages[0]= Packages[0][4:].strip()
             
-            print(Packages)
-            SOURCE.remove(Text)
+            #SOURCE.remove(Text)
+            #SOURCE[Line_Nom-1]=''
+            To_Add = str(Indent)
+            t2 = rx.record()
             for package in Packages:
                 if rx.files.exists(f'{package}.rx7'):
                     pack_out = rx.terminal.getoutput(f'python RX.py {package}.rx7 -MT -T2P').strip()
                     if len(pack_out):
                         if re.search(r'^\w+Error', pack_out.splitlines()[-1]):
+                            #print('XXX', 'green')
                             raise ERRORS.LoadError(package,pack_out.splitlines()[-1])
                         else:
                             raise ERRORS.LoadError(package)
                     
-                    rx.files.move(f'{package}.py', f'__RX_LIB__/{package}.py')
+                    #rx.files.move(f'{package}.py', f'__RX_LIB__/{package}.py')
                     LOADED_PACKAGES.append(package)
                     #SOURCE.insert(Line_Nom-1,f"from __RX_LIB__ import {package};{MODULE_SHORTCUT}.files.remove('__RX_LIB__/{package}.py')")
-                    SOURCE.insert(Line_Nom-1,f"{Indent}{package} = {MODULE_SHORTCUT}.import_module('{package}.rx7')") #;{MODULE_SHORTCUT}.files.remove('__RX_LIB__/{package}.py')
+                    #SOURCE.insert(Line_Nom-1,f"{Indent}{package} = {MODULE_SHORTCUT}.import_module('{package}.rx7')") #;{MODULE_SHORTCUT}.files.remove('__RX_LIB__/{package}.py')
+                    To_Add += f"{package}={MODULE_SHORTCUT}.import_module('__RX_LIB__/{package}.py');"
                 else:
                     raise ERRORS.ModuleNotFoundError(FILE, package, Text, Line_Nom)
+            print(t2.lap())
+            SOURCE[Line_Nom-1]=str(To_Add)
+
 
         #] Memory Location of Object
         elif re.search(r'''[,\(\[\{\+=: ]&\w+''', Text): #[^a-zA-Z0-9'"]
@@ -798,10 +818,13 @@ if __name__ == "__main__":
         SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE)
         if ARGS[1]:
             SOURCE = Add_Verbose(SOURCE, FILE)
-        if rx.files.exists('_RX_Py.py'): rx.files.remove('_RX_Py.py')
-        rx.write('_RX_Py.py', '\n'.join(SOURCE))
-        rx.write('translated', '\n'.join(SOURCE))
-        rx.files.hide('_RX_Py.py')
+        #print(Lines_Added)
+        if not ARGS[3] and not ARGS[4]:
+            if rx.files.exists('_RX_Py.py'):
+                rx.files.remove('_RX_Py.py')
+            rx.write('_RX_Py.py', '\n'.join(SOURCE))
+            rx.write('translated', '\n'.join(SOURCE))
+            rx.files.hide('_RX_Py.py')
         #print(f'Write :: {t.last_lap()}','green')
         try:
             if ARGS[5]:
@@ -809,10 +832,11 @@ if __name__ == "__main__":
                     rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
                 else:
                     print('Error in Parsing(T2P): With -T2P You Need To Specify FILE', 'red')
-            
-            if not ARGS[3]:
+            if ARGS[4]:
+                rx.files.move(f'{FILE.split(".")[0]}.py', f'__RX_LIB__/{FILE.split(".")[0]}.py')
+
+            if not ARGS[3] and not ARGS[4]:
                 if FILE:
-                    import os
                     #os.system('python _RX_Py.py')
                     print(f'B_Run :: {time.time()-START_TIME}','green')
                     rx.terminal.set_title(f'RX - {os.path.basename(FILE)}')
@@ -836,7 +860,8 @@ if __name__ == "__main__":
             sys.exit()
             '''
         finally:
-            Clean_Up()
+            if not ARGS[4]:
+                Clean_Up()
             #rx.files.remove(f'__RX_LIB__', force=True)
             #rx.files.remove('_RX_Py.py')
             #rx.files.remove('__pycache__', force=True)            

@@ -5,13 +5,14 @@ print = ms.style.print
 
 
 print('Start')
-files = ms.files
+
+files=ms.files;
 
 class X:
     def func():
         pass
 
-files = ms.files
+files=ms.files;
 def x():
     pass
     def myfunc(x):
@@ -28,15 +29,17 @@ def hello():
 ArrConst = '1',x(),'2','3'
 #ArrConst2 = <'1'>
 print(hex(id(ArrConst)))
-asd()
+#asd()
 HELO = (2,)
 #def x():
  #HELO ='d'
- 
-do:
 
+''' 
+do:
+   print('ln1')
    print('ln2')
    print('ln3')
+   '''
 print('NOO')
 
 
@@ -44,15 +47,17 @@ print('NOO')
 #Const XX = 'sdfsafdsfa'
 #Include *
 """
-Terminal = ms.Terminal
+
+
+Terminal=ms.Terminal;
 XX = 'sadf'
 def hello(x):
-    files = ms.files
-    terminal = ms.terminal
-    Files = ms.Files
+    Files=ms.Files;terminal=ms.terminal;files=ms.files;
 import os
 
-#Load x
+
+x=ms.import_module('__RX_LIB__/x.py');
+#print(f.new + 'xxxadfadsfdasfdasf')
 #print(x.var, 'green')
 if not (XX):
  print('No XX')
