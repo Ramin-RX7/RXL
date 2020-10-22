@@ -15,7 +15,7 @@ class X:
 Include files
 def x():
     pass
-     def myfunc(x):
+    def myfunc(x):
         pass
     if ('x' and 
 'y'):
@@ -60,7 +60,7 @@ switch x:
     case (2,4):
         print('case2')
     case (3,4):
-     print('case3')
+        print('case3')
         d
 if ('d' and
 'df'):

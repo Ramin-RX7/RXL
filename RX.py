@@ -109,11 +109,12 @@ import re
 import time
 import argparse
 import datetime
+import os
 
 
 START_TIME = time.time()
 
-#import rx7.lite as rx
+
 import RX_SuperLite as rx
 
 
@@ -230,8 +231,8 @@ class ERRORS:
 #< Get Arguments >#
 def Get_Args():
 
-    #print('ARGS:  '+str(sys.argv))
-
+    print('ARGS:  '+str(sys.argv), 'green')
+    print(os.getcwd())
     if len(sys.argv) == 1:
         Console()
         #Menu()
@@ -327,12 +328,12 @@ def Get_Args():
 
 #< Menu >#
 def Menu():
-    import datetime
     NOW = str(datetime.datetime.now())
     print(f'RX v{__version__} Running on {rx.system.device_name()}::{rx.system.accname()}')
     print('''
         {1}--Console
         {2}--System Info
+        {3}--Compile
 
     ''')
 
@@ -385,6 +386,8 @@ def Read_File(filepath):
         with open(filepath) as f:
             SOURCE = f.read().split('\n')
         return SOURCE + ['\n']
+        import os
+        print(os.path.abspath(filepath), 'red')
     print(f"RX> can't open file '{filepath}': No such file", 'red') #or directory
     sys.exit()
 
@@ -470,8 +473,6 @@ def Define_Structure(SOURCE, FILE, DEBUG):
         #< Exit at the end >#
         elif re.search(r'^(End(-|_))?(Exit|Quit)\s*:\s*\w*', line):
             if line.strip().lower().endswith('false'):
-                #SOURCE.append('__import__("os").system('pause')')
-                #SOURCE[SOURCE.index(line)] = ''
                 SOURCE.append('__import__("getpass").getpass("Press [Enter] to Exit")')
             elif not line.strip().lower().endswith('true'):
                 stripped = line[line.index(':')+1:].strip()
@@ -494,11 +495,13 @@ def Syntax(SOURCE,
            MODULE_VERSION ,  MODULE_SHORTCUT,
            TYPE_SCANNER   ,
            FILE):
-
+    import os
+    os.path.relpath
 
     CONSTS = set()
-    Keywords = ('for'   , 'while', 'if'   , 'else'  , 'elif',
-                'except', 'def'#  , 'until', 'unless', 'case'
+    Keywords = ('if' , 'elif' , 'except' , 'def', 
+                'for', 'while', 'foreach', 'until', 'unless',
+                'try', 'else' , 'switch' , 'class', 'case',
                 )
     Skip = 0
     
@@ -584,7 +587,8 @@ def Syntax(SOURCE,
             SOURCE.insert(Line_Nom-1, f'{(indent)*" "}if False:pass')
 
         #] Load User-Defined Modules
-        elif re.search(r'^(L|l)oad \s*(\w+,?)?', Text.strip()):
+        elif Regex:=re.search(r'^(?P<indent>\s*)(L|l)oad \s*(\w+,?)?', Text.strip()):
+            Indent = Regex.group('indent')
             Packages = re.split(r'\s*,\s*', Text)
             Packages[0]= Packages[0][4:].strip()
             
@@ -602,7 +606,7 @@ def Syntax(SOURCE,
                     rx.files.move(f'{package}.py', f'__RX_LIB__/{package}.py')
                     LOADED_PACKAGES.append(package)
                     #SOURCE.insert(Line_Nom-1,f"from __RX_LIB__ import {package};{MODULE_SHORTCUT}.files.remove('__RX_LIB__/{package}.py')")
-                    SOURCE.insert(Line_Nom-1,f"{package} = {MODULE_SHORTCUT}.import_module('{package}.rx7')") #;{MODULE_SHORTCUT}.files.remove('__RX_LIB__/{package}.py')
+                    SOURCE.insert(Line_Nom-1,f"{Indent}{package} = {MODULE_SHORTCUT}.import_module('{package}.rx7')") #;{MODULE_SHORTCUT}.files.remove('__RX_LIB__/{package}.py')
                 else:
                     raise ERRORS.ModuleNotFoundError(FILE, package, Text, Line_Nom)
 
@@ -611,7 +615,7 @@ def Syntax(SOURCE,
             Search=re.search(r' ?&(\w+)', Text)
             SOURCE[Line_Nom-1] = Text.replace(Search.group(),f'hex(id({Search.group(1)}))')
 
-        #] until & unless & foreach
+        #] until & unless & foreach & func
         elif Reg:=re.search(r'until \s*(?P<Expression>.+):', Text.strip()):
             SOURCE[Line_Nom-1] = f"if not ({Reg.group('Expression')}):"
         elif Reg:=re.search(r'unless \s*(?P<Expression>.+):', Text.strip()):
@@ -663,7 +667,7 @@ def Syntax(SOURCE,
                     print(f"'<>' is for Arrays, Try to use 'Const' keyword for type ",'red', end='')
                     print(f"'{Type_Content}'  ({FILE}:{Line_Nom}:{VarName})", 'red')#, style='bold')
             CONSTS.add((VarName, Line_Nom))
-            print(SOURCE[Line_Nom-1], 'red')
+            #print(SOURCE[Line_Nom-1], 'red')
             SOURCE[Line_Nom-1] = f'{VarName} = {Content}'
         
         #] Indent
@@ -680,7 +684,7 @@ def Syntax(SOURCE,
             INDENT = len(re.search(r'^(?P<indent>\s*).*', Text).group('indent'))
             INDENT_START = len(re.search(r'^(?P<indent>\s*).*', SOURCE[LINE]).group('indent'))
             if INDENT_START <= INDENT:
-                print('RX_Err','red')
+                #print('RX_Err','red')
                 raise ERRORS.IndentionError(Line_Nom+1, SOURCE[Line_Nom], FILE)
         
 
@@ -709,7 +713,8 @@ def Add_Verbose(SOURCE, FILE):
 def Clean_Up():
     rx.files.remove(f'__RX_LIB__', force=True)
     rx.files.remove('_RX_Py.py')
-    rx.files.remove('__pycache__', force=True)
+    #rx.files.remov('__pycache__', force=True)
+
 #import atexit
 #atexit.register(Clean_Up)
 
@@ -731,7 +736,9 @@ if __name__ == "__main__":
             sys.exit()
         '''
         #rx.terminal.set_title('RX')
-        ARGS = Get_Args()  # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P}
+        print(t.lap())
+        ARGS = Get_Args()  # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P}  0.008
+        print(f'ARGS :: {t.lap()}')
         FILE   = ARGS[0]
         #rx.cls()
         Setup_Env()  #] 0.03
@@ -741,6 +748,7 @@ if __name__ == "__main__":
         SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE)
         if ARGS[1]:
             SOURCE = Add_Verbose(SOURCE, FILE)
+        if rx.files.exists('_RX_Py.py'): rx.files.remove('_RX_Py.py')
         rx.write('_RX_Py.py', '\n'.join(SOURCE))
         rx.write('translated', '\n'.join(SOURCE))
         rx.files.hide('_RX_Py.py')

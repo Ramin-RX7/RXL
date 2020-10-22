@@ -127,10 +127,8 @@ dmypy.json
 # VS CODE
 .vscode/
 *.exe
-result.txt
-result
-tst.rx
+tst.*
 _Console_.py
-tst.py
 x.rx7
 translated
+Program/
