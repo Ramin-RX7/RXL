@@ -4,9 +4,8 @@ Method : lite
 Func-Type-Checker: False
 
 End-Exit : True
-print('Hello World!')
+print('Start')
 Include files
-print('Middle')
 
 class X:
     def func():
@@ -26,13 +25,20 @@ x()
 func hello():
     pass
 
-#ArrConst  = <'1',x(),'2','3'>
+ArrConst  = <'1',x(),'2','3'>
 #ArrConst2 = <'1'>
-#print(&ArrConst)
-
+print(&ArrConst)
+asd()
 HELO = <2,>
 #def x():
  #HELO ='d'
+ 
+do:
+   print('ln1')
+   print('ln2')
+   print('ln3')
+print('NOO')
+
 
 """
 #Const XX = 'sdfsafdsfa'

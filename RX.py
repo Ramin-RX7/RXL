@@ -4,22 +4,21 @@
 
 #### EXT: RUN FILE
 # TODO:
- #>  When Keyword for Calling specifiec function when condition comes True
- #>  Indent check for ":" with getting first-line-indent and start-line-indent
- #>  Split line by strings, check_syntax spliteds ,connect them again
+ #>  Replace all remove_lines to ''
+ #>  Console support RX syntax
  #>  Array
  #>  Improve switch & case: No break - Default
  #>  goto for For loops with naming For loops
  #>  do_when
- #>  Improve Exception Catching when runing file
- #>  reindent->rx for indent checking or opposite?
  #>  Do_While loop
  #>  Load Modules:
        #> If Error happens in Loading module, .py file will remains
  #?  Debug Function in (--debug for debug-only && -d for run+debug)
+ #?  Split line by strings, check_syntax spliteds ,connect them again
+ #X  Improve Exception Catching when runing file
+ #X  When Keyword for Calling specifiec function when condition comes True
  #X  Catch Error in Running file
  #!  END OF LINES ERROR IN RED
- #✓  Until:if not --- Unless:while not --- foreach:for
 ###########
 # NOTE:
  #>  Create RX App with Menu:
@@ -37,13 +36,12 @@
  #>  CONSTs:
        #!  After NameError rest of code will be ignored
  #>  No Support for args
- #?  Errors in red Color
  #?  Ignore module loading output error
+ #X  Unable to run file with double clicking
  #X  Get Remaining Args for PROGRAM
  #X  Terminal is slow for loading code from first each time
+ #✓  Errors in red Color
  #✓  why exe doesn't accept args
- #✓  0.35 seconds are spent for what
- #✓  if if statement is more than 1 line it will be indent error
 
 ########################################
 
@@ -231,8 +229,9 @@ class ERRORS:
 #< Get Arguments >#
 def Get_Args():
 
-    print('ARGS:  '+str(sys.argv), 'green')
-    print(os.getcwd())
+    #print('ARGS:  '+str(sys.argv), 'green')
+    #print(os.getcwd())
+    
     if len(sys.argv) == 1:
         Console()
         #Menu()
@@ -419,12 +418,55 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     import IndentCheck
     IndentCheck.check(FILE)
 
+    Skip = 0
+
+    for Line_Nom,Text in enumerate(SOURCE, 1):
+        #] When Adding An Extra Line Like Decorators
+        if Skip:
+            Skip = Skip-1
+            continue
+
+        # Ignore Docstrings and Comments        
+        if Text.strip().startswith('#'):
+            continue
+        elif '"""' in Text  and  not ("'''" in Text and Text.index('"""')>Text.index("'''")):
+            if not '"""' in Text[Text.index('"""')+3:]:
+                for line_in_str,text_in_str in enumerate(SOURCE[Line_Nom:],1):
+                    if '"""' in text_in_str:
+                        Skip = line_in_str
+                        #print(Skip)
+        elif '"""' in Text:
+            if not "'''" in Text[Text.index("'''")+3:]:
+                for line_in_str,text_in_str in enumerate(SOURCE[Line_Nom:],1):
+                    if "'''" in text_in_str:
+                        Skip = line_in_str
+                        #print(Skip)
+
+        #] Indent
+        if Text.strip().endswith(':'):#.startswith(Keywords):
+            BREAK = False
+            LINE = int(Line_Nom)
+            T = str(Text)
+            while not BREAK:
+                if SOURCE[LINE-1].strip().endswith(':'):
+                    BREAK = True
+                else:
+                    LINE += 1
+
+            INDENT = len(re.search(r'^(?P<indent>\s*).*', Text).group('indent'))
+            INDENT_START = len(re.search(r'^(?P<indent>\s*).*', SOURCE[LINE]).group('indent'))
+            if INDENT_START <= INDENT:
+                #print('RX_Err','red')
+                raise ERRORS.IndentionError(Line_Nom+1, SOURCE[Line_Nom], FILE)
+        
+
     #< OPTIONS >#
     MODULE_VERSION  = 'rx7'
     MODULE_SHORTCUT = 'sc'
     PRINT_TYPE = 'print'
     TYPE_SCANNER = True
     #BASED = False
+    Changeable = []
 
     for line in SOURCE[:7]:
 
@@ -437,7 +479,10 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 MODULE_SHORTCUT = str(stripped)
             else:
                 raise ERRORS.NameError(msg='Invalid Value For  modulename/module_name', File=FILE)
-            SOURCE.remove(line)
+            #SOURCE.remove(line)
+            ln = SOURCE.index(line)
+            SOURCE[ln] = ''
+            Changeable.append(ln)
 
         #< Get Version (Method) of Tools >#
         elif re.search(r'^(Method|Package(-|_)Version)\s*:\s*\w*', line):
@@ -449,7 +494,9 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             elif not StripLow.endswith('normal'):
                 stripped = line[line.index(':')+1:].strip()
                 raise ERRORS.NameError(FILE, 'Method', stripped, line, SOURCE[:5].index(line), ['lite','normal'])
-            SOURCE.remove(line)
+            ln = SOURCE.index(line)
+            SOURCE[ln] = ''
+            Changeable.append(ln)
 
         #< Print Function Method >#
         elif re.search(r'^Print\s*:\s*\w*', line):
@@ -459,7 +506,9 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             elif not line.strip().lower().endswith('normal'):
                 stripped = line[line.index(':')+1:].strip()
                 raise ERRORS.NameError(FILE, 'print', stripped, line, SOURCE[:5].index(line), ['lite','normal'])
-            SOURCE.remove(line)
+            ln = SOURCE.index(line)
+            SOURCE[ln] = ''
+            Changeable.append(ln)
 
         #< Function Type Scanner >#          TODO: # Make it Shorter!
         elif re.search(r'^((F|f)unc|(F|f)unction)(-|_)?((T|t)ype|(A|a)rg|(P|p)aram)(-|_)?((S|s)canner|(C|c)hecker)\s*:\s*\w*', line):
@@ -468,7 +517,9 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 TYPE_SCANNER = False
             elif not line.strip().endswith('True'):
                 raise ERRORS.NameError(FILE, 'func_type_checker', stripped, line, SOURCE[:5].index(line), "[True,False]")
-            SOURCE.remove(line)
+            ln = SOURCE.index(line)
+            SOURCE[ln] = ''
+            Changeable.append(ln)
 
         #< Exit at the end >#
         elif re.search(r'^(End(-|_))?(Exit|Quit)\s*:\s*\w*', line):
@@ -477,11 +528,13 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             elif not line.strip().lower().endswith('true'):
                 stripped = line[line.index(':')+1:].strip()
                 raise ERRORS.NameError(FILE, 'Exit', stripped, line, SOURCE[:5].index(line), ['True','False'])
-            SOURCE.remove(line)
+            ln = SOURCE.index(line)
+            SOURCE[ln] = ''
+            Changeable.append(ln)
 
-    SOURCE[0] = f'import {MODULE_VERSION} as {MODULE_SHORTCUT}'
-    SOURCE.insert(1,f"print = {MODULE_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}")
-    SOURCE.insert(2,'')
+
+    SOURCE[Changeable[0]] = f'import {MODULE_VERSION} as {MODULE_SHORTCUT}'
+    SOURCE[Changeable[1]] = f"print = {MODULE_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}"
 
 
     #print(CONSTS)
@@ -509,21 +562,22 @@ def Syntax(SOURCE,
 
         #print(str(Line_Nom)+' '+Text)
         
+        Striped = Text.strip()
+
         for item in CONSTS:
-            striped = Text.strip()
             if re.search(rf'( |;|^$){item[0]}\s*(\[.+\])?\s*=\s*[^=]+', Text):  # \s*.+  {?} 
-                if not striped.startswith('def ')  and  not striped.startswith('#'):
-                    raise ERRORS.ConstantError(Line_Nom, item[1], striped, item[0], FILE)
+                if not Striped.startswith('def ')  and  not Striped.startswith('#'):
+                    raise ERRORS.ConstantError(Line_Nom, item[1], Striped, item[0], FILE)
 
 
         #] When Adding An Extra Line Like Decorators
         if Skip:
             Skip = Skip-1
             continue
+
+        # Ignore Docstrings and Comments        
         if Text.strip().startswith('#'):
             continue
-
-        # Ignore Docstrings
         elif '"""' in Text  and  not ("'''" in Text and Text.index('"""')>Text.index("'''")):
             if not '"""' in Text[Text.index('"""')+3:]:
                 for line_in_str,text_in_str in enumerate(SOURCE[Line_Nom:],1):
@@ -536,7 +590,6 @@ def Syntax(SOURCE,
                     if "'''" in text_in_str:
                         Skip = line_in_str
                         #print(Skip)
-
 
         #] Importing Tools
         elif Regex:=re.search(r'^(?P<Indent>\s*)(I|i)nclude \s*(\w+,?|\*)?', Text):
@@ -554,7 +607,7 @@ def Syntax(SOURCE,
             continue
 
         #] Func Type checker
-        elif Text.strip().startswith('def ') and TYPE_SCANNER:
+        elif Striped.startswith('def ') and TYPE_SCANNER:
             indent = Text.index('def ')
             SOURCE.insert(Line_Nom-1, f'{" "*indent}@{MODULE_SHORTCUT}.Check_Type')
             Skip = 1
@@ -616,24 +669,23 @@ def Syntax(SOURCE,
             SOURCE[Line_Nom-1] = Text.replace(Search.group(),f'hex(id({Search.group(1)}))')
 
         #] until & unless & foreach & func
-        elif Reg:=re.search(r'until \s*(?P<Expression>.+):', Text.strip()):
+        elif Reg:=re.search(r'until \s*(?P<Expression>.+):'  , Striped):
             SOURCE[Line_Nom-1] = f"if not ({Reg.group('Expression')}):"
-        elif Reg:=re.search(r'unless \s*(?P<Expression>.+):', Text.strip()):
+        elif Reg:=re.search(r'unless \s*(?P<Expression>.+):' , Striped):
             SOURCE[Line_Nom-1] = f"if not ({Reg.group('Expression')}):"
-        elif Reg:=re.search(r'foreach \s*(?P<Expression>.+):', Text.strip()):
+        elif Reg:=re.search(r'foreach \s*(?P<Expression>.+):', Striped):
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('foreach', 'for', 1)
-        elif Reg:=re.search(r'func \s*(?P<Expression>.+)', Text.strip()):
+        elif Reg:=re.search(r'func \s*(?P<Expression>.+)'    , Striped):
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('func', 'def', 1)
 
         #] Const Var
-        elif Text.strip().startswith('Const '):
+        elif Striped.startswith('Const '):
             #if Text.startswith(' '): raise LateDefine("'Const' Must Be Defined In The Main Scope")
             if re.search(r'^Const\s+([A-Za-z]|_)+\s*=\s*', Text.strip()):
                 INDENT = re.search(r'Const\s+([A-Za-z]|_)+\s*=\s*', Text).start()
-                striped = Text.strip()
                 SOURCE.remove(Text)
-                SOURCE.insert(Line_Nom-1, INDENT*' ' + striped[striped.index(' ')+1:])
-                CONST = striped[striped.index(' '):striped.index('=')].strip()
+                SOURCE.insert(Line_Nom-1, INDENT*' ' + Striped[Striped.index(' ')+1:])
+                CONST = Striped[Striped.index(' '):Striped.index('=')].strip()
                 if CONST != CONST.upper():
                     #] maybe it should be just a warning
                     raise ERRORS.ConstantError(Line_Nom=Line_Nom, 
@@ -646,7 +698,7 @@ def Syntax(SOURCE,
                 CONSTS.add((CONST, Line_Nom))
         
         #] Const Array
-        elif re.search(r'^\w+\s*=\s*<.+>', Text.strip()):
+        elif re.search(r'^\w+\s*=\s*<.+>', Striped):
             search = re.search(r'(?P<Indent>\s*)(?P<VarName>\w+)\s*=\s*<(?P<Content>.*)>', Text)
             Content = search.group('Content')
             TYPE_ERROR = False
@@ -670,26 +722,29 @@ def Syntax(SOURCE,
             #print(SOURCE[Line_Nom-1], 'red')
             SOURCE[Line_Nom-1] = f'{VarName} = {Content}'
         
-        #] Indent
-        elif Text.strip().endswith(':'):#.startswith(Keywords):
-            BREAK = False
+        '''
+        #] do_while 
+        elif Regex:=re.search(r'(?P<Indent>\s*)do\s*:\s*',Text):  #Striped.startswith('do '):
+            Indent = Regex.group('Indent')
+            WHILE_LINE = 0
             LINE = int(Line_Nom)
-            T = str(Text)
-            while not BREAK:
-                if SOURCE[LINE-1].strip().endswith(':'):
-                    BREAK = True
+            while not WHILE_LINE:
+                #if re.search(Indent+r'while\s*\(.+\)',SOURCE[LINE]):
+                if SOURCE[LINE].startswith(Indent):
+                    WHILE_LINE = LINE
                 else:
                     LINE += 1
-
-            INDENT = len(re.search(r'^(?P<indent>\s*).*', Text).group('indent'))
-            INDENT_START = len(re.search(r'^(?P<indent>\s*).*', SOURCE[LINE]).group('indent'))
-            if INDENT_START <= INDENT:
-                #print('RX_Err','red')
-                raise ERRORS.IndentionError(Line_Nom+1, SOURCE[Line_Nom], FILE)
-        
-
-
-
+            print(Line_Nom)
+            print(WHILE_LINE)
+            if SOURCE[WHILE_LINE].strip().startswith('while '):
+                pass
+            else:
+                for ln in range(Line_Nom,WHILE_LINE):
+                    SOURCE[ln] = SOURCE[ln].replace(Indent,'',1)
+                    #LINE -= 1
+                    print(ln)
+                SOURCE[Line_Nom] = ''
+        '''
     return SOURCE
 
 
@@ -713,10 +768,7 @@ def Add_Verbose(SOURCE, FILE):
 def Clean_Up():
     rx.files.remove(f'__RX_LIB__', force=True)
     rx.files.remove('_RX_Py.py')
-    #rx.files.remov('__pycache__', force=True)
-
-#import atexit
-#atexit.register(Clean_Up)
+    rx.files.remove('__pycache__', force=True)
 
 
 
@@ -736,9 +788,7 @@ if __name__ == "__main__":
             sys.exit()
         '''
         #rx.terminal.set_title('RX')
-        print(t.lap())
         ARGS = Get_Args()  # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P}  0.008
-        print(f'ARGS :: {t.lap()}')
         FILE   = ARGS[0]
         #rx.cls()
         Setup_Env()  #] 0.03
@@ -775,7 +825,7 @@ if __name__ == "__main__":
         except Exception as E:
             if ARGS[4]:
                 raise E
-            #raise E
+            #raise E# from None
             print('Traceback (most recent call last):','red')
             print('  More Information Soon...','red')
             print(str(type(E))[8:-2]+': '+str(E), 'red', style='bold')
