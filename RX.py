@@ -10,7 +10,6 @@
  #>  Improve switch & case: No break - Default
  #>  goto for For loops with naming For loops
  #>  do_when
- #>  Do_While loop
  #>  Load Modules:
        #> If Error happens in Loading module, .py file will remains
  #?  Debug Function in (--debug for debug-only && -d for run+debug)
@@ -19,8 +18,10 @@
  #X  When Keyword for Calling specifiec function when condition comes True
  #X  Catch Error in Running file
  #!  END OF LINES ERROR IN RED
+ #✓  Do_While loop
 ###########
 # NOTE:
+ #>  do_while check for outline
  #>  Create RX App with Menu:
         #>  Create SuperLite Module
  #>  Generate:yield(:None)?
@@ -110,21 +111,19 @@ import argparse
 import datetime
 import os
 
+__version__ = '1.0.0'
 
 START_TIME = time.time()
 
 
 import RX_SuperLite as rx
-
-
+#print(f'ImpRX7 :: {time.time()-START_TIME}','green')
 
 print = rx.style.print
 Error = rx.style.log_error
-#print(f'ImpRX7 :: {time.time()-START_TIME}','green')
-t = rx.Record()
 
 RX_PATH = rx.files.abspath(__file__)[:-6]
-__version__ = '1.0.0'
+
 
 CLASSES = (['files','System','random','style','record','terminal','Tuple'],
            ['Files','Random','Record','Terminal','system','style','Tuple']
@@ -226,6 +225,15 @@ class ERRORS:
                 print(f'    Module {Module} Returned Output When Loading')
                 Error(f'LoadError: Make Sure There is No Print/Output in Module "{Module}"')
             sys.exit()
+
+    class SyntaxError(Exception):
+        def __init__(self,File, Line_Nom, Line_Text, msg):
+            print('Traceback (most recent call last):')
+            print(f'  File "{File}", line {Line_Nom-Lines_Added}, in <module>')
+            print('    '+Line_Text)
+            Error(f"SyntaxError: {msg}")
+            sys.exit()
+    
 
 
 #< Get Arguments >#
@@ -582,6 +590,7 @@ def Syntax(SOURCE,
         #] When Adding An Extra Line Like Decorators
         if Skip:
             Skip = Skip-1
+            #print(Skip)
             continue
 
         # Ignore Docstrings and Comments        
@@ -716,7 +725,7 @@ def Syntax(SOURCE,
                     if CONST == item[0]:
                         raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
                 CONSTS.add((CONST, Line_Nom))
-        
+
         #] Const Array
         elif re.search(r'^\w+\s*=\s*<.+>', Striped):
             search = re.search(r'(?P<Indent>\s*)(?P<VarName>\w+)\s*=\s*<(?P<Content>.*)>', Text)
@@ -741,30 +750,41 @@ def Syntax(SOURCE,
             CONSTS.add((VarName, Line_Nom))
             #print(SOURCE[Line_Nom-1], 'red')
             SOURCE[Line_Nom-1] = f'{VarName} = {Content}'
-        
-        '''
+
         #] do_while 
         elif Regex:=re.search(r'(?P<Indent>\s*)do\s*:\s*',Text):  #Striped.startswith('do '):
             Indent = Regex.group('Indent')
+
+            LN = int(Line_Nom)
+            while not (Regex:=re.search(r'(?P<Indent>\s*).+', SOURCE[LN])):
+                LN += 1
+            Indent_Content = Regex.group('Indent')
+
             WHILE_LINE = 0
             LINE = int(Line_Nom)
             while not WHILE_LINE:
-                #if re.search(Indent+r'while\s*\(.+\)',SOURCE[LINE]):
-                if SOURCE[LINE].startswith(Indent):
-                    WHILE_LINE = LINE
-                else:
-                    LINE += 1
-            print(Line_Nom)
-            print(WHILE_LINE)
-            if SOURCE[WHILE_LINE].strip().startswith('while '):
-                pass
-            else:
-                for ln in range(Line_Nom,WHILE_LINE):
-                    SOURCE[ln] = SOURCE[ln].replace(Indent,'',1)
-                    #LINE -= 1
-                    print(ln)
-                SOURCE[Line_Nom] = ''
-        '''
+                try:
+                    if re.search(Indent+r'while\s*\(.+\)',SOURCE[LINE]):
+                        WHILE_LINE = int(LINE)
+                        print('Add')
+                        print(SOURCE[LINE])
+                    else:
+                        LINE += 1
+                except IndexError:
+                    raise ERRORS.SyntaxError(FILE,Line_Nom,Text,"'do' defined without 'while'")
+
+            i = 1
+            for ln in range(Line_Nom,WHILE_LINE):
+                SOURCE.insert(WHILE_LINE+i, SOURCE[ln])
+                i+=1
+
+            for ln in range(Line_Nom,WHILE_LINE):
+                SOURCE[ln] = SOURCE[ln].replace(Indent_Content,'',1)
+
+            SOURCE[Line_Nom-1] = ''
+            SOURCE[WHILE_LINE] = SOURCE[WHILE_LINE]+':'
+
+
     return SOURCE
 
 

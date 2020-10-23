@@ -34,12 +34,18 @@ HELO = (2,)
 #def x():
  #HELO ='d'
 
-''' 
-do:
-   print('ln1')
-   print('ln2')
-   print('ln3')
-   '''
+x = 3
+ 
+
+print('ln1')
+print('ln2')
+print('ln3')
+x-=1
+while (x):
+    print('ln1')
+    print('ln2')
+print('ln3')
+    x-=1
 print('NOO')
 
 
@@ -56,7 +62,7 @@ def hello(x):
 import os
 
 
-x=ms.import_module('__RX_LIB__/x.py');
+#Load x
 #print(f.new + 'xxxadfadsfdasfdasf')
 #print(x.var, 'green')
 if not (XX):
