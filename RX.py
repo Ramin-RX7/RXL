@@ -4,23 +4,21 @@
 
 #### EXT: RUN FILE
 # TODO:
- #>  Replace all remove_lines to ''
  #>  Console support RX syntax
  #>  Array
  #>  Improve switch & case: No break - Default
  #>  goto for For loops with naming For loops
- #>  do_when
  #>  Load Modules:
        #> If Error happens in Loading module, .py file will remains
  #?  Debug Function in (--debug for debug-only && -d for run+debug)
  #?  Split line by strings, check_syntax spliteds ,connect them again
+ #X  do_when Keyword for Calling specifiec function when condition comes True
  #X  Improve Exception Catching when runing file
- #X  When Keyword for Calling specifiec function when condition comes True
- #X  Catch Error in Running file
  #!  END OF LINES ERROR IN RED
- #✓  Do_While loop
+ #✓  Replace all remove_lines to ''
 ###########
 # NOTE:
+ #>  DEBUG (-d) is unused
  #>  do_while check for outline
  #>  Create RX App with Menu:
         #>  Create SuperLite Module
@@ -36,7 +34,6 @@
 # BUG:
  #>  CONSTs:
        #!  After NameError rest of code will be ignored
- #>  No Support for args
  #?  Ignore module loading output error
  #X  Unable to run file with double clicking
  #X  Get Remaining Args for PROGRAM
@@ -152,6 +149,7 @@ class ERRORS:
             print(f'  File "{File}", line {line_nom-Lines_Added}, in <module>')
             print( '    '+line_text)
             Error(f"BaseDefinedError: '{attribute}' can not be defined after setting module [OPTIONS]")
+            Clean_Up()
             sys.exit()
 
     class NameError(Exception):
@@ -162,9 +160,10 @@ class ERRORS:
             print(f'  File "{File}", line {line_nom-Lines_Added}, in <module>')
             print( '    '+line_text)
             if not msg:
-                print(f"NameError: '{attribute}' can not be {value}. Valid Choices: {correct_list}")
+                Error(f"NameError: '{attribute}' can not be '{value}'. Valid Choices: {correct_list}")
             else:
                 Error(f"NameError: {msg}")
+            Clean_Up()
             sys.exit()
     
     class ConstantError(Exception):
@@ -175,6 +174,7 @@ class ERRORS:
             print( '    '+Line_Text)
             end = msg if msg else f"Redefinition of '{Attribute}' (Already Defined At Line {Line_Def})"
             Error("ConstantError: "+ end)
+            Clean_Up()
             sys.exit()
 
     class IndentionError(Exception):
@@ -184,6 +184,7 @@ class ERRORS:
             print(f'  File "{File}", line {Line_Nom-Lines_Added}, in <module>')
             print( '    '+Line_Text)
             Error("IndentationError: expected an indented block")
+            Clean_Up()
             sys.exit()
 
     class UndefinedError(Exception):
@@ -197,6 +198,7 @@ class ERRORS:
             else:
                 print('  Please Check Your code for Possible Issues','red')
                 print('  If You are Sure It is a Bug Please Report This to the Maintainer','red')
+            Clean_Up()
             sys.exit()
 
     class ModuleNotFoundError(Exception):
@@ -205,6 +207,7 @@ class ERRORS:
             print(f'  File "{File}", line {line_nom-Lines_Added}, in <module>')
             print( '    '+line_text)
             Error(f"ModuleNotFoundError: No module named '{Name}'")
+            Clean_Up()
             sys.exit()
 
     class AttributeError(Exception):
@@ -213,6 +216,7 @@ class ERRORS:
             print(f'  File "{File}", line {Line_Nom-Lines_Added}, in <module>')
             print('    '+Line_Text)
             Error(f"AttributeError: module '{Module_Version}' has no attribute '{Attribute}'")
+            Clean_Up()
             sys.exit()
 
     class LoadError(Exception):
@@ -224,6 +228,7 @@ class ERRORS:
             else:
                 print(f'    Module {Module} Returned Output When Loading')
                 Error(f'LoadError: Make Sure There is No Print/Output in Module "{Module}"')
+            Clean_Up()
             sys.exit()
 
     class SyntaxError(Exception):
@@ -232,6 +237,7 @@ class ERRORS:
             print(f'  File "{File}", line {Line_Nom-Lines_Added}, in <module>')
             print('    '+Line_Text)
             Error(f"SyntaxError: {msg}")
+            Clean_Up()
             sys.exit()
     
 
@@ -240,7 +246,7 @@ class ERRORS:
 def Get_Args():
 
     #print('ARGS:  '+str(sys.argv), 'green')
-    #print(os.getcwd())
+    #print(os.getcwd(),'green')
     
     if len(sys.argv) == 1:
         Console()
@@ -300,15 +306,16 @@ def Get_Args():
         action='store_true',
         help='Translate To Python'
     )
-
-    """
+    
     parser.add_argument(
         'PROG_ARGS',
         action='store', 
         nargs=argparse.REMAINDER)
-    """
-
+    
+    
     args = parser.parse_args()
+    #print(args.PROG_ARGS,'red')
+    
     
     if args.options:
         print('BASE OPTIONS:'                                                                                                , style='bold')
@@ -325,14 +332,18 @@ def Get_Args():
        #print('"OPTIONS" SHOULD BE DEFINED AFTER "BASE OPTIONS"'                                                             , style='bold')
 
         sys.exit()
-
+    elif not args.FILE:
+        Console()
+        #Menu()
+        sys.exit()
 
     if args.debug:
         args.d = True
+    
 
     #print('ARGS:  '+str(args))
     #sys.exit()
-    return args.FILE, args.info, args.d, args.debug, args.MT, args.T2P#, args.PROG_ARGS
+    return args.FILE, args.info, args.d, args.debug, args.MT, args.T2P, args.PROG_ARGS
 
 
 #< Menu >#
@@ -522,11 +533,13 @@ def Define_Structure(SOURCE, FILE, DEBUG):
 
         #< Function Type Scanner >#          TODO: # Make it Shorter!
         elif re.search(r'^((F|f)unc|(F|f)unction)(-|_)?((T|t)ype|(A|a)rg|(P|p)aram)(-|_)?((S|s)canner|(C|c)hecker)\s*:\s*\w*', line):
+            #print("FOUND",'green')
             #BASED = True     # No Need to do it
             if line.endswith('False'):
                 TYPE_SCANNER = False
             elif not line.strip().endswith('True'):
-                raise ERRORS.NameError(FILE, 'func_type_checker', stripped, line, SOURCE[:5].index(line), "[True,False]")
+                stripped = line[line.index(':')+1:].strip()
+                raise ERRORS.NameError(FILE, 'func_type_checker', stripped, line, SOURCE.index(line), "[True,False]")
             ln = SOURCE.index(line)
             SOURCE[ln] = ''
             Changeable.append(ln)
@@ -537,7 +550,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 SOURCE.append('__import__("getpass").getpass("Press [Enter] to Exit")')
             elif not line.strip().lower().endswith('true'):
                 stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.NameError(FILE, 'Exit', stripped, line, SOURCE[:5].index(line), ['True','False'])
+                raise ERRORS.NameError(FILE, 'Exit', stripped, line, SOURCE.index(line), "[True,False]")
             ln = SOURCE.index(line)
             SOURCE[ln] = ''
             Changeable.append(ln)
@@ -565,9 +578,8 @@ def Syntax(SOURCE,
            MODULE_VERSION ,  MODULE_SHORTCUT,
            TYPE_SCANNER   ,
            FILE):
-    import os
-    os.path.relpath
-
+    global Lines_Added
+    print(TYPE_SCANNER,'red')
     CONSTS = set()
     Keywords = ('if' , 'elif' , 'except' , 'def', 
                 'for', 'while', 'foreach', 'until', 'unless',
@@ -632,7 +644,7 @@ def Syntax(SOURCE,
             indent = Text.index('def ')
             SOURCE.insert(Line_Nom-1, f'{" "*indent}@{MODULE_SHORTCUT}.Check_Type')
             Skip = 1
-            Added_Lines += 1
+            Lines_Added += 1
 
         #] Switch and Case
         elif Regex:=re.search(r'^\s*(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text):
@@ -712,8 +724,9 @@ def Syntax(SOURCE,
             #if Text.startswith(' '): raise LateDefine("'Const' Must Be Defined In The Main Scope")
             if re.search(r'^Const\s+([A-Za-z]|_)+\s*=\s*', Text.strip()):
                 INDENT = re.search(r'Const\s+([A-Za-z]|_)+\s*=\s*', Text).start()
-                SOURCE.remove(Text)
-                SOURCE.insert(Line_Nom-1, INDENT*' ' + Striped[Striped.index(' ')+1:])
+                #SOURCE.remove(Text)
+                #SOURCE.insert(Line_Nom-1, INDENT*' ' + Striped[Striped.index(' ')+1:])
+                SOURCE[Line_Nom-1] = INDENT*' ' + Striped[Striped.index(' ')+1:]
                 CONST = Striped[Striped.index(' '):Striped.index('=')].strip()
                 if CONST != CONST.upper():
                     #] maybe it should be just a warning
@@ -766,8 +779,6 @@ def Syntax(SOURCE,
                 try:
                     if re.search(Indent+r'while\s*\(.+\)',SOURCE[LINE]):
                         WHILE_LINE = int(LINE)
-                        print('Add')
-                        print(SOURCE[LINE])
                     else:
                         LINE += 1
                 except IndexError:
@@ -806,10 +817,13 @@ def Add_Verbose(SOURCE, FILE):
 
 #< Clean Everything Which is Not Needed >#
 def Clean_Up():
-    rx.files.remove(f'__RX_LIB__', force=True)
-    rx.files.remove('_RX_Py.py')
-    rx.files.remove('__pycache__', force=True)
-
+    try: rx.files.remove(f'__RX_LIB__', force=True)
+    except: pass
+    #rx.files.remove('_RX_Py.py')
+    try: rx.files.remove('RX_Py')
+    except: pass
+    try: rx.files.remove('__pycache__', force=True)
+    except: pass
 
 
 
@@ -828,7 +842,7 @@ if __name__ == "__main__":
             sys.exit()
         '''
         #rx.terminal.set_title('RX')
-        ARGS = Get_Args()  # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P}  0.008
+        ARGS = Get_Args()  # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P, 6:Prog_Args}  0.008
         FILE   = ARGS[0]
         #rx.cls()
         Setup_Env()  #] 0.03
@@ -840,11 +854,11 @@ if __name__ == "__main__":
             SOURCE = Add_Verbose(SOURCE, FILE)
         #print(Lines_Added)
         if not ARGS[3] and not ARGS[4]:
-            if rx.files.exists('_RX_Py.py'):
-                rx.files.remove('_RX_Py.py')
-            rx.write('_RX_Py.py', '\n'.join(SOURCE))
+            if rx.files.exists('RX_Py'):
+                rx.files.remove('RX_Py')
+            rx.write('RX_Py', '\n'.join(SOURCE))
             rx.write('translated', '\n'.join(SOURCE))
-            rx.files.hide('_RX_Py.py')
+            rx.files.hide('RX_Py')
         #print(f'Write :: {t.last_lap()}','green')
         try:
             if ARGS[5]:
@@ -855,12 +869,15 @@ if __name__ == "__main__":
             if ARGS[4]:
                 rx.files.move(f'{FILE.split(".")[0]}.py', f'__RX_LIB__/{FILE.split(".")[0]}.py')
 
-            if not ARGS[3] and not ARGS[4]:
+            print(Lines_Added,'red')
+            if not ARGS[3] and not ARGS[4] and not ARGS[5]:
+            #if not any([[ARGS[3],ARGS[4]],ARGS[5]]):
                 if FILE:
-                    #os.system('python _RX_Py.py')
                     print(f'B_Run :: {time.time()-START_TIME}','green')
                     rx.terminal.set_title(f'RX - {os.path.basename(FILE)}')
-                    import _RX_Py
+                    print('python RX_Py'+' '+' '.join(ARGS[-1]),'green')
+                    os.system('python RX_Py'+' '+' '.join(ARGS[-1]))
+                    #import _RX_Py
                 else:
                     print('Error in Parsing(TM): No FILE is Given', 'red')
                     sys.exit()

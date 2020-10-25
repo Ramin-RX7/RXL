@@ -1,10 +1,15 @@
 Print : stylized
 Module-Name : ms
 Method : lite
-Func-Type-Checker: False
+Func-Type-Checker: Tru
 
-End-Exit : True
+End-Exit : Tru
+
 print('Start')
+
+import sys
+print(sys.argv)
+
 
 Include files
 
@@ -12,7 +17,6 @@ class X:
     def func():
         pass
 
-Include files
 def x():
     pass
     def myfunc(x):
@@ -35,14 +39,14 @@ HELO = <2,>
  #HELO ='d'
 
 x = 3
- 
+'''
 do:
     print('ln1')
     print('ln2')
-print('ln3')
+    print('ln3')
     x-=1
 while (x)
-print('NOO')
+'''
 
 
 """

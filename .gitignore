@@ -1,3 +1,12 @@
+# Custom
+.vscode/
+*.exe
+tst.*
+_Console_.py
+x.rx7
+translated
+Program/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -123,12 +132,3 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
-# VS CODE
-.vscode/
-*.exe
-tst.*
-_Console_.py
-x.rx7
-translated
-Program/
