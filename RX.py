@@ -4,6 +4,7 @@
 
 #### EXT: RUN FILE
 # TODO:
+ #>  TERMINAL
  #>  Console support RX syntax
  #>  Array
  #>  Improve switch & case: No break - Default
@@ -18,6 +19,7 @@
  #✓  Replace all remove_lines to ''
 ###########
 # NOTE:
+ #>  Constant Array __str__ should be with <>
  #>  DEBUG (-d) is unused
  #>  do_while check for outline
  #>  Create RX App with Menu:
@@ -28,7 +30,8 @@
  #>  CONST at the beginning?
  #>  Stop Imports?
  #>  New Errors Ext Color
- #>  Package installer like pip? (if 3rd-party modules)
+ #>  Package installer like pip? (if 3rd-party modules):
+        #>  Create account (RX-Lang) in pypi to upload user packages
  #>  def(:None)?
 ###########
 # BUG:
@@ -351,10 +354,11 @@ def Menu():
     NOW = str(datetime.datetime.now())
     print(f'RX v{__version__} Running on {rx.system.device_name()}::{rx.system.accname()}')
     print('''
-        {1}--Console
-        {2}--System Info
-        {3}--Compile
-
+        {1}--Terminal
+        {2}--Console
+        {3}--System Info
+        {4}--Compile
+        
     ''')
 
 
@@ -840,7 +844,7 @@ if __name__ == "__main__":
             sys.exit()
             rx.terminal.run('python '+' '.join(sys.argv))
             sys.exit()
-        '''
+         '''
         #rx.terminal.set_title('RX')
         ARGS = Get_Args()  # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P, 6:Prog_Args}  0.008
         FILE   = ARGS[0]
