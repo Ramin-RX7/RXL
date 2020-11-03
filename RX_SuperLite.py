@@ -155,3 +155,22 @@ class system:
     accname = os.getlogin
     device_name = socket.gethostname
 System = system
+
+
+class NF:
+    def wait_for_input(prompt,SS:list=[], ignore_case=False):
+        answer= ''
+        try:
+            while not answer:
+                answer = input(prompt).strip()
+                if ignore_case:
+                    answer = answer.lower()
+                if answer and SS:
+                    if not (answer in (SS if not ignore_case else [item.lower() for item in SS])):
+                        style.print('Invalid Input','red')
+                        answer = ''
+        except (EOFError,KeyboardInterrupt):
+            style.print('EXITING...','red')
+            exit()
+        return answer
+SF = AF = NF

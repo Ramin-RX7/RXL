@@ -12,7 +12,6 @@ print(sys.argv)
 
 
 files=ms.files;
-
 class X:
     @ms.Check_Type
     def func():

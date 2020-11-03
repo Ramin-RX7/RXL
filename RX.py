@@ -4,7 +4,10 @@
 
 #### EXT: RUN FILE
 # TODO:
- #>  TERMINAL
+ #>  Debug with running linters
+ #>  Create RX App with Menu:
+        #>  Create SuperLite Module
+        #>  TERMINAL
  #>  Console support RX syntax
  #>  Array
  #>  Improve switch & case: No break - Default
@@ -22,8 +25,6 @@
  #>  Constant Array __str__ should be with <>
  #>  DEBUG (-d) is unused
  #>  do_while check for outline
- #>  Create RX App with Menu:
-        #>  Create SuperLite Module
  #>  Generate:yield(:None)?
  #>  Save Cache ?
  #>  Option for run translated or import it (import will ignore "if __name__ ...")
@@ -245,15 +246,15 @@ class ERRORS:
     
 
 
-#< Get Arguments >#
+#< Get Arguments >#      #TODO: add (-s --start) to start menu items
 def Get_Args():
 
     #print('ARGS:  '+str(sys.argv), 'green')
     #print(os.getcwd(),'green')
     
     if len(sys.argv) == 1:
-        Console()
-        #Menu()
+        #Console()
+        Menu.menu()
         sys.exit()
 
     #if len(sys.argv) > 3:
@@ -350,58 +351,73 @@ def Get_Args():
 
 
 #< Menu >#
-def Menu():
-    NOW = str(datetime.datetime.now())
-    print(f'RX v{__version__} Running on {rx.system.device_name()}::{rx.system.accname()}')
-    print('''
+class Menu:
+
+    @staticmethod
+    def menu():
+        NOW = str(datetime.datetime.now())
+        print(f'RX v{__version__} Running on {rx.system.device_name()}::{rx.system.accname()}')
+        print('''
         {1}--Terminal
         {2}--Console
         {3}--System Info
         {4}--Compile
+            
+        ''')
+
+        Menu_Dict = { 
+        #'1': Menu.Terminal,  'Terminal'   : Menu.Terminal ,
+        '2': Menu.Console ,  'Console'    : Menu.Console  ,
+        #'3': Menu.SysInfo ,  'System Info': Menu.SysInfo  ,
+        #'4': Menu.Compile ,  'Compile'    : Menu.Compile  ,
+        }
+
+
+        inp = Menu_Dict[rx.NF.wait_for_input('RX:Menu> ',Menu_Dict.keys(), True)]
+        inp()
+
+
+    #< Interactive RX Shell >#
+    @staticmethod
+    def Console():
+        NOW = str(datetime.datetime.now())
+        print(f'RX v{__version__} Running on {rx.system.device_name()}::{rx.system.accname()}')
+        rx.terminal.set_title('RX - Console')
+        def wait_for_input(prompt):
+            answer= ''
+            while not answer:
+                answer = input(prompt)
+            return answer
+
+        from importlib import reload
         
-    ''')
-
-
-#< Interactive RX Shell >#
-def Console():
-    NOW = str(datetime.datetime.now())
-    print(f'RX v{__version__} Running on {rx.system.device_name()}::{rx.system.accname()}')
-    rx.terminal.set_title('RX - Console')
-    def wait_for_input(prompt):
-        answer= ''
-        while not answer:
-            answer = input(prompt)
-        return answer
-
-    from importlib import reload
-    
-    rx.system.chdir(RX_PATH)
-    PRE= ['import rx7.lite as sc','print = sc.style.print']
-    rx.write('_Console_.py', '\n'.join(PRE)+'\n')
-    import _Console_
-    while True:
-        try:
-            new = wait_for_input('RX:Console> ')
-            if new.lower() in ('exit','quit','end'):
+        rx.system.chdir(RX_PATH)
+        PRE= ['import rx7.lite as sc','print = sc.style.print']
+        rx.write('_Console_.py', '\n'.join(PRE)+'\n')
+        import _Console_
+        while True:
+            try:
+                new = wait_for_input('RX:Console> ')
+                if new.lower() in ('exit','quit','end'):
+                    rx.files.remove('_Console_.py')
+                    sys.exit()
+            except (KeyboardInterrupt,EOFError):
                 rx.files.remove('_Console_.py')
                 sys.exit()
-        except (KeyboardInterrupt,EOFError):
-            rx.files.remove('_Console_.py')
-            sys.exit()
 
-        rx.write('_Console_.py', new+'\n', 'a')
-        
-        try:
-            reload(_Console_)
-        except Exception as e:
-            ERROR = str(e)
-            if '(_Console_.py,' in ERROR:
-                ERROR = ERROR[:ERROR.index('(_Console_.py,')]
-            print(str(type(e))[8:-2]+':  ' + ERROR, 'red')
-            rx.write('_Console_.py', '\n'.join(rx.read('_Console_.py').splitlines()[:-1])+'\n', 'w')
+            rx.write('_Console_.py', new+'\n', 'a')
+            
+            try:
+                reload(_Console_)
+            except Exception as e:
+                ERROR = str(e)
+                if '(_Console_.py,' in ERROR:
+                    ERROR = ERROR[:ERROR.index('(_Console_.py,')]
+                print(str(type(e))[8:-2]+':  ' + ERROR, 'red')
+                rx.write('_Console_.py', '\n'.join(rx.read('_Console_.py').splitlines()[:-1])+'\n', 'w')
 
-        if re.search(r'^print\s*\(', rx.read('_Console_.py').splitlines()[-1].strip()):
-            rx.write('_Console_.py', '\n'.join(rx.read('_Console_.py').splitlines()[:-1])+'\n')
+            if re.search(r'^print\s*\(', rx.read('_Console_.py').splitlines()[-1].strip()):
+                rx.write('_Console_.py', '\n'.join(rx.read('_Console_.py').splitlines()[:-1])+'\n')
 
 
 #< Reading File >#
@@ -837,7 +853,7 @@ def Clean_Up():
 #< START OF THE CODE >#
 if __name__ == "__main__":
     try:
-        #print(f'START :: {time.time()-START_TIME}','green')
+        print(f'START :: {time.time()-START_TIME}','green')
         '''
         if time.time()-START_TIME>0.025:
             print('Run Speed is Very Low. Restarting App', 'red')
