@@ -508,11 +508,15 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     TYPE_SCANNER = True
     #BASED = False
     Changeable = []
+    Skip = 0
 
-    for line in SOURCE[:7]:
+    for nom,line in enumerate(SOURCE[:7]):
+
+        if not line.strip() or line.strip().startswith('#'):
+            Changeable.append(nom)
 
         #< Get Shortcut Name >#
-        if re.search(r'^((M|m)odule(-|_)?(N|n)ame)\s*:\s*\w+',line):
+        elif re.search(r'^((M|m)odule(-|_)?(N|n)ame)\s*:\s*\w+',line):
             #if BASED:
             #    raise ERRORS.BaseDefinedError('Modulename', line, SOURCE[:5].index(line), FILE)
             stripped = line[line.index(':')+1:].strip()
@@ -520,10 +524,9 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 MODULE_SHORTCUT = str(stripped)
             else:
                 raise ERRORS.NameError(msg='Invalid Value For  modulename/module_name', File=FILE)
-            #SOURCE.remove(line)
-            ln = SOURCE.index(line)
-            SOURCE[ln] = ''
-            Changeable.append(ln)
+                        #SOURCE.remove(line)
+            SOURCE[nom] = ''
+            Changeable.append(nom)
 
         #< Get Version (Method) of Tools >#
         elif re.search(r'^(Method|Package(-|_)Version)\s*:\s*\w*', line):
@@ -535,9 +538,8 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             elif not StripLow.endswith('normal'):
                 stripped = line[line.index(':')+1:].strip()
                 raise ERRORS.NameError(FILE, 'Method', stripped, line, SOURCE[:5].index(line), ['lite','normal'])
-            ln = SOURCE.index(line)
-            SOURCE[ln] = ''
-            Changeable.append(ln)
+            SOURCE[nom] = ''
+            Changeable.append(nom)
 
         #< Print Function Method >#
         elif re.search(r'^Print\s*:\s*\w*', line):
@@ -547,9 +549,8 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             elif not line.strip().lower().endswith('normal'):
                 stripped = line[line.index(':')+1:].strip()
                 raise ERRORS.NameError(FILE, 'print', stripped, line, SOURCE[:5].index(line), ['lite','normal'])
-            ln = SOURCE.index(line)
-            SOURCE[ln] = ''
-            Changeable.append(ln)
+            SOURCE[nom] = ''
+            Changeable.append(nom)
 
         #< Function Type Scanner >#          TODO: # Make it Shorter!
         elif re.search(r'^((F|f)unc|(F|f)unction)(-|_)?((T|t)ype|(A|a)rg|(P|p)aram)(-|_)?((S|s)canner|(C|c)hecker)\s*:\s*\w*', line):
@@ -560,9 +561,8 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             elif not line.strip().endswith('True'):
                 stripped = line[line.index(':')+1:].strip()
                 raise ERRORS.NameError(FILE, 'func_type_checker', stripped, line, SOURCE.index(line), "[True,False]")
-            ln = SOURCE.index(line)
-            SOURCE[ln] = ''
-            Changeable.append(ln)
+            SOURCE[nom] = ''
+            Changeable.append(nom)
 
         #< Exit at the end >#
         elif re.search(r'^(End(-|_))?(Exit|Quit)\s*:\s*\w*', line):
@@ -571,9 +571,8 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             elif not line.strip().lower().endswith('true'):
                 stripped = line[line.index(':')+1:].strip()
                 raise ERRORS.NameError(FILE, 'Exit', stripped, line, SOURCE.index(line), "[True,False]")
-            ln = SOURCE.index(line)
-            SOURCE[ln] = ''
-            Changeable.append(ln)
+            SOURCE[nom] = ''
+            Changeable.append(nom)
 
     if len(Changeable):
         SOURCE[Changeable[0]] = f'import {MODULE_VERSION} as {MODULE_SHORTCUT}'

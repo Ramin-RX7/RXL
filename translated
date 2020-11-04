@@ -1,11 +1,15 @@
 import rx7.lite as ms
 print = ms.style.print
 
+print('xxx')
 
 
 
 
 print('Start')
+
+
+
 
 import sys
 print(sys.argv)
