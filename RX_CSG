@@ -1,0 +1,387 @@
++ Newline after Structure Definition
++ Start atleast at line 3
++ Not using docstrings in first 7 lines
++ Not using Base-Options as variables
++ Not Changing Base-Options
++ Not using lines of   Code   with more than 100 characters
++ Not using lines of Comments with more than 75  characters
++ Using Spaces (recommended:4) instead of tabs
++ Not using "\" to connect lines
++ Use commas at the end instead of begining of the line
++ Use Spaces after commas anywhere except using "from module import"
++ Using 'foreach' when looping over Iterable 
+  and Using 'for' when looping over Generators
++ Use .startswith()/.endswith() methods instead of slicing
++ Use real object instead of its length to
+  check if it contains anything or not
+  (This makes them similar to integers)
+  (This only works if:
+     bool(obj) == bool(len(obj))
+   And this is what all built-in types have it.
+  )
+    # Correct:
+    if not seq:
+    if seq:
+    # Wrong:
+    if len(seq):
+    if not len(seq):
++ Don't compare boolean values to True or False using ==/is:
+  # Correct:
+  if greeting: pass
+  # Wrong:
+  if greeting == True: pass
+  if greeting is True: pass
++ Type Checking is ignored in RX like Python but
+  there is an option named Func_Type_Scanner which you can check
+  wether function arguments are passed with correct type or not
++ Variable Annotations:
+
+    There shouldn't be any white spaces before colon (after variable name)
+    if there is One space  after  colon, there should be 2 spaces after type
+    if there is No  spaces before colon, there should be 1 space  after type
+    # Correct
+    x:str = 'hello'
+    x: str  = 'hello'
+
+    # Wrong
+    x:str='hello'
+    x : str = 'hello'
+    x :str = 'hello'
+
+
+
+
+- Comments
+
+    + Not using lines of Comments with more than 75  characters
+    + Add a white space after Line/Inline Comments
+    + Inline Comments are better to start with 2 spaces before them
+    + Block Comments body is better to start with new line and 1 indentation
+      (By indentation i mean eather a space,tab,4-Spaces etc.)
+      (Also they can have title with 2 spaces after opening block)
+      # Wrong
+      '''def test():
+           print('this is a test')
+      '''
+
+      '''def test():
+           print('this is a test')'''
+      
+      '''
+      def test():
+           print('this is a test')
+      '''
+      
+      # Correct
+      '''
+        def test():
+           print('this is a test')
+      '''
+
+      '''  Title
+          def test():
+              print('this is a test')
+      '''
+    + By last line you can understand that BlockComments body
+      shoud have atleast 1 or more spaces than openning column
+    + Not using them in obvious situations
+      # Wrong
+      username = 'Jack'  # Define username
+      # Correct
+      RMFL = List.pop(2)  # RemovedMemberFromList
+
+
+
+- Docstrings & Helps
+
+
+
+- Blank lines:
+    + 2 Lines if Scope has more than 25 Lines
+    + 1 Line  Between Function (if there is no decorators)
+    + 2 Lines Between Classes
+    + 1 Line at the end of the file
+    + Start atleast at line 3 if you don't want to Define any Base Options
+
+
+
+- Should a Line Break Before or After a Binary Operator?
+    # Correct:
+    # easy to match operators with operands
+    income = (
+            gross_wages
+            + taxable_interest
+            + (dividends - qualified_dividends)
+            - ira_deduction
+            - student_loan_interest
+            )
+
+    # Correct:
+    income = (
+            gross_wages       +
+            taxable_interest  +
+            dividends         -
+            ira_deduction     -
+            student_loan
+            )
+
+
+
+- Import/Load/Include Modules & Packages:
+    + Huge Apps/Projects:
+        # Correct:
+        import Module1
+        import Module2
+    + Small Apps:
+        # Correct:
+        import Module1,Module2
+    (But its ok to use this:
+       from package import func1,func2,Class1
+    )
+    
+
+
+
+- String Quotes:
+    Its better to use Double Quotes when string contains single Quote
+    # Wrong:
+    string = 'it\'s not easy to read'
+
+    # Correct:
+    string = "it's easier to read"
+
+
+
+- White Spaces:
+    
+    + Its better to not add any white spaces from end of the lines
+
+    + Immediately inside parentheses, brackets or braces
+      before the opening them ():
+        # Correct:
+        spam(ham[1], {eggs: 2})
+        dct['key'] = lst[index]
+        spam(1)
+        # Wrong:
+        spam( ham[ 1 ], { eggs: 2 } )
+        dct ['key'] = lst [index]
+        spam (1)
+
+    + Between a trailing comma and a following close parenthesis:
+        # Correct:
+        foo = (0,)
+        # Wrong:
+        bar = (0, )
+
+    + As it is important that code is Readable AND Neat,
+      In slices we use these kind of codes
+      (equal amounts on either side):
+        # Correct:
+        ham[1:9], ham[1:9:3], ham[:9:3], ham[1::3], ham[1:9:]
+        ham[lower:upper], ham[lower:upper:], ham[lower::step]
+        ham[lower+offset : upper+offset]
+        ham[: upper_fn(x) : step_fn(x)], ham[:: step_fn(x)]
+        ham[lower : : upper]
+        # Wrong:
+        ham[lower + offset : upper + offset]
+        ham[lower + offset:upper + offset]
+        ham[1: 9], ham[1 :9], ham[1:9 :3]
+        ham[ : upper]
+
+    + More than one space around an assignment (or other) operator to align it with another:
+        # Correct:
+        x = 1
+        y = 2
+        long_variable = 3
+        # Wrong:
+        x             = 1
+        y             = 2
+        long_variable = 3
+
+    + Operators: Short names can have no white spaces but
+      Long Names should have white spaces
+
+        # Correct:
+        i = i + 1
+        i = i+1
+        submitted += 1
+        x = x*2 - 1
+        hypot2 = x*x + y*y
+        c = (a+b) * (a-b)
+
+        # Wrong:
+        x = x * 2 - 1
+        hypot2 = x * x + y * y
+        c = (a + b) * (a - b)
+        myvar = variable1+variable2
+
+    + Function Arguments Holder Should only contain spaces after commas
+        # Wrong:
+        def func(arg1 =1, arg2= 2, arg3 = 3): pass
+        def func(arg1: int=1, arg2 :float= 2.0, arg3 : Any = 3): pass
+
+        # Correct:
+        def func(arg1=1, arg2=2, arg3=3): pass
+        def func(arg1:int=1, arg2:float=2.0, arg3:Any=3): pass
+        
+    + Function return type annotation shoud use space on each side
+      if function has argument(s) and shouldn't use spaces if there is
+      no argument (like most of methods)
+        # Correct:
+        def func()->str: pass
+        def func(arg1,arg2) -> str: pass
+        # Wrong:
+        def func() -> str: pass
+        def func(arg1,arg2)->str: pass
+
+    + It's okay to put an if/for/while/try/except with a small body on the same line
+      (Avoid spaces in body!)
+      but never do this for multi-clause (more than 2) statements.
+      (Also avoid folding such long lines!)
+
+      # Correct
+        if x: do_this()
+        else: do_that()
+        try: x=int(x);y=1
+        except: x=None;y=0
+
+      # Wrong
+        if x: do_this();do_this2();do_this3()
+        else: do_that();do_that2();do_that3()
+        try: x= int(x) ; y= int(y)
+        except: x = str(x)
+
+
+
+- Defining Containers:
+
+    + Using Same Qutes for all members
+
+    + If Definition is in multiple lines it's better to use commas in the same column
+      # Correct
+      towns = [
+          'New York', 'Los Angeles', 'Las Vegas',
+          'London'  , 'Rome'       , 'Paris',
+      ]
+      towns = [
+          'New York'   ,
+          'Los Angeles',
+          'Las Vegas'  ,
+          'Paris'
+      ]
+      # Wrong
+      towns = [
+          'New York', 'Los Angeles', 'Las Vegas',
+          'London', 'Rome', 'Paris',
+      ]
+      # But this is ok
+      towns = [
+          'New York',
+          'Los Angeles',
+          'Las Vegas',
+                          # Empty line if you want to seprate them visually
+          'London',
+          'Rome',
+          'Paris',
+      ]
+
+    + Closing Bracket Should be (in multiple-line definitions)
+      at the same column of starting the definition
+      # Ok
+      towns = [
+          'New York',
+          'Los Angeles',
+          'Las Vegas'
+      ]
+      # Wrong
+      towns = [
+          'New York',
+          'Los Angeles',
+          'Las Vegas'
+                        ]
+
+      But Better way is one column futher where bracket opens.
+      (note that members definition should also be 1/2 columns further)
+      # Correct
+      towns = [
+                'New York',
+                'Los Angeles',
+                'Las Vegas'
+               ]
+
+
+
+- Naming Conventions
+    
+    + Using a short unique prefix to group related names together.
+    
+    + Not Using miXedCaSe & pascalCase & Capitalized_Words_With_Underscores
+      Note: When using acronyms in CapWords, capitalize all the letters of the acronym. 
+            (Thus HTTPServerError is better than HttpServerError.)
+    
+    + _single_leading_underscore is for internal uses.
+      It can be in classes or even Main body
+      (In functions this is not nessesery as nobody can have access on them)
+      (Remember that it's not Private)
+    
+    + single_trailing_underscore_ is for when variables/arguments have 
+      the same name of RX/Python keyword names
+      # Correct
+      def func(class_): pass
+      switch_ = 1
+      # Wrong
+      def func(class): pass
+      def func(clss): pass
+      switch = 1
+
+    + __double_leading_underscore are for when naming a class attribute, 
+      invokes name mangling 
+      (inside class FooBar, __boo becomes _FooBar__boo; see below).
+
+    + __double_leading_and_trailing_underscore__ are named
+      "magic" objects or attributes that live in user-controlled namespaces. 
+      (E.g. __init__, __import__ or __file__. 
+       Never invent such names; only use them as documented.
+      )
+
+    + Never use the characters 'l' (lowercase letter el), 'O' (uppercase letter oh), 
+      or 'I' (uppercase letter eye) as single character variable names.
+
+
+    + Package and Module Names:
+        there are no special rule for Modules but use a leading underscore
+        when module is not documented or is not readable/understandable for everyone
+
+    + Class Names are better to use CamelCase to seprate them from variables anf functions
+
+    + Exception Names
+        Because exceptions should be classes, the class naming convention applies here.
+        However, you should use the suffix "Error" on your exception names
+        (if the exception actually is an error and crashes program).
+
+    + Function/Variable names should be lowercase,
+      with words separated by underscores as necessary to improve readability.
+
+    + Class functions
+      Always use self for the first argument to instance methods.
+      Always use cls for the first argument to class methods.
+      Always use @staticmethod if function is static method
+
+    + Constants are usually defined on a module level and 
+      written in all capital letters with underscores separating words. 
+      (Examples include MAX_OVERFLOW and TOTAL)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

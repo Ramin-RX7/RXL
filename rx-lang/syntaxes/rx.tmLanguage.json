@@ -384,8 +384,8 @@
 		"rx-rxnsc": {
 			"patterns": [
 				{
-					"name": "support.variable.magic.python",
-					"match": "(?x)\n  \\b(?<!\\.)(rx|sc)\\b\n"
+					"name": "variable.other.constant.ruby",
+					"match": "(?x)\n  \\b(?<!\\.)(rx|std)\\b\n"
 				}
 			]
 		},
@@ -396,7 +396,7 @@
 			"patterns": [
 				{
 					"name": "support.function.builtin.python",
-					"match": "(?x)\n  \\b(?<!\\.)((rx|sc).)?(\n    (R|r)andom | (S|s)tyle | (S|s)ystem | (F|f)iles | (T|t)erminal\n  )\\b\n"
+					"match": "(?x)\n  \\b(?<!\\.)((rx|std).)?(\n    (R|r)andom | (S|s)tyle | (S|s)ystem | (F|f)iles | (T|t)erminal\n  )\\b\n"
 				}
 			]
 		},
@@ -405,27 +405,27 @@
 			"patterns": [
 				{
 					"name": "support.type.exception.python",
-					"match": "(?x)\n  \\b(?<!\\.)((rx|sc).)?(F|f)iles.(\n    size | delete | rename | abspath | exists | mdftime | acstime | move | copy | hide | read_only | read | write | isdir | isfile | is_hidden | is_readonly | search_file | search_content | mkdir | generate_tree\n  )\\b\n"
+					"match": "(?x)\n  \\b(?<!\\.)((rx|std).)?(F|f)iles.(\n    size | delete | rename | abspath | exists | mdftime | acstime | move | copy | hide | read_only | read | write | isdir | isfile | is_hidden | is_readonly | search_file | search_content | mkdir | generate_tree\n  )\\b\n"
 				},
 
 				{
 					"name": "support.type.exception.python",
-					"match": "(?x)\n  \\b(?<!\\.)((rx|sc).)?(S|s)ystem.(\n    accname | pid | chdir | SHUT_DOWN | RESTART | terminal_size | cwd | ip_global | ip_local | ram_total | ram_used | ram_free | boot_time | device_name | ip_website | win10_notification | cpu_count | pyshell_execute_bit | pids\n  )\\b\n"
+					"match": "(?x)\n  \\b(?<!\\.)((rx|std).)?(S|s)ystem.(\n    accname | pid | chdir | SHUT_DOWN | RESTART | terminal_size | cwd | ip_global | ip_local | ram_total | ram_used | ram_free | boot_time | device_name | ip_website | win10_notification | cpu_count | pyshell_execute_bit | pids\n  )\\b\n"
 				},
 
 				{
 					"name": "support.type.exception.python",
-					"match": "(?x)\n  \\b(?<!\\.)((rx|sc).)?(R|r)andom.(\n    integer | O1 | number | shuffle | choose\n  )\\b\n"
+					"match": "(?x)\n  \\b(?<!\\.)((rx|std).)?(R|r)andom.(\n    integer | O1 | number | shuffle | choose\n  )\\b\n"
 				},
 
 				{
 					"name": "support.type.exception.python",
-					"match": "(?x)\n  \\b(?<!\\.)((rx|sc).)?(S|s)tyle.(\n    print | switch | switch_default\n  )\\b\n"
+					"match": "(?x)\n  \\b(?<!\\.)((rx|std).)?(S|s)tyle.(\n    print | switch | switch_default\n  )\\b\n"
 				},
 
 				{
 					"name": "support.type.exception.python",
-					"match": "(?x)\n  \\b(?<!\\.)((rx|sc).)?(T|t)erminal.(\n    run | getoutput\n  )\\b\n"
+					"match": "(?x)\n  \\b(?<!\\.)((rx|std).)?(T|t)erminal.(\n    run | getoutput\n  )\\b\n"
 				}
 			]
 		},
@@ -1869,7 +1869,7 @@
 			]
 		},
 		"illegal-names": {
-			"match": "(?x)\n  \\b(?:\n    (\n      switch | case | (I|i)nclude | (L|l)oad | foreach | until | unless\n      | Module(-|_)(N|n)ame | (Method|Package(_|-)Version) | Func(_|-)Type(-|_)Checker | Print | (End-)?(Exit|Quit)\n      | and | assert | async | await | break | class | continue | def\n      | del | elif | else | except | finally | for | from | global\n      | if | in | is | (?<=\\.)lambda | lambda(?=\\s*[\\.=])\n      | nonlocal | not | or | pass | raise | return | try | while | with\n      | yield\n    ) | (\n      as | import\n    )\n  )\\b\n",
+			"match": "(?x)\n  \\b(?:\n    (\n      do | switch | case | default | (I|i)nclude | (L|l)oad | foreach | until | unless\n      | Module(-|_)(N|n)ame | (Method|Package(_|-)Version) | Func(_|-)Type(-|_)Checker | Print | (End-)?(Exit|Quit)\n      | and | assert | async | await | break | class | continue | def\n      | del | elif | else | except | finally | for | from | global\n      | if | in | is | (?<=\\.)lambda | lambda(?=\\s*[\\.=])\n      | nonlocal | not | or | pass | raise | return | try | while | with\n      | yield\n    ) | (\n      as | import\n    )\n  )\\b\n",
 			"captures": {
 				"1": {
 					"name": "keyword.control.flow.python"

@@ -1,7 +1,6 @@
 import rx7.lite as ms
 print = ms.style.print
 
-print('xxx')
 
 
 
@@ -9,12 +8,12 @@ print('xxx')
 print('Start')
 
 
-
+print(std.download)
 
 import sys
 print(sys.argv)
 
-
+x = ('x', 'xx')
 files=ms.files;
 class X:
     @ms.Check_Type
@@ -92,6 +91,8 @@ elif x == (2,4):
 elif x == (3,4):
         print('case3')
         d
+else:
+        print('deafult')
 if ('d' and
 'df'):
     print('2 line if')

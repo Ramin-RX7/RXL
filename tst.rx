@@ -8,12 +8,12 @@ End-Exit : True
 print('Start')
 
 
-
+print(std.download)
 
 import sys
 print(sys.argv)
 
-
+x = <'x','xx',>
 Include files
 class X:
     def func():
@@ -83,6 +83,8 @@ switch x:
     case (3,4):
         print('case3')
         d
+    default:
+        print('deafult')
 if ('d' and
 'df'):
     print('2 line if')

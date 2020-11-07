@@ -4,6 +4,13 @@
 
 #### EXT: RUN FILE
 # TODO:
+ #>  sth like tst keyword to use try:x;except:pass
+ #>  Constant only debug for not uppercase
+ #>  Typescanner check for pre-defined decorator
+ #>  from ready-objects import *
+ #>  Title & Description & author & Version
+ #>  &&  ---  ||
+ #>  Use ValueError instead of NameError in DefStr
  #>  Debug with running linters
  #>  Create RX App with Menu:
         #>  Create SuperLite Module
@@ -22,6 +29,7 @@
  #✓  Replace all remove_lines to ''
 ###########
 # NOTE:
+ #>  Whole code in Try-Except ?
  #>  Constant Array __str__ should be with <>
  #>  DEBUG (-d) is unused
  #>  do_while check for outline
@@ -36,6 +44,8 @@
  #>  def(:None)?
 ###########
 # BUG:
+ #X  There couldnt be nested Switch-Case statements  (and Const-array)
+ #X  Errors in red Color
  #>  CONSTs:
        #!  After NameError rest of code will be ignored
  #?  Ignore module loading output error
@@ -43,7 +53,6 @@
  #X  Get Remaining Args for PROGRAM
  #X  Terminal is slow for loading code from first each time
  #X  Every Load takes 0.2
- #✓  Errors in red Color
  #✓  why exe doesn't accept args
 
 ########################################
@@ -147,6 +156,15 @@ def Setup_Env():
 #< List of all errors >#
 class ERRORS:
     #TRACEBACK = 'Traceback (most recent call last):'
+    class RaiseError(Exception):
+        def __init__(self, title, msg, line_text, line_nom, File):
+            print('Traceback (most recent call last):')
+            print(f'  File "{File}", line {line_nom-Lines_Added}, in <module>')
+            print( '    '+line_text)
+            Error(str(title)+': '+str(msg))
+            Clean_Up()
+            sys.exit()
+
     class BaseDefinedError(Exception):
         def __init__(self, attribute, line_text, line_nom, File):
             print('Traceback (most recent call last):')
@@ -432,7 +450,7 @@ def Read_File(filepath):
     sys.exit()
 
 
-#< Module Name and Version  <Method,Module_Name,Print,Indent,Const> >#
+#< Method,Module_Name,Print,Indent,Const >#
 def Define_Structure(SOURCE, FILE, DEBUG):
     #] Checking Indentation
     """    
@@ -503,7 +521,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
 
     #< OPTIONS >#
     MODULE_VERSION  = 'rx7'
-    MODULE_SHORTCUT = 'sc'
+    MODULE_SHORTCUT = 'std'#'sc'
     PRINT_TYPE = 'print'
     TYPE_SCANNER = True
     #BASED = False
@@ -683,6 +701,8 @@ def Syntax(SOURCE,
             #SOURCE.remove(Text)
             SOURCE[Line_Nom-1] = f'{(indent)*" "}if False:pass'
             for Line,snc in enumerate(SOURCE[Line_Nom-1:LAST_LINE], Line_Nom):
+                if Reg := re.search(r'^(D|d)efault\s*:\s*',snc.strip()):
+                    SOURCE[Line-1] = 'else:'
                 SEARCH_VALUE = re.search(r'^(C|c)ase\s+(?P<VALUE>.+):\s*', snc.strip())
                 if SEARCH_VALUE:
                     if re.search(r'^elif \w+\s+==', SOURCE[Line-1].strip()):
@@ -722,20 +742,19 @@ def Syntax(SOURCE,
             print(t2.lap())
             SOURCE[Line_Nom-1]=str(To_Add)
 
-
         #] Memory Location of Object
         elif re.search(r'''[,\(\[\{\+=: ]&\w+''', Text): #[^a-zA-Z0-9'"]
             Search=re.search(r' ?&(\w+)', Text)
             SOURCE[Line_Nom-1] = Text.replace(Search.group(),f'hex(id({Search.group(1)}))')
 
         #] until & unless & foreach & func
-        elif Reg:=re.search(r'until \s*(?P<Expression>.+):'  , Striped):
-            SOURCE[Line_Nom-1] = f"if not ({Reg.group('Expression')}):"
-        elif Reg:=re.search(r'unless \s*(?P<Expression>.+):' , Striped):
-            SOURCE[Line_Nom-1] = f"if not ({Reg.group('Expression')}):"
-        elif Reg:=re.search(r'foreach \s*(?P<Expression>.+):', Striped):
+        elif Regex:=re.search(r'until \s*(?P<Expression>.+):'  , Striped):
+            SOURCE[Line_Nom-1] = f"if not ({Regex.group('Expression')}):"
+        elif Regex:=re.search(r'unless \s*(?P<Expression>.+):' , Striped):
+            SOURCE[Line_Nom-1] = f"if not ({Regex.group('Expression')}):"
+        elif Regex:=re.search(r'foreach \s*(?P<Expression>.+):', Striped):
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('foreach', 'for', 1)
-        elif Reg:=re.search(r'func \s*(?P<Expression>.+)'    , Striped):
+        elif Regex:=re.search(r'func \s*(?P<Expression>.+)'    , Striped):
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('func', 'def', 1)
 
         #] Const Var
@@ -770,7 +789,7 @@ def Syntax(SOURCE,
             except NameError:
                 pass
             except Exception as e:
-                raise e from None
+                ERRORS.RaiseError(str(type(e).__name__),e,Text,Line_Nom,FILE)
             #else:
             VarName = search.group('VarName')
             if TYPE_ERROR:
