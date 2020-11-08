@@ -5,7 +5,6 @@
 #### EXT: RUN FILE
 # TODO:
  #>  sth like tst keyword to use try:x;except:pass
- #>  Constant only debug for not uppercase
  #>  Typescanner check for pre-defined decorator
  #>  from ready-objects import *
  #>  Title & Description & author & Version
@@ -26,6 +25,7 @@
  #X  do_when Keyword for Calling specifiec function when condition comes True
  #X  Improve Exception Catching when runing file
  #!  END OF LINES ERROR IN RED
+ #✓  Constant only debug for not uppercase
  #✓  Replace all remove_lines to ''
 ###########
 # NOTE:
@@ -38,7 +38,7 @@
  #>  Option for run translated or import it (import will ignore "if __name__ ...")
  #>  CONST at the beginning?
  #>  Stop Imports?
- #>  New Errors Ext Color
+ #>  New Errors Ext Color ?!
  #>  Package installer like pip? (if 3rd-party modules):
         #>  Create account (RX-Lang) in pypi to upload user packages
  #>  def(:None)?
@@ -345,9 +345,10 @@ def Get_Args():
         print('  Module-Name       sc                  Shortcut for RX Tools and functions (also "Modulename")'                            )
         print('  Method            normal              Method of loading tools.'                                                           )
         print('                                          Valid Choices: [normal,[lite,fast]] (also "Package-Version)"'                     )
-        print('OPTIONS:'                                                                                                     , style='bold')
-        print("  OPTION NAME       DEFAULT VALUE       DESCRYPTION"                                                                        )
-        print('  Func_Type_Checker True                Check if argument of a function is in wrong type'                                   )
+        print('  Print             stylized            Print function to use. Valid Choices: [normal,stylized]')
+       #print('OPTIONS:'                                                                                                     , style='bold')
+       #print("  OPTION NAME       DEFAULT VALUE       DESCRYPTION"                                                                        )
+        print('  Func_Type_Checker True                Check if arguments of a function are in wrong type'                                   )
        #print('                                          (REGEX:  (func|function)-?(type|arg|param)-?(scanner|checker) )'                  )
         print('  Exit              True                Exit after executing the code or not'                                               )
         print(                                                                                                                             )
@@ -522,7 +523,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     #< OPTIONS >#
     MODULE_VERSION  = 'rx7'
     MODULE_SHORTCUT = 'std'#'sc'
-    PRINT_TYPE = 'print'
+    PRINT_TYPE = 'stylized'
     TYPE_SCANNER = True
     #BASED = False
     Changeable = []
@@ -593,14 +594,16 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             Changeable.append(nom)
 
     if len(Changeable):
-        SOURCE[Changeable[0]] = f'import {MODULE_VERSION} as {MODULE_SHORTCUT}'
+        SOURCE[Changeable[0]] = f'import {MODULE_VERSION} as {MODULE_SHORTCUT};std={MODULE_SHORTCUT}'
     else:
         SOURCE.insert(0, f'import {MODULE_VERSION} as {MODULE_SHORTCUT}')
     if len(Changeable)>1:
         SOURCE[Changeable[1]] = f"print = {MODULE_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}"
     else:
         SOURCE.insert(1, f"print = {MODULE_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}")
-
+    #SOURCE.insert(1, f"{MODULE_SHORTCUT}=std")
+    if DEBUG and not len(Changeable):
+        print(f'{FILE}> No (Enough) Base-Option/Empty-lines at begining of file', 'red')
 
 
 
@@ -614,7 +617,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
 def Syntax(SOURCE, 
            MODULE_VERSION ,  MODULE_SHORTCUT,
            TYPE_SCANNER   ,
-           FILE):
+           FILE           ,  Debug):
     global Lines_Added
     print(TYPE_SCANNER,'red')
     CONSTS = set()
@@ -766,12 +769,15 @@ def Syntax(SOURCE,
                 #SOURCE.insert(Line_Nom-1, INDENT*' ' + Striped[Striped.index(' ')+1:])
                 SOURCE[Line_Nom-1] = INDENT*' ' + Striped[Striped.index(' ')+1:]
                 CONST = Striped[Striped.index(' '):Striped.index('=')].strip()
-                if CONST != CONST.upper():
+                if CONST != CONST.upper() and Debug:
                     #] maybe it should be just a warning
-                    raise ERRORS.ConstantError(Line_Nom=Line_Nom, 
+                    print(f'{FILE}:{Line_Nom}> Constant Variable Name is not UPPERCASED','red')
+                    '''
+                     raise ERRORS.ConstantError(Line_Nom=Line_Nom, 
                                                Line_Text=Text.strip(), 
                                                File=FILE, 
                                                msg='Constant Variable Name Must be UPPERCASE')
+                    '''
                 for item in CONSTS:  #] Check if Const X is already defined
                     if CONST == item[0]:
                         raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
@@ -887,7 +893,7 @@ if __name__ == "__main__":
         SOURCE = Read_File(FILE)
         SOURCE = Define_Structure(SOURCE, FILE, ARGS[2])
         #print(f'DefStr :: {t.last_lap()}','green')
-        SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE)
+        SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, ARGS[2])
         if ARGS[1]:
             SOURCE = Add_Verbose(SOURCE, FILE)
         #print(Lines_Added)

@@ -369,7 +369,8 @@
 				
 				{"include": "#rx-class-funcs"},
 				{"include": "#rx-class-name"},
-				{"include": "#rx-rxnsc"}
+				{"include": "#rx-rxnsc"},
+				{"include": "#rx-info"}
 				
 
 				
@@ -380,6 +381,18 @@
 		},
 
 
+		"rx-info": {
+			"patterns": [
+				{
+					"name": "variable.other.constant.ruby",
+					"match": "(?x)\n  \\b(?<!\\.)Version\\s*:\\s*[0-9](?: [0-9] )*( \\. [0-9](?: [0-9] )*)?( \\. [0-9](?: [0-9] )*)?\\b\n"
+				},
+				{
+					"name": "variable.other.constant.ruby",
+					"match": "(?x)\n  \\b(?<!\\.)(Title|Author)\\s*:\\s*.+\\b\n"
+				}
+			]
+		},
 
 		"rx-rxnsc": {
 			"patterns": [
@@ -389,8 +402,6 @@
 				}
 			]
 		},
-
-
 
 		"rx-class-name": {
 			"patterns": [
