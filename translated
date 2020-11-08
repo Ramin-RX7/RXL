@@ -1,13 +1,14 @@
-import rx7.lite as ms;std=ms
-print = ms.style.print
+import rx7 as std;std = std;setattr(std,'Version','1.0.0');setattr(std,'Author','IRANIAN');setattr(std,'Author','IRANIAN')
+print()
+Version:  1.7.4
 #Author :  Ramin.RX7
 
+Module-Name : ms
+Print : stylized
+Method : lite
+Func-Type-Checker: True
 
-
-
-
-
-
+End-Exit : True
 
 print('Start')
 
@@ -15,16 +16,16 @@ import sys
 print(sys.argv)
 
 x = ('x', 'xx')
-files=ms.files;
+files=std.files;
 class X:
-    @ms.Check_Type
+    @std.Check_Type
     def func():
         pass
 
-@ms.Check_Type
+@std.Check_Type
 def x():
     pass
-    @ms.Check_Type
+    @std.Check_Type
     def myfunc(x):
         pass
     if ('x' and 
@@ -65,11 +66,11 @@ print('red', 'red')
 """
 
 
-Terminal=ms.Terminal;
+Terminal=std.Terminal;
 XX = 'sadf'
-@ms.Check_Type
+@std.Check_Type
 def hello(x):
-    Files=ms.Files;terminal=ms.terminal;files=ms.files;
+    Files=std.Files;terminal=std.terminal;files=std.files;
 import os
 
 

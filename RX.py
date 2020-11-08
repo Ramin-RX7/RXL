@@ -29,6 +29,7 @@
  #✓  Replace all remove_lines to ''
 ###########
 # NOTE:
+ #>  Function to check if expression is not in Quotes?
  #>  Whole code in Try-Except ?
  #>  Constant Array __str__ should be with <>
  #>  DEBUG (-d) is unused
@@ -612,17 +613,32 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             INFO['Author'] = Regex.group('Author')
             SOURCE[nom] = ''
             Changeable.append(nom)
+        else:
+            break
     #print(INFO)
 
+    STRING = []
+    STRING.append(f"import {MODULE_VERSION} as {MODULE_SHORTCUT}")
+    STRING.append(f"std = {MODULE_SHORTCUT}")
+    STRING.append(f"setattr(std,'Version','{INFO['Version']}')")
+    STRING.append(f"setattr(std,'Author','{INFO['Author']}')")
+    STRING.append(f"setattr(std,'Author','{INFO['Author']}')")
+
     if len(Changeable):
-        SOURCE[Changeable[0]] = f'import {MODULE_VERSION} as {MODULE_SHORTCUT};std={MODULE_SHORTCUT}'
+        for line in Changeable:
+            if line == Changeable[-1]:
+                SOURCE[line] = ';'.join(STRING)
+            else:
+                try:
+                    SOURCE[line] = STRING[0]
+                    STRING = STRING[1:]
+                except IndexError:
+                    break
+
+        #SOURCE[Changeable[0]] = f"import {MODULE_VERSION} as {MODULE_SHORTCUT};std={MODULE_SHORTCUT}"
     else:
-        SOURCE.insert(0, f'import {MODULE_VERSION} as {MODULE_SHORTCUT}')
-    if len(Changeable)>1:
-        SOURCE[Changeable[1]] = f"print = {MODULE_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}"
-    else:
-        SOURCE.insert(1, f"print = {MODULE_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}")
-    #SOURCE.insert(1, f"{MODULE_SHORTCUT}=std")
+        SOURCE.insert(0, ';'.join(STRING))
+
     if DEBUG and not len(Changeable):
         print(f'{FILE}> No (Enough) Base-Option/Empty-lines at begining of file', 'red')
 
