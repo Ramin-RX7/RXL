@@ -527,14 +527,18 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     TYPE_SCANNER = True
     #BASED = False
     Changeable = []
+    INFO = {
+        'Version':'1.0.0',
+        'Author':rx.system.accname(),
+        'Title': FILE.split('/')[-1].split('.')[0]}
     Skip = 0
 
-    for nom,line in enumerate(SOURCE[:7]):
+    for nom,line in enumerate(SOURCE[:10]):
 
         if not line.strip() or line.strip().startswith('#'):
             Changeable.append(nom)
 
-        #< Get Shortcut Name >#
+        #] Get Shortcut Name
         elif re.search(r'^((M|m)odule(-|_)?(N|n)ame)\s*:\s*\w+',line):
             #if BASED:
             #    raise ERRORS.BaseDefinedError('Modulename', line, SOURCE[:5].index(line), FILE)
@@ -547,7 +551,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             SOURCE[nom] = ''
             Changeable.append(nom)
 
-        #< Get Version (Method) of Tools >#
+        #] Get Version (Method) of Tools
         elif re.search(r'^(Method|Package(-|_)Version)\s*:\s*\w*', line):
             #if BASED:
             #    raise ERRORS.BaseDefinedError('Method/Version', line, SOURCE[:5].index(line), FILE)
@@ -560,7 +564,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             SOURCE[nom] = ''
             Changeable.append(nom)
 
-        #< Print Function Method >#
+        #] Print Function Method
         elif re.search(r'^Print\s*:\s*\w*', line):
             #BASED = True
             if line.strip().lower().endswith('stylized'):
@@ -571,7 +575,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             SOURCE[nom] = ''
             Changeable.append(nom)
 
-        #< Function Type Scanner >#          TODO: # Make it Shorter!
+        #] Function Type Scanner          TODO: # Make it Shorter!
         elif re.search(r'^((F|f)unc|(F|f)unction)(-|_)?((T|t)ype|(A|a)rg|(P|p)aram)(-|_)?((S|s)canner|(C|c)hecker)\s*:\s*\w*', line):
             #print("FOUND",'green')
             #BASED = True     # No Need to do it
@@ -583,7 +587,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             SOURCE[nom] = ''
             Changeable.append(nom)
 
-        #< Exit at the end >#
+        #] Exit at the end
         elif re.search(r'^(End(-|_))?(Exit|Quit)\s*:\s*\w*', line):
             if line.strip().lower().endswith('false'):
                 SOURCE.append('__import__("getpass").getpass("Press [Enter] to Exit")')
@@ -592,6 +596,23 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 raise ERRORS.NameError(FILE, 'Exit', stripped, line, SOURCE.index(line), "[True,False]")
             SOURCE[nom] = ''
             Changeable.append(nom)
+
+        #] Version
+        elif Regex:=re.search(r'^Version\s*:\s*(?P<Version>[0-9]+(\.[0-9]+)?(\.[0-9]+)?)', line.strip()):
+            INFO['Version'] = Regex.group('Version')
+            SOURCE[nom] = ''
+            Changeable.append(nom)
+        #] Title
+        elif Regex:=re.search(r'^Title\s*:\s*(?P<Title>[^>]+)(>.+)?', line.rstrip()):
+            INFO['Title'] = Regex.group('Title')
+            SOURCE[nom] = ''
+            Changeable.append(nom)
+        #] Author
+        elif Regex:=re.search(r'^Author\s*:\s*(?P<Author>.+)', line.rstrip()):
+            INFO['Author'] = Regex.group('Author')
+            SOURCE[nom] = ''
+            Changeable.append(nom)
+    #print(INFO)
 
     if len(Changeable):
         SOURCE[Changeable[0]] = f'import {MODULE_VERSION} as {MODULE_SHORTCUT};std={MODULE_SHORTCUT}'

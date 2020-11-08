@@ -1,14 +1,15 @@
-import rx7.lite as ms
+import rx7.lite as ms;std=ms
 print = ms.style.print
+#Author :  Ramin.RX7
+
+
+
 
 
 
 
 
 print('Start')
-
-
-print(std.download)
 
 import sys
 print(sys.argv)
@@ -35,7 +36,7 @@ x()
 def hello():
     pass
 
-ArrConst = '1',x(),'2','3'
+ArrConst = '1',x,'2','3'
 #ArrConst2 = <'1'>
 print(hex(id(ArrConst)))
 #asd()
@@ -56,7 +57,7 @@ while (x):
     print('ln3')
     x-=1
 '''
-
+print('red', 'red')
 
 """
 #Const XX = 'sdfsafdsfa'

@@ -47,7 +47,7 @@
     x:str='hello'
     x : str = 'hello'
     x :str = 'hello'
-
++ Path to files should have slash ('/') instead of backslash ('\')
 
 
 
