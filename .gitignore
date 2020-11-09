@@ -1,5 +1,6 @@
 # Custom
 .vscode/
+.vscode-test/
 *.exe
 tst.*
 _Console_.py

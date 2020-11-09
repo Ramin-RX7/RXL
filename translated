@@ -1,9 +1,9 @@
 import rx7.lite as ms
 std = ms
+print = ms.style.print
 setattr(std,'Version','1.7.4')
 setattr(std,'Author','Ramin.RX7')
 setattr(std,'Title','DramaX')
-
 
 #Func-Type-Checker: True
 

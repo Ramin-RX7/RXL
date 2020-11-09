@@ -346,10 +346,10 @@ def Get_Args():
         print('  Module-Name       sc                  Shortcut for RX Tools and functions (also "Modulename")'                            )
         print('  Method            normal              Method of loading tools.'                                                           )
         print('                                          Valid Choices: [normal,[lite,fast]] (also "Package-Version)"'                     )
-        print('  Print             stylized            Print function to use. Valid Choices: [normal,stylized]')
+        print('  Print             stylized            Print function to use. Valid Choices: [normal,stylized]'                            )
        #print('OPTIONS:'                                                                                                     , style='bold')
        #print("  OPTION NAME       DEFAULT VALUE       DESCRYPTION"                                                                        )
-        print('  Func_Type_Checker True                Check if arguments of a function are in wrong type'                                   )
+        print('  Func_Type_Checker True                Check if arguments of a function are in wrong type'                                 )
        #print('                                          (REGEX:  (func|function)-?(type|arg|param)-?(scanner|checker) )'                  )
         print('  Exit              True                Exit after executing the code or not'                                               )
         print(                                                                                                                             )
@@ -561,7 +561,8 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 MODULE_VERSION = 'rx7.lite'
             elif not StripLow.endswith('normal'):
                 stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.NameError(FILE, 'Method', stripped, line, SOURCE[:5].index(line), ['lite','normal'])
+                raise ERRORS.NameError(FILE, 'Method', stripped, line, 
+                                       SOURCE[:5].index(line), ['lite','normal'])
             SOURCE[nom] = ''
             Changeable.append(nom)
 
@@ -572,7 +573,8 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 PRINT_TYPE = 'stylized'
             elif not line.strip().lower().endswith('normal'):
                 stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.NameError(FILE, 'print', stripped, line, SOURCE[:5].index(line), ['lite','normal'])
+                raise ERRORS.NameError(FILE, 'print', stripped, line, 
+                                       SOURCE[:5].index(line), ['lite','normal'])
             SOURCE[nom] = ''
             Changeable.append(nom)
 
@@ -584,7 +586,8 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 TYPE_SCANNER = False
             elif not line.strip().endswith('True'):
                 stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.NameError(FILE, 'func_type_checker', stripped, line, SOURCE.index(line), "[True,False]")
+                raise ERRORS.NameError(FILE, 'func_type_checker', stripped, line, 
+                                       SOURCE.index(line), "[True,False]")
             SOURCE[nom] = ''
             Changeable.append(nom)
 
@@ -594,7 +597,8 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 SOURCE.append('__import__("getpass").getpass("Press [Enter] to Exit")')
             elif not line.strip().lower().endswith('true'):
                 stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.NameError(FILE, 'Exit', stripped, line, SOURCE.index(line), "[True,False]")
+                raise ERRORS.NameError(FILE, 'Exit', stripped, line, 
+                                       SOURCE.index(line), "[True,False]")
             SOURCE[nom] = ''
             Changeable.append(nom)
 
@@ -622,9 +626,10 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     STRING = []
     STRING.append(f"import {MODULE_VERSION} as {MODULE_SHORTCUT}")
     STRING.append(f"std = {MODULE_SHORTCUT}")
+    STRING.append(f"print = {MODULE_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}")
     for key,value in INFO.items():
         STRING.append(f"setattr(std,'{key}','{value}')")
-
+        
     if len(Changeable):
         for line in Changeable:
             if line == Changeable[-1]:
@@ -655,7 +660,7 @@ def Syntax(SOURCE,
            TYPE_SCANNER   ,
            FILE           ,  Debug):
     global Lines_Added
-    print(TYPE_SCANNER,'red')
+    #print(TYPE_SCANNER,'red')
     CONSTS = set()
     Keywords = ('if' , 'elif' , 'except' , 'def', 
                 'for', 'while', 'foreach', 'until', 'unless',
@@ -757,7 +762,9 @@ def Syntax(SOURCE,
                         raise TypeError
                     else:
                         pass#SOURCE[Line-1] =   ' '*(indent+4) + SOURCE[Line-1]
-                    SOURCE[Line-1] = f'{(indent)*" "}elif {Regex.group("VARIABLE")} == {SEARCH_VALUE.group("VALUE")}:' #+4
+                    variable = Regex.group("VARIABLE")
+                    value    = SEARCH_VALUE.group("VALUE")
+                    SOURCE[Line-1] = f'{(indent)*" "}elif {variable} == {value}:' #+4
             #SOURCE.insert(Line_Nom-1, f'{(indent)*" "}if False:pass')
 
         #] Load User-Defined Modules
@@ -782,8 +789,7 @@ def Syntax(SOURCE,
                     
                     #rx.files.move(f'{package}.py', f'__RX_LIB__/{package}.py')
                     LOADED_PACKAGES.append(package)
-                    #SOURCE.insert(Line_Nom-1,f"from __RX_LIB__ import {package};{MODULE_SHORTCUT}.files.remove('__RX_LIB__/{package}.py')")
-                    #SOURCE.insert(Line_Nom-1,f"{Indent}{package} = {MODULE_SHORTCUT}.import_module('{package}.rx7')") #;{MODULE_SHORTCUT}.files.remove('__RX_LIB__/{package}.py')
+                    # in previous versions: import then remove file
                     To_Add += f"{package}={MODULE_SHORTCUT}.import_module('__RX_LIB__/{package}.py');"
                 else:
                     raise ERRORS.ModuleNotFoundError(FILE, package, Text, Line_Nom)
@@ -959,13 +965,13 @@ if __name__ == "__main__":
                 #    print('Error in Parsing(T2P): With -T2P You Need To Specify FILE', 'red')
             if ARGS[4]:
                 rx.files.move(f'{FILE.split(".")[0]}.py', f'__RX_LIB__/{FILE.split(".")[0]}.py')
-            print(f'LinesAdded:{Lines_Added}','red')
+            #print(f'LinesAdded:{Lines_Added}','red')
             if not ARGS[3] and not ARGS[4] and not ARGS[5]:
             #if not any([[ARGS[3],ARGS[4]],ARGS[5]]):
                 #try:
                 print(f'B_Run :: {time.time()-START_TIME}','green')
                 rx.terminal.set_title(f'RX - {os.path.basename(FILE)}')
-                print('python RX_Py'+' '+' '.join(ARGS[-1]),'green')
+                print('Call  :: python RX_Py'+' '+' '.join(ARGS[-1]),'green')
                 os.system('python RX_Py'+' '+' '.join(ARGS[-1]))
                     #import _RX_Py
                 #except:
@@ -986,7 +992,7 @@ if __name__ == "__main__":
             '''
         finally:
             if not ARGS[4]:
-                Clean_Up(False)
+                Clean_Up()
             #rx.files.remove(f'__RX_LIB__', force=True)
             #rx.files.remove('_RX_Py.py')
             #rx.files.remove('__pycache__', force=True)            
