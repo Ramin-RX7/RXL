@@ -525,7 +525,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     MODULE_VERSION  = 'rx7'
     MODULE_SHORTCUT = 'std'#'sc'
     PRINT_TYPE = 'stylized'
-    TYPE_SCANNER = True
+    TYPE_SCANNER = False
     #BASED = False
     Changeable = []
     INFO = {
@@ -577,7 +577,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             Changeable.append(nom)
 
         #] Function Type Scanner          TODO: # Make it Shorter!
-        elif re.search(r'^((F|f)unc|(F|f)unction)(-|_)?((T|t)ype|(A|a)rg|(P|p)aram)(-|_)?((S|s)canner|(C|c)hecker)\s*:\s*\w*', line):
+        elif re.search(r'^((F|f)unc(tion)?)(-|_)?((T|t)ype|(A|a)rg|(P|p)aram)(-|_)?((S|s)canner|(C|c)hecker)\s*:\s*\w*', line):
             #print("FOUND",'green')
             #BASED = True     # No Need to do it
             if line.endswith('False'):
@@ -613,16 +613,17 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             INFO['Author'] = Regex.group('Author')
             SOURCE[nom] = ''
             Changeable.append(nom)
+        
         else:
             break
+    
     #print(INFO)
 
     STRING = []
     STRING.append(f"import {MODULE_VERSION} as {MODULE_SHORTCUT}")
     STRING.append(f"std = {MODULE_SHORTCUT}")
-    STRING.append(f"setattr(std,'Version','{INFO['Version']}')")
-    STRING.append(f"setattr(std,'Author','{INFO['Author']}')")
-    STRING.append(f"setattr(std,'Author','{INFO['Author']}')")
+    for key,value in INFO.items():
+        STRING.append(f"setattr(std,'{key}','{value}')")
 
     if len(Changeable):
         for line in Changeable:
@@ -634,8 +635,6 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                     STRING = STRING[1:]
                 except IndexError:
                     break
-
-        #SOURCE[Changeable[0]] = f"import {MODULE_VERSION} as {MODULE_SHORTCUT};std={MODULE_SHORTCUT}"
     else:
         SOURCE.insert(0, ';'.join(STRING))
 
@@ -897,9 +896,11 @@ def Add_Verbose(SOURCE, FILE):
 
 
 #< Clean Everything Which is Not Needed >#
-def Clean_Up():
-    try: rx.files.remove(f'__RX_LIB__', force=True)
-    except: pass
+def Clean_Up(Lib=True):
+    if Lib:
+        try: rx.files.remove(f'__RX_LIB__', force=True)
+        except: pass
+    else: pass
     #rx.files.remove('_RX_Py.py')
     try: rx.files.remove('RX_Py')
     except: pass
@@ -914,7 +915,7 @@ def Clean_Up():
 #< START OF THE CODE >#
 if __name__ == "__main__":
     try:
-        print(f'START :: {time.time()-START_TIME}','green')
+        #print(f'START :: {time.time()-START_TIME}','green')
         '''
         if time.time()-START_TIME>0.025:
             print('Run Speed is Very Low. Restarting App', 'red')
@@ -943,27 +944,24 @@ if __name__ == "__main__":
         #print(f'Write :: {t.last_lap()}','green')
         try:
             if ARGS[5]:
-                if FILE:
-                    rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
-                else:
-                    print('Error in Parsing(T2P): With -T2P You Need To Specify FILE', 'red')
+                #try:
+                rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
+                #except:
+                #    print('Error in Parsing(T2P): With -T2P You Need To Specify FILE', 'red')
             if ARGS[4]:
                 rx.files.move(f'{FILE.split(".")[0]}.py', f'__RX_LIB__/{FILE.split(".")[0]}.py')
-
-            print(Lines_Added,'red')
+            print(f'LinesAdded:{Lines_Added}','red')
             if not ARGS[3] and not ARGS[4] and not ARGS[5]:
             #if not any([[ARGS[3],ARGS[4]],ARGS[5]]):
-                if FILE:
-                    print(f'B_Run :: {time.time()-START_TIME}','green')
-                    rx.terminal.set_title(f'RX - {os.path.basename(FILE)}')
-                    print('python RX_Py'+' '+' '.join(ARGS[-1]),'green')
-                    os.system('python RX_Py'+' '+' '.join(ARGS[-1]))
+                #try:
+                print(f'B_Run :: {time.time()-START_TIME}','green')
+                rx.terminal.set_title(f'RX - {os.path.basename(FILE)}')
+                print('python RX_Py'+' '+' '.join(ARGS[-1]),'green')
+                os.system('python RX_Py'+' '+' '.join(ARGS[-1]))
                     #import _RX_Py
-                else:
-                    print('Error in Parsing(TM): No FILE is Given', 'red')
-                    sys.exit()
-
-
+                #except:
+                #    print('Error in Parsing(TM): No FILE is Given', 'red')
+                #    sys.exit()
         except Exception as E:
             if ARGS[4]:
                 raise E
@@ -979,7 +977,7 @@ if __name__ == "__main__":
             '''
         finally:
             if not ARGS[4]:
-                Clean_Up()
+                Clean_Up(False)
             #rx.files.remove(f'__RX_LIB__', force=True)
             #rx.files.remove('_RX_Py.py')
             #rx.files.remove('__pycache__', force=True)            

@@ -1,14 +1,13 @@
 Title  :  DramaX> Library/Apps to Crack Hashes
-print()
 Version:  1.7.4
-#Author :  Ramin.RX7
+Author :  Ramin.RX7
 
 Module-Name : ms
 Print : stylized
 Method : lite
-Func-Type-Checker: True
-
+#Func-Type-Checker: True
 End-Exit : True
+
 
 print('Start')
 
