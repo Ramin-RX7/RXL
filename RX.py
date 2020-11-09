@@ -7,7 +7,6 @@
  #>  sth like tst keyword to use try:x;except:pass
  #>  Typescanner check for pre-defined decorator
  #>  from ready-objects import *
- #>  Title & Description & author & Version
  #>  &&  ---  ||
  #>  Use ValueError instead of NameError in DefStr
  #>  Debug with running linters
@@ -25,6 +24,7 @@
  #X  do_when Keyword for Calling specifiec function when condition comes True
  #X  Improve Exception Catching when runing file
  #!  END OF LINES ERROR IN RED
+ #✓  Title & Description & author & Version
  #✓  Constant only debug for not uppercase
  #✓  Replace all remove_lines to ''
 ###########
@@ -674,6 +674,15 @@ def Syntax(SOURCE,
                 if not Striped.startswith('def ')  and  not Striped.startswith('#'):
                     raise ERRORS.ConstantError(Line_Nom, item[1], Striped, item[0], FILE)
 
+        #] && --- ||
+        '''
+         nnoo = False
+         while not nnoo:
+             if '&&' in Text  and  Text[:Text.index('&&')].count("'")%2==0:
+                 Text.replace('&&','and',1)
+             else:
+                 nnoo = True
+        '''
 
         #] When Adding An Extra Line Like Decorators
         if Skip:
@@ -787,13 +796,13 @@ def Syntax(SOURCE,
             SOURCE[Line_Nom-1] = Text.replace(Search.group(),f'hex(id({Search.group(1)}))')
 
         #] until & unless & foreach & func
-        elif Regex:=re.search(r'until \s*(?P<Expression>.+):'  , Striped):
+        elif Regex:=re.search(r'^until \s*(?P<Expression>.+):'  , Striped):
             SOURCE[Line_Nom-1] = f"if not ({Regex.group('Expression')}):"
-        elif Regex:=re.search(r'unless \s*(?P<Expression>.+):' , Striped):
+        elif Regex:=re.search(r'^unless \s*(?P<Expression>.+):' , Striped):
             SOURCE[Line_Nom-1] = f"if not ({Regex.group('Expression')}):"
-        elif Regex:=re.search(r'foreach \s*(?P<Expression>.+):', Striped):
+        elif Regex:=re.search(r'^foreach \s*(?P<Expression>.+):', Striped):
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('foreach', 'for', 1)
-        elif Regex:=re.search(r'func \s*(?P<Expression>.+)'    , Striped):
+        elif Regex:=re.search(r'^func \s*(?P<Expression>.+)'    , Striped):
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('func', 'def', 1)
 
         #] Const Var
