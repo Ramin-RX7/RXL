@@ -42,18 +42,16 @@ HELO = (2,)
  #HELO ='d'
 
 x = 3
-'''
 
-print('ln1')
-print('ln2')
-print('ln3')
+
+print(x)
+pass
 x-=1
 while (x):
-    print('ln1')
-    print('ln2')
-    print('ln3')
+    print(x)
+    pass
     x-=1
-'''
+
 print('red', 'red')
 
 """
@@ -80,16 +78,19 @@ class fu:
     pass
 
 if False:pass
-elif x == 1:
+if hello ==  1:
         print('case1')
         x
-elif x == (2,4):
+elif hello == (2,4):
         print('case2')
-elif x == (3,4):
+elif hello == (3,4):
         print('case3')
         d
+elif hello == 6:
+        print('case6')
 else:
         print('deafult')
+
 if ('d' and
 'df'):
     print('2 line if')

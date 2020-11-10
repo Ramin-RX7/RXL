@@ -13,9 +13,9 @@
  #>  Create RX App with Menu:
         #>  Create SuperLite Module
         #>  TERMINAL
- #>  Console support RX syntax
+ #>  Console support RX syntax ( '\n'.join(Syntax([line])) )
  #>  Array
- #>  Improve switch & case: No break - Default
+ #>  Improve switch & case: No break
  #>  goto for For loops with naming For loops
  #>  Load Modules:
        #> If Error happens in Loading module, .py file will remains
@@ -30,8 +30,10 @@
 ###########
 # NOTE:
  #>  Function to check if expression is not in Quotes?
+        #> && -- ||
+        #> 
  #>  Whole code in Try-Except ?
- #>  Constant Array __str__ should be with <>
+ #>  Constant Array __str/repr__ should be with <>
  #>  DEBUG (-d) is unused
  #>  do_while check for outline
  #>  Generate:yield(:None)?
@@ -136,8 +138,8 @@ Error = rx.style.log_error
 RX_PATH = rx.files.abspath(__file__)[:-6]
 
 
-CLASSES = (['files','System','random','style','record','terminal','Tuple'],
-           ['Files','Random','Record','Terminal','system','style','Tuple']
+CLASSES = (['files','system','random','record','style','terminal','Tuple'],
+           ['Files','System','Random','Record','Style','Terminal','Tuple']
             #'internet', 'Internet'
            )
 
@@ -175,7 +177,7 @@ class ERRORS:
             Clean_Up()
             sys.exit()
 
-    class NameError(Exception):
+    class ValueError(Exception):
         def __init__(self, 
                 File, attribute=None, value=None, line_text='', 
                 line_nom=0, correct_list=[], msg=None):
@@ -183,9 +185,9 @@ class ERRORS:
             print(f'  File "{File}", line {line_nom-Lines_Added}, in <module>')
             print( '    '+line_text)
             if not msg:
-                Error(f"NameError: '{attribute}' can not be '{value}'. Valid Choices: {correct_list}")
+                Error(f"ValueError: '{attribute}' can not be '{value}'. Valid Choices: {correct_list}")
             else:
-                Error(f"NameError: {msg}")
+                Error(f"ValueError: {msg}")
             Clean_Up()
             sys.exit()
     
@@ -373,6 +375,7 @@ def Get_Args():
 #< Menu >#
 class Menu:
 
+
     @staticmethod
     def menu():
         NOW = str(datetime.datetime.now())
@@ -412,7 +415,7 @@ class Menu:
         from importlib import reload
         
         rx.system.chdir(RX_PATH)
-        PRE= ['import rx7.lite as sc','print = sc.style.print']
+        PRE= ['import rx7.lite as std','print = std.style.print']
         rx.write('_Console_.py', '\n'.join(PRE)+'\n')
         import _Console_
         while True:
@@ -547,7 +550,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             if re.search(r'\w+', stripped).group() == stripped:
                 MODULE_SHORTCUT = str(stripped)
             else:
-                raise ERRORS.NameError(msg='Invalid Value For  modulename/module_name', File=FILE)
+                raise ERRORS.ValueError(msg='Invalid Value For  modulename/module_name', File=FILE)
                         #SOURCE.remove(line)
             SOURCE[nom] = ''
             Changeable.append(nom)
@@ -561,7 +564,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 MODULE_VERSION = 'rx7.lite'
             elif not StripLow.endswith('normal'):
                 stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.NameError(FILE, 'Method', stripped, line, 
+                raise ERRORS.ValueError(FILE, 'Method', stripped, line, 
                                        SOURCE[:5].index(line), ['lite','normal'])
             SOURCE[nom] = ''
             Changeable.append(nom)
@@ -573,7 +576,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 PRINT_TYPE = 'stylized'
             elif not line.strip().lower().endswith('normal'):
                 stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.NameError(FILE, 'print', stripped, line, 
+                raise ERRORS.ValueError(FILE, 'print', stripped, line, 
                                        SOURCE[:5].index(line), ['lite','normal'])
             SOURCE[nom] = ''
             Changeable.append(nom)
@@ -586,7 +589,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 TYPE_SCANNER = False
             elif not line.strip().endswith('True'):
                 stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.NameError(FILE, 'func_type_checker', stripped, line, 
+                raise ERRORS.ValueError(FILE, 'func_type_checker', stripped, line, 
                                        SOURCE.index(line), "[True,False]")
             SOURCE[nom] = ''
             Changeable.append(nom)
@@ -597,7 +600,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 SOURCE.append('__import__("getpass").getpass("Press [Enter] to Exit")')
             elif not line.strip().lower().endswith('true'):
                 stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.NameError(FILE, 'Exit', stripped, line, 
+                raise ERRORS.ValueError(FILE, 'Exit', stripped, line, 
                                        SOURCE.index(line), "[True,False]")
             SOURCE[nom] = ''
             Changeable.append(nom)
@@ -752,19 +755,25 @@ def Syntax(SOURCE,
                 LAST_LINE = -1
 
             #SOURCE.remove(Text)
+            Default = False
             SOURCE[Line_Nom-1] = f'{(indent)*" "}if False:pass'
             for Line,snc in enumerate(SOURCE[Line_Nom-1:LAST_LINE], Line_Nom):
                 if Reg := re.search(r'^(D|d)efault\s*:\s*',snc.strip()):
                     SOURCE[Line-1] = 'else:'
-                SEARCH_VALUE = re.search(r'^(C|c)ase\s+(?P<VALUE>.+):\s*', snc.strip())
+                    Default = True
+                SEARCH_VALUE = re.search(r'^(C|c)ase\s+(?P<Nobreak>(N|n)obreak)?(?P<VALUE>.+):\s*', snc.strip())
                 if SEARCH_VALUE:
-                    if re.search(r'^elif \w+\s+==', SOURCE[Line-1].strip()):
+                    if Default:
+                        raise ERRORS.SyntaxError(FILE,Line_Nom+Line,snc,
+                                                 'Case is defined after default')
+                    IF_EL = 'el' if not SEARCH_VALUE.group('Nobreak') else ''
+                    if re.search(fr'^{IF_EL}if \w+\s+==', SOURCE[Line-1].strip()):
                         raise TypeError
                     else:
                         pass#SOURCE[Line-1] =   ' '*(indent+4) + SOURCE[Line-1]
                     variable = Regex.group("VARIABLE")
                     value    = SEARCH_VALUE.group("VALUE")
-                    SOURCE[Line-1] = f'{(indent)*" "}elif {variable} == {value}:' #+4
+                    SOURCE[Line-1] = f'{(indent)*" "}{IF_EL}if {variable} == {value}:' #+4
             #SOURCE.insert(Line_Nom-1, f'{(indent)*" "}if False:pass')
 
         #] Load User-Defined Modules

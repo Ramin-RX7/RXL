@@ -42,14 +42,13 @@ HELO = <2,>
  #HELO ='d'
 
 x = 3
-'''
+
 do:
-    print('ln1')
-    print('ln2')
-    print('ln3')
+    print(x)
+    pass
     x-=1
 while (x)
-'''
+
 print('red', 'red')
 
 """
@@ -75,8 +74,8 @@ until XX:
 class fu:
     pass
 
-switch x:
-    case 1:
+switch hello:
+    case nobreak 1:
         print('case1')
         x
     case (2,4):
@@ -84,8 +83,11 @@ switch x:
     case (3,4):
         print('case3')
         d
+    case 6:
+        print('case6')
     default:
         print('deafult')
+
 if ('d' and
 'df'):
     print('2 line if')
