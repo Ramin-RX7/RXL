@@ -47,7 +47,7 @@
  #>  def(:None)?
 ###########
 # BUG:
- #X  There couldnt be nested Switch-Case statements  (and Const-array)
+ #X  There couldnt be nested Switch-Case statements  (and Const-array?)
  #X  Errors in red Color
  #>  CONSTs:
        #!  After NameError rest of code will be ignored
@@ -87,6 +87,7 @@ r"""
  366   "rx-class-names": {
  362   "include": "#rx-class-names"
  1373  "function-declaration": {
+ 1836  "(?x)\n  (?<!\\.) \\b(\n    [A-Z]+[a-z]*Error\n  )\\b\n"        (Arithmetic | )
 """
 #] VS Ext
 r"""

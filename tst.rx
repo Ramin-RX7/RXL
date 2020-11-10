@@ -57,7 +57,7 @@ print('red', 'red')
 """
 
 
-Include Terminal
+include Terminal
 XX = 'sadf'
 def hello(x):
     Include Files, terminal ,  files

@@ -1833,7 +1833,7 @@
 		},
 		"builtin-exceptions": {
 			"name": "support.type.exception.python",
-			"match": "(?x) (?<!\\.) \\b(\n  (\n    Arithmetic | Assertion | Attribute | Buffer | BlockingIO\n    | BrokenPipe | ChildProcess\n    | (Connection (Aborted | Refused | Reset)?)\n    | EOF | Environment | FileExists | FileNotFound\n    | FloatingPoint | IO | Import | Indentation | Index | Interrupted\n    | IsADirectory | NotADirectory | Permission | ProcessLookup\n    | Timeout\n    | Key | Lookup | Memory | Name | NotImplemented | OS | Overflow\n    | Reference | Runtime | Recursion | Syntax | System\n    | Tab | Type | UnboundLocal | Unicode(Encode|Decode|Translate)?\n    | Value | Windows | ZeroDivision | ModuleNotFound\n  ) Error\n|\n  ((Pending)?Deprecation | Runtime | Syntax | User | Future | Import\n    | Unicode | Bytes | Resource\n  )? Warning\n|\n  SystemExit | Stop(Async)?Iteration\n  | KeyboardInterrupt\n  | GeneratorExit | (Base)?Exception\n)\\b\n"
+			"match": "(?x)\n  (?<!\\.) \\b(\n    [A-Z]+[a-z]*Error\n  )\\b\n"
 		},
 		"builtin-functions": {
 			"patterns": [
@@ -1880,7 +1880,7 @@
 			]
 		},
 		"illegal-names": {
-			"match": "(?x)\n  \\b(?:\n    (\n      do | switch | case | default | (I|i)nclude | (L|l)oad | foreach | until | unless\n      | Module(-|_)(N|n)ame | (Method|Package(_|-)Version) | Func(_|-)Type(-|_)Checker | Print | (End-)?(Exit|Quit)\n      | and | assert | async | await | break | class | continue | def\n      | del | elif | else | except | finally | for | from | global\n      | if | in | is | (?<=\\.)lambda | lambda(?=\\s*[\\.=])\n      | nonlocal | not | or | pass | raise | return | try | while | with\n      | yield\n    ) | (\n      as | import\n    )\n  )\\b\n",
+			"match": "(?x)\n  \\b(?:\n    (\n      nobreak | do | switch | case | default | include | load | foreach | until | unless\n      | Module(-|_)(N|n)ame | (Method|Package(_|-)Version) | Func(_|-)Type(-|_)Checker | Print | (End-)?(Exit|Quit)\n      | and | assert | async | await | break | class | continue | def\n      | del | elif | else | except | finally | for | from | global\n      | if | in | is | (?<=\\.)lambda | lambda(?=\\s*[\\.=])\n      | nonlocal | not | or | pass | raise | return | try | while | with\n      | yield\n    ) | (\n      as | import\n    )\n  )\\b\n",
 			"captures": {
 				"1": {
 					"name": "keyword.control.flow.python"
