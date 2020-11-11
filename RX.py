@@ -31,7 +31,6 @@
 # NOTE:
  #>  Function to check if expression is not in Quotes?
         #> && -- ||
-        #> 
  #>  Whole code in Try-Except ?
  #>  Constant Array __str/repr__ should be with <>
  #>  DEBUG (-d) is unused
@@ -265,7 +264,7 @@ class ERRORS:
             Error(f"SyntaxError: {msg}")
             Clean_Up()
             sys.exit()
-    
+
 
 
 #< Get Arguments >#      #TODO: add (-s --start) to start menu items
@@ -276,7 +275,8 @@ def Get_Args():
     
     if len(sys.argv) == 1:
         #Console()
-        Menu.menu()
+        #Menu.menu()
+        Menu.Terminal()
         sys.exit()
 
     #if len(sys.argv) > 3:
@@ -442,6 +442,37 @@ class Menu:
 
             if re.search(r'^print\s*\(', rx.read('_Console_.py').splitlines()[-1].strip()):
                 rx.write('_Console_.py', '\n'.join(rx.read('_Console_.py').splitlines()[:-1])+'\n')
+
+    @staticmethod
+    def Terminal():
+        rx.cls()
+        rx.terminal.set_title(f'RX:Terminal {rx.system.device_name()}:{rx.system.accname()}')
+        while True:
+            print('RX:Terminal', 'green', end='')
+            print('@', end='')
+            print(os.getcwd(), 'dodger_blue_1', end='')
+            try:
+                inp = input('> ')
+                output = rx.terminal.getoutput(inp)
+                if inp == 'help':
+                    pass
+                if Regex:=re.search(r'cd (?P<path>.+)',inp):
+                    try:
+                        os.chdir(Regex.group('path'))
+                    except (FileNotFoundError,NotADirectoryError):
+                        print('Invalid path','red')
+                    continue
+                app = inp.split(' ')[0]
+                output_list = output.splitlines()
+                if output:
+                    if (f"{app} : The term '{app}' is n" in output_list[0])  or  (
+                        f"'{app}' is not recognized as" in output_list[0]):
+                        print('App/Command not found', 'red')
+                    else:
+                        print(output)
+            except (EOFError,KeyboardInterrupt):
+                print('Exiting...','red')
+                sys.exit()
 
 
 #< Reading File >#
@@ -967,26 +998,19 @@ if __name__ == "__main__":
             rx.write('translated', '\n'.join(SOURCE))
             rx.files.hide('RX_Py')
         #print(f'Write :: {t.last_lap()}','green')
+        title = rx.terminal.get_title
         try:
             if ARGS[5]:
-                #try:
                 rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
-                #except:
-                #    print('Error in Parsing(T2P): With -T2P You Need To Specify FILE', 'red')
             if ARGS[4]:
                 rx.files.move(f'{FILE.split(".")[0]}.py', f'__RX_LIB__/{FILE.split(".")[0]}.py')
             #print(f'LinesAdded:{Lines_Added}','red')
             if not ARGS[3] and not ARGS[4] and not ARGS[5]:
             #if not any([[ARGS[3],ARGS[4]],ARGS[5]]):
-                #try:
-                print(f'B_Run :: {time.time()-START_TIME}','green')
                 rx.terminal.set_title(f'RX - {os.path.basename(FILE)}')
+                print(f'B_Run :: {time.time()-START_TIME}','green')
                 print('Call  :: python RX_Py'+' '+' '.join(ARGS[-1]),'green')
                 os.system('python RX_Py'+' '+' '.join(ARGS[-1]))
-                    #import _RX_Py
-                #except:
-                #    print('Error in Parsing(TM): No FILE is Given', 'red')
-                #    sys.exit()
         except Exception as E:
             if ARGS[4]:
                 raise E
@@ -1003,6 +1027,7 @@ if __name__ == "__main__":
         finally:
             if not ARGS[4]:
                 Clean_Up()
+            rx.terminal.set_title(title)
             #rx.files.remove(f'__RX_LIB__', force=True)
             #rx.files.remove('_RX_Py.py')
             #rx.files.remove('__pycache__', force=True)            

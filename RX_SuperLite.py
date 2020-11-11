@@ -29,6 +29,7 @@ class Terminal:
     run = os.system
     getoutput = subprocess.getoutput
     set_title = __import__('win32api').SetConsoleTitle
+    get_title = __import__('win32api').GetConsoleTitle()
 terminal = Terminal
 
 
