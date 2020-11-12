@@ -75,7 +75,7 @@ r"""
  C:\Users\IRANIAN\.vscode\extensions\ms-python.python-2020.8.105369\package.json   (1637)
  C:\Users\IRANIAN\.vscode\extensions\ms-python.python-2020.8.105369\snippets\python.json   (END)
  D:\Programs\Microsoft VS Code\resources\app\extensions\rx\language-configuration.json 13
- 
+
  D:\Programs\Microsoft VS Code\resources\app\extensions\python\syntaxes\MagicPython.tmLanguage.json
  (1746 at the end) 276
  33    "include": "#class-declarations"
@@ -93,7 +93,7 @@ r"""
  git add . && git commit
  vsce publish VERSION
  brs326qo5vgc774pezvenvixu4sj3c2lbwgqv66uwzsopcocl6ea
- 
+
  Colors:
   invalid.deprecated.backtick.python   red
   support.type.exception.python        green
@@ -190,7 +190,7 @@ class ERRORS:
                 Error(f"ValueError: {msg}")
             Clean_Up()
             sys.exit()
-    
+
     class ConstantError(Exception):
         def __init__(self,
           Line_Nom=0, Line_Def=0, Line_Text='', Attribute='', File='', msg=None):
@@ -272,7 +272,7 @@ def Get_Args():
 
     #print('ARGS:  '+str(sys.argv), 'green')
     #print(os.getcwd(),'green')
-    
+
     if len(sys.argv) == 1:
         #Console()
         #Menu.menu()
@@ -332,17 +332,17 @@ def Get_Args():
         action='store_true',
         help='Translate To Python'
     )
-    
+
     parser.add_argument(
         'PROG_ARGS',
         action='store', 
         nargs=argparse.REMAINDER)
-    
-    
+
+
     args = parser.parse_args()
     #print(args.PROG_ARGS,'red')
-    
-    
+
+
     if args.options:
         print('BASE OPTIONS:'                                                                                                , style='bold')
         print("  OPTION NAME       DEFAULT VALUE       DESCRYPTION"                                                          , style='bold')
@@ -366,7 +366,7 @@ def Get_Args():
 
     if args.debug:
         args.d = True
-    
+
 
     #print('ARGS:  '+str(args))
     #sys.exit()
@@ -386,16 +386,15 @@ class Menu:
         {2}--Console
         {3}--System Info
         {4}--Compile
-            
+
         ''')
 
         Menu_Dict = { 
-        #'1': Menu.Terminal,  'Terminal'   : Menu.Terminal ,
+       #'1': Menu.Terminal,  'Terminal'   : Menu.Terminal ,
         '2': Menu.Console ,  'Console'    : Menu.Console  ,
-        #'3': Menu.SysInfo ,  'System Info': Menu.SysInfo  ,
-        #'4': Menu.Compile ,  'Compile'    : Menu.Compile  ,
+       #'3': Menu.SysInfo ,  'System Info': Menu.SysInfo  ,
+       #'4': Menu.Compile ,  'Compile'    : Menu.Compile  ,
         }
-
 
         inp = Menu_Dict[rx.NF.wait_for_input('RX:Menu> ',Menu_Dict.keys(), True)]
         inp()
@@ -414,7 +413,7 @@ class Menu:
             return answer
 
         from importlib import reload
-        
+
         rx.system.chdir(RX_PATH)
         PRE= ['import rx7.lite as std','print = std.style.print']
         rx.write('_Console_.py', '\n'.join(PRE)+'\n')
@@ -430,7 +429,7 @@ class Menu:
                 sys.exit()
 
             rx.write('_Console_.py', new+'\n', 'a')
-            
+
             try:
                 reload(_Console_)
             except Exception as e:
@@ -438,7 +437,7 @@ class Menu:
                 if '(_Console_.py,' in ERROR:
                     ERROR = ERROR[:ERROR.index('(_Console_.py,')]
                 print(str(type(e))[8:-2]+':  ' + ERROR, 'red')
-                rx.write('_Console_.py', '\n'.join(rx.read('_Console_.py').splitlines()[:-1])+'\n', 'w')
+                rx.write('_Console_.py', '\n'.join(rx.read('_Console_.py').splitlines()[:-1])+'\n')
 
             if re.search(r'^print\s*\(', rx.read('_Console_.py').splitlines()[-1].strip()):
                 rx.write('_Console_.py', '\n'.join(rx.read('_Console_.py').splitlines()[:-1])+'\n')
@@ -481,8 +480,7 @@ def Read_File(filepath):
         with open(filepath) as f:
             SOURCE = f.read().split('\n')
         return SOURCE + ['\n']
-        import os
-        print(os.path.abspath(filepath), 'red')
+    print(os.path.abspath(filepath), 'red')
     print(f"RX> can't open file '{filepath}': No such file", 'red') #or directory
     sys.exit()
 
@@ -531,18 +529,19 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                     if '"""' in text_in_str:
                         Skip = line_in_str
                         #print(Skip)
+                        continue
         elif '"""' in Text:
             if not "'''" in Text[Text.index("'''")+3:]:
                 for line_in_str,text_in_str in enumerate(SOURCE[Line_Nom:],1):
                     if "'''" in text_in_str:
                         Skip = line_in_str
                         #print(Skip)
+                        continue
 
         #] Indent
         if Text.strip().endswith(':'):#.startswith(Keywords):
             BREAK = False
             LINE = int(Line_Nom)
-            T = str(Text)
             while not BREAK:
                 if SOURCE[LINE-1].strip().endswith(':'):
                     BREAK = True
@@ -554,7 +553,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             if INDENT_START <= INDENT:
                 #print('RX_Err','red')
                 raise ERRORS.IndentionError(Line_Nom+1, SOURCE[Line_Nom], FILE)
-        
+
 
     #< OPTIONS >#
     MODULE_VERSION  = 'rx7'
@@ -652,10 +651,10 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             INFO['Author'] = Regex.group('Author')
             SOURCE[nom] = ''
             Changeable.append(nom)
-        
+
         else:
             break
-    
+
     #print(INFO)
 
     STRING = []
@@ -664,7 +663,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     STRING.append(f"print = {MODULE_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}")
     for key,value in INFO.items():
         STRING.append(f"setattr(std,'{key}','{value}')")
-        
+
     if len(Changeable):
         for line in Changeable:
             if line == Changeable[-1]:
@@ -702,11 +701,11 @@ def Syntax(SOURCE,
                 'try', 'else' , 'switch' , 'class', 'case',
                 )
     Skip = 0
-    
+
     for Line_Nom,Text in enumerate(SOURCE, 1):
 
         #print(str(Line_Nom)+' '+Text)
-        
+
         Striped = Text.strip()
 
         for item in CONSTS:
@@ -774,7 +773,7 @@ def Syntax(SOURCE,
         #] Switch and Case
         elif Regex:=re.search(r'^\s*(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text):
             indent = len(Regex.group('indent'))
-            
+
             rules = 0
             for nom2,line2 in enumerate(SOURCE[Line_Nom:], 1):
                 if not line2:
@@ -813,7 +812,7 @@ def Syntax(SOURCE,
             Indent = Regex.group('indent')
             Packages = re.split(r'\s*,\s*', Text)
             Packages[0]= Packages[0][4:].strip()
-            
+
             #SOURCE.remove(Text)
             #SOURCE[Line_Nom-1]=''
             To_Add = str(Indent)
@@ -827,7 +826,7 @@ def Syntax(SOURCE,
                             raise ERRORS.LoadError(package,pack_out.splitlines()[-1])
                         else:
                             raise ERRORS.LoadError(package)
-                    
+
                     #rx.files.move(f'{package}.py', f'__RX_LIB__/{package}.py')
                     LOADED_PACKAGES.append(package)
                     # in previous versions: import then remove file
@@ -962,7 +961,8 @@ def Clean_Up(Lib=True):
     except: pass
     try: rx.files.remove('__pycache__', force=True)
     except: pass
-
+    try: rx.files.remove('_Console_.py')
+    except: pass
 
 
 
@@ -1033,4 +1033,5 @@ if __name__ == "__main__":
             #rx.files.remove('__pycache__', force=True)            
 
     except KeyboardInterrupt:
+        #Clean_Up()
         print('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)','red')
