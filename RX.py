@@ -4,6 +4,8 @@
 
 #### EXT: RUN FILE
 # TODO:
+ #>  Combine sys.exit & cleanup
+ #>  SetupEnv should be only after Load
  #>  sth like tst keyword to use try:x;except:pass
  #>  Typescanner check for pre-defined decorator
  #>  from ready-objects import *
@@ -138,8 +140,8 @@ Error = rx.style.log_error
 RX_PATH = rx.files.abspath(__file__)[:-6]
 
 
-CLASSES = (['files','system','random','record','style','terminal','Tuple'],
-           ['Files','System','Random','Record','Style','Terminal','Tuple']
+CLASSES = (['files', 'system', 'random', 'record', 'style', 'terminal', 'Tuple'],
+           ['Files', 'System', 'Random', 'Record', 'Style', 'Terminal', 'Tuple']
             #'internet', 'Internet'
            )
 
@@ -161,7 +163,7 @@ class ERRORS:
     #TRACEBACK = 'Traceback (most recent call last):'
     class RaiseError(Exception):
         def __init__(self, title, msg, line_text, line_nom, File):
-            print('Traceback (most recent call last):')
+            print( 'Traceback (most recent call last):')
             print(f'  File "{File}", line {line_nom-Lines_Added}, in <module>')
             print( '    '+line_text)
             Error(str(title)+': '+str(msg))
@@ -170,7 +172,7 @@ class ERRORS:
 
     class BaseDefinedError(Exception):
         def __init__(self, attribute, line_text, line_nom, File):
-            print('Traceback (most recent call last):')
+            print( 'Traceback (most recent call last):')
             print(f'  File "{File}", line {line_nom-Lines_Added}, in <module>')
             print( '    '+line_text)
             Error(f"BaseDefinedError: '{attribute}' can not be defined after setting module [OPTIONS]")
@@ -179,7 +181,7 @@ class ERRORS:
 
     class ValueError(Exception):
         def __init__(self, 
-                File, attribute=None, value=None, line_text='', 
+                File,       attribute=None , value=None, line_text='', 
                 line_nom=0, correct_list=[], msg=None):
             print( 'Traceback (most recent call last):')
             print(f'  File "{File}", line {line_nom-Lines_Added}, in <module>')
@@ -193,7 +195,8 @@ class ERRORS:
 
     class ConstantError(Exception):
         def __init__(self,
-          Line_Nom=0, Line_Def=0, Line_Text='', Attribute='', File='', msg=None):
+          Line_Nom=0  , Line_Def=0, Line_Text='', 
+          Attribute='', File=''   , msg=None):
             print( 'Traceback (most recent call last):')
             print(f'  File "{File}", line {Line_Nom-Lines_Added}, in <module>')
             print( '    '+Line_Text)
@@ -237,16 +240,16 @@ class ERRORS:
 
     class AttributeError(Exception):
         def __init__(self,File, Line_Nom, Line_Text, Module_Version, Attribute):
-            print('Traceback (most recent call last):')
+            print( 'Traceback (most recent call last):')
             print(f'  File "{File}", line {Line_Nom-Lines_Added}, in <module>')
-            print('    '+Line_Text)
+            print( '    '+Line_Text)
             Error(f"AttributeError: module '{Module_Version}' has no attribute '{Attribute}'")
             Clean_Up()
             sys.exit()
 
     class LoadError(Exception):
         def __init__(self, Module, error=False):
-            print('Traceback (most recent call last):')
+            print( 'Traceback (most recent call last):')
             print(f'  Loading Module "{Module}" Resulted in an Error', 'red' if error else 'default')
             if error:
                 print(error)
@@ -258,9 +261,9 @@ class ERRORS:
 
     class SyntaxError(Exception):
         def __init__(self,File, Line_Nom, Line_Text, msg):
-            print('Traceback (most recent call last):')
+            print( 'Traceback (most recent call last):')
             print(f'  File "{File}", line {Line_Nom-Lines_Added}, in <module>')
-            print('    '+Line_Text)
+            print( '    '+Line_Text)
             Error(f"SyntaxError: {msg}")
             Clean_Up()
             sys.exit()
@@ -360,7 +363,7 @@ def Get_Args():
 
         sys.exit()
     elif not args.FILE:
-        Console()
+        Menu.Console()
         #Menu()
         sys.exit()
 
@@ -376,35 +379,9 @@ def Get_Args():
 #< Menu >#
 class Menu:
 
-
-    @staticmethod
-    def menu():
-        NOW = str(datetime.datetime.now())
-        print(f'RX v{__version__} Running on {rx.system.device_name()}::{rx.system.accname()}')
-        print('''
-        {1}--Terminal
-        {2}--Console
-        {3}--System Info
-        {4}--Compile
-
-        ''')
-
-        Menu_Dict = { 
-       #'1': Menu.Terminal,  'Terminal'   : Menu.Terminal ,
-        '2': Menu.Console ,  'Console'    : Menu.Console  ,
-       #'3': Menu.SysInfo ,  'System Info': Menu.SysInfo  ,
-       #'4': Menu.Compile ,  'Compile'    : Menu.Compile  ,
-        }
-
-        inp = Menu_Dict[rx.NF.wait_for_input('RX:Menu> ',Menu_Dict.keys(), True)]
-        inp()
-
-
     #< Interactive RX Shell >#
     @staticmethod
     def Console():
-        NOW = str(datetime.datetime.now())
-        print(f'RX v{__version__} Running on {rx.system.device_name()}::{rx.system.accname()}')
         rx.terminal.set_title('RX - Console')
         def wait_for_input(prompt):
             answer= ''
@@ -423,15 +400,18 @@ class Menu:
                 new = wait_for_input('RX:Console> ')
                 if new.lower() in ('exit','quit','end'):
                     rx.files.remove('_Console_.py')
-                    sys.exit()
+                    #sys.exit()
+                    return
             except (KeyboardInterrupt,EOFError):
                 rx.files.remove('_Console_.py')
-                sys.exit()
+                return#sys.exit()
 
             rx.write('_Console_.py', new+'\n', 'a')
 
             try:
                 reload(_Console_)
+            except (EOFError,KeyboardInterrupt):
+                return
             except Exception as e:
                 ERROR = str(e)
                 if '(_Console_.py,' in ERROR:
@@ -445,30 +425,52 @@ class Menu:
     @staticmethod
     def Terminal():
         rx.cls()
-        rx.terminal.set_title(f'RX:Terminal {rx.system.device_name()}:{rx.system.accname()}')
+        rx.terminal.set_title(f'RX:Terminal  |  {rx.system.device_name()}:{rx.system.accname()}')
+        NOW = str(datetime.datetime.now())
+        Menu_Dict = { 
+            #'Terminal'   : Menu.Terminal ,
+            'Console'    : Menu.Console  ,
+            #'System Info': Menu.SysInfo  ,
+            #'Compile'    : Menu.Compile  ,
+        }
+        print(f"RX v{__version__} Running on {rx.system.device_name()}::{rx.system.accname()} ({NOW[:NOW.rfind('.')]})")
         while True:
             print('RX:Terminal', 'green', end='')
             print('@', end='')
             print(os.getcwd(), 'dodger_blue_1', end='')
             try:
                 inp = input('> ')
-                output = rx.terminal.getoutput(inp)
-                if inp == 'help':
-                    pass
-                if Regex:=re.search(r'cd (?P<path>.+)',inp):
+
+
+                if inp in Menu_Dict.keys():
+                    Menu_Dict[inp]()
+
+
+                if inp.lower() == 'console':
+                    Menu.Console()
+                elif inp == 'help':
+                    print('Beside all CMD commands, we also support these commands:')
+                    print('  - Console')
+                    print('  - System Info')
+                    print('  - Compile')
+                elif Regex:=re.search(r'cd (?P<path>.+)',inp):
                     try:
                         os.chdir(Regex.group('path'))
                     except (FileNotFoundError,NotADirectoryError):
                         print('Invalid path','red')
-                    continue
-                app = inp.split(' ')[0]
-                output_list = output.splitlines()
-                if output:
-                    if (f"{app} : The term '{app}' is n" in output_list[0])  or  (
-                        f"'{app}' is not recognized as" in output_list[0]):
-                        print('App/Command not found', 'red')
-                    else:
-                        print(output)
+                elif inp == 'python':
+                    #print("'python' can not be launched through RX Console as it use UNKNOWN input", 'red')
+                    rx.terminal.run('python')
+                else:
+                    output = rx.terminal.getoutput(inp)
+                    app = inp.split(' ')[0]
+                    output_list = output.splitlines()
+                    if output:
+                        if (f"{app} : The term '{app}' is n" in output_list[0])  or  (
+                            f"'{app}' is not recognized as" in output_list[0]):
+                            print('App/Command not found', 'red')
+                        else:
+                            print(output)
             except (EOFError,KeyboardInterrupt):
                 print('Exiting...','red')
                 sys.exit()
