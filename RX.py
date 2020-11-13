@@ -5,7 +5,9 @@ import sys
 import re
 import argparse
 import datetime
+import tokenize
 from colored import fg,bg,attr
+
 class rx:
     @staticmethod
     def cls():
@@ -134,7 +136,8 @@ class rx:
 
         @staticmethod
         def mkdir(path):
-            os.mkdir(path)
+            try: os.mkdir(path)
+            except FileExistsError: pass
     Files = files
     read  = files.read
     write = files.write
@@ -185,6 +188,168 @@ class rx:
             else:       error=True
             return rx.io.selective_input(prompt,['y','yes','n','no'],default,error)
     SF = AF = NF = io
+
+class IndentCheck:
+    class NannyNag(Exception):
+        """
+        Raised by process_tokens() if detecting an ambiguous indent.
+        Captured and handled in check().
+        """
+        def __init__(self, lineno, msg, line):
+            self.lineno, self.msg, self.line = lineno, msg, line
+        def get_lineno(self):
+            return self.lineno
+        def get_msg(self):
+            return self.msg
+        def get_line(self):
+            return self.line
+    @staticmethod
+    def check(file):
+
+        try:
+            f = tokenize.open(file)
+        except OSError as msg:
+            return (False,f"I/O Error: {msg}")
+
+        try:
+            IndentCheck.process_tokens(tokenize.generate_tokens(f.readline))
+
+        except tokenize.TokenError as msg:
+            return (False,f"Token Error: {msg}")
+
+        except IndentationError as msg:
+            return (False,f"Indentation Error: {msg}") 
+
+        except IndentCheck.NannyNag as nag:
+            badline = nag.get_lineno()
+            line = nag.get_line()
+            if ' ' in file: file = '"' + file + '"'
+            else: print(file, badline, repr(line))
+            return (False,)
+
+        finally:
+            f.close()
+
+        return (True,True)
+
+
+    class Whitespace:
+        S, T = ' \t'
+
+
+        def __init__(self, ws):
+            self.raw  = ws
+            S, T = IndentCheck.Whitespace.S, IndentCheck.Whitespace.T
+            count = []
+            b = n = nt = 0
+            for ch in self.raw:
+                if ch == S:
+                    n = n + 1
+                    b = b + 1
+                elif ch == T:
+                    n = n + 1
+                    nt = nt + 1
+                    if b >= len(count):
+                        count = count + [0] * (b - len(count) + 1)
+                    count[b] = count[b] + 1
+                    b = 0
+                else:
+                    break
+            self.n    = n
+            self.nt   = nt
+            self.norm = tuple(count), b
+            self.is_simple = len(count) <= 1
+
+        def longest_run_of_spaces(self):
+            count, trailing = self.norm
+            return max(len(count)-1, trailing)
+
+        def indent_level(self, tabsize):
+            count, trailing = self.norm
+            il = 0
+            for i in range(tabsize, len(count)):
+                il = il + i//tabsize * count[i]
+            return trailing + tabsize * (il + self.nt)
+
+        def equal(self, other):
+            return self.norm == other.norm
+
+        def not_equal_witness(self, other):
+            n = max(self.longest_run_of_spaces(),
+                    other.longest_run_of_spaces()) + 1
+            a = []
+            for ts in range(1, n+1):
+                if self.indent_level(ts) != other.indent_level(ts):
+                    a.append( (ts,
+                            self.indent_level(ts),
+                            other.indent_level(ts)) )
+            return a
+
+        def less(self, other):
+            if self.n >= other.n:
+                return False
+            if self.is_simple and other.is_simple:
+                return self.nt <= other.nt
+            n = max(self.longest_run_of_spaces(),
+                    other.longest_run_of_spaces()) + 1
+            for ts in range(2, n+1):
+                if self.indent_level(ts) >= other.indent_level(ts):
+                    return False
+            return True
+
+        def not_less_witness(self, other):
+            n = max(self.longest_run_of_spaces(),
+                    other.longest_run_of_spaces()) + 1
+            a = []
+            for ts in range(1, n+1):
+                if self.indent_level(ts) >= other.indent_level(ts):
+                    a.append( (ts,
+                            self.indent_level(ts),
+                            other.indent_level(ts)) )
+            return a
+
+    @staticmethod
+    def format_witnesses(w):
+        firsts = (str(tup[0]) for tup in w)
+        prefix = "at tab size"
+        if len(w) > 1:
+            prefix = prefix + "s"
+        return prefix + " " + ', '.join(firsts)
+
+    @staticmethod
+    def process_tokens(tokens):
+        INDENT = tokenize.INDENT
+        DEDENT = tokenize.DEDENT
+        NEWLINE = tokenize.NEWLINE
+        JUNK = tokenize.COMMENT, tokenize.NL
+        indents = [IndentCheck.Whitespace("")]
+        check_equal = 0
+
+        for (type, token, start, end, line) in tokens:
+            if type == NEWLINE:
+                check_equal = 1
+
+            elif type == INDENT:
+                check_equal = 0
+                thisguy = IndentCheck.Whitespace(token)
+                if not indents[-1].less(thisguy):
+                    witness = indents[-1].not_less_witness(thisguy)
+                    msg = "indent not greater e.g. " + IndentCheck.format_witnesses(witness)
+                    raise IndentCheck.NannyNag(start[0], msg, line)
+                indents.append(thisguy)
+
+            elif type == DEDENT:
+                check_equal = 1
+
+                del indents[-1]
+
+            elif check_equal and type not in JUNK:
+                check_equal = 0
+                thisguy = IndentCheck.Whitespace(line)
+                if not indents[-1].equal(thisguy):
+                    witness = indents[-1].not_equal_witness(thisguy)
+                    msg = "indent not equal e.g. " + IndentCheck.format_witnesses(witness)
+                    raise IndentCheck.NannyNag(start[0], msg, line)
 
 """
 ################################################################################
@@ -639,6 +804,12 @@ class Menu:
                 elif inp == 'python':
                     #print("'python' can not be launched through RX Console as it use UNKNOWN input", 'red')
                     rx.terminal.run('python')
+                elif inp == 'cmd':
+                    #print("'python' can not be launched through RX Console as it use UNKNOWN input", 'red')
+                    rx.terminal.run('cmd')
+                elif inp in ('cls','clear'):
+                    #print("'python' can not be launched through RX Console as it use UNKNOWN input", 'red')
+                    rx.terminal.run('cls')
                 else:
                     output = rx.terminal.getoutput(inp)
                     app = inp.split(' ')[0]
@@ -689,7 +860,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
         raise ERRORS.IndentionError(LINE_NOM, INDENT_OUTPUT[-3][4:],FILE)
     """
     #{???}autopep8 -i script.py
-    import IndentCheck
+    #import IndentCheck
     IndentCheck.check(FILE)
 
     Skip = 0
