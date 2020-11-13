@@ -1,4 +1,4 @@
-import os,subprocess,shutil,time,socket
+import os,time,shutil
 
 def cls():
     '''
@@ -27,11 +27,10 @@ Record = record
 
 class Terminal:
     run = os.system
-    getoutput = subprocess.getoutput
+    getoutput = __import__('subprocess').getoutput
     set_title = __import__('win32api').SetConsoleTitle
-    get_title = __import__('win32api').GetConsoleTitle()
+    get_title = __import__('win32api').GetConsoleTitle
 terminal = Terminal
-
 
 from colored import fg,bg,attr
 class style:
@@ -101,6 +100,7 @@ class files:
             os.remove(path)
         else:
             if force: 
+                import shutil
                 shutil.rmtree(path)
             else:
                 try:
@@ -121,31 +121,13 @@ class files:
             FileR = f.read()
         return FileR
     @staticmethod
-    def write(file, text='',mode='replace',start=''):
-        if not text:
-            text = ''
-        if not start:
-            start = ''
-        pass
-        if mode in ('replace', 'w', 'continue', 'a'):
-            if mode in ('replace', 'w'):
-                mode = 'w'
-            elif mode in ('continue', 'a'):
-                mode = 'a'
+    def write(file, text='',mode='w'):
+        with open(file, mode=mode) as f:
+            f.write(text)
 
-            with open(file, mode=mode) as f:
-                f.write(str(start)+str(text))
-
-        else:   
-            raise ValueError(f'mode should be in [(replace,w),(continue,a)] Not "{mode}"') 
     @staticmethod
     def mkdir(path):
-        path = os.path.normpath(path)
-        NEW= ''
-        for FILE in path.split('\\'):
-            NEW+= FILE+'\\'
-            try: os.mkdir(NEW)
-            except (FileExistsError,FileNotFoundError): pass
+        os.mkdir(path)
 Files = files
 read  = files.read
 write = files.write
@@ -154,11 +136,13 @@ write = files.write
 class system:
     chdir = os.chdir
     accname = os.getlogin
-    device_name = socket.gethostname
+    device_name = __import__('socket').gethostname
 System = system
 
 
-class NF:
+
+class io: 
+    @staticmethod
     def wait_for_input(prompt,SS:list=[], ignore_case=False):
         answer= ''
         try:
@@ -174,4 +158,24 @@ class NF:
             style.print('EXITING...','red')
             exit()
         return answer
-SF = AF = NF
+
+    @staticmethod
+    def selective_input(prompt,choices,default=None,error=False):
+        while True:
+            inp = input(prompt)
+            if not inp  or  inp not in choices:
+                if error:
+                    style.print('Invalid input', 'red')
+                else:
+                    inp = default
+                    break
+            else:
+                break
+        return inp
+    @staticmethod
+    def yesno_input(prompt,default=None):
+        if default: error=False
+        else:       error=True
+        return io.selective_input(prompt,['y','yes','n','no'],default,error)
+SF = AF = NF = io
+

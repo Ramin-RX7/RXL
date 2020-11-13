@@ -137,7 +137,7 @@ import RX_SuperLite as rx
 print = rx.style.print
 Error = rx.style.log_error
 
-RX_PATH = rx.files.abspath(__file__)[:-6]
+RX_PATH = os.path.abspath(__file__)[:-6]
 
 
 CLASSES = (['files', 'system', 'random', 'record', 'style', 'terminal', 'Tuple'],
@@ -448,7 +448,7 @@ class Menu:
 
                 if inp.lower() == 'console':
                     Menu.Console()
-                elif inp == 'help':
+                elif inp in ('help','commands'):
                     print('Beside all CMD commands, we also support these commands:')
                     print('  - Console')
                     print('  - System Info')
@@ -683,7 +683,6 @@ def Define_Structure(SOURCE, FILE, DEBUG):
         print(f'{FILE}> No (Enough) Base-Option/Empty-lines at begining of file', 'red')
 
 
-
     #print(CONSTS)
     return (SOURCE, 
             MODULE_VERSION, MODULE_SHORTCUT,
@@ -694,7 +693,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
 def Syntax(SOURCE, 
            MODULE_VERSION ,  MODULE_SHORTCUT,
            TYPE_SCANNER   ,
-           FILE           ,  Debug):
+           FILE           ,  DEBUG):
     global Lines_Added
     #print(TYPE_SCANNER,'red')
     CONSTS = set()
@@ -862,7 +861,7 @@ def Syntax(SOURCE,
                 #SOURCE.insert(Line_Nom-1, INDENT*' ' + Striped[Striped.index(' ')+1:])
                 SOURCE[Line_Nom-1] = INDENT*' ' + Striped[Striped.index(' ')+1:]
                 CONST = Striped[Striped.index(' '):Striped.index('=')].strip()
-                if CONST != CONST.upper() and Debug:
+                if CONST != CONST.upper()  and  DEBUG:
                     #] maybe it should be just a warning
                     print(f'{FILE}:{Line_Nom}> Constant Variable Name is not UPPERCASED','red')
                     '''
@@ -1000,7 +999,7 @@ if __name__ == "__main__":
             rx.write('translated', '\n'.join(SOURCE))
             rx.files.hide('RX_Py')
         #print(f'Write :: {t.last_lap()}','green')
-        title = rx.terminal.get_title
+        title = rx.terminal.get_title()
         try:
             if ARGS[5]:
                 rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
@@ -1008,18 +1007,23 @@ if __name__ == "__main__":
                 rx.files.move(f'{FILE.split(".")[0]}.py', f'__RX_LIB__/{FILE.split(".")[0]}.py')
             #print(f'LinesAdded:{Lines_Added}','red')
             if not ARGS[3] and not ARGS[4] and not ARGS[5]:
-            #if not any([[ARGS[3],ARGS[4]],ARGS[5]]):
+            #if not all([[ARGS[3],ARGS[4]],ARGS[5]]):
                 rx.terminal.set_title(f'RX - {os.path.basename(FILE)}')
                 print(f'B_Run :: {time.time()-START_TIME}','green')
-                print('Call  :: python RX_Py'+' '+' '.join(ARGS[-1]),'green')
+                #print('Call  :: python RX_Py'+' '+' '.join(ARGS[-1]),'green')
                 os.system('python RX_Py'+' '+' '.join(ARGS[-1]))
         except Exception as E:
             if ARGS[4]:
                 raise E
             #raise E# from None
             print('Traceback (most recent call last):','red')
+            print('  Error occured when making environment ready to run')
+            print('SystemError: '+str(E), 'red', style='bold')
+            print('Please report this to the RX maintainer, along with the traceback and version')
+            '''
             print('  More Information Soon...','red')
             print(str(type(E))[8:-2]+': '+str(E), 'red', style='bold')
+            '''
             '''
             print('Traceback (most recent call last):')
             print(f'  File "{FILE}" in  "UNDEFINED"')
@@ -1029,10 +1033,7 @@ if __name__ == "__main__":
         finally:
             if not ARGS[4]:
                 Clean_Up()
-            rx.terminal.set_title(title)
-            #rx.files.remove(f'__RX_LIB__', force=True)
-            #rx.files.remove('_RX_Py.py')
-            #rx.files.remove('__pycache__', force=True)            
+            rx.terminal.set_title(title)         
 
     except KeyboardInterrupt:
         #Clean_Up()
