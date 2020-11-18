@@ -146,7 +146,7 @@ class rx:
     class system:
         chdir = os.chdir
         accname = os.getlogin
-        device_name = __import__('socket').gethostname
+        device_name = __import__('platform').node
     System = system
 
 
@@ -357,6 +357,8 @@ class IndentCheck:
 
 #### EXT: RUN FILE
 # TODO:
+ #>  Instead of RX_Py, name should be real name
+ #>  How to run python file instead of os.system
  #>  Combine sys.exit & cleanup
  #>  SetupEnv should be only after Load
  #>  sth like tst keyword to use try:x;except:pass
@@ -368,6 +370,7 @@ class IndentCheck:
  #>  Create RX App with Menu:
         #>  Create SuperLite Module
         #>  TERMINAL
+              #> linux commands?
  #>  Console support RX syntax ( '\n'.join(Syntax([line])) )
  #>  Array
  #>  Improve switch & case: No break
@@ -796,6 +799,9 @@ class Menu:
                     print('  - Console')
                     print('  - System Info')
                     print('  - Compile')
+                elif inp in ('exit','quit'):
+                    Clean_Up()
+                    sys.exit()
                 elif Regex:=re.search(r'cd (?P<path>.+)',inp):
                     try:
                         os.chdir(Regex.group('path'))
@@ -1044,12 +1050,14 @@ def Syntax(SOURCE,
            TYPE_SCANNER   ,
            FILE           ,  DEBUG):
     global Lines_Added
+    '''
     #print(TYPE_SCANNER,'red')
-    CONSTS = set()
     Keywords = ('if' , 'elif' , 'except' , 'def', 
                 'for', 'while', 'foreach', 'until', 'unless',
                 'try', 'else' , 'switch' , 'class', 'case',
                 )
+    '''
+    CONSTS = set()
     Skip = 0
 
     for Line_Nom,Text in enumerate(SOURCE, 1):
@@ -1139,7 +1147,7 @@ def Syntax(SOURCE,
             Default = False
             SOURCE[Line_Nom-1] = f'{(indent)*" "}if False:pass'
             for Line,snc in enumerate(SOURCE[Line_Nom-1:LAST_LINE], Line_Nom):
-                if Reg := re.search(r'^(D|d)efault\s*:\s*',snc.strip()):
+                if re.search(r'^(D|d)efault\s*:\s*',snc.strip()):
                     SOURCE[Line-1] = (indent)*" "+'else:'
                     Default = True
                 SEARCH_VALUE = re.search(r'^(C|c)ase\s+(?P<Nobreak>(N|n)obreak)?(?P<VALUE>.+):\s*', snc.strip())
@@ -1157,8 +1165,8 @@ def Syntax(SOURCE,
                     SOURCE[Line-1] = f'{(indent)*" "}{IF_EL}if {variable} == {value}:' #+4
             #SOURCE.insert(Line_Nom-1, f'{(indent)*" "}if False:pass')
 
-        #] Load User-Defined Modules
-        elif Regex:=re.search(r'^(?P<indent>\s*)(L|l)oad \s*(\w+,?)?', Text.strip()):
+        #] Load User-Defined Modules    #TODO: Better regex to get packages
+        elif Regex:=re.search(r'^(?P<indent>\s*)load \s*(\w+,?)?', Text.strip()):
             Indent = Regex.group('indent')
             Packages = re.split(r'\s*,\s*', Text)
             Packages[0]= Packages[0][4:].strip()
@@ -1167,6 +1175,9 @@ def Syntax(SOURCE,
             #SOURCE[Line_Nom-1]=''
             To_Add = str(Indent)
             t2 = rx.record()
+            rx.files.mkdir('__RX_LIB__')
+            if not rx.files.exists('__RX_LIB__/__init__.py'):
+                rx.write('__RX_LIB__/__init__.py')
             for package in Packages:
                 if rx.files.exists(f'{package}.rx7'):
                     pack_out = rx.terminal.getoutput(f'python RX.py {package}.rx7 -MT -T2P').strip()
@@ -1301,12 +1312,13 @@ def Add_Verbose(SOURCE, FILE):
 
 
 #< Clean Everything Which is Not Needed >#
-def Clean_Up(Lib=True):
+def Clean_Up(Lib=True):   #] 0.03
     if Lib:
         try: rx.files.remove(f'__RX_LIB__', force=True)
         except: pass
     else: pass
-    #rx.files.remove('_RX_Py.py')
+    try: rx.files.remove('_RX_Py.py')
+    except: pass
     try: rx.files.remove('RX_Py')
     except: pass
     try: rx.files.remove('__pycache__', force=True)
@@ -1329,25 +1341,22 @@ if __name__ == "__main__":
             rx.terminal.run('python '+' '.join(sys.argv))
             sys.exit()
          '''
-        #rx.terminal.set_title('RX')
         ARGS = Get_Args()  # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P, 6:Prog_Args}  0.008
         FILE   = ARGS[0]
         #rx.cls()
-        Setup_Env()  #] 0.03
         SOURCE = Read_File(FILE)
         SOURCE = Define_Structure(SOURCE, FILE, ARGS[2])
-        #print(f'DefStr :: {t.last_lap()}','green')
+        print(f'DefStr :: {time.time()-START_TIME}','green')
         SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, ARGS[2])
+        print(f'Syntax :: {time.time()-START_TIME}','green')
         if ARGS[1]:
             SOURCE = Add_Verbose(SOURCE, FILE)
         #print(Lines_Added)
         if not ARGS[3] and not ARGS[4]:
-            if rx.files.exists('RX_Py'):
-                rx.files.remove('RX_Py')
             rx.write('RX_Py', '\n'.join(SOURCE))
             rx.write('translated', '\n'.join(SOURCE))
-            rx.files.hide('RX_Py')
-        #print(f'Write :: {t.last_lap()}','green')
+            rx.files.hide('RX_Py')  # 0.015
+        #print(f'Write :: {time.time()-START_TIME}','green')
         title = rx.terminal.get_title()
         try:
             if ARGS[5]:
@@ -1358,7 +1367,7 @@ if __name__ == "__main__":
             if not ARGS[3] and not ARGS[4] and not ARGS[5]:
             #if not all([[ARGS[3],ARGS[4]],ARGS[5]]):
                 rx.terminal.set_title(f'RX - {os.path.basename(FILE)}')
-                print(f'B_Run :: {time.time()-START_TIME}','green')
+                print(f'B_Run  :: {time.time()-START_TIME}','green')
                 #print('Call  :: python RX_Py'+' '+' '.join(ARGS[-1]),'green')
                 os.system('python RX_Py'+' '+' '.join(ARGS[-1]))
         except Exception as E:

@@ -136,7 +136,7 @@ write = files.write
 class system:
     chdir = os.chdir
     accname = os.getlogin
-    device_name = __import__('socket').gethostname
+    device_name = __import__('platform').node
 System = system
 
 

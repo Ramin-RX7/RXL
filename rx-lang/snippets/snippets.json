@@ -190,13 +190,13 @@
 
     "include all": {
         "prefix": "include all",
-        "body": "Include *\n",
-        "description": "Load All Packages from \"Tools\""
+        "body": "include *\n",
+        "description": "Import All Packages from \"STD\""
     },
     "include": {
         "prefix": "include",
-        "body": ["Include ${1:package}"],
-        "description": "Code snippet for Loading package from \"Tools\""
+        "body": ["include ${1:package}"],
+        "description": "Code snippet for importing package from \"STD\""
     },
     "function type checker":{
         "prefix": "func_type_checker",

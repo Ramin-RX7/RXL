@@ -56,6 +56,7 @@ print('red', 'red')
 #Include *
 """
 
+#input('name:  ')
 
 include Terminal
 XX = 'sadf'
