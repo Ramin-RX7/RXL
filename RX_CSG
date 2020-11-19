@@ -50,6 +50,9 @@
 + Path to files should have slash ('/') instead of backslash ('\')
 + After parantheses there shoudn't be white spaces except when you are equalizing columns
 + Functions with short body can be defined in one line
++ Execution time of functions shoud be defined with 3 white spaces in definition line
+
+
 
 
 - Comments

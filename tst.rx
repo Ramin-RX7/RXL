@@ -5,7 +5,7 @@ Author :  Ramin.RX7
 Module-Name : ms
 Print : stylized
 Method : lite
-#Func-Type-Checker: True
+Func-Type-Checker: True
 End-Exit : True
 
 
@@ -15,8 +15,9 @@ import sys
 print(sys.argv)
 
 x = <'x','xx',>
-Include files
+include files
 class X:
+    @staticmethod
     def func():
         pass
 
@@ -61,7 +62,7 @@ print('red', 'red')
 include Terminal
 XX = 'sadf'
 def hello(x):
-    Include Files, terminal ,  files
+    include Files, terminal ,  files
 import os
 
 

@@ -5,7 +5,7 @@ setattr(std,'Version','1.7.4')
 setattr(std,'Author','Ramin.RX7')
 setattr(std,'Title','DramaX')
 
-#Func-Type-Checker: True
+
 
 
 
@@ -17,11 +17,13 @@ print(sys.argv)
 x = ('x', 'xx')
 files=ms.files;
 class X:
+    @staticmethod
     def func():
         pass
-
+@staticmethod
 def x():
     pass
+    @ms.Check_Type
     def myfunc(x):
         pass
     if ('x' and 
@@ -63,6 +65,7 @@ print('red', 'red')
 
 Terminal=ms.Terminal;
 XX = 'sadf'
+@ms.Check_Type
 def hello(x):
     Files=ms.Files;terminal=ms.terminal;files=ms.files;
 import os

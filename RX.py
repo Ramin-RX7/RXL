@@ -11,13 +11,8 @@ from colored import fg,bg,attr
 class rx:
     @staticmethod
     def cls():
-        '''
-        You can use this function if you want to clear the environment.
-        '''
-        if __import__('platform').system() == "Windows":
-            os.system('cls')
-        else:
-            os.system('clear')
+        os.system('cls')
+
 
     class record:
         def __init__(self):
@@ -35,12 +30,14 @@ class rx:
             return (self.lap(False)-self.laps[-1]) if self.laps else self.lap(False)
     Record = record
 
+
     class Terminal:
         run = os.system
         getoutput = __import__('subprocess').getoutput
         set_title = __import__('win32api').SetConsoleTitle
         get_title = __import__('win32api').GetConsoleTitle
     terminal = Terminal
+
 
     class style:
         def __init__(self,text,color='default',BG='black'):
@@ -150,7 +147,6 @@ class rx:
     System = system
 
 
-
     class io: 
         @staticmethod
         def wait_for_input(prompt,SS:list=[], ignore_case=False):
@@ -191,10 +187,6 @@ class rx:
 
 class IndentCheck:
     class NannyNag(Exception):
-        """
-        Raised by process_tokens() if detecting an ambiguous indent.
-        Captured and handled in check().
-        """
         def __init__(self, lineno, msg, line):
             self.lineno, self.msg, self.line = lineno, msg, line
         def get_lineno(self):
@@ -359,13 +351,9 @@ class IndentCheck:
 # TODO:
  #>  Instead of RX_Py, name should be real name
  #>  How to run python file instead of os.system
- #>  Combine sys.exit & cleanup
- #>  SetupEnv should be only after Load
  #>  sth like tst keyword to use try:x;except:pass
- #>  Typescanner check for pre-defined decorator
  #>  from ready-objects import *
  #>  &&  ---  ||
- #>  Use ValueError instead of NameError in DefStr
  #>  Debug with running linters
  #>  Create RX App with Menu:
         #>  Create SuperLite Module
@@ -382,11 +370,12 @@ class IndentCheck:
  #X  do_when Keyword for Calling specifiec function when condition comes True
  #X  Improve Exception Catching when runing file
  #!  END OF LINES ERROR IN RED
- #✓  Title & Description & author & Version
- #✓  Constant only debug for not uppercase
- #✓  Replace all remove_lines to ''
+ #✓  Use ValueError instead of NameError in DefStr
+ #✓  Typescanner check for pre-defined decorator
+ #✓  SetupEnv should be only after Load
 ###########
 # NOTE:
+ #>  Combine sys.exit & cleanup
  #>  Function to check if expression is not in Quotes?
         #> && -- ||
  #>  Whole code in Try-Except ?
@@ -476,15 +465,10 @@ __version__ = '1.0.0'
 
 START_TIME = time.time()
 
-
-#import RX_SuperLite as rx
-#print(f'ImpRX7 :: {time.time()-START_TIME}','green')
-
 print = rx.style.print
 Error = rx.style.log_error
 
 RX_PATH = os.path.abspath(__file__)[:-6]
-
 
 CLASSES = (['files', 'system', 'random', 'record', 'style', 'terminal', 'Tuple'],
            ['Files', 'System', 'Random', 'Record', 'Style', 'Terminal', 'Tuple']
@@ -492,7 +476,6 @@ CLASSES = (['files', 'system', 'random', 'record', 'style', 'terminal', 'Tuple']
            )
 
 LOADED_PACKAGES = []
-
 Lines_Added = 0
 
 
@@ -613,7 +596,6 @@ class ERRORS:
             Error(f"SyntaxError: {msg}")
             Clean_Up()
             sys.exit()
-
 
 
 #< Get Arguments >#      #TODO: add (-s --start) to start menu items
@@ -973,9 +955,10 @@ def Define_Structure(SOURCE, FILE, DEBUG):
         elif re.search(r'^((F|f)unc(tion)?)(-|_)?((T|t)ype|(A|a)rg|(P|p)aram)(-|_)?((S|s)canner|(C|c)hecker)\s*:\s*\w*', line):
             #print("FOUND",'green')
             #BASED = True     # No Need to do it
-            if line.endswith('False'):
-                TYPE_SCANNER = False
-            elif not line.strip().endswith('True'):
+            
+            if line.endswith('True'):
+                TYPE_SCANNER = True
+            elif not line.strip().endswith('False'):
                 stripped = line[line.index(':')+1:].strip()
                 raise ERRORS.ValueError(FILE, 'func_type_checker', stripped, line, 
                                        SOURCE.index(line), "[True,False]")
@@ -1049,6 +1032,7 @@ def Syntax(SOURCE,
            MODULE_VERSION ,  MODULE_SHORTCUT,
            TYPE_SCANNER   ,
            FILE           ,  DEBUG):
+    
     global Lines_Added
     '''
     #print(TYPE_SCANNER,'red')
@@ -1104,7 +1088,7 @@ def Syntax(SOURCE,
                         #print(Skip)
 
         #] Importing Tools
-        elif Regex:=re.search(r'^(?P<Indent>\s*)(I|i)nclude \s*(\w+,?|\*)?', Text):
+        elif Regex:=re.search(r'^(?P<Indent>\s*)include \s*(\w+,?|\*)?', Text):
             Indent = Regex.group('Indent')
             if re.search(r'^(I|i)nclude\s*\*', Text.strip()):
                 Packages = list(CLASSES[0])
@@ -1123,6 +1107,8 @@ def Syntax(SOURCE,
 
         #] Func Type checker
         elif Striped.startswith('def ') and TYPE_SCANNER:  # Make it regex?
+            if SOURCE[Line_Nom-2].strip().startswith('@'):
+                continue
             indent = Text.index('def ')
             SOURCE.insert(Line_Nom-1, f'{" "*indent}@{MODULE_SHORTCUT}.Check_Type')
             Skip = 1
@@ -1329,7 +1315,6 @@ def Clean_Up(Lib=True):   #] 0.03
 
 
 
-
 #< START OF THE CODE >#
 if __name__ == "__main__":
     try:
@@ -1346,9 +1331,9 @@ if __name__ == "__main__":
         #rx.cls()
         SOURCE = Read_File(FILE)
         SOURCE = Define_Structure(SOURCE, FILE, ARGS[2])
-        print(f'DefStr :: {time.time()-START_TIME}','green')
+        #print(f'DefStr :: {time.time()-START_TIME}','green')
         SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, ARGS[2])
-        print(f'Syntax :: {time.time()-START_TIME}','green')
+        #print(f'Syntax :: {time.time()-START_TIME}','green')
         if ARGS[1]:
             SOURCE = Add_Verbose(SOURCE, FILE)
         #print(Lines_Added)
@@ -1368,7 +1353,7 @@ if __name__ == "__main__":
             #if not all([[ARGS[3],ARGS[4]],ARGS[5]]):
                 rx.terminal.set_title(f'RX - {os.path.basename(FILE)}')
                 print(f'B_Run  :: {time.time()-START_TIME}','green')
-                #print('Call  :: python RX_Py'+' '+' '.join(ARGS[-1]),'green')
+               #print( 'Call   :: python RX_Py'+' '+' '.join(ARGS[-1]),'green')
                 os.system('python RX_Py'+' '+' '.join(ARGS[-1]))
         except Exception as E:
             if ARGS[4]:
@@ -1396,3 +1381,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         #Clean_Up()
         print('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)','red')
+
