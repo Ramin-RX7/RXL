@@ -370,7 +370,8 @@
 				{"include": "#rx-class-funcs"},
 				{"include": "#rx-class-name"},
 				{"include": "#rx-rxnsc"},
-				{"include": "#rx-info"}
+				{"include": "#rx-options-correct"},
+				{"include": "#rx-options-wrong"}
 				
 
 				
@@ -380,19 +381,6 @@
 			]
 		},
 
-
-		"rx-info": {
-			"patterns": [
-				{
-					"name": "variable.other.constant.ruby",
-					"match": "(?x)\n  \\b(?<!\\.)Version\\s*:\\s*[0-9](?: [0-9] )*( \\. [0-9](?: [0-9] )*)?( \\. [0-9](?: [0-9] )*)?\\b\n"
-				},
-				{
-					"name": "variable.other.constant.ruby",
-					"match": "(?x)\n  \\b(?<!\\.)(Title|Author)\\s*:\\s*.+\\b\n"
-				}
-			]
-		},
 
 		"rx-rxnsc": {
 			"patterns": [
@@ -441,10 +429,71 @@
 			]
 		},
 
+		"rx-info": {
+			"patterns": [
+				{
+					"name": "variable.other.constant.ruby",
+					"match": "(?x)\n  \\b(?<!\\.)Version\\s*:\\s*[0-9](?: [0-9] )*( \\. [0-9](?: [0-9] )*)?( \\. [0-9](?: [0-9] )*)?\\b\n"
+				},
+				{
+					"name": "variable.other.constant.ruby",
+					"match": "(?x)\n  \\b(?<!\\.)(Title|Author)\\s*:\\s*.+\\b\n"
+				}
+			]
+		},
 
 
 
+		"rx-options-wrong":{
+			"patterns": [
+				{
+					"name": "invalid.deprecated.backtick.python",
+					"match": "(?x)\n  \\b(?<!\\.)((Func(_|-)Type(-|_)Checker)|((End-)?(Exit|Quit)))\\s*:\\s*[^(True|False)]\\b\n"
+				},
+				{
+					"name": "invalid.deprecated.backtick.python",
+					"match": "(?x)\n  \\b(?<!\\.)(Method|Package(_|-)Version)\\s*:\\s*[^(normal|lite)]\\b\n"
+				},
+				{
+					"name": "invalid.deprecated.backtick.python",
+					"match": "(?x)\n  \\b(?<!\\.)(Print)\\s*:\\s*[^(normal|stylized)]\\b\n"
+				}
+			]
+		},
 
+
+
+		"rx-options-correct":{
+			"patterns": [
+				{
+					"name": "variable.other.constant.ruby",
+					"match": "(?x)\n  \\b(?<!\\.)Version\\s*:\\s*[0-9](?: [0-9] )*( \\. [0-9](?: [0-9] )*)?( \\. [0-9](?: [0-9] )*)?\\b\n"
+				},
+				{
+					"name": "variable.other.constant.ruby",
+					"match": "(?x)\n  \\b(?<!\\.)(Title|Author)\\s*:\\s*.+\\b\n"
+				},
+				{
+					"name": "variable.other.constant.ruby",
+					"match": "(?x)\n  \\b(?<!\\.)((Func(_|-)Type(-|_)Checker)|((End-)?(Exit|Quit)))\\s*:\\s*(True|False)\\b\n"
+				},
+				{
+					"name": "variable.other.constant.ruby",
+					"match": "(?x)\n  \\b(?<!\\.)(Module(-|_)(N|n)ame)\\s*:\\s*([\\w]+)\\b\n"
+				},
+				{
+					"name": "variable.other.constant.ruby",
+					"match": "(?x)\n  \\b(?<!\\.)(Method|Package(_|-)Version)\\s*:\\s*(normal|lite)\\b\n"
+				},
+				{
+					"name": "variable.other.constant.ruby",
+					"match": "(?x)\n  \\b(?<!\\.)(Print)\\s*:\\s*(normal|stylized)\\b\n"
+				}
+			]
+		},
+
+
+		
 		
 
 
@@ -1880,7 +1929,7 @@
 			]
 		},
 		"illegal-names": {
-			"match": "(?x)\n  \\b(?:\n    (\n      nobreak | do | switch | case | default | include | load | foreach | until | unless\n      | Module(-|_)(N|n)ame | (Method|Package(_|-)Version) | Func(_|-)Type(-|_)Checker | Print | (End-)?(Exit|Quit)\n      | and | assert | async | await | break | class | continue | def\n      | del | elif | else | except | finally | for | from | global\n      | if | in | is | (?<=\\.)lambda | lambda(?=\\s*[\\.=])\n      | nonlocal | not | or | pass | raise | return | try | while | with\n      | yield\n    ) | (\n      as | import\n    )\n  )\\b\n",
+			"match": "(?x)\n  \\b(?:\n    (\n      nobreak | do | switch | case | default | include | load | foreach | until | unless\n      | and | assert | async | await | break | class | continue | def\n      | del | elif | else | except | finally | for | from | global\n      | if | in | is | (?<=\\.)lambda | lambda(?=\\s*[\\.=])\n      | nonlocal | not | or | pass | raise | return | try | while | with\n      | yield\n    ) | (\n      as | import\n    )\n  )\\b\n",
 			"captures": {
 				"1": {
 					"name": "keyword.control.flow.python"

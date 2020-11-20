@@ -4,7 +4,6 @@ import shutil
 import sys
 import re
 import argparse
-import datetime
 import tokenize
 from colored import fg,bg,attr
 
@@ -361,9 +360,9 @@ class IndentCheck:
 """
 ################################################################################
 # CHARS:  {✓ , ? , > , ! , X}
-
 #### EXT: RUN FILE
 # TODO:
+ #>  Correct color for Options in extension (and also ignore cases)
  #>  Check for fast speed (if option of it is True)
  #>  Instead of RX_Py, name should be real name
  #>  How to run python file instead of os.system
@@ -372,9 +371,9 @@ class IndentCheck:
  #>  &&  ---  ||
  #>  Debug with running linters
  #>  Create RX App with Menu:
-        #>  Create SuperLite Module
         #>  TERMINAL
               #> linux commands?
+        #✓  Create SuperLite Module
  #>  Console support RX syntax ( '\n'.join(Syntax([line])) )
  #>  Array
  #>  Improve switch & case: No break
@@ -450,6 +449,7 @@ r"""
  362   "include": "#rx-class-names"
  1373  "function-declaration": {
  1836  "(?x)\n  (?<!\\.) \\b(\n    [A-Z]+[a-z]*Error\n  )\\b\n"        (Arithmetic | )
+ #1883       | Module(-|_)(N|n)ame | (Method|Package(_|-)Version) | Func(_|-)Type(-|_)Checker | Print | (End-)?(Exit|Quit)\n
 """
 #] VS Ext
 r"""
@@ -765,7 +765,7 @@ class Menu:
     def Terminal():
         rx.cls()
         rx.terminal.set_title(f'RX:Terminal  |  {rx.system.device_name()}:{rx.system.accname()}')
-        NOW = str(datetime.datetime.now())
+        NOW = str(__import__('datetime').datetime.now())
         Menu_Dict = { 
            #'Terminal'   : Menu.Terminal ,
             'Console'    : Menu.Console  ,
@@ -878,28 +878,8 @@ def Read_File(filepath):
 #< Method,Module_Name,Print,Indent,Const >#
 def Define_Structure(SOURCE, FILE, DEBUG):
     #] Checking Indentation
-    """    
-     #INDENT_OUTPUT = rx.terminal.getoutput(f'python {RX_PATH}\\reindent.py -d -n '+FILE)
-     INDENT_OUTPUT = rx.terminal.getoutput(f'python reindent.py {FILE}')
-     if len(INDENT_OUTPUT):
-        print('REINDENT')
-        INDENT_OUTPUT = INDENT_OUTPUT.split('\n')
-        if INDENT_OUTPUT[-1].startswith('tokenize.TokenError'):
-            raise ERRORS.UndefinedError('SyntaxError: a parantheses is still open',FILE)
-        elif INDENT_OUTPUT[-1].startswith('IndentationError'):
-            LINE = INDENT_OUTPUT[-4]
-            LINE_NOM = LINE[LINE.index('line ')+5:]
-            raise ERRORS.IndentionError(LINE_NOM, INDENT_OUTPUT[-3][4:],FILE)
-        else:
-            print('\n'.join(INDENT_OUTPUT))
-            sys.exit()
-            raise ERRORS.UndefinedError
-        LINE = INDENT_OUTPUT[-4]
-        LINE_NOM = LINE[LINE.index('line ')+5:]
-        raise ERRORS.IndentionError(LINE_NOM, INDENT_OUTPUT[-3][4:],FILE)
-    """
-    #{???}autopep8 -i script.py
-    #import IndentCheck
+     # {???}autopep8 -i script.py
+     # import IndentCheck
     IndentCheck.check(FILE)
 
     Skip = 0
@@ -1334,7 +1314,7 @@ def Syntax(SOURCE,
 
 #< Verbose >#
 def Add_Verbose(SOURCE, FILE):
-    NOW = str(datetime.datetime.now())
+    NOW = str(__import__('datetime').datetime.now())
     print(f'''Start RX Language at "{NOW[:NOW.rindex('.')+5]}"''')
     print(f'Running  "{FILE}"')
     print('\n')
