@@ -89,7 +89,7 @@ class rx:
 
         @staticmethod
         def log_error(text, color='red', BG='default', style='bold'):
-            globals()['style'].print(text, color, BG, style=style)
+            rx.style.print(text, color, BG, style=style)
     Style = style
 
 
@@ -149,20 +149,14 @@ class rx:
 
     class io: 
         @staticmethod
-        def wait_for_input(prompt,SS:list=[], ignore_case=False):
+        def wait_for_input(prompt):
             answer= ''
             try:
                 while not answer:
-                    answer = input(prompt).strip()
-                    if ignore_case:
-                        answer = answer.lower()
-                    if answer and SS:
-                        if not (answer in (SS if not ignore_case else [item.lower() for item in SS])):
-                            rx.style.print('Invalid Input','red')
-                            answer = ''
+                    answer = input(prompt)
             except (EOFError,KeyboardInterrupt):
-                rx.style.print('EXITING...','red')
-                exit()
+                print('EXITING...','red')
+                sys.exit()
             return answer
 
         @staticmethod
@@ -178,11 +172,32 @@ class rx:
                 else:
                     break
             return inp
+
         @staticmethod
         def yesno_input(prompt,default=None):
-            if default: error=False
-            else:       error=True
-            return rx.io.selective_input(prompt,['y','yes','n','no'],default,error)
+            return rx.io.selective_input(prompt,['y','yes','n','no'],default,not bool(default))
+
+        @staticmethod
+        def get_files(prompt='Enter File Name:  ', check_if_exists=True, sort= False, times=100):
+            List = set()
+            i = 1
+            while i <= times:
+                filename = rx.io.wait_for_input(prompt)
+                if filename == 'end':
+                    break
+                pass
+                if check_if_exists:
+                    if rx.files.exists(filename):
+                        List.add(filename)
+                        i+=1
+                    else:
+                        rx.style.print('File Does Not Exist.')
+                else:
+                    i+=1
+                    List.add(filename)
+            if sort:
+                return sorted(list(List))
+            return list(List)
     SF = AF = NF = io
 
 class IndentCheck:
@@ -349,6 +364,7 @@ class IndentCheck:
 
 #### EXT: RUN FILE
 # TODO:
+ #>  Check for fast speed (if option of it is True)
  #>  Instead of RX_Py, name should be real name
  #>  How to run python file instead of os.system
  #>  sth like tst keyword to use try:x;except:pass
@@ -362,7 +378,7 @@ class IndentCheck:
  #>  Console support RX syntax ( '\n'.join(Syntax([line])) )
  #>  Array
  #>  Improve switch & case: No break
- #>  goto for For loops with naming For loops
+ #>  goto for For loops with naming For loops  (:NAME & goto NAME)
  #>  Load Modules:
        #> If Error happens in Loading module, .py file will remains
  #?  Debug Function in (--debug for debug-only && -d for run+debug)
@@ -402,7 +418,7 @@ class IndentCheck:
  #X  Get Remaining Args for PROGRAM
  #X  Terminal is slow for loading code from first each time
  #X  Every Load takes 0.2
- #✓  why exe doesn't accept args
+ #?  why exe doesn't accept args
 
 ########################################
 
@@ -711,11 +727,6 @@ class Menu:
     @staticmethod
     def Console():
         rx.terminal.set_title('RX - Console')
-        def wait_for_input(prompt):
-            answer= ''
-            while not answer:
-                answer = input(prompt)
-            return answer
 
         from importlib import reload
 
@@ -725,7 +736,7 @@ class Menu:
         import _Console_
         while True:
             try:
-                new = wait_for_input('RX:Console> ')
+                new = rx.io.wait_for_input('RX:Console> ')
                 if new.lower() in ('exit','quit','end'):
                     rx.files.remove('_Console_.py')
                     #sys.exit()
@@ -756,10 +767,11 @@ class Menu:
         rx.terminal.set_title(f'RX:Terminal  |  {rx.system.device_name()}:{rx.system.accname()}')
         NOW = str(datetime.datetime.now())
         Menu_Dict = { 
-            #'Terminal'   : Menu.Terminal ,
+           #'Terminal'   : Menu.Terminal ,
             'Console'    : Menu.Console  ,
-            #'System Info': Menu.SysInfo  ,
-            #'Compile'    : Menu.Compile  ,
+           #'System Info': Menu.SysInfo  ,
+           #'Compile'    : Menu.Compile  ,
+            'Create Module Lite' : Menu.Create_SLModule
         }
         print(f"RX v{__version__} Running on {rx.system.device_name()}::{rx.system.accname()} ({NOW[:NOW.rfind('.')]})")
         while True:
@@ -769,18 +781,14 @@ class Menu:
             try:
                 inp = input('> ')
 
-
-                if inp in Menu_Dict.keys():
-                    Menu_Dict[inp]()
-
-
-                if inp.lower() == 'console':
-                    Menu.Console()
+                if inp.title() in Menu_Dict.keys():
+                    Menu_Dict[inp.title()]()
                 elif inp in ('help','commands'):
                     print('Beside all CMD commands, we also support these commands:')
                     print('  - Console')
                     print('  - System Info')
                     print('  - Compile')
+                    print('  - Create Module Lite')
                 elif inp in ('exit','quit'):
                     Clean_Up()
                     sys.exit()
@@ -790,13 +798,10 @@ class Menu:
                     except (FileNotFoundError,NotADirectoryError):
                         print('Invalid path','red')
                 elif inp == 'python':
-                    #print("'python' can not be launched through RX Console as it use UNKNOWN input", 'red')
                     rx.terminal.run('python')
                 elif inp == 'cmd':
-                    #print("'python' can not be launched through RX Console as it use UNKNOWN input", 'red')
                     rx.terminal.run('cmd')
                 elif inp in ('cls','clear'):
-                    #print("'python' can not be launched through RX Console as it use UNKNOWN input", 'red')
                     rx.terminal.run('cls')
                 else:
                     output = rx.terminal.getoutput(inp)
@@ -811,6 +816,52 @@ class Menu:
             except (EOFError,KeyboardInterrupt):
                 print('Exiting...','red')
                 sys.exit()
+
+    @staticmethod
+    def Create_SLModule():
+        import inspect
+        import rx7.lite as STD
+        File = rx.io.get_files('Enter listed functions file name:  ',times=1)[0]
+        output = 'MODULE.py'
+
+        Main = 'import os,time,sys,subprocess,random,shutil\n\n'
+
+        Files      = 'class Files:'
+        Terminal   = 'class Terminal:'
+        Record     = 'class Record:'
+        Random     = 'class Random:'
+        IO         = 'class IO:'
+        Style      = 'class Style:'
+        Decorator  = 'class Decorator:'
+        System     = 'class System:'
+        # files.isdir
+        classes = {'files':Files,'terminal':Terminal,'record':Record,
+                'random':Random, 'io':IO,'style':Style,
+                'decorator':Decorator,'system':System 
+                }
+        classes_names = list(classes.keys())
+
+        for line in rx.read(File).split('\n'):
+            if line:
+                for cls in classes_names:
+                    if line.startswith(cls):
+                        try:
+                            classes[cls] += '\n'+inspect.getsource(eval('STD.'+line))
+                        except AttributeError:
+                            print(f"Warning:  '{line[line.index('.')+1:]}' not found in STD.{cls}",'red')
+                        break
+                else:
+                    try:
+                        Main += inspect.getsource(eval('STD.'+line))+'\n'
+                    except (NameError):
+                        print(f"Warning:  '{line}' not found in STD.",'red')
+
+        for name,cls in classes.items():
+            if not len(cls.split('\n'))==1:
+                Main += '\n\n'+cls+'\n'+f'{name} = {name.capitalize()}'+'\n'
+
+        rx.write(output,Main)
+        print(f'Module has been created successfully', 'green')
 
 
 #< Reading File >#
@@ -1151,7 +1202,7 @@ def Syntax(SOURCE,
                     SOURCE[Line-1] = f'{(indent)*" "}{IF_EL}if {variable} == {value}:' #+4
             #SOURCE.insert(Line_Nom-1, f'{(indent)*" "}if False:pass')
 
-        #] Load User-Defined Modules    #TODO: Better regex to get packages
+        #] Load User-Defined Modules        # TODO: Better regex to get packages
         elif Regex:=re.search(r'^(?P<indent>\s*)load \s*(\w+,?)?', Text.strip()):
             Indent = Regex.group('indent')
             Packages = re.split(r'\s*,\s*', Text)
@@ -1221,7 +1272,7 @@ def Syntax(SOURCE,
                         raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
                 CONSTS.add((CONST, Line_Nom))
 
-        #] Const Array
+        #] Const Array                      # TODO: Better regex
         elif re.search(r'^\w+\s*=\s*<.+>', Striped):
             search = re.search(r'(?P<Indent>\s*)(?P<VarName>\w+)\s*=\s*<(?P<Content>.*)>', Text)
             Content = search.group('Content')
@@ -1352,14 +1403,24 @@ if __name__ == "__main__":
             if not ARGS[3] and not ARGS[4] and not ARGS[5]:
             #if not all([[ARGS[3],ARGS[4]],ARGS[5]]):
                 rx.terminal.set_title(f'RX - {os.path.basename(FILE)}')
-                print(f'B_Run  :: {time.time()-START_TIME}','green')
-               #print( 'Call   :: python RX_Py'+' '+' '.join(ARGS[-1]),'green')
-                os.system('python RX_Py'+' '+' '.join(ARGS[-1]))
+                try:
+                    print(f'B_Run  :: {time.time()-START_TIME}','green')
+                   #print( 'Call   :: python RX_Py'+' '+' '.join(ARGS[-1]),'green')
+                    #os.system('python RX_Py'+' '+' '.join(ARGS[-1]))
+                    #exec(open('RX_Py').read())
+                    import runpy
+                    runpy.run_path('RX_Py')
+                    print(f'Run    :: {time.time()-START_TIME}','green')
+                except Exception as e:
+                    print('Traceback (most recent call last):')
+                    print('  More Information in Next Updates...')
+                    #print()
+                    Error(type(e).__name__+': '+str(e))
         except Exception as E:
             if ARGS[4]:
                 raise E
             #raise E# from None
-            print('Traceback (most recent call last):','red')
+            print('Traceback (most recent call last):')
             print('  Error occured when making environment ready to run')
             print('SystemError: '+str(E), 'red', style='bold')
             print('Please report this to the RX maintainer, along with the traceback and version')

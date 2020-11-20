@@ -20,7 +20,8 @@ class X:
     @staticmethod
     def func():
         pass
-@staticmethod
+
+@ms.Check_Type
 def x():
     pass
     @ms.Check_Type
