@@ -362,7 +362,6 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 #### EXT: RUN FILE
 # TODO:
- #>  Correct color for Options in extension (and also ignore cases)
  #>  Check for fast speed (if option of it is True)
  #>  Instead of RX_Py, name should be real name
  #>  How to run python file instead of os.system
@@ -390,6 +389,7 @@ class IndentCheck:
  #✓  SetupEnv should be only after Load
 ###########
 # NOTE:
+ #>  Correct color for Options in extension (and also ignore cases)
  #>  Combine sys.exit & cleanup
  #>  Function to check if expression is not in Quotes?
         #> && -- ||
@@ -1349,29 +1349,32 @@ def Clean_Up(Lib=True):   #] 0.03
 #< START OF THE CODE >#
 if __name__ == "__main__":
     try:
-        #print(f'START :: {time.time()-START_TIME}','green')
+        TIMES = {}
+        TIMES['Start '] = time.time()-START_TIME #print(f'START  :: {time.time()-START_TIME}','green')
         '''
-        if time.time()-START_TIME>0.025:
+         if time.time()-START_TIME>0.025:
             print('Run Speed is Very Low. Restarting App', 'red')
             sys.exit()
             rx.terminal.run('python '+' '.join(sys.argv))
             sys.exit()
-         '''
-        ARGS = Get_Args()  # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P, 6:Prog_Args}  0.008
+        '''
+        ARGS = Get_Args()                                                            #] 0.003
+            # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P, 6:Prog_Args}  
         FILE   = ARGS[0]
+        TIMES['ARGS  '] = time.time()-START_TIME
         #rx.cls()
         SOURCE = Read_File(FILE)
-        SOURCE = Define_Structure(SOURCE, FILE, ARGS[2])
-        #print(f'DefStr :: {time.time()-START_TIME}','green')
-        SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, ARGS[2])
-        #print(f'Syntax :: {time.time()-START_TIME}','green')
+        SOURCE = Define_Structure(SOURCE, FILE, ARGS[2])                             #] 0.020
+        TIMES['DefStr'] = time.time()-START_TIME
+        SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, ARGS[2])   #] 0.008
+        TIMES['Syntax'] = time.time()-START_TIME
         if ARGS[1]:
             SOURCE = Add_Verbose(SOURCE, FILE)
         #print(Lines_Added)
         if not ARGS[3] and not ARGS[4]:
             rx.write('RX_Py', '\n'.join(SOURCE))
             rx.write('translated', '\n'.join(SOURCE))
-            rx.files.hide('RX_Py')  # 0.015
+            rx.files.hide('RX_Py')
         #print(f'Write :: {time.time()-START_TIME}','green')
         title = rx.terminal.get_title()
         try:
@@ -1384,7 +1387,17 @@ if __name__ == "__main__":
             #if not all([[ARGS[3],ARGS[4]],ARGS[5]]):
                 rx.terminal.set_title(f'RX - {os.path.basename(FILE)}')
                 try:
-                    print(f'B_Run  :: {time.time()-START_TIME}','green')
+                    #B_Run = time.time()-START_TIME
+                    #print(f'B_Run  :: {B_Run}','green')
+                    '''
+                     if B_Run > 0.1:
+                         print('Running Speed is Slow','red')
+                     elif B_Run < 0.015:
+                         print('Running Speed is Super Fast','green')
+                    '''
+                    TIMES['B_Run '] = time.time()-START_TIME
+                    for k,v in TIMES.items(): print(f'{k} :: {v}','green')
+                    sys.exit()
                    #print( 'Call   :: python RX_Py'+' '+' '.join(ARGS[-1]),'green')
                     #os.system('python RX_Py'+' '+' '.join(ARGS[-1]))
                     #exec(open('RX_Py').read())
@@ -1394,8 +1407,9 @@ if __name__ == "__main__":
                 except Exception as e:
                     print('Traceback (most recent call last):')
                     print('  More Information in Next Updates...')
-                    #print()
+                   #print(f'  File "{FILE}" in  "UNDEFINED"')
                     Error(type(e).__name__+': '+str(e))
+                    sys.exit()
         except Exception as E:
             if ARGS[4]:
                 raise E
@@ -1404,16 +1418,6 @@ if __name__ == "__main__":
             print('  Error occured when making environment ready to run')
             print('SystemError: '+str(E), 'red', style='bold')
             print('Please report this to the RX maintainer, along with the traceback and version')
-            '''
-            print('  More Information Soon...','red')
-            print(str(type(E))[8:-2]+': '+str(E), 'red', style='bold')
-            '''
-            '''
-            print('Traceback (most recent call last):')
-            print(f'  File "{FILE}" in  "UNDEFINED"')
-            print(e, 'red')
-            sys.exit()
-            '''
         finally:
             if not ARGS[4]:
                 Clean_Up()
