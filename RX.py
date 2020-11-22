@@ -1381,7 +1381,8 @@ if __name__ == "__main__":
             if ARGS[5]:
                 rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
             if ARGS[4]:
-                rx.files.move(f'{FILE.split(".")[0]}.py', f'__RX_LIB__/{FILE.split(".")[0]}.py')
+                rx.write(f'./__RX_LIB__/{FILE}', '\n'.join(SOURCE))
+                #rx.files.move(READY_FILE_NAME, f'__RX_LIB__/{FILE.split(".")[0]}.py')
             #print(f'LinesAdded:{Lines_Added}','red')
             if not ARGS[3] and not ARGS[4] and not ARGS[5]:
             #if not all([[ARGS[3],ARGS[4]],ARGS[5]]):
