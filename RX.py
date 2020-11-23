@@ -1335,9 +1335,7 @@ def Clean_Up(File='',Lib=True):   #] 0.03
         try: rx.files.remove(f'__RX_LIB__', force=True)
         except: pass
     else: pass
-   #try: rx.files.remove('_RX_Py.py')
-   #except: pass
-    try: rx.files.remove(File)
+    try: os.remove(File)
     except: pass
     try: rx.files.remove('__pycache__', force=True)
     except: pass
@@ -1352,13 +1350,6 @@ if __name__ == "__main__":
     try:
         TIMES = {}
         TIMES['Start '] = time.time()-START_TIME #print(f'START  :: {time.time()-START_TIME}','green')
-        '''
-         if time.time()-START_TIME>0.025:
-            print('Run Speed is Very Low. Restarting App', 'red')
-            sys.exit()
-            rx.terminal.run('python '+' '.join(sys.argv))
-            sys.exit()
-        '''
         ARGS = Get_Args()                                                            #] 0.003
             # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P, 6:Prog_Args}  
         FILE   = ARGS[0]
@@ -1385,53 +1376,51 @@ if __name__ == "__main__":
             rx.files.hide(READY_FILE_NAME)
         #print(f'Write :: {time.time()-START_TIME}','green')
         title = rx.terminal.get_title()
-        try:
-            if ARGS[5]:
-                rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
-            if ARGS[4]:
-                rx.write(f'./__RX_LIB__/{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
-                #rx.files.move(READY_FILE_NAME, f'__RX_LIB__/{FILE.split(".")[0]}.py')
-            #print(f'LinesAdded:{Lines_Added}','red')
-            if not ARGS[3] and not ARGS[4] and not ARGS[5]:
-            #if not all([[ARGS[3],ARGS[4]],ARGS[5]]):
-                rx.terminal.set_title(f'RX - {os.path.basename(FILE)}')
-                try:
-                    #print(f'B_Run  :: {time.time()-START_TIME}','green')
-                    '''
+        
+        if ARGS[5]:
+            rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
+        if ARGS[4]:
+            rx.write(f'./__RX_LIB__/{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
+
+        #print(f'LinesAdded:{Lines_Added}','red')
+        if not ARGS[3] and not ARGS[4] and not ARGS[5]:
+        #if not all([[ARGS[3],ARGS[4]],ARGS[5]]):
+            rx.terminal.set_title(f'RX - {os.path.basename(FILE)}')
+            try:
+                #print(f'B_Run  :: {time.time()-START_TIME}','green')
+                '''
                      if B_Run > 0.1:
                          print('Running Speed is Slow','red')
                      elif B_Run < 0.015:
                          print('Running Speed is Super Fast','green')
-                    '''
-                    TIMES['B_Run '] = time.time()-START_TIME
-                    for k,v in TIMES.items(): print(f'{k} :: {v}','green')
-                    #sys.exit()
-                    #print( 'Call   :: python RX_Py'+' '+' '.join(ARGS[-1]),'green')
-                    #os.system('python RX_Py'+' '+' '.join(ARGS[-1]))
-                    #exec(open(READY_FILE_NAME).read())
-                    import runpy
-                    runpy.run_path(READY_FILE_NAME)
-                    #print(f'Run    :: {time.time()-START_TIME}','green')
-                except Exception as e:
-                    print('Traceback (most recent call last):')
-                    print('  More Information in Next Updates...')
-                   #print(f'  File "{FILE}" in  "UNDEFINED"')
-                    Error(type(e).__name__+': '+str(e))
-                    sys.exit()
-        except Exception as E:
-            if ARGS[4]:
-                raise E
-            #raise E# from None
-            print('Traceback (most recent call last):')
-            print('  Error occured when making environment ready to run')
-            print('SystemError: '+str(E), 'red', style='bold')
-            print('Please report this to the RX maintainer, along with the traceback and version')
-        finally:
-            if not ARGS[4]:
-                Clean_Up(READY_FILE_NAME)
-            rx.terminal.set_title(title)         
+                '''
+                TIMES['B_Run '] = time.time()-START_TIME
+                for k,v in TIMES.items(): print(f'{k} :: {v}','green')
+                import runpy
+                runpy.run_path(READY_FILE_NAME)
+                #print(f'Run    :: {time.time()-START_TIME}','green')
+            except Exception as e:
+                print('Traceback (most recent call last):')
+                print('  More Information in Next Updates...')
+               #print(f'  File "{FILE}" in  "UNDEFINED"')
+                Error(type(e).__name__+': '+str(e))
+                sys.exit()
 
     except KeyboardInterrupt:
         #Clean_Up(File)
-        print('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)','red')
+        Error('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)')
+
+    except Exception as E:
+        if ARGS[4]:
+            raise E
+        #raise E# from None
+        print('Traceback (most recent call last):')
+        print('  Error occured when making environment ready to run')
+        print('SystemError: '+str(E), 'red', style='bold')
+        print('Please report this to the RX maintainer, along with the traceback and version')
+
+    finally:
+        if not ARGS[4]:
+            Clean_Up('_'+FILE+'_')
+        rx.terminal.set_title(rx.terminal.get_title())  
 
