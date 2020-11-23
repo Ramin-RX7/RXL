@@ -3,7 +3,7 @@ Version:  1.7.4
 Author :  Ramin.RX7
 
 Module-Name : ms 
-Print : normal
+Print : stylized
 Method : lite
 Func-Type-Checker: True
 End-Exit : True
@@ -66,7 +66,8 @@ def hello(x):
 import os
 
 
-#Load x
+load tst2
+print(tst2.x,'dodger_blue_1')
 #print(f.new + 'xxxadfadsfdasfdasf')
 #print(x.var, 'green')
 until XX:

@@ -72,7 +72,8 @@ def hello(x):
 import os
 
 
-#Load x
+tst2=ms.import_module('__RX_LIB__/tst2.py');
+print(tst2.x,'dodger_blue_1')
 #print(f.new + 'xxxadfadsfdasfdasf')
 #print(x.var, 'green')
 if not (XX):

@@ -362,9 +362,6 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 #### EXT: RUN FILE
 # TODO:
- #>  Check for fast speed (if option of it is True)
- #>  Instead of RX_Py, name should be real name
- #>  How to run python file instead of os.system
  #>  sth like tst keyword to use try:x;except:pass
  #>  from ready-objects import *
  #>  &&  ---  ||
@@ -384,11 +381,13 @@ class IndentCheck:
  #X  do_when Keyword for Calling specifiec function when condition comes True
  #X  Improve Exception Catching when runing file
  #!  END OF LINES ERROR IN RED
- #✓  Use ValueError instead of NameError in DefStr
- #✓  Typescanner check for pre-defined decorator
  #✓  SetupEnv should be only after Load
+ #✓  Instead of RX_Py, name should be real name
 ###########
 # NOTE:
+ #>  Ready_File_Name without .rx extension?
+ #>  INFO['EMAIL']?
+ #>  Check for fast speed (if option of it is True)
  #>  Correct color for Options in extension (and also ignore cases)
  #>  Combine sys.exit & cleanup
  #>  Function to check if expression is not in Quotes?
@@ -406,6 +405,7 @@ class IndentCheck:
  #>  Package installer like pip? (if 3rd-party modules):
         #>  Create account (RX-Lang) in pypi to upload user packages
  #>  def(:None)?
+ #✓  How to run python file instead of os.system
 ###########
 # BUG:
  #X  There couldnt be nested Switch-Case statements  (and Const-array?)
@@ -512,7 +512,7 @@ class ERRORS:
             print(f'  File "{File}", line {line_nom-Lines_Added}, in <module>')
             print( '    '+line_text)
             Error(str(title)+': '+str(msg))
-            Clean_Up()
+            Clean_Up(File)
             sys.exit()
 
     class BaseDefinedError(Exception):
@@ -521,7 +521,7 @@ class ERRORS:
             print(f'  File "{File}", line {line_nom-Lines_Added}, in <module>')
             print( '    '+line_text)
             Error(f"BaseDefinedError: '{attribute}' can not be defined after setting module [OPTIONS]")
-            Clean_Up()
+            Clean_Up(File)
             sys.exit()
 
     class ValueError(Exception):
@@ -535,7 +535,7 @@ class ERRORS:
                 Error(f"ValueError: '{attribute}' can not be '{value}'. Valid Choices: {correct_list}")
             else:
                 Error(f"ValueError: {msg}")
-            Clean_Up()
+            Clean_Up(File)
             sys.exit()
 
     class ConstantError(Exception):
@@ -547,7 +547,7 @@ class ERRORS:
             print( '    '+Line_Text)
             end = msg if msg else f"Redefinition of '{Attribute}' (Already Defined At Line {Line_Def})"
             Error("ConstantError: "+ end)
-            Clean_Up()
+            Clean_Up(File)
             sys.exit()
 
     class IndentionError(Exception):
@@ -557,7 +557,7 @@ class ERRORS:
             print(f'  File "{File}", line {Line_Nom-Lines_Added}, in <module>')
             print( '    '+Line_Text)
             Error("IndentationError: expected an indented block")
-            Clean_Up()
+            Clean_Up(File)
             sys.exit()
 
     class UndefinedError(Exception):
@@ -571,7 +571,7 @@ class ERRORS:
             else:
                 print('  Please Check Your code for Possible Issues','red')
                 print('  If You are Sure It is a Bug Please Report This to the Maintainer','red')
-            Clean_Up()
+            Clean_Up(File)
             sys.exit()
 
     class ModuleNotFoundError(Exception):
@@ -580,7 +580,7 @@ class ERRORS:
             print(f'  File "{File}", line {line_nom-Lines_Added}, in <module>')
             print( '    '+line_text)
             Error(f"ModuleNotFoundError: No module named '{Name}'")
-            Clean_Up()
+            Clean_Up(File)
             sys.exit()
 
     class AttributeError(Exception):
@@ -589,11 +589,11 @@ class ERRORS:
             print(f'  File "{File}", line {Line_Nom-Lines_Added}, in <module>')
             print( '    '+Line_Text)
             Error(f"AttributeError: module '{Module_Version}' has no attribute '{Attribute}'")
-            Clean_Up()
+            Clean_Up(File)
             sys.exit()
 
     class LoadError(Exception):
-        def __init__(self, Module, error=False):
+        def __init__(self, Module, File, error=False):
             print( 'Traceback (most recent call last):')
             print(f'  Loading Module "{Module}" Resulted in an Error', 'red' if error else 'default')
             if error:
@@ -601,7 +601,7 @@ class ERRORS:
             else:
                 print(f'    Module {Module} Returned Output When Loading')
                 Error(f'LoadError: Make Sure There is No Print/Output in Module "{Module}"')
-            Clean_Up()
+            Clean_Up(File)
             sys.exit()
 
     class SyntaxError(Exception):
@@ -610,7 +610,7 @@ class ERRORS:
             print(f'  File "{File}", line {Line_Nom-Lines_Added}, in <module>')
             print( '    '+Line_Text)
             Error(f"SyntaxError: {msg}")
-            Clean_Up()
+            Clean_Up(File)
             sys.exit()
 
 
@@ -973,12 +973,12 @@ def Define_Structure(SOURCE, FILE, DEBUG):
         #] Print Function Method
         elif re.search(r'^Print\s*:\s*\w*', line):
             #BASED = True
-            if line.strip().lower().endswith('stylized'):
-                PRINT_TYPE = 'stylized'
-            elif not line.strip().lower().endswith('normal'):
+            if line.strip().lower().endswith('normal'):
+                PRINT_TYPE = 'normal'
+            elif not line.strip().lower().endswith('stylized'):
                 stripped = line[line.index(':')+1:].strip()
                 raise ERRORS.ValueError(FILE, 'print', stripped, line, 
-                                       SOURCE[:5].index(line), ['lite','normal'])
+                                       SOURCE[:10].index(line), ['lite','normal'])
             SOURCE[nom] = ''
             Changeable.append(nom)
 
@@ -1055,7 +1055,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     #print(CONSTS)
     return (SOURCE, 
             MODULE_VERSION, MODULE_SHORTCUT,
-            TYPE_SCANNER)
+            TYPE_SCANNER, INFO)
 
 
 #< Syntax >#
@@ -1197,13 +1197,13 @@ def Syntax(SOURCE,
                 rx.write('__RX_LIB__/__init__.py')
             for package in Packages:
                 if rx.files.exists(f'{package}.rx7'):
-                    pack_out = rx.terminal.getoutput(f'python RX.py {package}.rx7 -MT -T2P').strip()
+                    pack_out = rx.terminal.getoutput(f'python RX.py -MT {package}.rx7').strip()
                     if len(pack_out):
+                        #print(pack_out)
                         if re.search(r'^\w+Error', pack_out.splitlines()[-1]):
-                            #print('XXX', 'green')
-                            raise ERRORS.LoadError(package,pack_out.splitlines()[-1])
+                            raise ERRORS.LoadError(package,FILE,pack_out.splitlines()[-1])
                         else:
-                            raise ERRORS.LoadError(package)
+                            raise ERRORS.LoadError(package,FILE)
 
                     #rx.files.move(f'{package}.py', f'__RX_LIB__/{package}.py')
                     LOADED_PACKAGES.append(package)
@@ -1313,10 +1313,10 @@ def Syntax(SOURCE,
 
 
 #< Verbose >#
-def Add_Verbose(SOURCE, FILE):
+def Add_Verbose(SOURCE, INFO):
     NOW = str(__import__('datetime').datetime.now())
-    print(f'''Start RX Language at "{NOW[:NOW.rindex('.')+5]}"''')
-    print(f'Running  "{FILE}"')
+    print(f'''Start  RX Language  at  "{NOW[:NOW.rindex('.')+5]}"''')
+    print(f'Running  "{INFO["Title"]}" v{INFO["Version"]}  by "{INFO["Author"]}"')
     print('\n')
 
     SOURCE.insert(0, f'ProgramStartTime= {START_TIME}')
@@ -1329,14 +1329,15 @@ def Add_Verbose(SOURCE, FILE):
 
 
 #< Clean Everything Which is Not Needed >#
-def Clean_Up(Lib=True):   #] 0.03
+def Clean_Up(File='',Lib=True):   #] 0.03
+    #return
     if Lib:
         try: rx.files.remove(f'__RX_LIB__', force=True)
         except: pass
     else: pass
-    try: rx.files.remove('_RX_Py.py')
-    except: pass
-    try: rx.files.remove('RX_Py')
+   #try: rx.files.remove('_RX_Py.py')
+   #except: pass
+    try: rx.files.remove(File)
     except: pass
     try: rx.files.remove('__pycache__', force=True)
     except: pass
@@ -1365,31 +1366,37 @@ if __name__ == "__main__":
         #rx.cls()
         SOURCE = Read_File(FILE)
         SOURCE = Define_Structure(SOURCE, FILE, ARGS[2])                             #] 0.020
+        INFO = SOURCE[4]
         TIMES['DefStr'] = time.time()-START_TIME
         SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, ARGS[2])   #] 0.008
         TIMES['Syntax'] = time.time()-START_TIME
         if ARGS[1]:
-            SOURCE = Add_Verbose(SOURCE, FILE)
+            rx.cls()
+            SOURCE = Add_Verbose(SOURCE, INFO)
+        READY_FILE_NAME = '_'+FILE+'_'
         #print(Lines_Added)
         if not ARGS[3] and not ARGS[4]:
-            rx.write('RX_Py', '\n'.join(SOURCE))
+            try:
+                rx.write(READY_FILE_NAME, '\n'.join(SOURCE))
+            except PermissionError:
+                rx.files.remove(READY_FILE_NAME)
+                rx.write(READY_FILE_NAME, '\n'.join(SOURCE))
             rx.write('translated', '\n'.join(SOURCE))
-            rx.files.hide('RX_Py')
+            rx.files.hide(READY_FILE_NAME)
         #print(f'Write :: {time.time()-START_TIME}','green')
         title = rx.terminal.get_title()
         try:
             if ARGS[5]:
                 rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
             if ARGS[4]:
-                rx.write(f'./__RX_LIB__/{FILE}', '\n'.join(SOURCE))
+                rx.write(f'./__RX_LIB__/{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
                 #rx.files.move(READY_FILE_NAME, f'__RX_LIB__/{FILE.split(".")[0]}.py')
             #print(f'LinesAdded:{Lines_Added}','red')
             if not ARGS[3] and not ARGS[4] and not ARGS[5]:
             #if not all([[ARGS[3],ARGS[4]],ARGS[5]]):
                 rx.terminal.set_title(f'RX - {os.path.basename(FILE)}')
                 try:
-                    #B_Run = time.time()-START_TIME
-                    #print(f'B_Run  :: {B_Run}','green')
+                    #print(f'B_Run  :: {time.time()-START_TIME}','green')
                     '''
                      if B_Run > 0.1:
                          print('Running Speed is Slow','red')
@@ -1398,13 +1405,13 @@ if __name__ == "__main__":
                     '''
                     TIMES['B_Run '] = time.time()-START_TIME
                     for k,v in TIMES.items(): print(f'{k} :: {v}','green')
-                    sys.exit()
-                   #print( 'Call   :: python RX_Py'+' '+' '.join(ARGS[-1]),'green')
+                    #sys.exit()
+                    #print( 'Call   :: python RX_Py'+' '+' '.join(ARGS[-1]),'green')
                     #os.system('python RX_Py'+' '+' '.join(ARGS[-1]))
-                    #exec(open('RX_Py').read())
+                    #exec(open(READY_FILE_NAME).read())
                     import runpy
-                    runpy.run_path('RX_Py')
-                    print(f'Run    :: {time.time()-START_TIME}','green')
+                    runpy.run_path(READY_FILE_NAME)
+                    #print(f'Run    :: {time.time()-START_TIME}','green')
                 except Exception as e:
                     print('Traceback (most recent call last):')
                     print('  More Information in Next Updates...')
@@ -1421,10 +1428,10 @@ if __name__ == "__main__":
             print('Please report this to the RX maintainer, along with the traceback and version')
         finally:
             if not ARGS[4]:
-                Clean_Up()
+                Clean_Up(READY_FILE_NAME)
             rx.terminal.set_title(title)         
 
     except KeyboardInterrupt:
-        #Clean_Up()
+        #Clean_Up(File)
         print('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)','red')
 
