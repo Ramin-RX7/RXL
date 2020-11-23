@@ -1,8 +1,14 @@
 import subprocess, os, time, sys
 
+USERNAME =    os.getlogin()
+LOCAL    =  f"C:\\Users\\{USERNAME}\\AppData\\Local\\Programs\\Python\\Python38\\Scripts\\pip.exe"
+GLOBAL   =   "C:\\Program Files\\Python38\\Lib\\Scripts\\pip.exe"
+ROAMING  =  f"C:\\Users\\{USERNAME}\\AppData\\Roaming\\Python\\Python38\\Scripts\\pip.exe"
+
 print('Waiting For Response From Python ...')
 while True:
-    if os.path.exists('C:\\Program Files\\Python38\\Lib\\site-packages\\pip'):
+    pip_exists =  os.path.exists(LOCAL)  or  os.path.exists(GLOBAL)  or  os.path.exists(ROAMING)
+    if pip_exists:
         break
 
 time.sleep(3)

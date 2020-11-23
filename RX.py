@@ -362,6 +362,7 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 #### EXT: RUN FILE
 # TODO:
+ #>  INstead of using pip to download required modules, copy them
  #>  sth like tst keyword to use try:x;except:pass
  #>  from ready-objects import *
  #>  &&  ---  ||
