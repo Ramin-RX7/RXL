@@ -362,8 +362,14 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 #### EXT: RUN FILE
 # TODO:
- #>  INstead of using pip to download required modules, copy them
- #>  sth like tst keyword to use try:x;except:pass
+ #>  A file to repair files (save all files in a zipfile)
+ #>  $ Family
+       #> TEST  (try:x;except:pass)
+ #>  Constants:
+       #>  Constant Array __str/repr__ should be with <>
+       #>  Make object of Constant Array
+ #>  Instead of using pip to download required modules, copy them
+       (sys.executable)
  #>  from ready-objects import *
  #>  &&  ---  ||
  #>  Debug with running linters
@@ -373,7 +379,6 @@ class IndentCheck:
         #✓  Create SuperLite Module
  #>  Console support RX syntax ( '\n'.join(Syntax([line])) )
  #>  Array
- #>  Improve switch & case: No break
  #>  goto for For loops with naming For loops  (:NAME & goto NAME)
  #>  Load Modules:
        #> If Error happens in Loading module, .py file will remains
@@ -382,6 +387,7 @@ class IndentCheck:
  #X  do_when Keyword for Calling specifiec function when condition comes True
  #X  Improve Exception Catching when runing file
  #!  END OF LINES ERROR IN RED
+ #✓  Improve switch & case: No break
  #✓  SetupEnv should be only after Load
  #✓  Instead of RX_Py, name should be real name
 ###########
@@ -390,11 +396,10 @@ class IndentCheck:
  #>  INFO['EMAIL']?
  #>  Check for fast speed (if option of it is True)
  #>  Correct color for Options in extension (and also ignore cases)
- #>  Combine sys.exit & cleanup
+ #>  Combine sys.exit & cleanup ?
  #>  Function to check if expression is not in Quotes?
         #> && -- ||
  #>  Whole code in Try-Except ?
- #>  Constant Array __str/repr__ should be with <>
  #>  DEBUG (-d) is unused
  #>  do_while check for outline
  #>  Generate:yield(:None)?
