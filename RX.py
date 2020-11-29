@@ -362,57 +362,56 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 #### EXT: RUN FILE
 # TODO:
- #>  @overload
- #>  Include Types
+ #>  Include XXX: Func1,Func2
  #>  A file to repair files (save all files in a zipfile)
- #>  $ Family
+ #>  "$" Family
        #> TEST  (try:x;except:pass)
+ #>  Array
  #>  Constants:
-       #>  Constant Array __str/repr__ should be with <>
-       #>  Make object of Constant Array
+       #✓  Constant Array __str/repr__ should be with <>
+       #✓  Make object of Constant Array
  #>  Instead of using pip to download required modules, copy them
        (sys.executable)
- #>  from ready-objects import *
- #>  &&  ---  ||
  #>  Debug with running linters
  #>  Create RX App with Menu:
         #>  TERMINAL
               #> linux commands?
         #✓  Create SuperLite Module
  #>  Console support RX syntax ( '\n'.join(Syntax([line])) )
- #>  Array
- #>  goto for For loops with naming For loops  (:NAME & goto NAME)
  #>  Load Modules:
        #> If Error happens in Loading module, .py file will remains
+ #X  goto for For loops with naming For loops  (:NAME & goto NAME)
  #?  Debug Function in (--debug for debug-only && -d for run+debug)
  #?  Split line by strings, check_syntax spliteds ,connect them again
  #X  do_when Keyword for Calling specifiec function when condition comes True
  #X  Improve Exception Catching when runing file
- #!  END OF LINES ERROR IN RED
+ #!  END OF LINES ERROR IN RED  (WHAT?!)
  #✓  Improve switch & case: No break
  #✓  SetupEnv should be only after Load
  #✓  Instead of RX_Py, name should be real name
 ###########
 # NOTE:
+ #?  &&  ---  ||
+ #?  Copy modules to running dir
  #>  Ready_File_Name without .rx extension?
- #>  INFO['EMAIL']?
+ #?  INFO['EMAIL']?
  #>  Check for fast speed (if option of it is True)
  #>  Correct color for Options in extension (and also ignore cases)
- #>  Combine sys.exit & cleanup ?
- #>  Function to check if expression is not in Quotes?
+ #?  Combine sys.exit & cleanup
+ #?  Function to check if expression is not in Quotes
         #> && -- ||
- #>  Whole code in Try-Except ?
+ #?  Whole code in Try-Except
  #>  DEBUG (-d) is unused
  #>  do_while check for outline
- #>  Generate:yield(:None)?
- #>  Save Cache ?
+ #?  Generate:yield(:None)
+ #?  Save Cache 
  #>  Option for run translated or import it (import will ignore "if __name__ ...")
- #>  CONST at the beginning?
- #>  Stop Imports?
- #>  New Errors Ext Color ?!
+ #?  CONST at the beginning
+ #?  Stop Imports
+ #?  New Errors Ext Color !
  #>  Package installer like pip? (if 3rd-party modules):
         #>  Create account (RX-Lang) in pypi to upload user packages
- #>  def(:None)?
+ #?  def(:None)
  #✓  How to run python file instead of os.system
 ###########
 # BUG:
@@ -425,6 +424,7 @@ class IndentCheck:
  #X  Get Remaining Args for PROGRAM
  #X  Terminal is slow for loading code from first each time
  #X  Every Load takes 0.2
+       #> Maybe with cache (check mdftime of files)
  #?  why exe doesn't accept args
 
 ########################################
