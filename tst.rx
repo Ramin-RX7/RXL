@@ -23,7 +23,7 @@ class X:
 
 def x():
     pass
-    def myfunc(x):
+    def myfunc(x:str):
         pass
     if ('x' and 
 'y'):
