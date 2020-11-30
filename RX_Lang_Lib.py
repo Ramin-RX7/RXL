@@ -151,7 +151,8 @@ class Types:
     #Union  = _typing.Union
     #_types.AsyncGeneratorType
 
+'''
 MyList = ['Any','Str']
 for Type in MyList:
     globals()[Type] = Types.__dict__[Type]
-
+'''

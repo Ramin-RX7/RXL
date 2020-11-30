@@ -1,4 +1,4 @@
-import rx7.lite as ms
+import rx7 as ms
 std = ms
 print = ms.style.print
 setattr(std,'Version','1.7.4')
@@ -14,7 +14,8 @@ print('Start')
 import sys
 print(sys.argv)
 
-x = ('x', 'xx')
+x = ms._Lang.Const('x','xx')
+print(x)
 files=ms.files;
 class X:
     @staticmethod
@@ -25,7 +26,7 @@ class X:
 def x():
     pass
     @ms.Check_Type
-    def myfunc(x):
+    def myfunc(x:str):
         pass
     if ('x' and 
 'y'):
@@ -34,13 +35,14 @@ def x():
 x()
 
 def hello():
+    AC = ms._Lang.Const('1',x,'2','3')
     pass
 
-ArrConst = '1',x,'2','3'
+ArrConst = ms._Lang.Const('1',x,'2','3')
 #ArrConst2 = <'1'>
 print(hex(id(ArrConst)))
 #asd()
-HELO = (2,)
+HELO = ms._Lang.Const(2,4,3)
 #def x():
  #HELO ='d'
 
@@ -69,13 +71,12 @@ XX = 'sadf'
 @ms.Check_Type
 def hello(x):
     Files=ms.Files;terminal=ms.terminal;files=ms.files;
+
 import os
 
+#load tst2
+#print(tst2.x,'dodger_blue_1')
 
-tst2=ms.import_module('__RX_LIB__/tst2.py');
-print(tst2.x,'dodger_blue_1')
-#print(f.new + 'xxxadfadsfdasfdasf')
-#print(x.var, 'green')
 if not (XX):
  print('No XX')
 

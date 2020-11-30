@@ -362,6 +362,8 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 #### EXT: RUN FILE
 # TODO:
+ #>  Check if decorator is Check_Type --> ms.Check_Type
+ #>  Fix Const func to accept one object
  #>  Include XXX: Func1,Func2
  #>  A file to repair files (save all files in a zipfile)
  #>  "$" Family
@@ -1074,8 +1076,8 @@ def Syntax(SOURCE,
     
     global Lines_Added
     '''
-    #print(TYPE_SCANNER,'red')
-    Keywords = ('if' , 'elif' , 'except' , 'def', 
+     #print(TYPE_SCANNER,'red')
+     Keywords = ('if' , 'elif' , 'except' , 'def', 
                 'for', 'while', 'foreach', 'until', 'unless',
                 'try', 'else' , 'switch' , 'class', 'case',
                 )
@@ -1219,7 +1221,7 @@ def Syntax(SOURCE,
                     To_Add += f"{package}={MODULE_SHORTCUT}.import_module('__RX_LIB__/{package}.py');"
                 else:
                     raise ERRORS.ModuleNotFoundError(FILE, package, Text, Line_Nom)
-            print(t2.lap())
+            #print(t2.lap())
             SOURCE[Line_Nom-1]=str(To_Add)
 
         #] Memory Location of Object
@@ -1261,9 +1263,11 @@ def Syntax(SOURCE,
                 CONSTS.add((CONST, Line_Nom))
 
         #] Const Array                      # TODO: Better regex
-        elif re.search(r'^\w+\s*=\s*<.+>', Striped):
-            search = re.search(r'(?P<Indent>\s*)(?P<VarName>\w+)\s*=\s*<(?P<Content>.*)>', Text)
-            Content = search.group('Content')
+        #elif re.search(r'^\w+\s*=\s*<.+>', Striped):
+        elif Regex:=re.search(r'(?P<Indent>\s*)(?P<VarName>\w+)\s*=\s*<(?P<Content>.*)>', Text):
+            Content = Regex.group('Content')
+            VarName = Regex.group('VarName')
+            '''
             TYPE_ERROR = False
             try:
                 Content = eval(Content)
@@ -1273,17 +1277,19 @@ def Syntax(SOURCE,
                 pass
             except Exception as e:
                 ERRORS.RaiseError(str(type(e).__name__),e,Text,Line_Nom,FILE)
-            #else:
-            VarName = search.group('VarName')
+
             if TYPE_ERROR:
                 #raise TypeError(f"ArrayConst can not be '{type(Content)}' type (Use 'Const' keyword)")
                 Type_Content = str(type(Content))[8:-2]
                 if DEBUG:
                     print(f"'<>' is for Arrays, Try to use 'Const' keyword for type ",'red', end='')
                     print(f"'{Type_Content}'  ({FILE}:{Line_Nom}:{VarName})", 'red')#, style='bold')
+            '''
             CONSTS.add((VarName, Line_Nom))
-            #print(SOURCE[Line_Nom-1], 'red')
-            SOURCE[Line_Nom-1] = f'{VarName} = {Content}'
+            Indent = Regex.group('Indent')
+            #SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {Content}'
+            print(type(Content),'red')
+            SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Const({Content})'
 
         #] do_while 
         elif Regex:=re.search(r'(?P<Indent>\s*)do\s*:\s*',Text):  #Striped.startswith('do '):
@@ -1315,6 +1321,8 @@ def Syntax(SOURCE,
 
             SOURCE[Line_Nom-1] = ''
             SOURCE[WHILE_LINE] = SOURCE[WHILE_LINE]+':'
+
+        #] Array
 
 
     return SOURCE
@@ -1382,7 +1390,6 @@ if __name__ == "__main__":
                 rx.write(READY_FILE_NAME, '\n'.join(SOURCE))
             rx.write('translated', '\n'.join(SOURCE))
             rx.files.hide(READY_FILE_NAME)
-        #print(f'Write :: {time.time()-START_TIME}','green')
         title = rx.terminal.get_title()
         
         if ARGS[5]:
@@ -1390,12 +1397,10 @@ if __name__ == "__main__":
         if ARGS[4]:
             rx.write(f'./__RX_LIB__/{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
 
-        #print(f'LinesAdded:{Lines_Added}','red')
         if not ARGS[3] and not ARGS[4] and not ARGS[5]:
         #if not all([[ARGS[3],ARGS[4]],ARGS[5]]):
             rx.terminal.set_title(f'RX - {os.path.basename(FILE)}')
             try:
-                #print(f'B_Run  :: {time.time()-START_TIME}','green')
                 '''
                      if B_Run > 0.1:
                          print('Running Speed is Slow','red')
@@ -1406,7 +1411,6 @@ if __name__ == "__main__":
                 for k,v in TIMES.items(): print(f'{k} :: {v}','green')
                 import runpy
                 runpy.run_path(READY_FILE_NAME)
-                #print(f'Run    :: {time.time()-START_TIME}','green')
             except Exception as e:
                 print('Traceback (most recent call last):')
                 print('  More Information in Next Updates...')

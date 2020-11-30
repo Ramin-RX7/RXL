@@ -4,7 +4,7 @@ Author :  Ramin.RX7
 
 Module-Name : ms 
 Print : stylized
-Method : lite
+Method : normal
 Func-Type-Checker: True
 End-Exit : True
 
@@ -14,7 +14,8 @@ print('Start')
 import sys
 print(sys.argv)
 
-x = <'x','xx',>
+x = <'x','xx'>
+print(x)
 include files
 class X:
     @staticmethod
@@ -32,13 +33,14 @@ def x():
 x()
 
 func hello():
+    AC  = <'1',x,'2','3'>
     pass
 
 ArrConst  = <'1',x,'2','3'>
 #ArrConst2 = <'1'>
 print(&ArrConst)
 #asd()
-HELO = <2,>
+HELO = <2,4,3>
 #def x():
  #HELO ='d'
 
@@ -63,13 +65,12 @@ include Terminal
 XX = 'sadf'
 def hello(x):
     include Files, terminal ,  files
+
 import os
 
+#load tst2
+#print(tst2.x,'dodger_blue_1')
 
-load tst2
-print(tst2.x,'dodger_blue_1')
-#print(f.new + 'xxxadfadsfdasfdasf')
-#print(x.var, 'green')
 until XX:
  print('No XX')
 
