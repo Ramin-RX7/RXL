@@ -51,7 +51,7 @@
 + After parantheses there shoudn't be white spaces except when you are equalizing columns
 + Functions with short body can be defined in one line
 + Execution time of functions shoud be defined with 3 white spaces in definition line
-
++ Extra white space before 'else' in ternary oparator
 
 
 

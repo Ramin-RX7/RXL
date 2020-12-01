@@ -11,6 +11,8 @@ End-Exit : True
 
 print('Start')
 
+array var[:] = {'a','b'}
+
 import sys
 print(sys.argv)
 

@@ -362,6 +362,7 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 #### EXT: RUN FILE
 # TODO:
+ #>  Extension Color for functions
  #>  Check if decorator is Check_Type --> ms.Check_Type
  #>  Fix Const func to accept one object
  #>  Include XXX: Func1,Func2
@@ -370,6 +371,7 @@ class IndentCheck:
        #> TEST  (try:x;except:pass)
  #>  Array
  #>  Constants:
+       #?  Check for Error
        #✓  Constant Array __str/repr__ should be with <>
        #✓  Make object of Constant Array
  #>  Instead of using pip to download required modules, copy them
@@ -417,6 +419,7 @@ class IndentCheck:
  #✓  How to run python file instead of os.system
 ###########
 # BUG:
+ #X  Check Array is defined with acceptable length
  #X  There couldnt be nested Switch-Case statements  (and Const-array?)
  #X  Errors in red Color
  #>  CONSTs:
@@ -1148,6 +1151,8 @@ def Syntax(SOURCE,
 
         #] Func Type checker
         elif Striped.startswith('def ') and TYPE_SCANNER:  # Make it regex?
+            if SOURCE[Line_Nom-2].strip().endswith('Check_Type'):
+               SOURCE[Line_Nom-2]= re.search(r'(\s*)',Text).group(1)+f'@std.Check_Type' 
             if SOURCE[Line_Nom-2].strip().startswith('@'):
                 continue
             indent = Text.index('def ')
@@ -1323,6 +1328,19 @@ def Syntax(SOURCE,
             SOURCE[WHILE_LINE] = SOURCE[WHILE_LINE]+':'
 
         #] Array
+        elif Regex:=re.search(
+                r'(?P<Indent>\s*)array (?P<VarName>\w+)\[(?P<Length>\w+)?:?(?P<Type>\w+)?\]\s*=\s*{(?P<Content>.*)}',
+                Text):
+            Indent  = Regex.group('Indent')
+            VarName = Regex.group('VarName')
+            Length  = Regex.group('Length')
+            Type    = Regex.group('Type')
+            Content = Regex.group('Content')
+
+            Length  = '' if not Length  else ',size=' +Length
+            Type    = '' if not Type    else ',type_='+Type
+
+            SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Array({Content}{Type}{Length})'
 
 
     return SOURCE
@@ -1412,6 +1430,7 @@ if __name__ == "__main__":
                 import runpy
                 runpy.run_path(READY_FILE_NAME)
             except Exception as e:
+                raise e
                 print('Traceback (most recent call last):')
                 print('  More Information in Next Updates...')
                #print(f'  File "{FILE}" in  "UNDEFINED"')
@@ -1425,6 +1444,7 @@ if __name__ == "__main__":
     except Exception as E:
         if ARGS[4]:
             raise E
+        raise E
         #raise E# from None
         print('Traceback (most recent call last):')
         print('  Error occured when making environment ready to run')

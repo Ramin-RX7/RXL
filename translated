@@ -11,6 +11,8 @@ setattr(std,'Title','DramaX')
 
 print('Start')
 
+var = ms._Lang.Array('a','b')
+
 import sys
 print(sys.argv)
 
