@@ -364,11 +364,13 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 ################
 # TODO:
+ #>  Load Modules:
+       #> If Error happens in Loading module, .py file will remains
+       #> Load modules with default Options
  #>  const keyword is not safe
  #>  Save Cache 
  #>  Define Ready_Objs from std
  #>  Extension Color for functions
- #>  Fix Const func to accept one object
  #>  Include XXX: Func1,Func2
  #>  A file to repair files (save all files in a zipfile)
  #>  "$" Family
@@ -378,10 +380,9 @@ class IndentCheck:
               #> linux commands?
         #✓  Create SuperLite Module
  #>  Console support RX syntax ( '\n'.join(Syntax([line])) )
- #>  Load Modules:
-       #> If Error happens in Loading module, .py file will remains
  #?  Debug Function in (--debug for debug-only && -d for run+debug)
  #?  Split line by strings, check_syntax spliteds ,connect them again
+ #X  Fix Const func to accept one object
  #X  Constants Check for Error
  #X  Instead of using pip to download required modules, copy them
       (Because we couldn't find rquirements for all packages)
@@ -420,6 +421,8 @@ class IndentCheck:
  #✓  How to run python file instead of os.system
 ###########
 # BUG:
+ #X  WTF!
+       switch-case works fine in normal run but is not translated when loading
  #X  Check Array is defined with acceptable length
  #X  There couldnt be nested Switch-Case statements  (and Const-array?)
  #X  Errors in red Color
@@ -1093,13 +1096,13 @@ def Syntax(SOURCE,
     '''
     CONSTS = set()
     Skip = 0
+    threads = []
 
     for Line_Nom,Text in enumerate(SOURCE, 1):
 
         #print(str(Line_Nom)+' '+Text)
 
         Striped = Text.strip()
-
         for item in CONSTS:
             if re.search(rf'( |;|^$){item[0]}\s*(\[.+\])?\s*=\s*[^=]+', Text):  # \s*.+  {?} 
                 if not Striped.startswith('def ')  and  not Striped.startswith('#'):
@@ -1137,7 +1140,7 @@ def Syntax(SOURCE,
                         Skip = line_in_str
                         #print(Skip)
 
-        #] Importing Tools
+        #] Include
         elif Regex:=re.search(r'^(?P<Indent>\s*)include \s*(\w+,?|\*)?', Text):
             Indent = Regex.group('Indent')
             if re.search(r'^(I|i)nclude\s*\*', Text.strip()):
@@ -1168,7 +1171,7 @@ def Syntax(SOURCE,
 
         #] Switch and Case
         elif Regex:=re.search(r'^\s*(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text):
-            indent = len(Regex.group('indent'))
+            indent = Regex.group('indent')
 
             rules = 0
             for nom2,line2 in enumerate(SOURCE[Line_Nom:], 1):
@@ -1183,10 +1186,10 @@ def Syntax(SOURCE,
 
             #SOURCE.remove(Text)
             Default = False
-            SOURCE[Line_Nom-1] = f'{(indent)*" "}if False:pass'
+            SOURCE[Line_Nom-1] = f'{indent}if False: pass'
             for Line,snc in enumerate(SOURCE[Line_Nom-1:LAST_LINE], Line_Nom):
                 if re.search(r'^(D|d)efault\s*:\s*',snc.strip()):
-                    SOURCE[Line-1] = (indent)*" "+'else:'
+                    SOURCE[Line-1] = indent+'else:'
                     Default = True
                 SEARCH_VALUE = re.search(r'^(C|c)ase\s+(?P<Nobreak>(N|n)obreak)?(?P<VALUE>.+):\s*', snc.strip())
                 if SEARCH_VALUE:
@@ -1197,14 +1200,14 @@ def Syntax(SOURCE,
                     if re.search(fr'^{IF_EL}if \w+\s+==', SOURCE[Line-1].strip()):
                         raise TypeError
                     else:
-                        pass#SOURCE[Line-1] =   ' '*(indent+4) + SOURCE[Line-1]
+                        pass#SOURCE[Line-1] =   indent + '    ' + SOURCE[Line-1]
                     variable = Regex.group("VARIABLE")
                     value    = SEARCH_VALUE.group("VALUE")
-                    SOURCE[Line-1] = f'{(indent)*" "}{IF_EL}if {variable} == {value}:' #+4
-            #SOURCE.insert(Line_Nom-1, f'{(indent)*" "}if False:pass')
+                    SOURCE[Line-1] = f'{indent}{IF_EL}if {variable} == {value}:' #+4
 
         #] Load User-Defined Modules        # TODO: Better regex to get packages
         elif Regex:=re.search(r'^(?P<indent>\s*)load \s*(\w+,?)?', Text.strip()):
+            t = time.time()
             Indent = Regex.group('indent')
             Packages = re.split(r'\s*,\s*', Text)
             Packages[0]= Packages[0][4:].strip()
@@ -1216,24 +1219,29 @@ def Syntax(SOURCE,
             rx.files.mkdir('__RX_LIB__')
             if not rx.files.exists('__RX_LIB__/__init__.py'):
                 rx.write('__RX_LIB__/__init__.py')
+            
             for package in Packages:
                 if rx.files.exists(f'{package}.rx7'):
-                    pack_out = rx.terminal.getoutput(f'python RX.py -MT {package}.rx7').strip()
-                    if len(pack_out):
-                        #print(pack_out)
-                        if re.search(r'^\w+Error', pack_out.splitlines()[-1]):
-                            raise ERRORS.LoadError(package,FILE,pack_out.splitlines()[-1])
-                        else:
-                            raise ERRORS.LoadError(package,FILE)
-
-                    #rx.files.move(f'{package}.py', f'__RX_LIB__/{package}.py')
+                    import threading
+                    def TEST():
+                        pack_out = rx.terminal.getoutput(f'python RX.py -MT {package}.rx7').strip()
+                        
+                        if len(pack_out):
+                            #print(pack_out)
+                            if re.search(r'^\w+Error', pack_out.splitlines()[-1]):
+                                raise ERRORS.LoadError(package,FILE,pack_out.splitlines()[-1])
+                            else:
+                                raise ERRORS.LoadError(package,FILE)
+                    thread = threading.Thread(target=TEST)
+                    thread.start()
+                    threads.append(thread)
                     LOADED_PACKAGES.append(package)
-                    # in previous versions: import then remove file
                     To_Add += f"{package}={MODULE_SHORTCUT}.import_module('__RX_LIB__/{package}.py');"
                 else:
                     raise ERRORS.ModuleNotFoundError(FILE, package, Text, Line_Nom)
             #print(t2.lap())
             SOURCE[Line_Nom-1]=str(To_Add)
+            print(f'Load: {time.time()-t}','green')
 
         #] Memory Location of Object
         elif re.search(r'''[,\(\[\{\+=: ]&\w+''', Text): #[^a-zA-Z0-9'"]
@@ -1294,7 +1302,7 @@ def Syntax(SOURCE,
                     print(f"'<>' is for Arrays, Try to use 'Const' keyword for type ",'red', end='')
                     print(f"'{Type_Content}'  ({FILE}:{Line_Nom}:{VarName})", 'red')#, style='bold')
             '''
-            if VarName != VarName.uppercase()  and  DEBUG:
+            if VarName != VarName.upper()  and  DEBUG:
                 print(f"{FILE}:{Line_Nom}> Constant Variable Name ({VarName}) is not UPPERCASED",'red')                
             CONSTS.add((VarName, Line_Nom))
             Indent = Regex.group('Indent')
@@ -1347,7 +1355,7 @@ def Syntax(SOURCE,
             SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Array({Content}{Type}{Length})'
 
 
-    return SOURCE
+    return SOURCE,threads
 
 
 #< Verbose >#
@@ -1397,7 +1405,7 @@ if __name__ == "__main__":
         SOURCE = Define_Structure(SOURCE, FILE, ARGS[2])                             #] 0.020
         INFO = SOURCE[4]
         TIMES['DefStr'] = time.time()-START_TIME
-        SOURCE = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, ARGS[2])   #] 0.008
+        SOURCE,threads = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, ARGS[2])   #] 0.008
         TIMES['Syntax'] = time.time()-START_TIME
         if ARGS[1]:
             rx.cls()
@@ -1432,6 +1440,8 @@ if __name__ == "__main__":
                 TIMES['B_Run '] = time.time()-START_TIME
                 for k,v in TIMES.items(): print(f'{k} :: {v}','green')
                 import runpy
+                for thread in threads:
+                    thread.join()
                 runpy.run_path(READY_FILE_NAME)
             except Exception as e:
                 raise e
