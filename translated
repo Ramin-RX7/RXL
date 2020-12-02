@@ -3,10 +3,10 @@ std = ms
 print = ms.style.print
 const = ms._Lang.Const
 array = ms._Lang.Array
+Check_Type = ms.Check_Type
 setattr(std,'Version','1.7.4')
 setattr(std,'Author','Ramin.RX7')
 setattr(std,'Title','DramaX')
-
 
 
 print('Start')
@@ -40,7 +40,11 @@ def hello():
     AC = ms._Lang.Const('1',x,'2','3')
     pass
 
-ArrConst = ms._Lang.Const('1',x,'2','3')
+#ArrConst  = <'1',x,'2','3'>
+ArrConst = ['a','b']
+ArrConst += ['c']
+print((ArrConst),'green')
+sys.exit()
 #ArrConst2 = <'1'>
 print(hex(id(ArrConst)))
 #asd()

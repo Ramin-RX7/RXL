@@ -54,7 +54,26 @@ RX-Language  Coding Style Guide
 + Functions with short body can be defined in one line
 + Execution time of functions shoud be defined with 3 white spaces in definition line
 + Extra white space before 'else' in ternary oparator
-from
++ Indentation shouldn't change in the script
+    # Correct
+    class MyClass:
+        def __init__(self,name):
+            self.name = name
+        def getname(self):
+            return self.name
+    # Wrong
+    class MyClass:
+        def __init__(self,name):
+             self.name = name
+        def getname(self):
+          return self.name
+    # But this is ok  (Maybe you want your inner/sub scopes have less white spaces)
+    class MyClass:
+        def __init__(self,name):
+          self.name = name
+        def getname(self):
+          return self.name
+
 
 
 - Comments
@@ -63,7 +82,7 @@ from
     + Add a white space after Line/Inline Comments
     + Inline Comments are better to start with 2 spaces before them
     + Block Comments body is better to start with new line and 1 indentation
-      (By indentation i mean eather a space,tab,4-Spaces etc.)
+      (By indentation I mean eather a space,tab,4-Spaces etc.)
       (Also they can have title with 2 spaces after opening block)
       # Wrong
       '''def test():

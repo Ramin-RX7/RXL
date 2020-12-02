@@ -38,7 +38,11 @@ func hello():
     AC  = <'1',x,'2','3'>
     pass
 
-ArrConst  = <'1',x,'2','3'>
+#ArrConst  = <'1',x,'2','3'>
+const ArrConst = ['a','b']
+ArrConst += ['c']
+print((ArrConst),'green')
+sys.exit()
 #ArrConst2 = <'1'>
 print(&ArrConst)
 #asd()

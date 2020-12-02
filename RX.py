@@ -5,7 +5,9 @@ import sys
 import re
 import argparse
 import tokenize
-from colored import fg,bg,attr
+
+from colored import  fg,bg,attr
+
 
 class rx:
     @staticmethod
@@ -360,19 +362,17 @@ class IndentCheck:
 """
 ################################################################################
 # CHARS:  {✓ , ? , > , ! , X}
-#### EXT: RUN FILE
+################
 # TODO:
+ #>  const keyword is not safe
+ #>  Save Cache 
  #>  Define Ready_Objs from std
  #>  Extension Color for functions
- #>  Check if decorator is Check_Type --> ms.Check_Type
  #>  Fix Const func to accept one object
  #>  Include XXX: Func1,Func2
  #>  A file to repair files (save all files in a zipfile)
  #>  "$" Family
        #> TEST  (try:x;except:pass)
- #>  Constants Check for Error
- #>  Instead of using pip to download required modules, copy them
-       (sys.executable)
  #>  Create RX App with Menu:
         #>  TERMINAL
               #> linux commands?
@@ -382,11 +382,15 @@ class IndentCheck:
        #> If Error happens in Loading module, .py file will remains
  #?  Debug Function in (--debug for debug-only && -d for run+debug)
  #?  Split line by strings, check_syntax spliteds ,connect them again
+ #X  Constants Check for Error
+ #X  Instead of using pip to download required modules, copy them
+      (Because we couldn't find rquirements for all packages)
  #X  Debug with running linters
  #X  goto for For loops with naming For loops  (:NAME & goto NAME)
  #X  do_when Keyword for Calling specifiec function when condition comes True
  #X  Improve Exception Catching when runing file
  #!  END OF LINES ERROR IN RED  (WHAT?!)
+ #✓  Check if decorator is Check_Type --> ms.Check_Type
  #✓  Array
  #✓  Constant Array __str/repr__ should be with <>
  #✓  Make object of Constant Array
@@ -401,19 +405,18 @@ class IndentCheck:
  #>  Option for run translated or import it (import will ignore "if __name__ ...")
  #>  Package installer like pip? (if 3rd-party modules):
         #>  Create account (RX-Lang) in pypi to upload user packages
- #?  INFO['EMAIL']?
  #?  Combine sys.exit & cleanup
  #?  Function to check if expression is not in Quotes
- #?  Whole code in Try-Except
  #?  NoBreak if there is python code in Base Lines
  #?  &&  ---  ||
- #?  Copy modules to running dir
  #?  Generate:yield(:None)
- #?  Save Cache 
  #?  CONST at the beginning
  #?  Stop Imports
- #?  New Errors Ext Color !
  #?  def(:None)
+ #-  Copy modules to running dir
+ #-  INFO['EMAIL']?
+ #-  Whole code in Try-Except
+ #-  New Errors Ext Color !
  #✓  How to run python file instead of os.system
 ###########
 # BUG:
@@ -1047,6 +1050,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     #] Direct Attributes
     STRING.append(f"const = {MODULE_SHORTCUT}._Lang.Const")
     STRING.append(f"array = {MODULE_SHORTCUT}._Lang.Array")
+    STRING.append(f"Check_Type = {MODULE_SHORTCUT}.Check_Type")
     for key,value in INFO.items():
         STRING.append(f"setattr(std,'{key}','{value}')")
 
@@ -1246,18 +1250,17 @@ def Syntax(SOURCE,
         elif Regex:=re.search(r'^func \s*(?P<Expression>.+)'    , Striped):
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('func', 'def', 1)
 
-        #] Const Var
-        elif Striped.startswith('Const '):
+        #] Const Var                        # TODO: Better regex
+        elif Striped.startswith('const '):
             #if Text.startswith(' '): raise LateDefine("'Const' Must Be Defined In The Main Scope")
-            if re.search(r'^Const\s+([A-Za-z]|_)+\s*=\s*', Text.strip()):
-                INDENT = re.search(r'Const\s+([A-Za-z]|_)+\s*=\s*', Text).start()
-                #SOURCE.remove(Text)
-                #SOURCE.insert(Line_Nom-1, INDENT*' ' + Striped[Striped.index(' ')+1:])
-                SOURCE[Line_Nom-1] = INDENT*' ' + Striped[Striped.index(' ')+1:]
-                CONST = Striped[Striped.index(' '):Striped.index('=')].strip()
-                if CONST != CONST.upper()  and  DEBUG:
+            if Regex:=re.search(r'^(?P<Indent>\s*)const\s+(?P<VarName>\w+)\s*=\s*(?P<Value>.+)\s*', Text):
+                Indent  =  Regex.group('Indent' )
+                VarName =  Regex.group('VarName')
+                Value   =  Regex.group('Value'  )
+                SOURCE[Line_Nom-1] =  f'{Indent}{VarName} = {Value}'
+                if VarName != VarName.upper()  and  DEBUG:
                     #] maybe it should be just a warning
-                    print(f'{FILE}:{Line_Nom}> Constant Variable Name is not UPPERCASED','red')
+                    print(f"{FILE}:{Line_Nom}> Constant Variable Name ({VarName}) is not UPPERCASED",'red')
                     '''
                      raise ERRORS.ConstantError(Line_Nom=Line_Nom, 
                                                Line_Text=Text.strip(), 
@@ -1265,12 +1268,11 @@ def Syntax(SOURCE,
                                                msg='Constant Variable Name Must be UPPERCASE')
                     '''
                 for item in CONSTS:  #] Check if Const X is already defined
-                    if CONST == item[0]:
+                    if VarName == item[0]:
                         raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
-                CONSTS.add((CONST, Line_Nom))
+                CONSTS.add((VarName, Line_Nom))
 
         #] Const Array                      # TODO: Better regex
-        #elif re.search(r'^\w+\s*=\s*<.+>', Striped):
         elif Regex:=re.search(r'(?P<Indent>\s*)(?P<VarName>\w+)\s*=\s*<(?P<Content>.*)>', Text):
             Content = Regex.group('Content')
             VarName = Regex.group('VarName')
@@ -1292,6 +1294,8 @@ def Syntax(SOURCE,
                     print(f"'<>' is for Arrays, Try to use 'Const' keyword for type ",'red', end='')
                     print(f"'{Type_Content}'  ({FILE}:{Line_Nom}:{VarName})", 'red')#, style='bold')
             '''
+            if VarName != VarName.uppercase()  and  DEBUG:
+                print(f"{FILE}:{Line_Nom}> Constant Variable Name ({VarName}) is not UPPERCASED",'red')                
             CONSTS.add((VarName, Line_Nom))
             Indent = Regex.group('Indent')
             SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Const({Content})'
