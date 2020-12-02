@@ -362,6 +362,7 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 #### EXT: RUN FILE
 # TODO:
+ #>  Define Ready_Objs from std
  #>  Extension Color for functions
  #>  Check if decorator is Check_Type --> ms.Check_Type
  #>  Fix Const func to accept one object
@@ -369,14 +370,9 @@ class IndentCheck:
  #>  A file to repair files (save all files in a zipfile)
  #>  "$" Family
        #> TEST  (try:x;except:pass)
- #>  Array
- #>  Constants:
-       #?  Check for Error
-       #✓  Constant Array __str/repr__ should be with <>
-       #✓  Make object of Constant Array
+ #>  Constants Check for Error
  #>  Instead of using pip to download required modules, copy them
        (sys.executable)
- #>  Debug with running linters
  #>  Create RX App with Menu:
         #>  TERMINAL
               #> linux commands?
@@ -384,37 +380,39 @@ class IndentCheck:
  #>  Console support RX syntax ( '\n'.join(Syntax([line])) )
  #>  Load Modules:
        #> If Error happens in Loading module, .py file will remains
- #X  goto for For loops with naming For loops  (:NAME & goto NAME)
  #?  Debug Function in (--debug for debug-only && -d for run+debug)
  #?  Split line by strings, check_syntax spliteds ,connect them again
+ #X  Debug with running linters
+ #X  goto for For loops with naming For loops  (:NAME & goto NAME)
  #X  do_when Keyword for Calling specifiec function when condition comes True
  #X  Improve Exception Catching when runing file
  #!  END OF LINES ERROR IN RED  (WHAT?!)
- #✓  Improve switch & case: No break
- #✓  SetupEnv should be only after Load
- #✓  Instead of RX_Py, name should be real name
+ #✓  Array
+ #✓  Constant Array __str/repr__ should be with <>
+ #✓  Make object of Constant Array
 ###########
 # NOTE:
- #?  &&  ---  ||
- #?  Copy modules to running dir
  #>  Ready_File_Name without .rx extension?
- #?  INFO['EMAIL']?
  #>  Check for fast speed (if option of it is True)
  #>  Correct color for Options in extension (and also ignore cases)
- #?  Combine sys.exit & cleanup
- #?  Function to check if expression is not in Quotes
         #> && -- ||
- #?  Whole code in Try-Except
  #>  DEBUG (-d) is unused
  #>  do_while check for outline
+ #>  Option for run translated or import it (import will ignore "if __name__ ...")
+ #>  Package installer like pip? (if 3rd-party modules):
+        #>  Create account (RX-Lang) in pypi to upload user packages
+ #?  INFO['EMAIL']?
+ #?  Combine sys.exit & cleanup
+ #?  Function to check if expression is not in Quotes
+ #?  Whole code in Try-Except
+ #?  NoBreak if there is python code in Base Lines
+ #?  &&  ---  ||
+ #?  Copy modules to running dir
  #?  Generate:yield(:None)
  #?  Save Cache 
- #>  Option for run translated or import it (import will ignore "if __name__ ...")
  #?  CONST at the beginning
  #?  Stop Imports
  #?  New Errors Ext Color !
- #>  Package installer like pip? (if 3rd-party modules):
-        #>  Create account (RX-Lang) in pypi to upload user packages
  #?  def(:None)
  #✓  How to run python file instead of os.system
 ###########
@@ -1040,11 +1038,15 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             break
 
     #print(INFO)
-
+    
+    #] Bases
     STRING = []
     STRING.append(f"import {MODULE_VERSION} as {MODULE_SHORTCUT}")
     STRING.append(f"std = {MODULE_SHORTCUT}")
     STRING.append(f"print = {MODULE_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}")
+    #] Direct Attributes
+    STRING.append(f"const = {MODULE_SHORTCUT}._Lang.Const")
+    STRING.append(f"array = {MODULE_SHORTCUT}._Lang.Array")
     for key,value in INFO.items():
         STRING.append(f"setattr(std,'{key}','{value}')")
 
@@ -1292,8 +1294,6 @@ def Syntax(SOURCE,
             '''
             CONSTS.add((VarName, Line_Nom))
             Indent = Regex.group('Indent')
-            #SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {Content}'
-            print(type(Content),'red')
             SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Const({Content})'
 
         #] do_while 

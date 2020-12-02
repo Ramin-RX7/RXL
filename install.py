@@ -20,8 +20,8 @@ subprocess.getoutput('pip install rx7')
 print('Done')
 
 print('Installing Requirements Packages ...')
-Requirements=['colored', 'psutil', 'requests', 'pyautogui', 'keyboard',
-              'mouse', 'pyscreeze', 'whois', 'win10toast']
+Requirements=['colored', 'psutil'   , 'requests', 'pyautogui' , 'keyboard',
+              'mouse'  , 'pyscreeze', 'whois'   , 'win10toast', 'pywin32'  ]
 Total = len(Requirements)
 
 for i,Package in enumerate(Requirements, 1):

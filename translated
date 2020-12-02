@@ -1,17 +1,17 @@
 import rx7 as ms
 std = ms
 print = ms.style.print
+const = ms._Lang.Const
+array = ms._Lang.Array
 setattr(std,'Version','1.7.4')
 setattr(std,'Author','Ramin.RX7')
 setattr(std,'Title','DramaX')
 
 
 
-
-
 print('Start')
 
-var = ms._Lang.Array('a','b')
+var = ms._Lang.Array('a','b',type_=str,size=3)
 
 import sys
 print(sys.argv)
@@ -75,9 +75,10 @@ def hello(x):
     Files=ms.Files;terminal=ms.terminal;files=ms.files;
 
 import os
-
-#load tst2
+t = std.record()
+tst2=ms.import_module('__RX_LIB__/tst2.py');
 #print(tst2.x,'dodger_blue_1')
+print(f'load: {t.lap()}','green')
 
 if not (XX):
  print('No XX')

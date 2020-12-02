@@ -1,3 +1,5 @@
+RX-Language  Coding Style Guide
+
 + Newline after Structure Definition
 + Start atleast at line 3
 + Not using docstrings in first 7 lines
@@ -8,7 +10,7 @@
 + Using Spaces (recommended:4) instead of tabs
 + Not using "\" to connect lines
 + Use commas at the end instead of begining of the line
-+ Use Spaces after commas anywhere except using "from module import"
++ Use Spaces after commas anywhere (except in "from module import")
 + Using 'foreach' when looping over Iterable 
   and Using 'for' when looping over Generators
 + Use .startswith()/.endswith() methods instead of slicing
@@ -52,7 +54,7 @@
 + Functions with short body can be defined in one line
 + Execution time of functions shoud be defined with 3 white spaces in definition line
 + Extra white space before 'else' in ternary oparator
-
+from
 
 
 - Comments
@@ -139,10 +141,18 @@
     + Small Apps:
         # Correct:
         import Module1,Module2
-    (But its ok to use this:
-       from package import func1,func2,Class1
-    )
+      (But its ok to use this:
+       from package import  func1,func2,Class1
+      )
     
+    + there should be extra white space before importing objects 
+      from a module if they are more then one
+        # Correct
+        from package import  func1,func2,Class1
+        # Wrong
+        from package import func1,func2,Class1
+        # Also Correct
+        from package import (func1,func2,Class1)
 
 
 

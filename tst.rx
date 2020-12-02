@@ -11,7 +11,7 @@ End-Exit : True
 
 print('Start')
 
-array var[:] = {'a','b'}
+array var[3:str] = {'a','b'}
 
 import sys
 print(sys.argv)
@@ -69,9 +69,10 @@ def hello(x):
     include Files, terminal ,  files
 
 import os
-
-#load tst2
+t = std.record()
+load tst2
 #print(tst2.x,'dodger_blue_1')
+print(f'load: {t.lap()}','green')
 
 until XX:
  print('No XX')
