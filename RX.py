@@ -364,6 +364,11 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 ################
 # TODO:
+ #>  RX_CSG:
+        #> Func
+        #> Foreach
+        #> Unless
+        #> Until
  #>  Load Modules:
        #> If Error happens in Loading module, .py file will remains
        #> Load modules with default Options
@@ -1096,7 +1101,7 @@ def Syntax(SOURCE,
     '''
     CONSTS = set()
     Skip = 0
-    threads = []
+    THREADS = []
 
     for Line_Nom,Text in enumerate(SOURCE, 1):
 
@@ -1170,7 +1175,7 @@ def Syntax(SOURCE,
             Lines_Added += 1
 
         #] Switch and Case
-        elif Regex:=re.search(r'^\s*(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text):
+        elif Regex:=re.search(r'^(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text):
             indent = Regex.group('indent')
 
             rules = 0
@@ -1234,7 +1239,7 @@ def Syntax(SOURCE,
                                 raise ERRORS.LoadError(package,FILE)
                     thread = threading.Thread(target=TEST)
                     thread.start()
-                    threads.append(thread)
+                    THREADS.append(thread)
                     LOADED_PACKAGES.append(package)
                     To_Add += f"{package}={MODULE_SHORTCUT}.import_module('__RX_LIB__/{package}.py');"
                 else:
@@ -1249,10 +1254,10 @@ def Syntax(SOURCE,
             SOURCE[Line_Nom-1] = Text.replace(Search.group(),f'hex(id({Search.group(1)}))')
 
         #] until & unless & foreach & func
-        elif Regex:=re.search(r'^until \s*(?P<Expression>.+):'  , Striped):
-            SOURCE[Line_Nom-1] = f"if not ({Regex.group('Expression')}):"
-        elif Regex:=re.search(r'^unless \s*(?P<Expression>.+):' , Striped):
-            SOURCE[Line_Nom-1] = f"if not ({Regex.group('Expression')}):"
+        elif Regex:=re.search(r'^(?P<indent>\s*)until \s*(?P<Expression>.+):'  , Text):
+            SOURCE[Line_Nom-1] = f"{Regex.group('Indent')}while not ({Regex.group('Expression')}):"
+        elif Regex:=re.search(r'^(?P<indent>\s*)unless \s*(?P<Expression>.+):' , Text):
+            SOURCE[Line_Nom-1] = f"{Regex.group('Indent')}if not ({Regex.group('Expression')}):"
         elif Regex:=re.search(r'^foreach \s*(?P<Expression>.+):', Striped):
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('foreach', 'for', 1)
         elif Regex:=re.search(r'^func \s*(?P<Expression>.+)'    , Striped):
@@ -1280,8 +1285,8 @@ def Syntax(SOURCE,
                         raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
                 CONSTS.add((VarName, Line_Nom))
 
-        #] Const Array                      # TODO: Better regex
-        elif Regex:=re.search(r'(?P<Indent>\s*)(?P<VarName>\w+)\s*=\s*<(?P<Content>.*)>', Text):
+        #] Const Array
+        elif Regex:=re.search(r'^(?P<Indent>\s*)(?P<VarName>\w+)\s*=\s*<(?P<Content>.*)>', Text):
             Content = Regex.group('Content')
             VarName = Regex.group('VarName')
             '''
@@ -1309,7 +1314,7 @@ def Syntax(SOURCE,
             SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Const({Content})'
 
         #] do_while 
-        elif Regex:=re.search(r'(?P<Indent>\s*)do\s*:\s*',Text):  #Striped.startswith('do '):
+        elif Regex:=re.search(r'^(?P<Indent>\s*)do\s*:\s*',Text):  #Striped.startswith('do '):
             Indent = Regex.group('Indent')
 
             LN = int(Line_Nom)
@@ -1354,8 +1359,11 @@ def Syntax(SOURCE,
 
             SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Array({Content}{Type}{Length})'
 
+        #] $TEST
+        elif Regex:=re.search(r'^(?P<Indent>\s*)\$TEST',Text):
+            pass
 
-    return SOURCE,threads
+    return SOURCE,THREADS
 
 
 #< Verbose >#
@@ -1376,7 +1384,7 @@ def Add_Verbose(SOURCE, INFO):
 
 #< Clean Everything Which is Not Needed >#
 def Clean_Up(File='',Lib=True):   #] 0.03
-    #return
+    return
     if Lib:
         try: rx.files.remove(f'__RX_LIB__', force=True)
         except: pass
@@ -1405,7 +1413,7 @@ if __name__ == "__main__":
         SOURCE = Define_Structure(SOURCE, FILE, ARGS[2])                             #] 0.020
         INFO = SOURCE[4]
         TIMES['DefStr'] = time.time()-START_TIME
-        SOURCE,threads = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, ARGS[2])   #] 0.008
+        SOURCE,THREADS = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, ARGS[2])   #] 0.008
         TIMES['Syntax'] = time.time()-START_TIME
         if ARGS[1]:
             rx.cls()
@@ -1440,7 +1448,7 @@ if __name__ == "__main__":
                 TIMES['B_Run '] = time.time()-START_TIME
                 for k,v in TIMES.items(): print(f'{k} :: {v}','green')
                 import runpy
-                for thread in threads:
+                for thread in THREADS:
                     thread.join()
                 runpy.run_path(READY_FILE_NAME)
             except Exception as e:

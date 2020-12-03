@@ -9,6 +9,7 @@ translated
 Program/
 MODULE.py
 functions.txt
+tst*.*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

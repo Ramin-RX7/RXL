@@ -1,0 +1,98 @@
+Title  :  DramaX> Library/Apps to Crack Hashes
+Version:  1.7.4
+Author :  Ramin.RX7
+
+Module-Name : ms 
+Print : stylized
+Method : normal
+Func-Type-Checker: True
+End-Exit : True
+
+
+
+
+array var[3:str] = {'a','b'}
+
+
+x = <'x','xx'>
+include files
+class X:
+    @staticmethod
+    def func():
+        pass
+
+def x():
+    pass
+    def myfunc(x:str):
+        pass
+    if ('x' and 
+'y'):
+        pass#print('hello')
+        #d
+x()
+
+func hello():
+    AC  = <'1',x,'2','3'>
+    pass
+
+#ArrConst  = <'1',x,'2','3'>
+const ArrConst = ['a','b']
+ArrConst += ['c']
+pass#print((ArrConst),'green')
+#ArrConst2 = <'1'>
+#print(&ArrConst)
+#asd()
+HELO = <2,4,3>
+#def x():
+ #HELO ='d'
+
+x = 3
+
+do:
+    pass#print(x)
+    pass
+    x-=1
+while (x)
+
+
+"""
+#Const XX = 'sdfsafdsfa'
+#Include *
+"""
+
+#input('name:  ')
+
+include Terminal
+XX = 'sadf'
+def hello(x):
+    include Files, terminal ,  files
+
+import os
+t = std.record()
+#print(tst2.x,'dodger_blue_1')
+pass#print(f'load: {t.lap()}','green')
+
+until XX:
+ pass#print('No XX')
+
+#ms.wait(2)
+class fu:
+    pass
+
+switch hello:
+    case nobreak 1:
+        pass#print('case1')
+        x
+    case (2,4):
+        pass#print('case2')
+    case (3,4):
+        pass#print('case3')
+        d
+    case 6:
+        pass#print('case6')
+    default:
+        pass#print('deafult')
+
+#HELO = ''
+
+#ms.wait(10)
