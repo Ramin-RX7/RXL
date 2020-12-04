@@ -242,7 +242,7 @@ class IndentCheck:
 
 
     class Whitespace:
-        S, T = ' \t'
+        S, T = ' ','\t'
 
 
         def __init__(self, ws):
@@ -395,6 +395,7 @@ class IndentCheck:
  #!  END OF LINES ERROR IN RED  (WHAT?!)
 ###########
 # NOTE:
+ #>  LOADED_PACKAGES ???
  #>  Ready_File_Name without .rx extension?
  #>  Check for fast speed (if option of it is True)
  #>  Correct color for Options in extension (and also ignore cases)
@@ -438,6 +439,7 @@ class IndentCheck:
 ########################################
 
 # TODO (Release):
+ #> Annotations and Documentation (Docstring/Help)
  #> Check instal:  PrependPath=1 (also for pip and scripts/*.exe)
  #> Make .exe with cxfreeze && copy .exe fileS in py/scripts dir
  #> Auto install famous 3rd-parties (requests-urllib3)
@@ -1214,7 +1216,7 @@ def Syntax(SOURCE,
 
         #] Load User-Defined Modules        # TODO: Better regex to get packages
         elif Regex:=re.search(r'^(?P<indent>\s*)load \s*(\w+,?)?', Text.strip()):
-            t = time.time()
+            #t = time.time()
             Indent = Regex.group('indent')
             Packages = re.split(r'\s*,\s*', Text)
             Packages[0]= Packages[0][4:].strip()
@@ -1374,6 +1376,7 @@ def Syntax(SOURCE,
                 ERRORS.RaiseError('SpaceError',"'$TEST' should have one extra blank line around it",
                                   Text,Line_Nom,FILE)
 
+
     return SOURCE,THREADS
 
 
@@ -1413,11 +1416,6 @@ def Clean_Up(File='',Lib=True):   #] 0.03
 #< START OF THE CODE >#
 if __name__ == "__main__":
     try:
-        t = time.time()
-        Setup_Env()
-        print(time.time()-t,'dodger_blue_1')
-        Clean_Up()
-        sys.exit()
         TIMES = {}
         TIMES['Start '] = time.time()-START_TIME #print(f'START  :: {time.time()-START_TIME}','green')
         ARGS = Get_Args()                                                            #] 0.003
@@ -1469,7 +1467,7 @@ if __name__ == "__main__":
                     thread.join()
                 runpy.run_path(READY_FILE_NAME)
             except Exception as e:
-                raise e
+                #raise e
                 print('Traceback (most recent call last):')
                 print('  More Information in Next Updates...')
                #print(f'  File "{FILE}" in  "UNDEFINED"')
@@ -1483,7 +1481,7 @@ if __name__ == "__main__":
     except Exception as E:
         if ARGS[4]:
             raise E
-        raise E
+        #raise E
         #raise E# from None
         print('Traceback (most recent call last):')
         print('  Error occured when making environment ready to run')
