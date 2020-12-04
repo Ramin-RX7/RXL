@@ -379,7 +379,7 @@ class IndentCheck:
  #>  Include XXX: Func1,Func2
  #>  A file to repair files (save all files in a zipfile)
  #>  "$" Family
-       #> TEST  (try:x;except:pass)
+       #> TEST  (try:x;except:pass) (Finally: 'then')
  #>  Create RX App with Menu:
         #>  TERMINAL
               #> linux commands?
@@ -1246,7 +1246,7 @@ def Syntax(SOURCE,
                     raise ERRORS.ModuleNotFoundError(FILE, package, Text, Line_Nom)
             #print(t2.lap())
             SOURCE[Line_Nom-1]=str(To_Add)
-            print(f'Load: {time.time()-t}','green')
+            #print(f'Load: {time.time()-t}','green')
 
         #] Memory Location of Object
         elif re.search(r'''[,\(\[\{\+=: ]&\w+''', Text): #[^a-zA-Z0-9'"]
@@ -1254,9 +1254,9 @@ def Syntax(SOURCE,
             SOURCE[Line_Nom-1] = Text.replace(Search.group(),f'hex(id({Search.group(1)}))')
 
         #] until & unless & foreach & func
-        elif Regex:=re.search(r'^(?P<indent>\s*)until \s*(?P<Expression>.+):'  , Text):
+        elif Regex:=re.search(r'^(?P<Indent>\s*)until \s*(?P<Expression>.+):'  , Text):
             SOURCE[Line_Nom-1] = f"{Regex.group('Indent')}while not ({Regex.group('Expression')}):"
-        elif Regex:=re.search(r'^(?P<indent>\s*)unless \s*(?P<Expression>.+):' , Text):
+        elif Regex:=re.search(r'^(?P<Indent>\s*)unless \s*(?P<Expression>.+):' , Text):
             SOURCE[Line_Nom-1] = f"{Regex.group('Indent')}if not ({Regex.group('Expression')}):"
         elif Regex:=re.search(r'^foreach \s*(?P<Expression>.+):', Striped):
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('foreach', 'for', 1)
@@ -1360,8 +1360,17 @@ def Syntax(SOURCE,
             SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Array({Content}{Type}{Length})'
 
         #] $TEST
-        elif Regex:=re.search(r'^(?P<Indent>\s*)\$TEST',Text):
-            pass
+        elif Regex:=re.search(r'^(?P<Indent>\s*)\$TEST (?P<Test>.+)',Text):
+            Indent = Regex.group('Indent')
+            if not SOURCE[Line_Nom]:
+                SOURCE[Line_Nom-1] = f'{Indent}try: {Regex.group("Test")}'
+                SOURCE[Line_Nom]   = f'{Indent}except: pass'
+            elif not SOURCE[Line_Nom-2]:
+                SOURCE[Line_Nom-2] =  f'{Indent}try: {Regex.group("Test")}'
+                SOURCE[Line_Nom-1] =  f'{Indent}except: pass'
+            else:
+                ERRORS.RaiseError('SpaceError',"'$TEST' should have one extra blank line around it",
+                                  Text,Line_Nom,FILE)
 
     return SOURCE,THREADS
 
@@ -1384,7 +1393,7 @@ def Add_Verbose(SOURCE, INFO):
 
 #< Clean Everything Which is Not Needed >#
 def Clean_Up(File='',Lib=True):   #] 0.03
-    return
+    #return
     if Lib:
         try: rx.files.remove(f'__RX_LIB__', force=True)
         except: pass
@@ -1433,6 +1442,7 @@ if __name__ == "__main__":
         if ARGS[5]:
             rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
         if ARGS[4]:
+            Setup_Env()
             rx.write(f'./__RX_LIB__/{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
 
         if not ARGS[3] and not ARGS[4] and not ARGS[5]:

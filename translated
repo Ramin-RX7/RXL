@@ -12,7 +12,8 @@ setattr(std,'Title','DramaX')
 print('Start')
 
 var = ms._Lang.Array('a','b',type_=str,size=3)
-
+try: hello
+except: pass
 import sys
 print(sys.argv)
 
@@ -44,7 +45,7 @@ def hello():
 ArrConst = ['a','b']
 ArrConst += ['c']
 print((ArrConst),'green')
-sys.exit()
+
 #ArrConst2 = <'1'>
 print(hex(id(ArrConst)))
 #asd()
@@ -83,9 +84,9 @@ t = std.record()
 tst2=ms.import_module('__RX_LIB__/tst2.py');
 tst3=ms.import_module('__RX_LIB__/tst3.py');
 #print(tst2.x,'dodger_blue_1')
-print(f'load: {t.lap()}','green')
 
-if not (XX):
+
+while not (XX):
  print('No XX')
 
 #ms.wait(2)
