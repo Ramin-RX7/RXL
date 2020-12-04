@@ -364,11 +364,9 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 ################
 # TODO:
+ #>  Add (-s --start) to args to start menu items
  #>  RX_CSG:
-        #> Func
-        #> Foreach
-        #> Unless
-        #> Until
+        #> Func,Foreach,Unless,Until
  #>  Load Modules:
        #> If Error happens in Loading module, .py file will remains
        #> Load modules with default Options
@@ -379,11 +377,10 @@ class IndentCheck:
  #>  Include XXX: Func1,Func2
  #>  A file to repair files (save all files in a zipfile)
  #>  "$" Family
-       #> TEST  (try:x;except:pass) (Finally: 'then')
+       #> TEST  (Finally: 'then')
  #>  Create RX App with Menu:
         #>  TERMINAL
               #> linux commands?
-        #✓  Create SuperLite Module
  #>  Console support RX syntax ( '\n'.join(Syntax([line])) )
  #?  Debug Function in (--debug for debug-only && -d for run+debug)
  #?  Split line by strings, check_syntax spliteds ,connect them again
@@ -396,10 +393,6 @@ class IndentCheck:
  #X  do_when Keyword for Calling specifiec function when condition comes True
  #X  Improve Exception Catching when runing file
  #!  END OF LINES ERROR IN RED  (WHAT?!)
- #✓  Check if decorator is Check_Type --> ms.Check_Type
- #✓  Array
- #✓  Constant Array __str/repr__ should be with <>
- #✓  Make object of Constant Array
 ###########
 # NOTE:
  #>  Ready_File_Name without .rx extension?
@@ -428,6 +421,7 @@ class IndentCheck:
 # BUG:
  #X  WTF!
        switch-case works fine in normal run but is not translated when loading
+       Load: real file is deleted when error occurs
  #X  Check Array is defined with acceptable length
  #X  There couldnt be nested Switch-Case statements  (and Const-array?)
  #X  Errors in red Color
@@ -508,8 +502,10 @@ Error = rx.style.log_error
 
 RX_PATH = os.path.abspath(__file__)[:-6]
 
-CLASSES = (['files', 'system', 'random', 'record', 'style', 'terminal', 'Tuple'],
-           ['Files', 'System', 'Random', 'Record', 'Style', 'Terminal', 'Tuple']
+CLASSES = (['files'   , 'system', 'random'    , 'record', 'style', 
+            'terminal', 'Tuple' , 'decorator' , 'io'    ,          ],
+           ['Files' , 'System'    , 'Random'  , 'Record', 'Style',
+             'Terminal', 'Tuple' , 'Decorator', 'IO'    ,          ],
             #'internet', 'Internet'
            )
 
@@ -518,7 +514,7 @@ Lines_Added = 0
 
 
 
-#< Make Things Ready For Running >#   0.035
+#< Make Things Ready For Running >#   0.004
 def Setup_Env():
     rx.files.mkdir('__RX_LIB__')
     rx.write('__RX_LIB__/__init__.py')
@@ -636,7 +632,7 @@ class ERRORS:
             sys.exit()
 
 
-#< Get Arguments >#      #TODO: add (-s --start) to start menu items
+#< Get Arguments >#
 def Get_Args():
 
     #print('ARGS:  '+str(sys.argv), 'green')
@@ -1108,10 +1104,6 @@ def Syntax(SOURCE,
         #print(str(Line_Nom)+' '+Text)
 
         Striped = Text.strip()
-        for item in CONSTS:
-            if re.search(rf'( |;|^$){item[0]}\s*(\[.+\])?\s*=\s*[^=]+', Text):  # \s*.+  {?} 
-                if not Striped.startswith('def ')  and  not Striped.startswith('#'):
-                    raise ERRORS.ConstantError(Line_Nom, item[1], Striped, item[0], FILE)
 
         #] && --- ||
         '''
@@ -1138,12 +1130,22 @@ def Syntax(SOURCE,
                     if '"""' in text_in_str:
                         Skip = line_in_str
                         #print(Skip)
+                continue
         elif '"""' in Text:
             if not "'''" in Text[Text.index("'''")+3:]:
                 for line_in_str,text_in_str in enumerate(SOURCE[Line_Nom:],1):
                     if "'''" in text_in_str:
                         Skip = line_in_str
                         #print(Skip)
+                continue
+
+        #] Check for Constant re-definition/change
+        for item in CONSTS:
+            if re.search(rf'( |;|^$){item[0]}\s*(\[.+\])?\s*=\s*[^=]+', Text):  # \s*.+  {?} 
+                if not Striped.startswith('def ')  and  not Striped.startswith('#'):
+                    raise ERRORS.ConstantError(Line_Nom, item[1], Striped, item[0], FILE)
+
+        if False: pass
 
         #] Include
         elif Regex:=re.search(r'^(?P<Indent>\s*)include \s*(\w+,?|\*)?', Text):
@@ -1220,7 +1222,6 @@ def Syntax(SOURCE,
             #SOURCE.remove(Text)
             #SOURCE[Line_Nom-1]=''
             To_Add = str(Indent)
-            t2 = rx.record()
             rx.files.mkdir('__RX_LIB__')
             if not rx.files.exists('__RX_LIB__/__init__.py'):
                 rx.write('__RX_LIB__/__init__.py')
@@ -1244,7 +1245,6 @@ def Syntax(SOURCE,
                     To_Add += f"{package}={MODULE_SHORTCUT}.import_module('__RX_LIB__/{package}.py');"
                 else:
                     raise ERRORS.ModuleNotFoundError(FILE, package, Text, Line_Nom)
-            #print(t2.lap())
             SOURCE[Line_Nom-1]=str(To_Add)
             #print(f'Load: {time.time()-t}','green')
 
@@ -1362,12 +1362,14 @@ def Syntax(SOURCE,
         #] $TEST
         elif Regex:=re.search(r'^(?P<Indent>\s*)\$TEST (?P<Test>.+)',Text):
             Indent = Regex.group('Indent')
+            try_    =  f'{Indent}try: {Regex.group("Test")}'
+            except_ =  f'{Indent}except: pass'
             if not SOURCE[Line_Nom]:
-                SOURCE[Line_Nom-1] = f'{Indent}try: {Regex.group("Test")}'
-                SOURCE[Line_Nom]   = f'{Indent}except: pass'
+                SOURCE[Line_Nom-1] = try_
+                SOURCE[Line_Nom]   = except_
             elif not SOURCE[Line_Nom-2]:
-                SOURCE[Line_Nom-2] =  f'{Indent}try: {Regex.group("Test")}'
-                SOURCE[Line_Nom-1] =  f'{Indent}except: pass'
+                SOURCE[Line_Nom-2] =  try_
+                SOURCE[Line_Nom-1] =  except_
             else:
                 ERRORS.RaiseError('SpaceError',"'$TEST' should have one extra blank line around it",
                                   Text,Line_Nom,FILE)
@@ -1411,6 +1413,11 @@ def Clean_Up(File='',Lib=True):   #] 0.03
 #< START OF THE CODE >#
 if __name__ == "__main__":
     try:
+        t = time.time()
+        Setup_Env()
+        print(time.time()-t,'dodger_blue_1')
+        Clean_Up()
+        sys.exit()
         TIMES = {}
         TIMES['Start '] = time.time()-START_TIME #print(f'START  :: {time.time()-START_TIME}','green')
         ARGS = Get_Args()                                                            #] 0.003
