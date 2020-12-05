@@ -10,7 +10,10 @@ End-Exit : True
 
 
 print('Start')
-
+include files: exists,remove
+#include files: exists,remove
+import sys
+sys.exit()
 array var[3:str] = {'a','b'}
 
 $TEST hello

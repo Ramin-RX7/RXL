@@ -604,11 +604,11 @@ class ERRORS:
             sys.exit()
 
     class AttributeError(Exception):
-        def __init__(self,File, Line_Nom, Line_Text, Module_Version, Attribute):
+        def __init__(self,File, Line_Nom, Line_Text, Module_Version, Attribute, Type='module'):
             print( 'Traceback (most recent call last):')
             print(f'  File "{File}", line {Line_Nom-Lines_Added}, in <module>')
             print( '    '+Line_Text)
-            Error(f"AttributeError: module '{Module_Version}' has no attribute '{Attribute}'")
+            Error(f"AttributeError: {Type} '{Module_Version}' has no attribute '{Attribute}'")
             Clean_Up(File)
             sys.exit()
 
@@ -840,7 +840,7 @@ class Menu:
     @staticmethod
     def Create_SLModule():
         import inspect
-        import rx7.lite as STD
+        import rx7 as STD  #lite
         File = rx.io.get_files('Enter listed functions file name:  ',times=1)[0]
         output = 'MODULE.py'
 
@@ -1150,20 +1150,47 @@ def Syntax(SOURCE,
         if False: pass
 
         #] Include
-        elif Regex:=re.search(r'^(?P<Indent>\s*)include \s*(\w+,?|\*)?', Text):
+        elif Regex:=re.search(r'^(?P<Indent>\s*)include \s*(?P<objects>.+)\s*', Text):
             Indent = Regex.group('Indent')
-            if re.search(r'^(I|i)nclude\s*\*', Text.strip()):
+            OBJECTS = Regex.group('objects')
+            To_Add = str(Indent)
+
+            if OBJECTS == '*':
+                Type = 'Class'
                 Packages = list(CLASSES[0])
-            else:
+            elif not ':' in OBJECTS:
+                Type = 'Class'
                 Packages = re.split(r'\s*,\s*', Text)
                 Packages[0]= Packages[0][len(Indent)+8:].strip()
-            #SOURCE.remove(Text)
-            To_Add = str(Indent)
-            for package in Packages:
-                if package not in CLASSES[0]+CLASSES[1]:
+            elif Reg2:=re.search(r'(?P<CLASS>\w+)\s*:\s*(?P<OBJECTS>.+)',OBJECTS):
+                Type = 'Object'
+                import rx7# as RX_M
+                global RX_M
+                RX_M = rx7
+                CLASS = Reg2.group('CLASS')
+                OBJ2  = Reg2.group('OBJECTS')
+                
+                method_list = [func for func in dir(eval(f'RX_M.{CLASS}')) if (
+                    callable(getattr(eval(f'RX_M.{CLASS}'), func))  and  not func.startswith("__"))]
+                if CLASS not in CLASSES[0]+CLASSES[1]:
                     raise ERRORS.AttributeError(FILE,Line_Nom,Text,MODULE_VERSION,package)
-                #SOURCE.insert(Line_Nom-1, f'{Indent}{package} = {MODULE_SHORTCUT}.{package}')
-                To_Add += f'{package}={MODULE_SHORTCUT}.{package};'
+                OBJ_of_OBJS2 = re.split(r'\s*,\s*',OBJ2)
+                for obj in OBJ_of_OBJS2:
+                    if not obj in method_list:
+                        raise ERRORS.AttributeError(FILE,Line_Nom,Text,MODULE_VERSION,obj,'class')
+                    To_Add += f'{obj}={MODULE_SHORTCUT}.{CLASS}.{obj};'
+            else:
+                raise ERRORS.RaiseError('IncludeError',
+                        "Syntax is not recognized for 'include'. (Make sure it is true, then report it)",
+                        Text,Line_Nom,FILE)
+
+            if Type == 'Class':
+                for package in Packages:
+                    if package not in CLASSES[0]+CLASSES[1]:
+                        raise ERRORS.AttributeError(FILE,Line_Nom,Text,MODULE_VERSION,package)
+                    #SOURCE.insert(Line_Nom-1, f'{Indent}{package} = {MODULE_SHORTCUT}.{package}')
+                    To_Add += f'{package}={MODULE_SHORTCUT}.{package};'
+
             SOURCE[Line_Nom-1] = To_Add
             # continue  # do it to all?
 
@@ -1409,6 +1436,7 @@ def Clean_Up(File='',Lib=True):   #] 0.03
     except: pass
     try: rx.files.remove('_Console_.py')
     except: pass
+
 
 
 
