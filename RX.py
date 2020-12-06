@@ -152,12 +152,12 @@ class rx:
         @staticmethod
         def wait_for_input(prompt):
             answer= ''
-            try:
-                while not answer:
+            #try:
+            while not answer:
                     answer = input(prompt)
-            except (EOFError,KeyboardInterrupt):
-                print('EXITING...','red')
-                sys.exit()
+            #except (EOFError,KeyboardInterrupt):
+            #    print('EXITING...','red')
+            #    sys.exit()
             return answer
 
         @staticmethod
@@ -374,7 +374,9 @@ class IndentCheck:
  #>  Save Cache 
  #>  Define Ready_Objs from std
  #>  Extension Color for functions
- #>  Include XXX: Func1,Func2
+ #>  Include:
+       - *:*
+       - class:*
  #>  A file to repair files (save all files in a zipfile)
  #>  "$" Family
        #> TEST  (Finally: 'then')
@@ -506,8 +508,8 @@ RX_PATH = os.path.abspath(__file__)[:-6]
 
 CLASSES = (['files'   , 'system', 'random'    , 'record', 'style', 
             'terminal', 'Tuple' , 'decorator' , 'io'    ,          ],
-           ['Files' , 'System'    , 'Random'  , 'Record', 'Style',
-             'Terminal', 'Tuple' , 'Decorator', 'IO'    ,          ],
+           ['Files'   , 'System', 'Random'    , 'Record', 'Style',
+             'Terminal', 'Tuple', 'Decorator' , 'IO'    ,          ],
             #'internet', 'Internet'
            )
 
@@ -537,48 +539,39 @@ class ERRORS:
 
     class BaseDefinedError(Exception):
         def __init__(self, attribute, line_text, line_nom, File):
-            print( 'Traceback (most recent call last):')
-            print(f'  File "{File}", line {line_nom-Lines_Added}, in <module>')
-            print( '    '+line_text)
-            Error(f"BaseDefinedError: '{attribute}' can not be defined after setting module [OPTIONS]")
-            Clean_Up(File)
-            sys.exit()
+            ERRORS.RaiseError(
+                'BaseDefinedError',
+                f"BaseDefinedError: '{attribute}' can not be defined after setting module [OPTIONS]",
+                line_text,line_nom,FILE
+            )
 
     class ValueError(Exception):
         def __init__(self, 
-                File,       attribute=None , value=None, line_text='', 
-                line_nom=0, correct_list=[], msg=None):
-            print( 'Traceback (most recent call last):')
-            print(f'  File "{File}", line {line_nom-Lines_Added}, in <module>')
-            print( '    '+line_text)
-            if not msg:
-                Error(f"ValueError: '{attribute}' can not be '{value}'. Valid Choices: {correct_list}")
-            else:
-                Error(f"ValueError: {msg}")
-            Clean_Up(File)
-            sys.exit()
+                File,       attribute=None , value=None, Line_Text='', 
+                Line_Nom=0, correct_list=[], msg=None):
+            MSG = msg if msg else f"'{attribute}' can not be '{value}'. Valid Choices: {correct_list}"
+            raise ERRORS.RaiseError(
+                  'ValueError', MSG,
+                  Line_Text,Line_Nom,FILE
+                  )
 
     class ConstantError(Exception):
         def __init__(self,
           Line_Nom=0  , Line_Def=0, Line_Text='', 
           Attribute='', File=''   , msg=None):
-            print( 'Traceback (most recent call last):')
-            print(f'  File "{File}", line {Line_Nom-Lines_Added}, in <module>')
-            print( '    '+Line_Text)
-            end = msg if msg else f"Redefinition of '{Attribute}' (Already Defined At Line {Line_Def})"
-            Error("ConstantError: "+ end)
-            Clean_Up(File)
-            sys.exit()
+            MSG = msg if msg else f"Redefinition of '{Attribute}' (Already Defined At Line {Line_Def})"
+            raise ERRORS.RaiseError(
+                  'ConstantError', MSG,
+                  Line_Text,Line_Nom,FILE
+                  )
 
-    class IndentionError(Exception):
+    class IndentationError(Exception):
         def __init__(self,
           Line_Nom=0, Line_Text='', File=''):
-            print( 'Traceback (most recent call last):')
-            print(f'  File "{File}", line {Line_Nom-Lines_Added}, in <module>')
-            print( '    '+Line_Text)
-            Error("IndentationError: expected an indented block")
-            Clean_Up(File)
-            sys.exit()
+            raise ERRORS.RaiseError(
+                  'IndentationError', 'expected an indented block',
+                  Line_Text,Line_Nom,FILE
+                  )
 
     class UndefinedError(Exception):
         def __init__(self, msg='', File=''):
@@ -595,22 +588,18 @@ class ERRORS:
             sys.exit()
 
     class ModuleNotFoundError(Exception):
-        def __init__(self, File, Name=None, line_text='', line_nom=0):
-            print( 'Traceback (most recent call last):')
-            print(f'  File "{File}", line {line_nom-Lines_Added}, in <module>')
-            print( '    '+line_text)
-            Error(f"ModuleNotFoundError: No module named '{Name}'")
-            Clean_Up(File)
-            sys.exit()
+        def __init__(self, File, Name=None, Line_Text='', Line_Nom=0):
+            raise ERRORS.RaiseError(
+                  'ModuleNotFoundError', f"No module named '{Name}'",
+                  Line_Text,Line_Nom,FILE
+                  )
 
     class AttributeError(Exception):
         def __init__(self,File, Line_Nom, Line_Text, Module_Version, Attribute, Type='module'):
-            print( 'Traceback (most recent call last):')
-            print(f'  File "{File}", line {Line_Nom-Lines_Added}, in <module>')
-            print( '    '+Line_Text)
-            Error(f"AttributeError: {Type} '{Module_Version}' has no attribute '{Attribute}'")
-            Clean_Up(File)
-            sys.exit()
+            raise ERRORS.RaiseError(
+                  'AttributeError', f"{Type} '{Module_Version}' has no attribute '{Attribute}'",
+                  Line_Text,Line_Nom,FILE
+                  )
 
     class LoadError(Exception):
         def __init__(self, Module, File, error=False):
@@ -626,12 +615,10 @@ class ERRORS:
 
     class SyntaxError(Exception):
         def __init__(self,File, Line_Nom, Line_Text, msg):
-            print( 'Traceback (most recent call last):')
-            print(f'  File "{File}", line {Line_Nom-Lines_Added}, in <module>')
-            print( '    '+Line_Text)
-            Error(f"SyntaxError: {msg}")
-            Clean_Up(File)
-            sys.exit()
+            raise ERRORS.RaiseError(
+                  'SyntaxError', msg,
+                  Line_Text,Line_Nom,FILE
+                  )
 
 
 #< Get Arguments >#
@@ -644,7 +631,7 @@ def Get_Args():
         #Console()
         #Menu.menu()
         Menu.Terminal()
-        sys.exit()
+        exit()
 
     #if len(sys.argv) > 3:
     #    print('Argument Parser Will be added in next versions','dodger_blue_1')
@@ -834,8 +821,8 @@ class Menu:
                         else:
                             print(output)
             except (EOFError,KeyboardInterrupt):
-                print('Exiting...','red')
-                sys.exit()
+                print('\nExiting...','red')
+                return#sys.exit()
 
     @staticmethod
     def Create_SLModule():
@@ -942,7 +929,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             INDENT_START = len(re.search(r'^(?P<indent>\s*).*', SOURCE[LINE]).group('indent'))
             if INDENT_START <= INDENT:
                 #print('RX_Err','red')
-                raise ERRORS.IndentionError(Line_Nom+1, SOURCE[Line_Nom], FILE)
+                raise ERRORS.IndentationError(Line_Nom+1, SOURCE[Line_Nom], FILE)
 
 
     #< OPTIONS >#
@@ -1430,7 +1417,7 @@ def Clean_Up(File='',Lib=True):   #] 0.03
         try: rx.files.remove(f'__RX_LIB__', force=True)
         except: pass
     else: pass
-    try: os.remove(File)
+    try: os.remove('_'+File+'_')
     except: pass
     try: rx.files.remove('__pycache__', force=True)
     except: pass
@@ -1517,7 +1504,10 @@ if __name__ == "__main__":
         print('Please report this to the RX maintainer, along with the traceback and version')
 
     finally:
-        if not ARGS[4]:
-            Clean_Up('_'+FILE+'_')
+        try:
+            if not ARGS[4]:
+                Clean_Up(FILE)
+        except:
+            pass
         rx.terminal.set_title(rx.terminal.get_title())  
 
