@@ -364,25 +364,27 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 ################
 # TODO:
+ #>  Extension:
+       >  Color for functions
+       >  Clear the screen in extension run (get operating system for cls/clear)
  #>  Add (-s --start) to args to start menu items
  #>  RX_CSG:
         #> Func,Foreach,Unless,Until
  #>  Load Modules:
-       #> If Error happens in Loading module, .py file will remains
-       #> Load modules with default Options
+       > If Error happens in Loading module, .py file will remains
+       > Load modules with default Options
  #>  const keyword is not safe
  #>  Save Cache 
  #>  Define Ready_Objs from std
- #>  Extension Color for functions
  #>  Include:
-       - *:*
-       - class:*
+       >  *:*
+       >  class:*
  #>  A file to repair files (save all files in a zipfile)
  #>  "$" Family
-       #> TEST  (Finally: 'then')
+       >  TEST  (Finally: 'then')
  #>  Create RX App with Menu:
-        #>  TERMINAL
-              #> linux commands?
+       >  TERMINAL
+            > linux commands?
  #>  Console support RX syntax ( '\n'.join(Syntax([line])) )
  #?  Debug Function in (--debug for debug-only && -d for run+debug)
  #?  Split line by strings, check_syntax spliteds ,connect them again
@@ -401,12 +403,12 @@ class IndentCheck:
  #>  Ready_File_Name without .rx extension?
  #>  Check for fast speed (if option of it is True)
  #>  Correct color for Options in extension (and also ignore cases)
-        #> && -- ||
+        >  && -- ||
  #>  DEBUG (-d) is unused
  #>  do_while check for outline
  #>  Option for run translated or import it (import will ignore "if __name__ ...")
  #>  Package installer like pip? (if 3rd-party modules):
-        #>  Create account (RX-Lang) in pypi to upload user packages
+        >  Create account (RX-Lang) in pypi to upload user packages
  #?  Combine sys.exit & cleanup
  #?  Function to check if expression is not in Quotes
  #?  NoBreak if there is python code in Base Lines
@@ -423,8 +425,8 @@ class IndentCheck:
 ###########
 # BUG:
  #X  WTF!
-       switch-case works fine in normal run but is not translated when loading
-       Load: real file is deleted when error occurs
+       X switch-case works fine in normal run but is not translated when loading
+       ✓ Load: real file is deleted when error occurs
  #X  Check Array is defined with acceptable length
  #X  There couldnt be nested Switch-Case statements  (and Const-array?)
  #X  Errors in red Color
@@ -435,7 +437,7 @@ class IndentCheck:
  #X  Get Remaining Args for PROGRAM
  #X  Terminal is slow for loading code from first each time
  #X  Every Load takes 0.2
-       #> Maybe with cache (check mdftime of files)
+       > Maybe with cache (check mdftime of files)
  #?  why exe doesn't accept args
 
 ########################################
@@ -447,10 +449,16 @@ class IndentCheck:
  #> Auto install famous 3rd-parties (requests-urllib3)
  #> ".rx" to ".exe" 
 
-####
-   #Loading Modules Are 10-1000x faster (But Tanslate Takes 0.4!)
 ################################################################################
 """
+# APPS:
+ #> Metasploit
+ #> Nmap
+ #> Git
+ #> Sherlock
+ #> SET
+ #> Hashcat
+ #> John
 
 #] CHANGES
 r"""
@@ -515,6 +523,7 @@ CLASSES = (['files'   , 'system', 'random'    , 'record', 'style',
 
 LOADED_PACKAGES = []
 Lines_Added = 0
+
 
 
 
@@ -780,6 +789,21 @@ class Menu:
            #'Compile'    : Menu.Compile  ,
             'Create Module Lite' : Menu.Create_SLModule
         }
+        Linux_Dict = {
+            'sudo -s':  '',
+            'sudo'   :  '',
+            'passwd' :  '',
+            'bash'   :  'cwd',
+            'ls'     :  '',
+            'info'   :  '',
+            'hash'   :  '',
+            'touch'  :  '',
+            'rm'     :  '',
+            'cat'    :  '',
+            'grep'   :  '',
+            '!locate':  '',
+            
+        }
         print(f"RX v{__version__} Running on {rx.system.device_name()}::{rx.system.accname()} ({NOW[:NOW.rfind('.')]})")
         while True:
             print('RX:Terminal', 'green', end='')
@@ -888,9 +912,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
      # {???}autopep8 -i script.py
      # import IndentCheck
     IndentCheck.check(FILE)
-
     Skip = 0
-
     for Line_Nom,Text in enumerate(SOURCE, 1):
         #] When Adding An Extra Line Like Decorators
         if Skip:
@@ -1423,6 +1445,7 @@ def Clean_Up(File='',Lib=True):   #] 0.03
     except: pass
     try: rx.files.remove('_Console_.py')
     except: pass
+
 
 
 
