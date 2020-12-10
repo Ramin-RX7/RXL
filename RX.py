@@ -364,12 +364,11 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 ################
 # TODO:
+ #>  Not all conditions should be 'elif' in Syntax()  ('func' and Check_Type)
  #>  Extension:
        >  Color for functions
        >  Clear the screen in extension run (get operating system for cls/clear)
  #>  Add (-s --start) to args to start menu items
- #>  RX_CSG:
-        #> Func,Foreach,Unless,Until
  #>  Load Modules:
        > If Error happens in Loading module, .py file will remains
        > Load modules with default Options
@@ -382,12 +381,14 @@ class IndentCheck:
  #>  A file to repair files (save all files in a zipfile)
  #>  "$" Family
        >  TEST  (Finally: 'then')
- #>  Create RX App with Menu:
+ #>  Menu:
        >  TERMINAL
-            > linux commands?
+            > linux commands
  #>  Console support RX syntax ( '\n'.join(Syntax([line])) )
  #?  Debug Function in (--debug for debug-only && -d for run+debug)
  #?  Split line by strings, check_syntax spliteds ,connect them again
+ #X  Add/Remove/Change some built-in objects methods
+       ('forbiddenfruit' only works on linux)
  #X  Fix Const func to accept one object
  #X  Constants Check for Error
  #X  Instead of using pip to download required modules, copy them
@@ -409,6 +410,7 @@ class IndentCheck:
  #>  Option for run translated or import it (import will ignore "if __name__ ...")
  #>  Package installer like pip? (if 3rd-party modules):
         >  Create account (RX-Lang) in pypi to upload user packages
+ #?  input = std.Input
  #?  Combine sys.exit & cleanup
  #?  Function to check if expression is not in Quotes
  #?  NoBreak if there is python code in Base Lines
@@ -451,7 +453,8 @@ class IndentCheck:
 
 ################################################################################
 """
-# APPS:
+
+#] APPS:
  #> Metasploit
  #> Nmap
  #> Git
@@ -802,7 +805,6 @@ class Menu:
             'cat'    :  '',
             'grep'   :  '',
             '!locate':  '',
-            
         }
         print(f"RX v{__version__} Running on {rx.system.device_name()}::{rx.system.accname()} ({NOW[:NOW.rfind('.')]})")
         while True:
@@ -810,11 +812,13 @@ class Menu:
             print('@', end='')
             print(os.getcwd(), 'dodger_blue_1', end='')
             try:
-                inp = input('> ')
+                inp = input('> ')#.strip()
 
                 if inp.title() in Menu_Dict.keys():
                     Menu_Dict[inp.title()]()
-                elif inp in ('help','commands'):
+                if inp.startswith(tuple(Linux_Dict.keys())):
+                    print('Linux Commands are not supported yet','red')
+                elif inp in ('commands'):
                     print('Beside all CMD commands, we also support these commands:')
                     print('  - Console')
                     print('  - System Info')
@@ -1519,7 +1523,6 @@ if __name__ == "__main__":
     except Exception as E:
         if ARGS[4]:
             raise E
-        #raise E
         #raise E# from None
         print('Traceback (most recent call last):')
         print('  Error occured when making environment ready to run')

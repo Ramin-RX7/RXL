@@ -382,6 +382,9 @@
 		},
 
 
+
+
+
 		"rx-rxnsc": {
 			"patterns": [
 				{
@@ -395,16 +398,37 @@
 			"patterns": [
 				{
 					"name": "support.function.builtin.python",
-					"match": "(?x)\n  \\b(?<!\\.)((rx|std).)?(\n    (R|r)andom | (S|s)tyle | (S|s)ystem | (F|f)iles | (T|t)erminal\n  )\\b\n"
+					"match": "(?x)\n  \\b(?<!\\.)((rx|std).)?(\n    (R|r)andom | (S|s)tyle | (S|s)ystem | (F|f)iles | (T|t)erminal | (R|r)ecord | (D|d)ecorator | (IO|io) | (I|i)nternet\n  )\\b\n"
 				}
 			]
 		},
 		
+		"rx-func-name": {
+			"patterns": [
+				{
+					"name": "support.function.builtin.python",
+					"match": "(?x)\n  \\b(?<!\\.)((rx|std).)?(\n    p | repeat | (wait|sleep) | (cls|clear) | (P|p)rogressbar | wait_for | call_later\n  )\\b\n"
+				},
+				{
+					"name": "support.function.builtin.python",
+					"match": "(?x)\n  \\b(?<!\\.)((rx|std).)?(\n    convert_bytes | (Input|default_input) | restart_app | active_window_title\n  )\\b\n"
+				},
+				{
+					"name": "support.function.builtin.python",
+					"match": "(?x)\n  \\b(?<!\\.)((rx|std).)?(\n    open_image | download | extract | screenshot | func_info | pixel_color | import_module\n  )\\b\n"
+				},
+				{
+					"name": "support.function.builtin.python",
+					"match": "(?x)\n  \\b(?<!\\.)((rx|std).)?(\n    (getpass|password_input)\n  )\\b\n"
+				}
+			]
+		},
+
 		"rx-class-funcs": {
 			"patterns": [
 				{
 					"name": "support.type.exception.python",
-					"match": "(?x)\n  \\b(?<!\\.)((rx|std).)?(F|f)iles.(\n    size | delete | rename | abspath | exists | mdftime | acstime | move | copy | hide | read_only | read | write | isdir | isfile | is_hidden | is_readonly | search_file | search_content | mkdir | generate_tree\n  )\\b\n"
+					"match": "(?x)\n  \\b(?<!\\.)((rx|std).)?(F|f)iles.(\n    size | delete | rename | abspath | exists | mdftime | acstime | move | copy | hide | read_only | read | write | isdir | isfile | is_hidden | is_readonly | search_file | search_content | mkdir | generate_tree | remove\n  )\\b\n"
 				},
 
 				{
@@ -443,7 +467,6 @@
 		},
 
 
-
 		"rx-options-wrong":{
 			"patterns": [
 				{
@@ -457,11 +480,13 @@
 				{
 					"name": "invalid.deprecated.backtick.python",
 					"match": "(?x)\n  \\b(?<!\\.)(Print)\\s*:\\s*[^(normal|stylized)]\\b\n"
+				},
+				{
+					"name": "invalid.deprecated.backtick.python",
+					"match": "(?x)\n  \\b(?<!\\.)(Version)\\s*:\\s*[^0-9]\\b\n"
 				}
 			]
 		},
-
-
 
 		"rx-options-correct":{
 			"patterns": [
@@ -493,14 +518,17 @@
 		},
 
 
-		
-		
 
 
 
 
 
-		
+
+
+
+
+
+
 
 
 
@@ -1898,7 +1926,7 @@
 		},
 		"builtin-types": {
 			"name": "support.type.python",
-			"match": "(?x)\n  (?<!\\.) \\b(\n  Const | Check_Type | Tuple | bool | bytearray | bytes | classmethod | complex | dict\n    | float | frozenset | int | list | object | property\n    | set | slice | staticmethod | str | tuple | type\n\n    (?# Although 'super' is not a type, it's related to types,\n        and is special enough to be highlighted differently from\n        other built-ins)\n    | super\n  )\\b\n"
+			"match": "(?x)\n  (?<!\\.) \\b(\n  array | const | Check_Type | Tuple | bool | bytearray | bytes | classmethod | complex | dict\n    | float | frozenset | int | list | object | property\n    | set | slice | staticmethod | str | tuple | type\n\n    (?# Although 'super' is not a type, it's related to types,\n        and is special enough to be highlighted differently from\n        other built-ins)\n    | super\n  )\\b\n"
 		},
 		"magic-function-names": {
 			"comment": "these methods have magic interpretation by python and are generally called\nindirectly through syntactic constructs\n",

@@ -73,7 +73,9 @@ RX-Language  Coding Style Guide
           self.name = name
         def getname(self):
           return self.name
-
++ 'func' keyword is used to define functions which contains other functions in them
++ Do not use 'not' in 'until' and 'unless'
++ 'foreach' keyword is for normal Iterables/Containers (use 'for' for generators)
 
 
 - Comments
