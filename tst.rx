@@ -15,7 +15,7 @@ import sys
 #sys.exit()
 array var[3:str] = {'a','b'}
 
-$TEST hello
+$Test: hello
 import sys
 print(sys.argv)
 

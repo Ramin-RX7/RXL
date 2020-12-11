@@ -400,6 +400,7 @@ class IndentCheck:
  #!  END OF LINES ERROR IN RED  (WHAT?!)
 ###########
 # NOTE:
+ #?  Cancel Lite
  #>  LOADED_PACKAGES ???
  #>  Ready_File_Name without .rx extension?
  #>  Check for fast speed (if option of it is True)
@@ -502,6 +503,11 @@ r"""
  %USERPROFILE%
  #setx /M path "%path%;E:\ramin\Coding\GitHub\RX-Language"
  #C:\Users\IRANIAN\AppData\Roaming\ActiveState\bin;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;D:\Programs\Coding\Git\cmd;C:\Users\IRANIAN\AppData\Local\Programs\Python\Python37;C:\Users\IRANIAN\AppData\Local\Programs\Python\Python37\Scripts;D:\Programs\Microsoft VS Code\bin;C:\Users\IRANIAN\AppData\Local\GitHubDesktop\bin;C:\Users\IRANIAN\AppData\Roaming\npm
+"""
+
+#] Just to have
+"""
+r'^((F|f)unc(tion)?)(-|_)?((T|t)ype|(A|a)rg|(P|p)aram)(-|_)?((S|s)canner|(C|c)hecker)\s*:\s*\w*'
 """
 
 
@@ -990,7 +996,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             Changeable.append(nom)
 
         #] Get Version (Method) of Tools
-        elif re.search(r'^(Method|Package(-|_)Version)\s*:\s*\w*', line):
+        elif re.search(r'^(Method|Package(-|_)Version)\s*:\s*\w+', line):
             #if BASED:
             #    raise ERRORS.BaseDefinedError('Method/Version', line, SOURCE[:5].index(line), FILE)
             StripLow = line.strip().lower()
@@ -1016,7 +1022,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             Changeable.append(nom)
 
         #] Function Type Scanner          TODO: # Make it Shorter!
-        elif re.search(r'^((F|f)unc(tion)?)(-|_)?((T|t)ype|(A|a)rg|(P|p)aram)(-|_)?((S|s)canner|(C|c)hecker)\s*:\s*\w*', line):
+        elif re.search(r'^((F|f)unc(tion)?)-?((T|t)ype|(A|a)rg|(P|p)aram)-?((S|s)canner|(C|c)hecker)\s*:\s*\w+', line):
             #print("FOUND",'green')
             #BASED = True     # No Need to do it
             
@@ -1067,8 +1073,8 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     STRING.append(f"std = {MODULE_SHORTCUT}")
     STRING.append(f"print = {MODULE_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}")
     #] Direct Attributes
-    STRING.append(f"const = {MODULE_SHORTCUT}._Lang.Const")
-    STRING.append(f"array = {MODULE_SHORTCUT}._Lang.Array")
+    STRING.append(f"Const = const = {MODULE_SHORTCUT}._Lang.Const")
+    STRING.append(f"Array = array = {MODULE_SHORTCUT}._Lang.Array")
     STRING.append(f"Check_Type = {MODULE_SHORTCUT}.Check_Type")
     for key,value in INFO.items():
         STRING.append(f"setattr(std,'{key}','{value}')")
