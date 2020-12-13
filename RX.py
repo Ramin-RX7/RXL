@@ -364,14 +364,15 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 ################
 # TODO:
+ #>  Syncorize all DEBUGs
  #>  Not all conditions should be 'elif' in Syntax()  ('func' and Check_Type)
  #>  Extension:
-       >  Color for functions
-       >  Clear the screen in extension run (get operating system for cls/clear)
+       !  Clear the screen in extension run (get operating system for cls/clear)
+       ✓  Color for functions
  #>  Add (-s --start) to args to start menu items
  #>  Load Modules:
-       > If Error happens in Loading module, .py file will remains
        > Load modules with default Options
+       ✓ If Error happens in Loading module, .py file will remains
  #>  const keyword is not safe
  #>  Save Cache 
  #>  Define Ready_Objs from std
@@ -411,6 +412,7 @@ class IndentCheck:
  #>  Option for run translated or import it (import will ignore "if __name__ ...")
  #>  Package installer like pip? (if 3rd-party modules):
         >  Create account (RX-Lang) in pypi to upload user packages
+ #?  All $Class be in one condition (faster or not?)
  #?  input = std.Input
  #?  Combine sys.exit & cleanup
  #?  Function to check if expression is not in Quotes
@@ -429,7 +431,6 @@ class IndentCheck:
 # BUG:
  #X  WTF!
        X switch-case works fine in normal run but is not translated when loading
-       ✓ Load: real file is deleted when error occurs
  #X  Check Array is defined with acceptable length
  #X  There couldnt be nested Switch-Case statements  (and Const-array?)
  #X  Errors in red Color
@@ -1408,19 +1409,63 @@ def Syntax(SOURCE,
             SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Array({Content}{Type}{Length})'
 
         #] $TEST
-        elif Regex:=re.search(r'^(?P<Indent>\s*)\$TEST (?P<Test>.+)',Text):
-            Indent = Regex.group('Indent')
-            try_    =  f'{Indent}try: {Regex.group("Test")}'
-            except_ =  f'{Indent}except: pass'
-            if not SOURCE[Line_Nom]:
-                SOURCE[Line_Nom-1] = try_
-                SOURCE[Line_Nom]   = except_
-            elif not SOURCE[Line_Nom-2]:
-                SOURCE[Line_Nom-2] =  try_
-                SOURCE[Line_Nom-1] =  except_
+        elif Regex:=re.search(r'^(?P<Indent>\s*)\$test \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?(\s* anyway(s)? (?P<Anyway>.+))?',Text):
+            needed_lines = 2
+            if Regex.group("Then"):
+                print('Then True')
+                needed_lines += 1
+                else_ =  f'{Indent}else: {Regex.group("Then")}'
             else:
-                ERRORS.RaiseError('SpaceError',"'$TEST' should have one extra blank line around it",
+                else_ = ''
+            if Regex.group("Anyway"):
+                print('Anyway True')
+                needed_lines += 1
+                finally_ =  f'{Indent}finally: {Regex.group("Anyway")}'
+            else:
+                finally_ = ''
+
+            nofound = True
+            line = int(Line_Nom)
+            pos_lines = 0
+            free_lines = []
+            free_lines.append(line-1)
+            while (nofound and line!=len(SOURCE)):
+                if  SOURCE[line].strip() or pos_lines>=needed_lines:
+                    nofound = False
+                else:
+                    free_lines.append(line)
+                    pos_lines+=1
+                line+=1
+            line = int(Line_Nom-2)
+            pre_lines = 0
+            nofound = True
+            while (nofound and line!=1):
+                if SOURCE[line].strip() or len(free_lines)>=needed_lines:
+                    nofound = False
+                else:
+                    free_lines.append(line)
+                    pre_lines+=1
+                line-=1
+
+            if len(free_lines)<needed_lines:
+                print(free_lines,'red')
+                ERRORS.RaiseError('SpaceError',f"'$test' should have one extra blank line around it " +
+                                                "per any extra keywords ({needed_lines-1} lines needed)",
                                   Text,Line_Nom,FILE)
+
+            free_lines.sort()
+            Indent   =   Regex.group('Indent')
+            try_     =   f'{Indent}try: {Regex.group("Test")}'
+            except_  =   f'{Indent}except: pass'
+
+            SOURCE[free_lines[0]] =  Indent+try_
+            SOURCE[free_lines[1]] =  Indent+except_
+            if else_:
+                SOURCE[free_lines[2]] =  Indent+else_
+            if finally_:
+                SOURCE[free_lines[3]] =  Indent+finally_
+
+            
 
 
     return SOURCE,THREADS

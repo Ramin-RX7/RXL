@@ -15,7 +15,8 @@ import sys
 #sys.exit()
 array var[3:str] = {'a','b'}
 
-$Test: hello
+$test hello+=2 then files anyway 
+
 import sys
 print(sys.argv)
 
@@ -77,8 +78,8 @@ def hello(x):
 
 import os
 t = std.record()
-#load tst2
-#load tst3
+load tst2
+load tst3
 #print(tst2.x,'dodger_blue_1')
 
 
