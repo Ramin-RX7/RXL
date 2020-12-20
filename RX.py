@@ -381,7 +381,7 @@ class IndentCheck:
        >  class:*
  #>  A file to repair files (save all files in a zipfile)
  #>  "$" Family
-       >  TEST  (Finally: 'then')
+       ✓  TEST  (Finally:'anyway', Else:'then')
  #>  Menu:
        >  TERMINAL
             > linux commands
@@ -431,18 +431,19 @@ class IndentCheck:
 # BUG:
  #X  WTF!
        X switch-case works fine in normal run but is not translated when loading
+       X $test 'anyway' not working
  #X  Check Array is defined with acceptable length
  #X  There couldnt be nested Switch-Case statements  (and Const-array?)
- #X  Errors in red Color
  #>  CONSTs:
        #!  After NameError rest of code will be ignored
  #?  Ignore module loading output error
  #X  Unable to run file with double clicking
- #X  Get Remaining Args for PROGRAM
  #X  Terminal is slow for loading code from first each time
  #X  Every Load takes 0.2
        > Maybe with cache (check mdftime of files)
  #?  why exe doesn't accept args
+ #✓  Get Remaining Args for PROGRAM
+ #✓  Errors in red Color
 
 ########################################
 
@@ -507,7 +508,7 @@ r"""
 """
 
 #] Just to have
-"""
+r"""
 r'^((F|f)unc(tion)?)(-|_)?((T|t)ype|(A|a)rg|(P|p)aram)(-|_)?((S|s)canner|(C|c)hecker)\s*:\s*\w*'
 """
 
@@ -815,9 +816,8 @@ class Menu:
         }
         print(f"RX v{__version__} Running on {rx.system.device_name()}::{rx.system.accname()} ({NOW[:NOW.rfind('.')]})")
         while True:
-            print('RX:Terminal', 'green', end='')
-            print('@', end='')
-            print(os.getcwd(), 'dodger_blue_1', end='')
+           #print("{}RX:Terminal{}@{}{}{}".format(fg('green'),attr(0),fg('dodger_blue_1'),os.getcwd(),attr(0)),end='')
+            print(f"{fg('green')}RX:Terminal{attr(0)}@{fg('dodger_blue_1')}{os.getcwd()}{attr(0)}",end='')
             try:
                 inp = input('> ')#.strip()
 
@@ -1417,7 +1417,7 @@ def Syntax(SOURCE,
                 else_ =  f'{Indent}else: {Regex.group("Then")}'
             else:
                 else_ = ''
-            if Regex.group("Anyway"):
+            if Regex.group('Anyway'):
                 print('Anyway True')
                 needed_lines += 1
                 finally_ =  f'{Indent}finally: {Regex.group("Anyway")}'
@@ -1525,7 +1525,7 @@ if __name__ == "__main__":
         if ARGS[1]:
             rx.cls()
             SOURCE = Add_Verbose(SOURCE, INFO)
-        READY_FILE_NAME = '_'+FILE+'_'
+        READY_FILE_NAME = '_'+FILE+'_' #'‎'+FILE+'‎' THERE IS INVISIBLE CHAR IN QUOTES
         #print(Lines_Added)
         if not ARGS[3] and not ARGS[4]:
             try:
@@ -1536,7 +1536,7 @@ if __name__ == "__main__":
             rx.write('translated', '\n'.join(SOURCE))
             rx.files.hide(READY_FILE_NAME)
         title = rx.terminal.get_title()
-        
+
         if ARGS[5]:
             rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
         if ARGS[4]:
@@ -1548,10 +1548,10 @@ if __name__ == "__main__":
             rx.terminal.set_title(f'RX - {os.path.basename(FILE)}')
             try:
                 '''
-                     if B_Run > 0.1:
-                         print('Running Speed is Slow','red')
-                     elif B_Run < 0.015:
-                         print('Running Speed is Super Fast','green')
+                    if B_Run > 0.1:
+                        print('Running Speed is Slow','red')
+                    elif B_Run < 0.015:
+                        print('Running Speed is Super Fast','green')
                 '''
                 TIMES['B_Run '] = time.time()-START_TIME
                 for k,v in TIMES.items(): print(f'{k} :: {v}','green')
@@ -1572,9 +1572,7 @@ if __name__ == "__main__":
         Error('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)')
 
     except Exception as E:
-        if ARGS[4]:
-            raise E
-        #raise E# from None
+        raise E# from None
         print('Traceback (most recent call last):')
         print('  Error occured when making environment ready to run')
         print('SystemError: '+str(E), 'red', style='bold')
