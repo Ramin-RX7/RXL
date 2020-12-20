@@ -785,7 +785,7 @@ class Menu:
                 print(str(type(e))[8:-2]+':  ' + ERROR, 'red')
                 rx.write('_Console_.py', '\n'.join(rx.read('_Console_.py').splitlines()[:-1])+'\n')
 
-            if re.search(r'^print\s*\(', rx.read('_Console_.py').splitlines()[-1].strip()):
+            if re.match(r'print\s*\(', rx.read('_Console_.py').splitlines()[-1].strip()):
                 rx.write('_Console_.py', '\n'.join(rx.read('_Console_.py').splitlines()[:-1])+'\n')
 
     @staticmethod
@@ -834,7 +834,7 @@ class Menu:
                 elif inp in ('exit','quit'):
                     Clean_Up()
                     sys.exit()
-                elif Regex:=re.search(r'cd (?P<path>.+)',inp):
+                elif Regex:=re.match(r'cd (?P<path>.+)',inp):
                     try:
                         os.chdir(Regex.group('path'))
                     except (FileNotFoundError,NotADirectoryError):
@@ -958,8 +958,8 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 else:
                     LINE += 1
 
-            INDENT = len(re.search(r'^(?P<indent>\s*).*', Text).group('indent'))
-            INDENT_START = len(re.search(r'^(?P<indent>\s*).*', SOURCE[LINE]).group('indent'))
+            INDENT = len(re.match(r'(?P<indent>\s*).*', Text).group('indent'))
+            INDENT_START = len(re.match(r'(?P<indent>\s*).*', SOURCE[LINE]).group('indent'))
             if INDENT_START <= INDENT:
                 #print('RX_Err','red')
                 raise ERRORS.IndentationError(Line_Nom+1, SOURCE[Line_Nom], FILE)
@@ -984,7 +984,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             Changeable.append(nom)
 
         #] Get Shortcut Name
-        elif re.search(r'^((M|m)odule(-|_)?(N|n)ame)\s*:\s*\w+',line):
+        elif re.match(r'((M|m)odule(-|_)?(N|n)ame)\s*:\s*\w+',line):
             #if BASED:
             #    raise ERRORS.BaseDefinedError('Modulename', line, SOURCE[:5].index(line), FILE)
             stripped = line[line.index(':')+1:].strip()
@@ -997,7 +997,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             Changeable.append(nom)
 
         #] Get Version (Method) of Tools
-        elif re.search(r'^(Method|Package(-|_)Version)\s*:\s*\w+', line):
+        elif re.match(r'(Method|Package(-|_)Version)\s*:\s*\w+', line):
             #if BASED:
             #    raise ERRORS.BaseDefinedError('Method/Version', line, SOURCE[:5].index(line), FILE)
             StripLow = line.strip().lower()
@@ -1011,7 +1011,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             Changeable.append(nom)
 
         #] Print Function Method
-        elif re.search(r'^Print\s*:\s*\w*', line):
+        elif re.match(r'Print\s*:\s*\w*', line):
             #BASED = True
             if line.strip().lower().endswith('normal'):
                 PRINT_TYPE = 'normal'
@@ -1023,7 +1023,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             Changeable.append(nom)
 
         #] Function Type Scanner          TODO: # Make it Shorter!
-        elif re.search(r'^((F|f)unc(tion)?)-?((T|t)ype|(A|a)rg|(P|p)aram)-?((S|s)canner|(C|c)hecker)\s*:\s*\w+', line):
+        elif re.match(r'((F|f)unc(tion)?)-?((T|t)ype|(A|a)rg|(P|p)aram)-?((S|s)canner|(C|c)hecker)\s*:\s*\w+', line):
             #print("FOUND",'green')
             #BASED = True     # No Need to do it
             
@@ -1037,7 +1037,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             Changeable.append(nom)
 
         #] Exit at the end
-        elif re.search(r'^(End(-|_))?(Exit|Quit)\s*:\s*\w*', line):
+        elif re.match(r'(End(-|_))?(Exit|Quit)\s*:\s*\w*', line):
             if line.strip().lower().endswith('false'):
                 SOURCE.append('__import__("getpass").getpass("Press [Enter] to Exit")')
             elif not line.strip().lower().endswith('true'):
@@ -1048,17 +1048,17 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             Changeable.append(nom)
 
         #] Version
-        elif Regex:=re.search(r'^Version\s*:\s*(?P<Version>[0-9]+(\.[0-9]+)?(\.[0-9]+)?)', line.strip()):
+        elif Regex:=re.match(r'Version\s*:\s*(?P<Version>[0-9]+(\.[0-9]+)?(\.[0-9]+)?)', line.strip()):
             INFO['Version'] = Regex.group('Version')
             SOURCE[nom] = ''
             Changeable.append(nom)
         #] Title
-        elif Regex:=re.search(r'^Title\s*:\s*(?P<Title>[^>]+)(>.+)?', line.rstrip()):
+        elif Regex:=re.match(r'Title\s*:\s*(?P<Title>[^>]+)(>.+)?', line.rstrip()):
             INFO['Title'] = Regex.group('Title')
             SOURCE[nom] = ''
             Changeable.append(nom)
         #] Author
-        elif Regex:=re.search(r'^Author\s*:\s*(?P<Author>.+)', line.rstrip()):
+        elif Regex:=re.match(r'Author\s*:\s*(?P<Author>.+)', line.rstrip()):
             INFO['Author'] = Regex.group('Author')
             SOURCE[nom] = ''
             Changeable.append(nom)
@@ -1170,7 +1170,7 @@ def Syntax(SOURCE,
         if False: pass
 
         #] Include
-        elif Regex:=re.search(r'^(?P<Indent>\s*)include \s*(?P<objects>.+)\s*', Text):
+        elif Regex:=re.match(r'(?P<Indent>\s*)include \s*(?P<objects>.+)\s*', Text):
             Indent = Regex.group('Indent')
             OBJECTS = Regex.group('objects')
             To_Add = str(Indent)
@@ -1226,14 +1226,14 @@ def Syntax(SOURCE,
             Lines_Added += 1
 
         #] Switch and Case
-        elif Regex:=re.search(r'^(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text):
+        elif Regex:=re.match(r'(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text):
             indent = Regex.group('indent')
 
             rules = 0
             for nom2,line2 in enumerate(SOURCE[Line_Nom:], 1):
                 if not line2:
                     continue
-                if not re.search(r'^(?P<indent2>\s*)\w+', line2) and  not rules:
+                if not re.match(r'(?P<indent2>\s*)\w+', line2) and  not rules:
                     #new = len(re.search(r'^(?P<indent2>\s*)', line2).group('indent2'))
                     LAST_LINE = nom2 + Line_Nom -1
                     break
@@ -1244,16 +1244,16 @@ def Syntax(SOURCE,
             Default = False
             SOURCE[Line_Nom-1] = f'{indent}if False: pass'
             for Line,snc in enumerate(SOURCE[Line_Nom-1:LAST_LINE], Line_Nom):
-                if re.search(r'^(D|d)efault\s*:\s*',snc.strip()):
+                if re.match(r'^(D|d)efault\s*:\s*',snc.strip()):
                     SOURCE[Line-1] = indent+'else:'
                     Default = True
-                SEARCH_VALUE = re.search(r'^(C|c)ase\s+(?P<Nobreak>(N|n)obreak)?(?P<VALUE>.+):\s*', snc.strip())
+                SEARCH_VALUE = re.match(r'(C|c)ase\s+(?P<Nobreak>(N|n)obreak)?(?P<VALUE>.+):\s*', snc.strip())
                 if SEARCH_VALUE:
                     if Default:
                         raise ERRORS.SyntaxError(FILE,Line_Nom+Line,snc,
                                                  'Case is defined after default')
                     IF_EL = 'el' if not SEARCH_VALUE.group('Nobreak') else ''
-                    if re.search(fr'^{IF_EL}if \w+\s+==', SOURCE[Line-1].strip()):
+                    if re.match(fr'{IF_EL}if \w+\s+==', SOURCE[Line-1].strip()):
                         raise TypeError
                     else:
                         pass#SOURCE[Line-1] =   indent + '    ' + SOURCE[Line-1]
@@ -1262,7 +1262,7 @@ def Syntax(SOURCE,
                     SOURCE[Line-1] = f'{indent}{IF_EL}if {variable} == {value}:' #+4
 
         #] Load User-Defined Modules        # TODO: Better regex to get packages
-        elif Regex:=re.search(r'^(?P<indent>\s*)load \s*(\w+,?)?', Text.strip()):
+        elif Regex:=re.match(r'(?P<indent>\s*)load \s*(\w+,?)?', Text.strip()):
             #t = time.time()
             Indent = Regex.group('indent')
             Packages = re.split(r'\s*,\s*', Text)
@@ -1283,7 +1283,7 @@ def Syntax(SOURCE,
                         
                         if len(pack_out):
                             #print(pack_out)
-                            if re.search(r'^\w+Error', pack_out.splitlines()[-1]):
+                            if re.match(r'\w+Error', pack_out.splitlines()[-1]):
                                 raise ERRORS.LoadError(package,FILE,pack_out.splitlines()[-1])
                             else:
                                 raise ERRORS.LoadError(package,FILE)
@@ -1303,19 +1303,19 @@ def Syntax(SOURCE,
             SOURCE[Line_Nom-1] = Text.replace(Search.group(),f'hex(id({Search.group(1)}))')
 
         #] until & unless & foreach & func
-        elif Regex:=re.search(r'^(?P<Indent>\s*)until \s*(?P<Expression>.+):'  , Text):
+        elif Regex:=re.match(r'(?P<Indent>\s*)until \s*(?P<Expression>.+):'  , Text):
             SOURCE[Line_Nom-1] = f"{Regex.group('Indent')}while not ({Regex.group('Expression')}):"
-        elif Regex:=re.search(r'^(?P<Indent>\s*)unless \s*(?P<Expression>.+):' , Text):
+        elif Regex:=re.match(r'(?P<Indent>\s*)unless \s*(?P<Expression>.+):' , Text):
             SOURCE[Line_Nom-1] = f"{Regex.group('Indent')}if not ({Regex.group('Expression')}):"
-        elif Regex:=re.search(r'^foreach \s*(?P<Expression>.+):', Striped):
+        elif Regex:=re.match(r'foreach \s*(?P<Expression>.+):', Striped):
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('foreach', 'for', 1)
-        elif Regex:=re.search(r'^func \s*(?P<Expression>.+)'    , Striped):
+        elif Regex:=re.match(r'func \s*(?P<Expression>.+)'    , Striped):
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('func', 'def', 1)
 
         #] Const Var                        # TODO: Better regex
         elif Striped.startswith('const '):
             #if Text.startswith(' '): raise LateDefine("'Const' Must Be Defined In The Main Scope")
-            if Regex:=re.search(r'^(?P<Indent>\s*)const\s+(?P<VarName>\w+)\s*=\s*(?P<Value>.+)\s*', Text):
+            if Regex:=re.match(r'(?P<Indent>\s*)const\s+(?P<VarName>\w+)\s*=\s*(?P<Value>.+)\s*', Text):
                 Indent  =  Regex.group('Indent' )
                 VarName =  Regex.group('VarName')
                 Value   =  Regex.group('Value'  )
@@ -1335,7 +1335,7 @@ def Syntax(SOURCE,
                 CONSTS.add((VarName, Line_Nom))
 
         #] Const Array
-        elif Regex:=re.search(r'^(?P<Indent>\s*)(?P<VarName>\w+)\s*=\s*<(?P<Content>.*)>', Text):
+        elif Regex:=re.match(r'(?P<Indent>\s*)(?P<VarName>\w+)\s*=\s*<(?P<Content>.*)>', Text):
             Content = Regex.group('Content')
             VarName = Regex.group('VarName')
             '''
@@ -1363,7 +1363,7 @@ def Syntax(SOURCE,
             SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Const({Content})'
 
         #] do_while 
-        elif Regex:=re.search(r'^(?P<Indent>\s*)do\s*:\s*',Text):  #Striped.startswith('do '):
+        elif Regex:=re.match(r'(?P<Indent>\s*)do\s*:\s*',Text):  #Striped.startswith('do '):
             Indent = Regex.group('Indent')
 
             LN = int(Line_Nom)
@@ -1394,9 +1394,7 @@ def Syntax(SOURCE,
             SOURCE[WHILE_LINE] = SOURCE[WHILE_LINE]+':'
 
         #] Array
-        elif Regex:=re.search(
-                r'(?P<Indent>\s*)array (?P<VarName>\w+)\[(?P<Length>\w+)?:?(?P<Type>\w+)?\]\s*=\s*{(?P<Content>.*)}',
-                Text):
+        elif Regex:=re.match(r'(?P<Indent>\s*)array (?P<VarName>\w+)\[(?P<Length>\w+)?:?(?P<Type>\w+)?\]\s*=\s*{(?P<Content>.*)}',Text):
             Indent  = Regex.group('Indent')
             VarName = Regex.group('VarName')
             Length  = Regex.group('Length')
@@ -1409,7 +1407,7 @@ def Syntax(SOURCE,
             SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Array({Content}{Type}{Length})'
 
         #] $TEST
-        elif Regex:=re.search(r'^(?P<Indent>\s*)\$test \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?(\s* anyway(s)? (?P<Anyway>.+))?',Text):
+        elif Regex:=re.match(r'(?P<Indent>\s*)\$test \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?(\s* anyway(s)? (?P<Anyway>.+))?',Text):
             needed_lines = 2
             if Regex.group("Then"):
                 print('Then True')

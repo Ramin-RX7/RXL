@@ -1,5 +1,25 @@
 
 
+# Check For Oustide of the Quotations (And other brackets)
+r"""
+import re
+Text = ''' "int open(const char *" pathname ", int " flags );'''
+matches = re.finditer(r'".*?"|(\w+)', Text)
+for match in matches:
+    print(match.group(1))
+    #if match.group(1):
+        #print(f"Found at {match.start(1)}-{match.end(1)}: {match.group(1)}")
+#"""
+
+# ?? (maybe gets callables of rx7 module)
+'''
+import rx7 as RX_M
+classs = 'files'
+method_list = [func for func in dir(eval(f'RX_M.{classs}')) if callable(getattr(eval(f'RX_M.{classs}'), func)) and not func.startswith("__")]
+for x in method_list:
+    pass#print(x)
+#'''
+
 # Functools
 '''
 from functools import reduce, partial, singledispatch
@@ -49,8 +69,6 @@ wordsInside = re.findall(r"<(\w+)", mytring)
 wordsOutside = re.findall(r">(\w+)", mytring)
 print(wordsInside)
 print(wordsOutside)'''
-
-
 '''
 myobj = type('MyType', (object,), dict(a=1, b=2, c=3))()
 print(myobj)
@@ -69,3 +87,6 @@ x = Collection(10,30,40)
 print(x)
 print(type(x))
 '''
+
+
+
