@@ -1225,9 +1225,12 @@ def Syntax(SOURCE,
             Lines_Added += 1
 
         #] Switch and Case
-        elif Regex:=re.match(r'(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text):
-            indent = Regex.group('indent')
+        elif Striped.startswith('switch') or Striped.startswith('Switch'):
+            #elif Regex:=re.match(r'(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text):
+            Regex = re.match(r'(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text)
+            if not Regex: raise SyntaxError
 
+            indent = Regex.group('indent')
             rules = 0
             for nom2,line2 in enumerate(SOURCE[Line_Nom:], 1):
                 if not line2:
@@ -1261,7 +1264,10 @@ def Syntax(SOURCE,
                     SOURCE[Line-1] = f'{indent}{IF_EL}if {variable} == {value}:' #+4
 
         #] Load User-Defined Modules        # TODO: Better regex to get packages
-        elif Regex:=re.match(r'(?P<indent>\s*)load \s*(\w+,?)?', Text.strip()):
+        elif Striped.startswith('load ')  or  Striped=='load':
+            #elif Regex:=re.match(r'(?P<indent>\s*)load \s*(\w+,?)?', Text):
+            Regex = re.match(r'(?P<indent>\s*)load \s*(\w+,?)?', Text)
+            if not Regex: raise SyntaxError
             #t = time.time()
             Indent = Regex.group('indent')
             Packages = re.split(r'\s*,\s*', Text)
@@ -1302,13 +1308,25 @@ def Syntax(SOURCE,
             SOURCE[Line_Nom-1] = Text.replace(Search.group(),f'hex(id({Search.group(1)}))')
 
         #] until & unless & foreach & func
-        elif Regex:=re.match(r'(?P<Indent>\s*)until \s*(?P<Expression>.+):'  , Text):
+        elif Striped.startswith('until '  )  or  Striped=='until':
+            #elif Regex:=re.match(r'(?P<Indent>\s*)until \s*(?P<Expression>.+):'  , Text):
+            Regex=re.match(r'(?P<Indent>\s*)until \s*(?P<Expression>.+):'  , Text)
+            if not Regex: raise SyntaxError
             SOURCE[Line_Nom-1] = f"{Regex.group('Indent')}while not ({Regex.group('Expression')}):"
-        elif Regex:=re.match(r'(?P<Indent>\s*)unless \s*(?P<Expression>.+):' , Text):
+        elif Striped.startswith('unless ' )  or  Striped=='unless':
+            #elif Regex:=re.match(r'(?P<Indent>\s*)unless \s*(?P<Expression>.+):' , Text):
+            Regex=re.match(r'(?P<Indent>\s*)unless \s*(?P<Expression>.+):' , Text)
+            if not Regex: raise SyntaxError
             SOURCE[Line_Nom-1] = f"{Regex.group('Indent')}if not ({Regex.group('Expression')}):"
-        elif Regex:=re.match(r'foreach \s*(?P<Expression>.+):', Striped):
+        elif Striped.startswith('foreach ')  or  Striped=='foreach':
+            #elif Regex:=re.match(r'foreach \s*(?P<Expression>.+):', Striped):
+            Regex=re.match(r'foreach \s*(?P<Expression>.+):', Striped)
+            if not Regex: raise SyntaxError
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('foreach', 'for', 1)
-        elif Regex:=re.match(r'func \s*(?P<Expression>.+)'    , Striped):
+        elif Striped.startswith('func '   )  or  Striped=='func':
+            #elif Regex:=re.match(r'func \s*(?P<Expression>.+)'    , Striped):
+            Regex=re.match(r'func \s*(?P<Expression>.+)'    , Striped)
+            if not Regex: raise SyntaxError
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('func', 'def', 1)
 
         #] Const Var                        # TODO: Better regex
@@ -1362,7 +1380,11 @@ def Syntax(SOURCE,
             SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Const({Content})'
 
         #] do_while 
-        elif Regex:=re.match(r'(?P<Indent>\s*)do\s*:\s*',Text):  #Striped.startswith('do '):
+        elif Striped.startswith('do ') or Striped=='do':
+            #elif Regex:=re.match(r'(?P<Indent>\s*)do\s*:\s*',Text):
+            Regex=re.match(r'(?P<Indent>\s*)do\s*:\s*',Text)
+            if not Regex: raise SyntaxError
+
             Indent = Regex.group('Indent')
 
             LN = int(Line_Nom)
@@ -1393,7 +1415,10 @@ def Syntax(SOURCE,
             SOURCE[WHILE_LINE] = SOURCE[WHILE_LINE]+':'
 
         #] Array
-        elif Regex:=re.match(r'(?P<Indent>\s*)array (?P<VarName>\w+)\[(?P<Length>\w+)?:?(?P<Type>\w+)?\]\s*=\s*{(?P<Content>.*)}',Text):
+        elif Striped.startswith('array ') or Striped=='array':
+            #elif Regex:=re.match(r'(?P<Indent>\s*)array (?P<VarName>\w+)\[(?P<Length>\w+)?:?(?P<Type>\w+)?\]\s*=\s*{(?P<Content>.*)}',Text):
+            Regex=re.match(r'(?P<Indent>\s*)array (?P<VarName>\w+)\[(?P<Length>\w+)?:?(?P<Type>\w+)?\]\s*=\s*{(?P<Content>.*)}',Text)
+            if not Regex: raise SyntaxError
             Indent  = Regex.group('Indent')
             VarName = Regex.group('VarName')
             Length  = Regex.group('Length')
@@ -1406,7 +1431,10 @@ def Syntax(SOURCE,
             SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Array({Content}{Type}{Length})'
 
         #] $TEST
-        elif Regex:=re.match(r'(?P<Indent>\s*)\$test \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?(\s* anyway(s)? (?P<Anyway>.+))?',Text):
+        elif Striped.startswith('$test ') or Striped=='$test':
+            #elif Regex:=re.match(r'(?P<Indent>\s*)\$test \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?(\s* anyway(s)? (?P<Anyway>.+))?',Text):
+            Regex=re.match(r'(?P<Indent>\s*)\$test \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?(\s* anyway(s)? (?P<Anyway>.+))?',Text)
+            if not Regex: raise SyntaxError
             needed_lines = 2
             if Regex.group("Then"):
                 print('Then True')

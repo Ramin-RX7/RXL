@@ -17,7 +17,7 @@ var = ms._Lang.Array('a','b',type_=str,size=3)
 
 try: hello+=2
 except: pass
-
+else: files,var# anyway 2
 import sys
 print(sys.argv)
 
