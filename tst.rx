@@ -15,7 +15,8 @@ import sys
 #sys.exit()
 array var[3:str] = {'a','b'}
 
-$test hello+=2 then files anyway 2
+$test hello+=2 then files,var anyway 2
+
 
 import sys
 print(sys.argv)

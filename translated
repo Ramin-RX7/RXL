@@ -14,9 +14,10 @@ exists=ms.files.exists;remove=ms.files.remove;
 import sys
 #sys.exit()
 var = ms._Lang.Array('a','b',type_=str,size=3)
+
 try: hello+=2
 except: pass
-else: files anyway 2
+
 import sys
 print(sys.argv)
 

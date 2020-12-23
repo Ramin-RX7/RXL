@@ -367,12 +367,10 @@ class IndentCheck:
  #>  Syncorize all DEBUGs
  #>  Not all conditions should be 'elif' in Syntax()  ('func' and Check_Type)
  #>  Extension:
-       !  Clear the screen in extension run (get operating system for cls/clear)
-       ✓  Color for functions
+       !  Clear the screen in extension run (? get operating system for cls/clear)
  #>  Add (-s --start) to args to start menu items
  #>  Load Modules:
        > Load modules with default Options
-       ✓ If Error happens in Loading module, .py file will remains
  #>  const keyword is not safe
  #>  Save Cache 
  #>  Define Ready_Objs from std
@@ -380,8 +378,8 @@ class IndentCheck:
        >  *:*
        >  class:*
  #>  A file to repair files (save all files in a zipfile)
- #>  "$" Family
-       ✓  TEST  (Finally:'anyway', Else:'then')
+ #>  "$" Family:
+
  #>  Menu:
        >  TERMINAL
             > linux commands
@@ -412,6 +410,7 @@ class IndentCheck:
  #>  Option for run translated or import it (import will ignore "if __name__ ...")
  #>  Package installer like pip? (if 3rd-party modules):
         >  Create account (RX-Lang) in pypi to upload user packages
+ #✓? All re.match in Syntax() to .startswith (15x faster)
  #?  All $Class be in one condition (faster or not?)
  #?  input = std.Input
  #?  Combine sys.exit & cleanup
@@ -424,8 +423,8 @@ class IndentCheck:
  #?  def(:None)
  #-  Copy modules to running dir
  #-  INFO['EMAIL']?
- #-  Whole code in Try-Except
  #-  New Errors Ext Color !
+ #X  Whole code in Try-Except
  #✓  How to run python file instead of os.system
 ###########
 # BUG:
@@ -1420,6 +1419,7 @@ def Syntax(SOURCE,
                 needed_lines += 1
                 finally_ =  f'{Indent}finally: {Regex.group("Anyway")}'
             else:
+                print('Anyway False')
                 finally_ = ''
 
             nofound = True
@@ -1448,7 +1448,7 @@ def Syntax(SOURCE,
             if len(free_lines)<needed_lines:
                 print(free_lines,'red')
                 ERRORS.RaiseError('SpaceError',f"'$test' should have one extra blank line around it " +
-                                                "per any extra keywords ({needed_lines-1} lines needed)",
+                                               f"per any extra keywords ({needed_lines-1} lines needed)",
                                   Text,Line_Nom,FILE)
 
             free_lines.sort()
