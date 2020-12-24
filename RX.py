@@ -1214,7 +1214,7 @@ def Syntax(SOURCE,
             # continue  # do it to all?
 
         #] Func Type checker
-        elif Striped.startswith('def ')  and TYPE_SCANNER:  # Make it regex?
+        elif Striped.startswith('def ')   and  TYPE_SCANNER:  # Make it regex?
             if SOURCE[Line_Nom-2].strip().endswith('Check_Type'):
                SOURCE[Line_Nom-2]= re.search(r'(\s*)',Text).group(1)+f'@std.Check_Type' 
             if SOURCE[Line_Nom-2].strip().startswith('@'):
@@ -1225,7 +1225,7 @@ def Syntax(SOURCE,
             Lines_Added += 1
 
         #] Switch and Case
-        elif Striped.startswith('switch') or Striped.startswith('Switch'):
+        elif Striped.startswith('switch')  or  Striped.startswith('Switch'):
             #elif Regex:=re.match(r'(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text):
             Regex = re.match(r'(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text)
             if not Regex: raise SyntaxError
@@ -1379,9 +1379,9 @@ def Syntax(SOURCE,
             Indent = Regex.group('Indent')
             SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Const({Content})'
 
-        #] do_while 
-        elif Striped.startswith('do '     )  or  Striped=='do':
-            #elif Regex:=re.match(r'(?P<Indent>\s*)do\s*:\s*',Text):
+        #] do_while
+        elif Regex:=re.match(r'(?P<Indent>\s*)do\s*:\s*',Text): 
+            #elif Striped.startswith('do '     )  or  Striped=='do':
             Regex=re.match(r'(?P<Indent>\s*)do\s*:\s*',Text)
             if not Regex: raise SyntaxError
 
@@ -1492,7 +1492,12 @@ def Syntax(SOURCE,
                 SOURCE[free_lines[3]] =  Indent+finally_
             
             Lines_Added += needed_lines
-            
+
+        #] $CMD
+        elif Striped.startswith('$cmd '   )  or  Striped=='$cmd':
+            Regex = re.match(r'(?P<Indent>\s*)\$cmd \s*(?P<Command>.+)',Text)
+
+            SOURCE[Line_Nom-1] = f'std.terminal.run("{Regex.group("Command") if Regex else "cmd"}")'
 
 
     return SOURCE,THREADS

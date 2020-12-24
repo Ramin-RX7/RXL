@@ -14,7 +14,7 @@ include files: exists,remove
 import sys
 #sys.exit()
 array var[3:str] = {'a','b'}
-
+$cmd dir
 $test hello+=2 then files,var# anyway 2
 
 
