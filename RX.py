@@ -364,6 +364,8 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 ################
 # TODO:
+ #>  "$" Family:
+       >  cmd -> terminal.run
  #>  Syncorize all DEBUGs
  #>  Not all conditions should be 'elif' in Syntax()  ('func' and Check_Type)
  #>  Extension:
@@ -377,9 +379,6 @@ class IndentCheck:
  #>  Include:
        >  *:*
        >  class:*
- #>  A file to repair files (save all files in a zipfile)
- #>  "$" Family:
-
  #>  Menu:
        >  TERMINAL
             > linux commands
@@ -410,7 +409,7 @@ class IndentCheck:
  #>  Option for run translated or import it (import will ignore "if __name__ ...")
  #>  Package installer like pip? (if 3rd-party modules):
         >  Create account (RX-Lang) in pypi to upload user packages
- #✓? All re.match in Syntax() to .startswith (15x faster)
+ #?  A file to repair files (save all files in a zipfile)
  #?  All $Class be in one condition (faster or not?)
  #?  input = std.Input
  #?  Combine sys.exit & cleanup
@@ -420,11 +419,12 @@ class IndentCheck:
  #?  Generate:yield(:None)
  #?  CONST at the beginning
  #?  Stop Imports
- #?  def(:None)
  #-  Copy modules to running dir
  #-  INFO['EMAIL']?
  #-  New Errors Ext Color !
+ #X  def(:None)
  #X  Whole code in Try-Except
+ #✓ All re.match in Syntax() to .startswith (15x faster)
  #✓  How to run python file instead of os.system
 ###########
 # BUG:
@@ -1214,7 +1214,7 @@ def Syntax(SOURCE,
             # continue  # do it to all?
 
         #] Func Type checker
-        elif Striped.startswith('def ') and TYPE_SCANNER:  # Make it regex?
+        elif Striped.startswith('def ')  and TYPE_SCANNER:  # Make it regex?
             if SOURCE[Line_Nom-2].strip().endswith('Check_Type'):
                SOURCE[Line_Nom-2]= re.search(r'(\s*)',Text).group(1)+f'@std.Check_Type' 
             if SOURCE[Line_Nom-2].strip().startswith('@'):
@@ -1330,7 +1330,7 @@ def Syntax(SOURCE,
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('func', 'def', 1)
 
         #] Const Var                        # TODO: Better regex
-        elif Striped.startswith('const '):
+        elif Striped.startswith('const '  )  or  Striped=='const':
             #if Text.startswith(' '): raise LateDefine("'Const' Must Be Defined In The Main Scope")
             if Regex:=re.match(r'(?P<Indent>\s*)const\s+(?P<VarName>\w+)\s*=\s*(?P<Value>.+)\s*', Text):
                 Indent  =  Regex.group('Indent' )
@@ -1380,7 +1380,7 @@ def Syntax(SOURCE,
             SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Const({Content})'
 
         #] do_while 
-        elif Striped.startswith('do ') or Striped=='do':
+        elif Striped.startswith('do '     )  or  Striped=='do':
             #elif Regex:=re.match(r'(?P<Indent>\s*)do\s*:\s*',Text):
             Regex=re.match(r'(?P<Indent>\s*)do\s*:\s*',Text)
             if not Regex: raise SyntaxError
@@ -1415,7 +1415,7 @@ def Syntax(SOURCE,
             SOURCE[WHILE_LINE] = SOURCE[WHILE_LINE]+':'
 
         #] Array
-        elif Striped.startswith('array ') or Striped=='array':
+        elif Striped.startswith('array '  )  or  Striped=='array':
             #elif Regex:=re.match(r'(?P<Indent>\s*)array (?P<VarName>\w+)\[(?P<Length>\w+)?:?(?P<Type>\w+)?\]\s*=\s*{(?P<Content>.*)}',Text):
             Regex=re.match(r'(?P<Indent>\s*)array (?P<VarName>\w+)\[(?P<Length>\w+)?:?(?P<Type>\w+)?\]\s*=\s*{(?P<Content>.*)}',Text)
             if not Regex: raise SyntaxError
@@ -1431,7 +1431,7 @@ def Syntax(SOURCE,
             SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Array({Content}{Type}{Length})'
 
         #] $TEST
-        elif Striped.startswith('$test ') or Striped=='$test':
+        elif Striped.startswith('$test '  )  or  Striped=='$test':
             #elif Regex:=re.match(r'(?P<Indent>\s*)\$test \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?(\s* anyway(s)? (?P<Anyway>.+))?',Text):
             Regex=re.match(r'(?P<Indent>\s*)\$test \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?(\s* anyway(s)? (?P<Anyway>.+))?',Text)
             if not Regex: raise SyntaxError
@@ -1490,7 +1490,8 @@ def Syntax(SOURCE,
                 SOURCE[free_lines[2]] =  Indent+else_
             if finally_:
                 SOURCE[free_lines[3]] =  Indent+finally_
-
+            
+            Lines_Added += needed_lines
             
 
 
