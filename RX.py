@@ -366,7 +366,7 @@ class IndentCheck:
 # TODO:
  #>  SyntaxError in Syntax (after 'Regex=' line)
  #>  "$" Family:
-       ✓ call FUNC in SECONDS
+        call: accept args ('with')
        ✓ cmd -> terminal.run
  #>  Syncorize all DEBUGs
  #>  Not all conditions should be 'elif' in Syntax()  ('func' and Check_Type)
@@ -376,7 +376,10 @@ class IndentCheck:
  #>  Load Modules:
        > Load modules with default Options
  #>  const keyword is not safe
- #>  Save Cache 
+ #>  Save Cache
+       - Realfile: get mdftime if unchanged (how many seonds are allowed)
+       - Maybe we can save 'save_time' as a variable so there we won't 
+         need to check with mdftime
  #>  Define Ready_Objs from std
  #>  Include:
        >  *:*
@@ -411,6 +414,7 @@ class IndentCheck:
  #>  Option for run translated or import it (import will ignore "if __name__ ...")
  #>  Package installer like pip? (if 3rd-party modules):
         >  Create account (RX-Lang) in pypi to upload user packages
+ #?  Blank line before all errors
  #?  A file to repair files (save all files in a zipfile)
  #?  All $Class be in one condition (faster or not?)
  #?  input = std.Input
@@ -1504,13 +1508,19 @@ def Syntax(SOURCE,
 
             SOURCE[Line_Nom-1] = f'std.terminal.run("{Regex.group("Command") if Regex else "cmd"}")'
 
-        #] $call
+        #] $CALL
         elif Striped.startswith('$call '  )  or  Striped=='$call':
             Regex = re.match(r'(?P<Indent>\s*)\$call (?P<Function>.+) \s*in \s*(?P<Time>.+)',Text)
             if not Regex:
                 raise SyntaxError
-            Indent = Regex.group('Indent')
-            SOURCE[Line_Nom-1] = f"{Indent}std.call({Regex.group('Function')},{Regex.group('Time')})"
+            Indent = Regex.group('Indent'  )
+            Delay  = Regex.group('Time'    )
+            Func   = Regex.group('Function')
+            SOURCE[Line_Nom-1] = f"{Indent}std.call({Func},delay={Delay})"
+
+        #] $CLEAR
+        elif Striped in ('$cls','$clear'):
+            SOURCE[Line_Nom-1] = f"{' '*Text.index('$')}std.cls()"
 
 
     return SOURCE,THREADS

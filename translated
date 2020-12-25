@@ -14,7 +14,7 @@ exists=ms.files.exists;remove=ms.files.remove;
 import sys
 #sys.exit()
 var = ms._Lang.Array('a','b',type_=str,size=3)
-std.terminal.run("dir")
+std.terminal.run("echo $cmd")
 try: hello+=2
 except: pass
 else: files,var# anyway 2
@@ -27,7 +27,9 @@ files=ms.files;
 class X:
     @staticmethod
     def func():
-        pass
+        print('$call')
+
+std.call(X.func,delay=0.25)
 
 @ms.Check_Type
 def x():
@@ -67,7 +69,7 @@ while (x):
     print(x)
     pass
     x-=1
-
+#$clear
 print('red', 'red')
 
 """
@@ -109,7 +111,7 @@ elif hello == (3,4):
 elif hello == 6:
         print('case6')
 else:
-        print('deafult')
+        print('default')
 
 if ('d' and
 'df'):

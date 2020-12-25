@@ -14,7 +14,7 @@ include files: exists,remove
 import sys
 #sys.exit()
 array var[3:str] = {'a','b'}
-$cmd dir
+$cmd echo $cmd
 $test hello+=2 then files,var# anyway 2
 
 
@@ -27,9 +27,9 @@ include files
 class X:
     @staticmethod
     def func():
-        pass
+        print('$call')
 
-$call x.func in 3
+$call X.func in 0.25
 
 def x():
     pass
@@ -64,7 +64,7 @@ do:
     pass
     x-=1
 while (x)
-
+#$clear
 print('red', 'red')
 
 """
@@ -105,7 +105,7 @@ switch hello:
     case 6:
         print('case6')
     default:
-        print('deafult')
+        print('default')
 
 if ('d' and
 'df'):
