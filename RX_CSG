@@ -350,7 +350,7 @@ RX-Language  Coding Style Guide
     
     + Using a short unique prefix to group related names together.
     
-    + Not Using miXedCaSe & pascalCase & Capitalized_Words_With_Underscores
+    + Not Using miXedCaSe & pascalCase (& Capitalized_Words_With_Underscores for variables)
       Note: When using acronyms in CapWords, capitalize all the letters of the acronym. 
             (Thus HTTPServerError is better than HttpServerError.)
     
@@ -373,8 +373,8 @@ RX-Language  Coding Style Guide
       invokes name mangling 
       (inside class FooBar, __boo becomes _FooBar__boo; see below).
 
-    + __double_leading_and_trailing_underscore__ are named
-      "magic" objects or attributes that live in user-controlled namespaces. 
+    + __double_leading_and_trailing_underscore__ are named "magic" objects or
+      attributes that live in user-controlled namespaces. 
       (E.g. __init__, __import__ or __file__. 
        Never invent such names; only use them as documented.
       )

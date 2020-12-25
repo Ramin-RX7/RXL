@@ -29,6 +29,8 @@ class X:
     def func():
         pass
 
+$call x.func in 3
+
 def x():
     pass
     def myfunc(x:str):

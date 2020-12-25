@@ -359,13 +359,15 @@ class IndentCheck:
                     msg = "indent not equal e.g. " + IndentCheck.format_witnesses(witness)
                     raise IndentCheck.NannyNag(start[0], msg, line)
 
-"""
+""" 
 ################################################################################
 # CHARS:  {✓ , ? , > , ! , X}
 ################
 # TODO:
+ #>  SyntaxError in Syntax (after 'Regex=' line)
  #>  "$" Family:
-       >  cmd -> terminal.run
+       ✓ call FUNC in SECONDS
+       ✓ cmd -> terminal.run
  #>  Syncorize all DEBUGs
  #>  Not all conditions should be 'elif' in Syntax()  ('func' and Check_Type)
  #>  Extension:
@@ -524,11 +526,13 @@ Error = rx.style.log_error
 
 RX_PATH = os.path.abspath(__file__)[:-6]
 
-CLASSES = (['files'   , 'system', 'random'    , 'record', 'style', 
-            'terminal', 'Tuple' , 'decorator' , 'io'    ,          ],
-           ['Files'   , 'System', 'Random'    , 'Record', 'Style',
-             'Terminal', 'Tuple', 'Decorator' , 'IO'    ,          ],
-            #'internet', 'Internet'
+CLASSES = (
+           ['Files'   , 'System', 'Random'    , 'Record', 'Style'   ,
+            'Terminal', 'Tuple' , 'Decorator' , 'IO'    , 'Internet', 
+            'Date_Time'], 
+           ['files'   , 'system', 'random'    , 'record', 'style'   , 
+            'terminal', 'Tuple' , 'decorator' , 'io'    , 'internet', 
+            'date_time'],
            )
 
 LOADED_PACKAGES = []
@@ -1430,6 +1434,7 @@ def Syntax(SOURCE,
 
             SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Array({Content}{Type}{Length})'
 
+
         #] $TEST
         elif Striped.startswith('$test '  )  or  Striped=='$test':
             #elif Regex:=re.match(r'(?P<Indent>\s*)\$test \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?(\s* anyway(s)? (?P<Anyway>.+))?',Text):
@@ -1494,10 +1499,18 @@ def Syntax(SOURCE,
             Lines_Added += needed_lines
 
         #] $CMD
-        elif Striped.startswith('$cmd '   )  or  Striped=='$cmd':
+        elif Striped.startswith('$cmd '   )  or  Striped=='$cmd' :
             Regex = re.match(r'(?P<Indent>\s*)\$cmd \s*(?P<Command>.+)',Text)
 
             SOURCE[Line_Nom-1] = f'std.terminal.run("{Regex.group("Command") if Regex else "cmd"}")'
+
+        #] $call
+        elif Striped.startswith('$call '  )  or  Striped=='$call':
+            Regex = re.match(r'(?P<Indent>\s*)\$call (?P<Function>.+) \s*in \s*(?P<Time>.+)',Text)
+            if not Regex:
+                raise SyntaxError
+            Indent = Regex.group('Indent')
+            SOURCE[Line_Nom-1] = f"{Indent}std.call({Regex.group('Function')},{Regex.group('Time')})"
 
 
     return SOURCE,THREADS
@@ -1532,7 +1545,6 @@ def Clean_Up(File='',Lib=True):   #] 0.03
     except: pass
     try: rx.files.remove('_Console_.py')
     except: pass
-
 
 
 
