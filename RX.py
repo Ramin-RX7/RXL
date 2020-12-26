@@ -434,6 +434,9 @@ class IndentCheck:
  #✓  How to run python file instead of os.system
 ###########
 # BUG:
+ #X  Whole Include is Terrible!:
+       - Very Very Slow
+       - Wrong translation when using '#'
  #X  WTF!
        X switch-case works fine in normal run but is not translated when loading
        X $test 'anyway' not working
@@ -1129,7 +1132,7 @@ def Syntax(SOURCE,
     THREADS = []
 
     for Line_Nom,Text in enumerate(SOURCE, 1):
-
+        #t = time.time()
         #print(str(Line_Nom)+' '+Text)
 
         Striped = Text.strip()
@@ -1150,8 +1153,8 @@ def Syntax(SOURCE,
             #print(Skip)
             continue
 
-        # Ignore Docstrings and Comments        
-        if Text.strip().startswith('#'):
+        # Ignore Docstrings and Comments       
+        if Text.strip().startswith('#')  or  not Striped:
             continue
         elif '"""' in Text  and  not ("'''" in Text and Text.index('"""')>Text.index("'''")):
             if not '"""' in Text[Text.index('"""')+3:]:
@@ -1177,7 +1180,10 @@ def Syntax(SOURCE,
         if False: pass
 
         #] Include
-        elif Regex:=re.match(r'(?P<Indent>\s*)include \s*(?P<objects>.+)\s*', Text):
+        elif Striped.startswith('include '  )  or  Striped=='include': 
+            Regex=re.match(r'(?P<Indent>\s*)include \s*(?P<objects>.+)\s*', Text)
+            if not Regex:
+                raise SyntaxError
             Indent = Regex.group('Indent')
             OBJECTS = Regex.group('objects')
             To_Add = str(Indent)
@@ -1446,17 +1452,17 @@ def Syntax(SOURCE,
             if not Regex: raise SyntaxError
             needed_lines = 2
             if Regex.group("Then"):
-                print('Then True')
+                #print('Then True')
                 needed_lines += 1
                 else_ =  f'{Indent}else: {Regex.group("Then")}'
             else:
                 else_ = ''
             if Regex.group('Anyway'):
-                print('Anyway True')
+                #print('Anyway True')
                 needed_lines += 1
                 finally_ =  f'{Indent}finally: {Regex.group("Anyway")}'
             else:
-                print('Anyway False')
+                #print('Anyway False')
                 finally_ = ''
 
             nofound = True
@@ -1522,7 +1528,7 @@ def Syntax(SOURCE,
         elif Striped in ('$cls','$clear'):
             SOURCE[Line_Nom-1] = f"{' '*Text.index('$')}std.cls()"
 
-
+        #print(f"{Line_Nom} :: {time.time()-t} {Striped[:5]}",'red')
     return SOURCE,THREADS
 
 
@@ -1565,6 +1571,8 @@ if __name__ == "__main__":
     try:
         TIMES = {}
         TIMES['Start '] = time.time()-START_TIME #print(f'START  :: {time.time()-START_TIME}','green')
+        Setup_Env()
+        TIMES['SetEnv'] = time.time()-START_TIME
         ARGS = Get_Args()                                                            #] 0.003
             # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P, 6:Prog_Args}  
         FILE   = ARGS[0]

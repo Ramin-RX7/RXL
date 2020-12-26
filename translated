@@ -10,7 +10,7 @@ setattr(std,'Title','DramaX')
 
 
 print('Start')
-exists=ms.files.exists;remove=ms.files.remove;
+#include files: exists,remove
 import sys
 #sys.exit()
 var = ms._Lang.Array('a','b',type_=str,size=3)
@@ -87,8 +87,8 @@ def hello(x):
 
 import os
 t = std.record()
-tst2=ms.import_module('__RX_LIB__/tst2.py');
-tst3=ms.import_module('__RX_LIB__/tst3.py');
+#load tst2
+#load tst3
 #print(tst2.x,'dodger_blue_1')
 
 

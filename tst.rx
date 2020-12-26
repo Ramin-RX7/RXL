@@ -10,7 +10,7 @@ End-Exit : True
 
 
 print('Start')
-include files: exists,remove
+#include files: exists,remove
 import sys
 #sys.exit()
 array var[3:str] = {'a','b'}
@@ -81,8 +81,8 @@ def hello(x):
 
 import os
 t = std.record()
-load tst2
-load tst3
+#load tst2
+#load tst3
 #print(tst2.x,'dodger_blue_1')
 
 
