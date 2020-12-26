@@ -550,9 +550,9 @@ Lines_Added = 0
 
 #< Make Things Ready For Running >#   0.004
 def Setup_Env():
-    rx.files.mkdir('__RX_LIB__')
-    rx.write('__RX_LIB__/__init__.py')
-    rx.files.hide('__RX_LIB__')
+    rx.files.mkdir('__RX_LC__')
+    #rx.write('__RX_LC__/__init__.py')
+    rx.files.hide('__RX_LC__')
 
 
 #< List of all errors >#
@@ -1106,6 +1106,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     if DEBUG and not len(Changeable):
         print(f'{FILE}> No (Enough) Base-Option/Empty-lines at begining of file', 'red')
 
+    rx.files.write('./__RX_LC__/_info_',str(rx.files.mdftime(FILE)))
 
     #print(CONSTS)
     return (SOURCE, 
@@ -1290,9 +1291,9 @@ def Syntax(SOURCE,
             #SOURCE.remove(Text)
             #SOURCE[Line_Nom-1]=''
             To_Add = str(Indent)
-            rx.files.mkdir('__RX_LIB__')
-            if not rx.files.exists('__RX_LIB__/__init__.py'):
-                rx.write('__RX_LIB__/__init__.py')
+            #rx.files.mkdir('__RX_LC__')
+            #if not rx.files.exists('__RX_LC__/__init__.py'):
+            #    rx.write('__RX_LC__/__init__.py')
             
             for package in Packages:
                 if rx.files.exists(f'{package}.rx7'):
@@ -1310,7 +1311,7 @@ def Syntax(SOURCE,
                     thread.start()
                     THREADS.append(thread)
                     LOADED_PACKAGES.append(package)
-                    To_Add += f"{package}={MODULE_SHORTCUT}.import_module('__RX_LIB__/{package}.py');"
+                    To_Add += f"{package}={MODULE_SHORTCUT}.import_module('__RX_LC__/{package}');"
                 else:
                     raise ERRORS.ModuleNotFoundError(FILE, package, Text, Line_Nom)
             SOURCE[Line_Nom-1]=str(To_Add)
@@ -1551,10 +1552,10 @@ def Add_Verbose(SOURCE, INFO):
 #< Clean Everything Which is Not Needed >#
 def Clean_Up(File='',Lib=True):   #] 0.03
     #return
-    if Lib:
-        try: rx.files.remove(f'__RX_LIB__', force=True)
-        except: pass
-    else: pass
+    #if Lib:
+    #    try: rx.files.remove(f'__RX_LC__', force=True)
+    #    except: pass
+    #else: pass
     try: os.remove('_'+File+'_')
     except: pass
     try: rx.files.remove('__pycache__', force=True)
@@ -1564,6 +1565,7 @@ def Clean_Up(File='',Lib=True):   #] 0.03
 
 
 
+import rx7.Date_Time
 
 
 #< START OF THE CODE >#
@@ -1573,9 +1575,14 @@ if __name__ == "__main__":
         TIMES['Start '] = time.time()-START_TIME #print(f'START  :: {time.time()-START_TIME}','green')
         Setup_Env()
         TIMES['SetEnv'] = time.time()-START_TIME
-        ARGS = Get_Args()                                                            #] 0.003
+        ARGS = Get_Args()                                                         #] 0.003
             # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P, 6:Prog_Args}  
         FILE   = ARGS[0]
+        READY_FILE_NAME = '_'+FILE+'_' #'‎'+FILE+'‎' THERE IS INVISIBLE CHAR IN QUOTES
+        if rx.files.exists(f"./__RX_LC__/_info_"):
+            print(f"MDFTIME REAL :: {rx.files.mdftime(FILE)}")
+            print(f"MDFTIME CACH :: {float(rx.files.read('./__RX_LC__/_info_'))}")
+        #sys.exit()
         TIMES['ARGS  '] = time.time()-START_TIME
         #rx.cls()
         SOURCE = Read_File(FILE)
@@ -1587,14 +1594,17 @@ if __name__ == "__main__":
         if ARGS[1]:
             rx.cls()
             SOURCE = Add_Verbose(SOURCE, INFO)
-        READY_FILE_NAME = '_'+FILE+'_' #'‎'+FILE+'‎' THERE IS INVISIBLE CHAR IN QUOTES
         #print(Lines_Added)
+        
         if not ARGS[3] and not ARGS[4]:
             try:
                 rx.write(READY_FILE_NAME, '\n'.join(SOURCE))
+                rx.write(f"./__RX_LC__/{READY_FILE_NAME}", '\n'.join(SOURCE))
             except PermissionError:
                 rx.files.remove(READY_FILE_NAME)
                 rx.write(READY_FILE_NAME, '\n'.join(SOURCE))
+                rx.files.remove(f"./__RX_LC__/{READY_FILE_NAME}")
+                rx.write(f"./__RX_LC__/{READY_FILE_NAME}", '\n'.join(SOURCE))
             rx.write('translated', '\n'.join(SOURCE))
             rx.files.hide(READY_FILE_NAME)
         title = rx.terminal.get_title()
@@ -1602,8 +1612,8 @@ if __name__ == "__main__":
         if ARGS[5]:
             rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
         if ARGS[4]:
-            Setup_Env()
-            rx.write(f'./__RX_LIB__/{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
+            #Setup_Env()
+            rx.write(f'./__RX_LC__/{FILE.split(".")[0]}', '\n'.join(SOURCE))
 
         if not ARGS[3] and not ARGS[4] and not ARGS[5]:
         #if not all([[ARGS[3],ARGS[4]],ARGS[5]]):
@@ -1646,5 +1656,4 @@ if __name__ == "__main__":
                 Clean_Up(FILE)
         except:
             pass
-        rx.terminal.set_title(rx.terminal.get_title())  
-
+        rx.terminal.set_title(rx.terminal.get_title())

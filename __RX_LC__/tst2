@@ -9,27 +9,17 @@ setattr(std,'Author','Ramin.RX7')
 setattr(std,'Title','DramaX')
 
 
-print('Start')
-#include files: exists,remove
-import sys
-#sys.exit()
+
+
 var = ms._Lang.Array('a','b',type_=str,size=3)
-std.terminal.run("echo $cmd")
-try: hello+=2
-except: pass
-else: files,var# anyway 2
-import sys
-print(sys.argv)
+
 
 x = ms._Lang.Const('x','xx')
-print(x)
 files=ms.files;
 class X:
     @staticmethod
     def func():
-        print('$call')
-
-std.call(X.func,delay=0.25)
+        pass
 
 @ms.Check_Type
 def x():
@@ -39,7 +29,7 @@ def x():
         pass
     if ('x' and 
 'y'):
-        print('hello')
+        pass#print('hello')
         #d
 x()
 
@@ -50,10 +40,9 @@ def hello():
 #ArrConst  = <'1',x,'2','3'>
 ArrConst = ['a','b']
 ArrConst += ['c']
-print((ArrConst),'green')
-
+pass#print((ArrConst),'green')
 #ArrConst2 = <'1'>
-print(hex(id(ArrConst)))
+#print(&ArrConst)
 #asd()
 HELO = ms._Lang.Const(2,4,3)
 #def x():
@@ -62,15 +51,13 @@ HELO = ms._Lang.Const(2,4,3)
 x = 3
 
 
-print(x)
+pass#print(x)
 pass
 x-=1
 while (x):
-    print(x)
+    pass#print(x)
     pass
     x-=1
-#$clear
-print('red', 'red')
 
 
 """
@@ -88,13 +75,11 @@ def hello(x):
 
 import os
 t = std.record()
-#load tst2
-#load tst3
 #print(tst2.x,'dodger_blue_1')
-
+pass#print(f'load: {t.lap()}','green')
 
 while not (XX):
- print('No XX')
+ pass#print('No XX')
 
 #ms.wait(2)
 class fu:
@@ -102,23 +87,18 @@ class fu:
 
 if False: pass
 if hello ==  1:
-        print('case1')
+        pass#print('case1')
         x
 elif hello == (2,4):
-        print('case2')
+        pass#print('case2')
 elif hello == (3,4):
-        print('case3')
+        pass#print('case3')
         d
 elif hello == 6:
-        print('case6')
+        pass#print('case6')
 else:
-        print('default')
+        pass#print('deafult')
 
-if ('d' and
-'df'):
-    print('2 line if')
-
-print('End')
 #HELO = ''
 
 #ms.wait(10)
