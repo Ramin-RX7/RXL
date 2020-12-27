@@ -101,6 +101,14 @@ class rx:
         mdftime = os.path.getmtime
         move    = shutil.move
         isfile = os.path.isfile
+        isdir = os.path.isdir
+        @staticmethod
+        def copy(src,dest,preserve_metadata= True):
+            if rx.files.isdir(src):
+                shutil.copytree(src,dest)
+            else:
+                if preserve_metadata: shutil.copy2(src,dest)
+                else: shutil.copy(src,dest)
         @staticmethod
         def remove(path,force=False):
             if os.path.isfile(path):
@@ -1106,7 +1114,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     if DEBUG and not len(Changeable):
         print(f'{FILE}> No (Enough) Base-Option/Empty-lines at begining of file', 'red')
 
-    rx.files.write('./__RX_LC__/_info_',str(rx.files.mdftime(FILE)))
+    rx.files.write(f'./__RX_LC__/_{FILE}_info_',str(rx.files.mdftime(FILE)))
 
     #print(CONSTS)
     return (SOURCE, 
@@ -1551,7 +1559,7 @@ def Add_Verbose(SOURCE, INFO):
 
 #< Clean Everything Which is Not Needed >#
 def Clean_Up(File='',Lib=True):   #] 0.03
-    #return
+    return
     #if Lib:
     #    try: rx.files.remove(f'__RX_LC__', force=True)
     #    except: pass
@@ -1565,80 +1573,90 @@ def Clean_Up(File='',Lib=True):   #] 0.03
 
 
 
-import rx7.Date_Time
+TIMES = {}
+def RUN(READY_FILE_NAME,THREADS=[]):
+    rx.terminal.set_title(f'RX - {os.path.basename(FILE)}')
+    try:
+        TIMES['B_Run '] = time.time()-START_TIME
+        if TIMES['B_Run '] > 0.5:
+            print('Running Speed is Slow','red')
+        elif TIMES['B_Run '] < 0.015:
+            print('Running Speed is Super Fast','green')
+        for k,v in TIMES.items(): print(f'{k} :: {v}','green')
+        import runpy
+        for thread in THREADS:
+            thread.join()
+        runpy.run_path(READY_FILE_NAME)
+    except Exception as e:
+        #raise e
+        print('Traceback (most recent call last):')
+        print('  More Information in Next Updates...')
+       #print(f'  File "{FILE}" in  "UNDEFINED"')
+        Error(type(e).__name__+': '+str(e))
+        sys.exit()
+
+
+
+
 
 
 #< START OF THE CODE >#
 if __name__ == "__main__":
     try:
-        TIMES = {}
         TIMES['Start '] = time.time()-START_TIME #print(f'START  :: {time.time()-START_TIME}','green')
         Setup_Env()
         TIMES['SetEnv'] = time.time()-START_TIME
-        ARGS = Get_Args()                                                         #] 0.003
+        ARGS = Get_Args()                                                                    #] 
             # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P, 6:Prog_Args}  
         FILE   = ARGS[0]
         READY_FILE_NAME = '_'+FILE+'_' #'‎'+FILE+'‎' THERE IS INVISIBLE CHAR IN QUOTES
-        if rx.files.exists(f"./__RX_LC__/_info_"):
+        if rx.files.exists(f"./__RX_LC__/_{FILE}_info_") and (
+            float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))==rx.files.mdftime(FILE)
+        ):
             print(f"MDFTIME REAL :: {rx.files.mdftime(FILE)}")
-            print(f"MDFTIME CACH :: {float(rx.files.read('./__RX_LC__/_info_'))}")
-        #sys.exit()
-        TIMES['ARGS  '] = time.time()-START_TIME
-        #rx.cls()
-        SOURCE = Read_File(FILE)
-        SOURCE = Define_Structure(SOURCE, FILE, ARGS[2])                             #] 0.020
-        INFO = SOURCE[4]
-        TIMES['DefStr'] = time.time()-START_TIME
-        SOURCE,THREADS = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, ARGS[2])   #] 0.008
-        TIMES['Syntax'] = time.time()-START_TIME
-        if ARGS[1]:
-            rx.cls()
-            SOURCE = Add_Verbose(SOURCE, INFO)
-        #print(Lines_Added)
-        
-        if not ARGS[3] and not ARGS[4]:
+            print(f"MDFTIME CACH :: {float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))}")
             try:
-                rx.write(READY_FILE_NAME, '\n'.join(SOURCE))
-                rx.write(f"./__RX_LC__/{READY_FILE_NAME}", '\n'.join(SOURCE))
+                rx.files.copy(f'./__RX_LC__/_{FILE}_',READY_FILE_NAME)
             except PermissionError:
                 rx.files.remove(READY_FILE_NAME)
-                rx.write(READY_FILE_NAME, '\n'.join(SOURCE))
-                rx.files.remove(f"./__RX_LC__/{READY_FILE_NAME}")
-                rx.write(f"./__RX_LC__/{READY_FILE_NAME}", '\n'.join(SOURCE))
-            rx.write('translated', '\n'.join(SOURCE))
-            rx.files.hide(READY_FILE_NAME)
-        title = rx.terminal.get_title()
+                rx.files.copy(f'./__RX_LC__/_{FILE}_',READY_FILE_NAME)
+            RUN(READY_FILE_NAME)
+        else:
+            TIMES['ARGS  '] = time.time()-START_TIME
+            #rx.cls()
+            SOURCE = Read_File(FILE)
+            SOURCE = Define_Structure(SOURCE, FILE, ARGS[2])                                     #] 
+            INFO = SOURCE[4]
+            TIMES['DefStr'] = time.time()-START_TIME
+            SOURCE,THREADS = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, ARGS[2])   #] 
+            TIMES['Syntax'] = time.time()-START_TIME
+            if ARGS[1]:
+                rx.cls()
+                SOURCE = Add_Verbose(SOURCE, INFO)
+            #print(Lines_Added)
+            
+            if not ARGS[3] and not ARGS[4]:
+                try:
+                    rx.write(READY_FILE_NAME, '\n'.join(SOURCE))
+                    rx.write(f"./__RX_LC__/{READY_FILE_NAME}", '\n'.join(SOURCE))
+                except PermissionError:
+                    rx.files.remove(READY_FILE_NAME)
+                    rx.write(READY_FILE_NAME, '\n'.join(SOURCE))
+                    rx.files.remove(f"./__RX_LC__/{READY_FILE_NAME}")
+                    rx.write(f"./__RX_LC__/{READY_FILE_NAME}", '\n'.join(SOURCE))
+                rx.write('translated', '\n'.join(SOURCE))
+                rx.files.hide(READY_FILE_NAME)
+            title = rx.terminal.get_title()
 
-        if ARGS[5]:
-            rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
-        if ARGS[4]:
-            #Setup_Env()
-            rx.write(f'./__RX_LC__/{FILE.split(".")[0]}', '\n'.join(SOURCE))
+            if ARGS[5]:
+                rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
+            if ARGS[4]:
+                #Setup_Env()
+                rx.write(f'./__RX_LC__/{FILE.split(".")[0]}', '\n'.join(SOURCE))
 
-        if not ARGS[3] and not ARGS[4] and not ARGS[5]:
-        #if not all([[ARGS[3],ARGS[4]],ARGS[5]]):
-            rx.terminal.set_title(f'RX - {os.path.basename(FILE)}')
-            try:
-                '''
-                    if B_Run > 0.1:
-                        print('Running Speed is Slow','red')
-                    elif B_Run < 0.015:
-                        print('Running Speed is Super Fast','green')
-                '''
-                TIMES['B_Run '] = time.time()-START_TIME
-                for k,v in TIMES.items(): print(f'{k} :: {v}','green')
-                import runpy
-                for thread in THREADS:
-                    thread.join()
-                runpy.run_path(READY_FILE_NAME)
-            except Exception as e:
-                #raise e
-                print('Traceback (most recent call last):')
-                print('  More Information in Next Updates...')
-               #print(f'  File "{FILE}" in  "UNDEFINED"')
-                Error(type(e).__name__+': '+str(e))
-                sys.exit()
-
+            if not ARGS[3] and not ARGS[4] and not ARGS[5]:
+            #if not all([[ARGS[3],ARGS[4]],ARGS[5]]):
+                RUN(READY_FILE_NAME,THREADS)
     except KeyboardInterrupt:
         #Clean_Up(File)
         Error('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)')
@@ -1657,3 +1675,5 @@ if __name__ == "__main__":
         except:
             pass
         rx.terminal.set_title(rx.terminal.get_title())
+
+
