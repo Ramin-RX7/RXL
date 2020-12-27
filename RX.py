@@ -552,6 +552,7 @@ CLASSES = (
 
 LOADED_PACKAGES = []
 Lines_Added = 0
+TIMES = {}
 
 
 
@@ -560,7 +561,7 @@ Lines_Added = 0
 def Setup_Env():
     rx.files.mkdir('__RX_LC__')
     #rx.write('__RX_LC__/__init__.py')
-    rx.files.hide('__RX_LC__')
+    #rx.files.hide('__RX_LC__')
 
 
 #< List of all errors >#
@@ -1572,16 +1573,15 @@ def Clean_Up(File='',Lib=True):   #] 0.03
     except: pass
 
 
-
-TIMES = {}
+#< Running _FILE_ >#
 def RUN(READY_FILE_NAME,THREADS=[]):
     rx.terminal.set_title(f'RX - {os.path.basename(FILE)}')
     try:
         TIMES['B_Run '] = time.time()-START_TIME
         if TIMES['B_Run '] > 0.5:
             print('Running Speed is Slow','red')
-        elif TIMES['B_Run '] < 0.015:
-            print('Running Speed is Super Fast','green')
+        elif TIMES['B_Run '] < 0.01:
+            pass#print('Running Speed is Super Fast','green')
         for k,v in TIMES.items(): print(f'{k} :: {v}','green')
         import runpy
         for thread in THREADS:
@@ -1599,7 +1599,6 @@ def RUN(READY_FILE_NAME,THREADS=[]):
 
 
 
-
 #< START OF THE CODE >#
 if __name__ == "__main__":
     try:
@@ -1610,11 +1609,14 @@ if __name__ == "__main__":
             # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P, 6:Prog_Args}  
         FILE   = ARGS[0]
         READY_FILE_NAME = '_'+FILE+'_' #'‎'+FILE+'‎' THERE IS INVISIBLE CHAR IN QUOTES
+        
         if rx.files.exists(f"./__RX_LC__/_{FILE}_info_") and (
             float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))==rx.files.mdftime(FILE)
         ):
-            print(f"MDFTIME REAL :: {rx.files.mdftime(FILE)}")
-            print(f"MDFTIME CACH :: {float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))}")
+            #print(f"MDFTIME REAL :: {rx.files.mdftime(FILE)}")
+            #print(f"MDFTIME CACH :: {float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))}")
+            if ARGS[3]:
+                print('Using Cache')
             try:
                 rx.files.copy(f'./__RX_LC__/_{FILE}_',READY_FILE_NAME)
             except PermissionError:
@@ -1657,6 +1659,7 @@ if __name__ == "__main__":
             if not ARGS[3] and not ARGS[4] and not ARGS[5]:
             #if not all([[ARGS[3],ARGS[4]],ARGS[5]]):
                 RUN(READY_FILE_NAME,THREADS)
+    
     except KeyboardInterrupt:
         #Clean_Up(File)
         Error('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)')
