@@ -8,7 +8,6 @@ setattr(std,'Version','1.7.4')
 setattr(std,'Author','Ramin.RX7')
 setattr(std,'Title','DramaX')
 
-
 print('Start')
 #include files: exists,remove
 import sys
@@ -123,4 +122,5 @@ print('End')
 
 #ms.wait(10)
 
+std.files.remove("D:\Coding\Github\RX-Language/__RX_LC__",force=True)
 

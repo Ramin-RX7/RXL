@@ -379,6 +379,9 @@ class IndentCheck:
  #>  Syncorize all DEBUGs
  #>  Not all conditions should be 'elif' in Syntax()  ('func' and Check_Type)
  #>  Extension:
+       >  New Syntaxes:
+            >  $FAMILY
+            >  SaveCache
        !  Clear the screen in extension run (? get operating system for cls/clear)
  #>  Add (-s --start) to args to start menu items
  #>  Load Modules:
@@ -409,6 +412,7 @@ class IndentCheck:
  #X  do_when Keyword for Calling specifiec function when condition comes True
  #X  Improve Exception Catching when runing file
  #!  END OF LINES ERROR IN RED  (WHAT?!)
+ #✓  Cache Option
 ###########
 # NOTE:
  #?  Cancel Lite
@@ -561,7 +565,7 @@ TIMES = {}
 def Setup_Env():
     rx.files.mkdir('__RX_LC__')
     #rx.write('__RX_LC__/__init__.py')
-    #rx.files.hide('__RX_LC__')
+    rx.files.hide('__RX_LC__')
 
 
 #< List of all errors >#
@@ -998,6 +1002,22 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     Skip = 0
 
     for nom,line in enumerate(SOURCE[:10]):
+        
+        r''' Normal|Lite
+            #] Get Version (Method) of Tools
+            elif re.match(r'(Method|Package(-|_)Version)\s*:\s*\w+', line):
+                #if BASED:
+                #    raise ERRORS.BaseDefinedError('Method/Version', line, SOURCE[:5].index(line), FILE)
+                StripLow = line.strip().lower()
+                if StripLow.endswith('lite') or StripLow.endswith('fast'):
+                    MODULE_VERSION = 'rx7.lite'
+                elif not StripLow.endswith('normal'):
+                    stripped = line[line.index(':')+1:].strip()
+                    raise ERRORS.ValueError(FILE, 'Method', stripped, line, 
+                                        SOURCE[:5].index(line), ['lite','normal'])
+                SOURCE[nom] = ''
+                Changeable.append(nom)
+        '''
 
         if not line.strip() or line.strip().startswith('#'):
             Changeable.append(nom)
@@ -1012,20 +1032,6 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             else:
                 raise ERRORS.ValueError(msg='Invalid Value For  modulename/module_name', File=FILE)
                         #SOURCE.remove(line)
-            SOURCE[nom] = ''
-            Changeable.append(nom)
-
-        #] Get Version (Method) of Tools
-        elif re.match(r'(Method|Package(-|_)Version)\s*:\s*\w+', line):
-            #if BASED:
-            #    raise ERRORS.BaseDefinedError('Method/Version', line, SOURCE[:5].index(line), FILE)
-            StripLow = line.strip().lower()
-            if StripLow.endswith('lite') or StripLow.endswith('fast'):
-                MODULE_VERSION = 'rx7.lite'
-            elif not StripLow.endswith('normal'):
-                stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.ValueError(FILE, 'Method', stripped, line, 
-                                       SOURCE[:5].index(line), ['lite','normal'])
             SOURCE[nom] = ''
             Changeable.append(nom)
 
@@ -1059,6 +1065,19 @@ def Define_Structure(SOURCE, FILE, DEBUG):
         elif re.match(r'(End(-|_))?(Exit|Quit)\s*:\s*\w*', line):
             if line.strip().lower().endswith('false'):
                 SOURCE.append('__import__("getpass").getpass("Press [Enter] to Exit")')
+            elif not line.strip().lower().endswith('true'):
+                stripped = line[line.index(':')+1:].strip()
+                raise ERRORS.ValueError(FILE, 'Exit', stripped, line, 
+                                       SOURCE.index(line), "[True,False]")
+            SOURCE[nom] = ''
+            Changeable.append(nom)
+
+        #] Exit at the end
+        elif re.match(r'(Save(-|_))?(Cache)\s*:\s*\w*', line):
+            if line.strip().lower().endswith('false'):
+                print('Remove Cache True')
+                ABSPATH = os.path.dirname(rx.files.abspath(FILE))
+                SOURCE.insert(-1,f'std.files.remove("{ABSPATH}/__RX_LC__",force=True)')
             elif not line.strip().lower().endswith('true'):
                 stripped = line[line.index(':')+1:].strip()
                 raise ERRORS.ValueError(FILE, 'Exit', stripped, line, 
@@ -1560,7 +1579,7 @@ def Add_Verbose(SOURCE, INFO):
 
 #< Clean Everything Which is Not Needed >#
 def Clean_Up(File='',Lib=True):   #] 0.03
-    return
+    #return
     #if Lib:
     #    try: rx.files.remove(f'__RX_LC__', force=True)
     #    except: pass
@@ -1610,7 +1629,9 @@ if __name__ == "__main__":
         FILE   = ARGS[0]
         READY_FILE_NAME = '_'+FILE+'_' #'‎'+FILE+'‎' THERE IS INVISIBLE CHAR IN QUOTES
         
-        if rx.files.exists(f"./__RX_LC__/_{FILE}_info_") and (
+        BACKUP_EXIST      =  bool(rx.files.exists(f"./__RX_LC__/_{FILE}_"))
+        INFO_BACKUP_EXIST =  bool(rx.files.exists(f"./__RX_LC__/_{FILE}_info_"))
+        if BACKUP_EXIST and (
             float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))==rx.files.mdftime(FILE)
         ):
             #print(f"MDFTIME REAL :: {rx.files.mdftime(FILE)}")
