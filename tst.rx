@@ -2,8 +2,8 @@ Title  :  DramaX> Library/Apps to Crack Hashes
 Version:  1.7.4
 Author :  Ramin.RX7
 Cache: False
-Module-Name : ms 
-Print : stylized
+Module-Name : ms
+Print : Stylized
 Func-Type-Checker: True
 End-Exit : True
 
@@ -13,9 +13,9 @@ print('Start')
 import sys
 #sys.exit()
 array var[3:str] = {'a','b'}
-$cmd echo $cmd
+$cmd
 $test hello+=2 then files,var# anyway 2
-
+$cls
 
 import sys
 print(sys.argv)

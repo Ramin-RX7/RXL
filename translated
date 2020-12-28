@@ -13,7 +13,7 @@ print('Start')
 import sys
 #sys.exit()
 var = ms._Lang.Array('a','b',type_=str,size=3)
-std.terminal.run("echo $cmd")
+std.terminal.run("'echo $cmd'")
 try: hello+=2
 except: pass
 else: files,var# anyway 2

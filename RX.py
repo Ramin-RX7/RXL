@@ -381,7 +381,7 @@ class IndentCheck:
  #>  Extension:
        >  New Syntaxes:
             >  $FAMILY
-            >  SaveCache
+            >  Internet class functions
        !  Clear the screen in extension run (? get operating system for cls/clear)
  #>  Add (-s --start) to args to start menu items
  #>  Load Modules:
@@ -516,7 +516,7 @@ r"""
   support.type.exception.python        green
   support.variable.magic.python        blue light
   variable.other.constant.ruby         dodger_blue!
-  storage.type.class.python            blue dark
+  storage.type.class.python            blue dark  (keyword.operator.logical.python)
   support.function.builtin.python      yellow
   keyword.control.flow.python          purple
 """

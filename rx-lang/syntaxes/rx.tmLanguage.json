@@ -479,15 +479,11 @@
 			"patterns": [
 				{
 					"name": "invalid.deprecated.backtick.python",
-					"match": "(?x)\n  \\b(?<!\\.)((Func(_|-)Type(-|_)Checker)|((End-)?(Exit|Quit)))\\s*:\\s*[^(True|False)]\\b\n"
+					"match": "(?x)\n  \\b(?<!\\.)(((Save(-|_))?(Cache))|(Func(_|-)Type(-|_)Checker)|((End(-|_))?(Exit|Quit)))\\s*:\\s*[^(True|False)]\\b\n"
 				},
 				{
 					"name": "invalid.deprecated.backtick.python",
-					"match": "(?x)\n  \\b(?<!\\.)(Method|Package(_|-)Version)\\s*:\\s*[^(normal|lite)]\\b\n"
-				},
-				{
-					"name": "invalid.deprecated.backtick.python",
-					"match": "(?x)\n  \\b(?<!\\.)(Print)\\s*:\\s*[^(normal|stylized)]\\b\n"
+					"match": "(?x)\n  \\b(?<!\\.)(Print)\\s*:\\s*[^(Normal|Stylized)]\\b\n"
 				},
 				{
 					"name": "invalid.deprecated.backtick.python",
@@ -508,19 +504,15 @@
 				},
 				{
 					"name": "variable.other.constant.ruby",
-					"match": "(?x)\n  \\b(?<!\\.)((Func(_|-)Type(-|_)Checker)|((End-)?(Exit|Quit)))\\s*:\\s*(True|False)\\b\n"
+					"match": "(?x)\n  \\b(?<!\\.)(((Save(-|_))?(Cache))|(Func(_|-)Type(-|_)Checker)|((End-)?(Exit|Quit)))\\s*:\\s*(True|False)\\b\n"
 				},
 				{
 					"name": "variable.other.constant.ruby",
-					"match": "(?x)\n  \\b(?<!\\.)(Module(-|_)(N|n)ame)\\s*:\\s*([\\w]+)\\b\n"
+					"match": "(?x)\n  \\b(?<!\\.)(Module)(-|_)?(Name)\\s*:\\s*([\\w]+)\\b\n"
 				},
 				{
 					"name": "variable.other.constant.ruby",
-					"match": "(?x)\n  \\b(?<!\\.)(Method|Package(_|-)Version)\\s*:\\s*(normal|lite)\\b\n"
-				},
-				{
-					"name": "variable.other.constant.ruby",
-					"match": "(?x)\n  \\b(?<!\\.)(Print)\\s*:\\s*(normal|stylized)\\b\n"
+					"match": "(?x)\n  \\b(?<!\\.)(Print)\\s*:\\s*(Normal|Stylized)\\b\n"
 				}
 			]
 		},
@@ -529,8 +521,8 @@
 		"rx-dollar-class": {
 			"patterns": [
 				{
-					"name": "keyword.control.flow.python",
-					"match": "(?x)\n  (\\$test)"
+					"name": "storage.type.class.python",
+					"match": "(?x)\n  (\\$(test|cmd|call|clear))"
 				}
 			]
 		},
