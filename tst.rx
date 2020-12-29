@@ -1,7 +1,7 @@
 Title  :  DramaX> Library/Apps to Crack Hashes
 Version:  1.7.4
 Author :  Ramin.RX7
-Cache: False
+#Cache: False
 Module-Name : ms
 Print : Stylized
 Func-Type-Checker: True
@@ -13,9 +13,9 @@ print('Start')
 import sys
 #sys.exit()
 array var[3:str] = {'a','b'}
-$cmd
+$cmd echo $cmd
 $test hello+=2 then files,var# anyway 2
-$cls
+
 
 import sys
 print(sys.argv)
@@ -81,8 +81,8 @@ def hello(x):
 
 import os
 t = std.record()
-#load tst2
-#load tst3
+load tst2
+load tst3
 #print(tst2.x,'dodger_blue_1')
 
 

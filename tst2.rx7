@@ -3,9 +3,9 @@ Version:  1.7.4
 Author :  Ramin.RX7
 
 Module-Name : ms 
-Print : stylized
-Method : normal
-Func-Type-Checker: True
+Print : Stylized
+#Method : normal
+#Func-Type-Checker: True
 End-Exit : True
 
 

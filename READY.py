@@ -1,3 +1,13 @@
+# all && any
+"""
+for i in (1,2,3):
+    if i not in list(range(10)): break
+else: print('all : yes')
+
+for i in (10,20,30,40):
+    if i in list(range(10)): print('any : yes');break
+"""
+
 # Check For Oustide of the Quotations (And other brackets)
 r"""
 import re

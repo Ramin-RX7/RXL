@@ -372,7 +372,6 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 ################
 # TODO:
- #>  SyntaxError in Syntax (after 'Regex=' line)
  #>  "$" Family:
         call: accept args ('with')
        ✓ cmd -> terminal.run
@@ -380,17 +379,14 @@ class IndentCheck:
  #>  Not all conditions should be 'elif' in Syntax()  ('func' and Check_Type)
  #>  Extension:
        >  New Syntaxes:
-            >  $FAMILY
             >  Internet class functions
-       !  Clear the screen in extension run (? get operating system for cls/clear)
+       ?  Clear the screen in extension run (? get operating system for cls/clear)
  #>  Add (-s --start) to args to start menu items
  #>  Load Modules:
        > Load modules with default Options
  #>  const keyword is not safe
  #>  Save Cache
-       - Realfile: get mdftime if unchanged (how many seonds are allowed)
-       - Maybe we can save 'save_time' as a variable so there we won't 
-         need to check with mdftime
+
  #>  Define Ready_Objs from std
  #>  Include:
        >  *:*
@@ -412,6 +408,7 @@ class IndentCheck:
  #X  do_when Keyword for Calling specifiec function when condition comes True
  #X  Improve Exception Catching when runing file
  #!  END OF LINES ERROR IN RED  (WHAT?!)
+ #✓  SyntaxError in Syntax (after 'Regex=' line)
  #✓  Cache Option
 ###########
 # NOTE:
@@ -433,6 +430,7 @@ class IndentCheck:
  #?  Combine sys.exit & cleanup
  #?  Function to check if expression is not in Quotes
  #?  NoBreak if there is python code in Base Lines
+ #?  Ignore module loading output error
  #?  &&  ---  ||
  #?  Generate:yield(:None)
  #?  CONST at the beginning
@@ -456,12 +454,10 @@ class IndentCheck:
  #X  There couldnt be nested Switch-Case statements  (and Const-array?)
  #>  CONSTs:
        #!  After NameError rest of code will be ignored
- #?  Ignore module loading output error
  #X  Unable to run file with double clicking
  #X  Terminal is slow for loading code from first each time
- #X  Every Load takes 0.2
-       > Maybe with cache (check mdftime of files)
  #?  why exe doesn't accept args
+ #✓ Every Load takes 0.2
  #✓  Get Remaining Args for PROGRAM
  #✓  Errors in red Color
 
@@ -1075,7 +1071,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
         #] Exit at the end
         elif re.match(r'(Save(-|_))?(Cache)\s*:\s*\w*', line):
             if line.strip().lower().endswith('false'):
-                print('Remove Cache True')
+                #print('Remove Cache True')
                 ABSPATH = os.path.dirname(rx.files.abspath(FILE))
                 SOURCE.insert(-1,f'std.files.remove("{ABSPATH}/__RX_LC__",force=True)')
             elif not line.strip().lower().endswith('true'):
@@ -1212,7 +1208,7 @@ def Syntax(SOURCE,
         elif Striped.startswith('include '  )  or  Striped=='include': 
             Regex=re.match(r'(?P<Indent>\s*)include \s*(?P<objects>.+)\s*', Text)
             if not Regex:
-                raise SyntaxError
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'include'")
             Indent = Regex.group('Indent')
             OBJECTS = Regex.group('objects')
             To_Add = str(Indent)
@@ -1310,7 +1306,8 @@ def Syntax(SOURCE,
         elif Striped.startswith('load ')  or  Striped=='load':
             #elif Regex:=re.match(r'(?P<indent>\s*)load \s*(\w+,?)?', Text):
             Regex = re.match(r'(?P<indent>\s*)load \s*(\w+,?)?', Text)
-            if not Regex: raise SyntaxError
+            if not Regex:
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'load'")
             #t = time.time()
             Indent = Regex.group('indent')
             Packages = re.split(r'\s*,\s*', Text)
@@ -1354,22 +1351,26 @@ def Syntax(SOURCE,
         elif Striped.startswith('until '  )  or  Striped=='until':
             #elif Regex:=re.match(r'(?P<Indent>\s*)until \s*(?P<Expression>.+):'  , Text):
             Regex=re.match(r'(?P<Indent>\s*)until \s*(?P<Expression>.+):'  , Text)
-            if not Regex: raise SyntaxError
+            if not Regex:
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'include'")
             SOURCE[Line_Nom-1] = f"{Regex.group('Indent')}while not ({Regex.group('Expression')}):"
         elif Striped.startswith('unless ' )  or  Striped=='unless':
             #elif Regex:=re.match(r'(?P<Indent>\s*)unless \s*(?P<Expression>.+):' , Text):
             Regex=re.match(r'(?P<Indent>\s*)unless \s*(?P<Expression>.+):' , Text)
-            if not Regex: raise SyntaxError
+            if not Regex:
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'include'")
             SOURCE[Line_Nom-1] = f"{Regex.group('Indent')}if not ({Regex.group('Expression')}):"
         elif Striped.startswith('foreach ')  or  Striped=='foreach':
             #elif Regex:=re.match(r'foreach \s*(?P<Expression>.+):', Striped):
             Regex=re.match(r'foreach \s*(?P<Expression>.+):', Striped)
-            if not Regex: raise SyntaxError
+            if not Regex:
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'include'")
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('foreach', 'for', 1)
         elif Striped.startswith('func '   )  or  Striped=='func':
             #elif Regex:=re.match(r'func \s*(?P<Expression>.+)'    , Striped):
             Regex=re.match(r'func \s*(?P<Expression>.+)'    , Striped)
-            if not Regex: raise SyntaxError
+            if not Regex:
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'include'")
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('func', 'def', 1)
 
         #] Const Var                        # TODO: Better regex
@@ -1461,7 +1462,8 @@ def Syntax(SOURCE,
         elif Striped.startswith('array '  )  or  Striped=='array':
             #elif Regex:=re.match(r'(?P<Indent>\s*)array (?P<VarName>\w+)\[(?P<Length>\w+)?:?(?P<Type>\w+)?\]\s*=\s*{(?P<Content>.*)}',Text):
             Regex=re.match(r'(?P<Indent>\s*)array (?P<VarName>\w+)\[(?P<Length>\w+)?:?(?P<Type>\w+)?\]\s*=\s*{(?P<Content>.*)}',Text)
-            if not Regex: raise SyntaxError
+            if not Regex:
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'include'")
             Indent  = Regex.group('Indent')
             VarName = Regex.group('VarName')
             Length  = Regex.group('Length')
@@ -1478,7 +1480,8 @@ def Syntax(SOURCE,
         elif Striped.startswith('$test '  )  or  Striped=='$test':
             #elif Regex:=re.match(r'(?P<Indent>\s*)\$test \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?(\s* anyway(s)? (?P<Anyway>.+))?',Text):
             Regex=re.match(r'(?P<Indent>\s*)\$test \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?(\s* anyway(s)? (?P<Anyway>.+))?',Text)
-            if not Regex: raise SyntaxError
+            if not Regex:
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'include'")
             needed_lines = 2
             if Regex.group("Then"):
                 #print('Then True')
@@ -1518,7 +1521,7 @@ def Syntax(SOURCE,
                 line-=1
 
             if len(free_lines)<needed_lines:
-                print(free_lines,'red')
+                #print(free_lines,'red')
                 ERRORS.RaiseError('SpaceError',f"'$test' should have one extra blank line around it " +
                                                f"per any extra keywords ({needed_lines-1} lines needed)",
                                   Text,Line_Nom,FILE)
@@ -1540,14 +1543,15 @@ def Syntax(SOURCE,
         #] $CMD
         elif Striped.startswith('$cmd '   )  or  Striped=='$cmd' :
             Regex = re.match(r'(?P<Indent>\s*)\$cmd \s*(?P<Command>.+)',Text)
-
+            if not Regex:
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'include'")
             SOURCE[Line_Nom-1] = f'std.terminal.run("{Regex.group("Command") if Regex else "cmd"}")'
 
         #] $CALL
         elif Striped.startswith('$call '  )  or  Striped=='$call':
             Regex = re.match(r'(?P<Indent>\s*)\$call (?P<Function>.+) \s*in \s*(?P<Time>.+)',Text)
             if not Regex:
-                raise SyntaxError
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'include'")
             Indent = Regex.group('Indent'  )
             Delay  = Regex.group('Time'    )
             Func   = Regex.group('Function')
@@ -1596,15 +1600,17 @@ def Clean_Up(File='',Lib=True):   #] 0.03
 def RUN(READY_FILE_NAME,THREADS=[]):
     rx.terminal.set_title(f'RX - {os.path.basename(FILE)}')
     try:
+        for thread in THREADS:
+            thread.join()
         TIMES['B_Run '] = time.time()-START_TIME
         if TIMES['B_Run '] > 0.5:
             print('Running Speed is Slow','red')
         elif TIMES['B_Run '] < 0.01:
             pass#print('Running Speed is Super Fast','green')
-        for k,v in TIMES.items(): print(f'{k} :: {v}','green')
+        #for k,v in TIMES.items(): print(f'{k} :: {v}','green')
+        print(f"B_Run :: {TIMES['B_Run ']}",'green')
+        #sys.exit()
         import runpy
-        for thread in THREADS:
-            thread.join()
         runpy.run_path(READY_FILE_NAME)
     except Exception as e:
         #raise e
@@ -1699,5 +1705,3 @@ if __name__ == "__main__":
         except:
             pass
         rx.terminal.set_title(rx.terminal.get_title())
-
-
