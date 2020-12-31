@@ -372,11 +372,19 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 ################
 # TODO:
+ #>  Syntax for 'foreach':
+       foreach iterable[item]: pass
  #>  "$" Family:
         call: accept args ('with')
        ✓ cmd -> terminal.run
  #>  Syncorize all DEBUGs
- #>  Not all conditions should be 'elif' in Syntax()  ('func' and Check_Type)
+ #>  Not all conditions should be 'elif' in Syntax()
+        ( I can get out part of ''/"" then use .replace() )
+        func and Check_Type
+        &memory
+        until
+        unless
+        foreach
  #>  Extension:
        >  New Syntaxes:
             >  Internet class functions
@@ -385,8 +393,6 @@ class IndentCheck:
  #>  Load Modules:
        > Load modules with default Options
  #>  const keyword is not safe
- #>  Save Cache
-
  #>  Define Ready_Objs from std
  #>  Include:
        >  *:*
@@ -408,6 +414,7 @@ class IndentCheck:
  #X  do_when Keyword for Calling specifiec function when condition comes True
  #X  Improve Exception Catching when runing file
  #!  END OF LINES ERROR IN RED  (WHAT?!)
+ #✓  Save Cache
  #✓  SyntaxError in Syntax (after 'Regex=' line)
  #✓  Cache Option
 ###########
@@ -1188,7 +1195,7 @@ def Syntax(SOURCE,
                         Skip = line_in_str
                         #print(Skip)
                 continue
-        elif '"""' in Text:
+        elif "'''" in Text:
             if not "'''" in Text[Text.index("'''")+3:]:
                 for line_in_str,text_in_str in enumerate(SOURCE[Line_Nom:],1):
                     if "'''" in text_in_str:
@@ -1352,25 +1359,25 @@ def Syntax(SOURCE,
             #elif Regex:=re.match(r'(?P<Indent>\s*)until \s*(?P<Expression>.+):'  , Text):
             Regex=re.match(r'(?P<Indent>\s*)until \s*(?P<Expression>.+):'  , Text)
             if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'include'")
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'until'")
             SOURCE[Line_Nom-1] = f"{Regex.group('Indent')}while not ({Regex.group('Expression')}):"
         elif Striped.startswith('unless ' )  or  Striped=='unless':
             #elif Regex:=re.match(r'(?P<Indent>\s*)unless \s*(?P<Expression>.+):' , Text):
             Regex=re.match(r'(?P<Indent>\s*)unless \s*(?P<Expression>.+):' , Text)
             if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'include'")
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'unless'")
             SOURCE[Line_Nom-1] = f"{Regex.group('Indent')}if not ({Regex.group('Expression')}):"
         elif Striped.startswith('foreach ')  or  Striped=='foreach':
             #elif Regex:=re.match(r'foreach \s*(?P<Expression>.+):', Striped):
             Regex=re.match(r'foreach \s*(?P<Expression>.+):', Striped)
             if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'include'")
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'foreach'")
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('foreach', 'for', 1)
         elif Striped.startswith('func '   )  or  Striped=='func':
             #elif Regex:=re.match(r'func \s*(?P<Expression>.+)'    , Striped):
             Regex=re.match(r'func \s*(?P<Expression>.+)'    , Striped)
             if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'include'")
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'func'")
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('func', 'def', 1)
 
         #] Const Var                        # TODO: Better regex
