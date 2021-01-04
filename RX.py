@@ -372,20 +372,21 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 ################
 # TODO:
- #>  input = std.Input
  #>  Syntax for 'foreach':
        foreach iterable[item]: pass
  #>  "$" Family:
         call: accept args ('with')
        ✓ cmd -> terminal.run
  #>  Syncorize all DEBUGs
- #>  Not all conditions should be 'elif' in Syntax()
-        ( I can get out part of ''/"" then use .replace() )
-        func and Check_Type
-        &memory
-        until
-        unless
-        foreach
+ #>  Function to check if expression is not in Quotes
+       #?  Split line by strings, check_syntax spliteds ,connect them again
+       #>  Not all conditions should be 'elif' in Syntax()
+              ( I can get out part of ''/"" then use .replace() )
+              func and Check_Type
+              &memory
+              until
+              unless
+              foreach
  #>  Extension:
        >  New Syntaxes:
             >  Internet class functions
@@ -395,6 +396,7 @@ class IndentCheck:
        > Load modules with default Options
  #>  const keyword is not safe
  #>  Define Ready_Objs from std
+ #>  Check for fast speed (if option of it is True)
  #>  Include:
        >  *:*
        >  class:*
@@ -403,7 +405,6 @@ class IndentCheck:
             > linux commands
  #>  Console support RX syntax ( '\n'.join(Syntax([line])) )
  #?  Debug Function in (--debug for debug-only && -d for run+debug)
- #?  Split line by strings, check_syntax spliteds ,connect them again
  #X  Add/Remove/Change some built-in objects methods
        ('forbiddenfruit' only works on linux)
  #X  Fix Const func to accept one object
@@ -415,34 +416,31 @@ class IndentCheck:
  #X  do_when Keyword for Calling specifiec function when condition comes True
  #X  Improve Exception Catching when runing file
  #!  END OF LINES ERROR IN RED  (WHAT?!)
+ #✓  input = std.Input
  #✓  Save Cache
  #✓  SyntaxError in Syntax (after 'Regex=' line)
  #✓  Cache Option
 ###########
 # NOTE:
- #>  LOADED_PACKAGES ???
- #>  Check for fast speed (if option of it is True)
+ #>  Ignore Reloading LOADED_PACKAGES ???
  #>  Correct color for Options in extension (and also ignore cases)
         >  && -- ||
- #>  DEBUG (-d) is unused
  #>  do_while check for outline
- #>  Option for run translated or import it (import will ignore "if __name__ ...")
  #>  Package installer like pip? (if 3rd-party modules):
         >  Create account (RX-Lang) in pypi to upload user packages
  #?  Blank line before all errors
- #?  A file to repair files (save all files in a zipfile)
  #?  All $Class be in one condition (faster or not?)
  #?  Combine sys.exit & cleanup
- #?  Function to check if expression is not in Quotes
- #?  NoBreak if there is python code in Base Lines
+ #?  No Break if there is python code in Base Lines
  #?  Ignore module loading output error
  #?  &&  ---  ||
  #?  Generate:yield(:None)
  #?  CONST at the beginning
  #?  Stop Imports
- #-  Copy modules to running dir
- #-  INFO['EMAIL']?
- #-  New Errors Ext Color !
+ #?  New Errors Ext Color
+ #!  Option for run translated or import it (import will ignore "if __name__ ...")
+ #X  Copy modules to running dir
+ #X  INFO['EMAIL']?
  #X  Ready_File_Name without .rx extension?
  #X  def(:None)
  #X  Whole code in Try-Except
@@ -471,6 +469,7 @@ class IndentCheck:
 ########################################
 
 # TODO (Release):
+ #?  A file to repair files (save all files in a zipfile)
  #> Annotations and Documentation (Docstring/Help)
  #> Check instal:  PrependPath=1 (also for pip and scripts/*.exe)
  #> Make .exe with cxfreeze && copy .exe fileS in py/scripts dir
