@@ -372,6 +372,7 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 ################
 # TODO:
+ #>  input = std.Input
  #>  Syntax for 'foreach':
        foreach iterable[item]: pass
  #>  "$" Family:
@@ -419,9 +420,7 @@ class IndentCheck:
  #✓  Cache Option
 ###########
 # NOTE:
- #?  Cancel Lite
  #>  LOADED_PACKAGES ???
- #>  Ready_File_Name without .rx extension?
  #>  Check for fast speed (if option of it is True)
  #>  Correct color for Options in extension (and also ignore cases)
         >  && -- ||
@@ -433,7 +432,6 @@ class IndentCheck:
  #?  Blank line before all errors
  #?  A file to repair files (save all files in a zipfile)
  #?  All $Class be in one condition (faster or not?)
- #?  input = std.Input
  #?  Combine sys.exit & cleanup
  #?  Function to check if expression is not in Quotes
  #?  NoBreak if there is python code in Base Lines
@@ -445,8 +443,10 @@ class IndentCheck:
  #-  Copy modules to running dir
  #-  INFO['EMAIL']?
  #-  New Errors Ext Color !
+ #X  Ready_File_Name without .rx extension?
  #X  def(:None)
  #X  Whole code in Try-Except
+ #✓  Cancel Lite
  #✓ All re.match in Syntax() to .startswith (15x faster)
  #✓  How to run python file instead of os.system
 ###########
@@ -784,7 +784,7 @@ class Menu:
         from importlib import reload
 
         rx.system.chdir(RX_PATH)
-        PRE= ['import rx7.lite as std','print = std.style.print']
+        PRE= ['import rx7 as rx','std=rx','print = std.style.print']
         rx.write('_Console_.py', '\n'.join(PRE)+'\n')
         import _Console_
         while True:
@@ -1115,6 +1115,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     STRING.append(f"std = {MODULE_SHORTCUT}")
     STRING.append(f"print = {MODULE_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}")
     #] Direct Attributes
+    STRING.append(F"input = {MODULE_SHORTCUT}.Input")
     STRING.append(f"Const = const = {MODULE_SHORTCUT}._Lang.Const")
     STRING.append(f"Array = array = {MODULE_SHORTCUT}._Lang.Array")
     STRING.append(f"Check_Type = {MODULE_SHORTCUT}.Check_Type")
@@ -1666,8 +1667,9 @@ if __name__ == "__main__":
             TIMES['DefStr'] = time.time()-START_TIME
             SOURCE,THREADS = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, ARGS[2])   #] 
             TIMES['Syntax'] = time.time()-START_TIME
+            
             if ARGS[1]:
-                rx.cls()
+                #rx.cls()
                 SOURCE = Add_Verbose(SOURCE, INFO)
             #print(Lines_Added)
             
