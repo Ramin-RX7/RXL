@@ -1,13 +1,13 @@
 import rx7 as ms
 std = ms
 print = ms.style.print
+input = ms.Input
 Const = const = ms._Lang.Const
 Array = array = ms._Lang.Array
 Check_Type = ms.Check_Type
 setattr(std,'Version','1.7.4')
 setattr(std,'Author','Ramin.RX7')
 setattr(std,'Title','DramaX')
-
 print('Start')
 #include files: exists,remove
 import sys

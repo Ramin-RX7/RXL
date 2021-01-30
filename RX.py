@@ -932,28 +932,31 @@ class Menu:
 
     @staticmethod
     def Compile():
+        File = rx.io.get_files('Enter File Path:  ',times=1)
         Compiler = rx.io.selective_input('Compiler? [1-cx_freeze,2-pyinstaller]  ',
                                          choices=['1','2'],error=True)
         Compiler = {'1':'cxfreeze','2':'pyinstaller'}[Compiler]
         Icon = input('Icon Path:  ')
         Path = input('Path to save file:  ')
-
+        
         if Compiler == 'cxfreeze':
             Icon = '--icon '+Icon if Icon else ''
             Path = '--target-dir '+Path if Path else ''
             Default_Args = '-s'
+            Onefile  = '' 
+            Windowed = ''
         if Compiler == 'pyinstaller':
             Icon = '-i '+Icon if Icon else ''
             Path = '--specpath '+Path if Path else ''
             Onefile  = rx.io.selective_input('Onefile? [1-One File, 2-One Directory]  ',
                                              choices=['1','2'],error=True)
-            Onefile = '--onefile' if Onefile=='1' else '--onedir' 
+            Onefile  = '--onefile' if Onefile=='1' else '--onedir' 
             Windowed = rx.io.selective_input('Window? [1-Console,2-Hide Console]  ',
                                              choices=['1','2'],error=True)
             Windowed = '--console' if Windowed=='1' else '--windowed'
             Default_Args = '-y'
         Args = input('Enter other arguments:  ')
-        rx.terminal.run(f"{Compiler} {Path} {Icon} {Default_Args} {Onefile} {Windowed} {Args}")
+        rx.terminal.run(f"{Compiler} {File} {Path} {Icon} {Default_Args} {Onefile} {Windowed} {Args}")
 
 #< Reading File >#
 def Read_File(filepath):
@@ -1673,14 +1676,16 @@ if __name__ == "__main__":
         ):
             #print(f"MDFTIME REAL :: {rx.files.mdftime(FILE)}")
             #print(f"MDFTIME CACH :: {float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))}")
-            if ARGS[3]:
+            if ARGS[3] or ARGS[2]:
                 print('Using Cache')
             try:
                 rx.files.copy(f'./__RX_LC__/_{FILE}_',READY_FILE_NAME)
             except PermissionError:
                 rx.files.remove(READY_FILE_NAME)
                 rx.files.copy(f'./__RX_LC__/_{FILE}_',READY_FILE_NAME)
-            RUN(READY_FILE_NAME)
+            SOURCE = rx.read(READY_FILE_NAME).split('\n')
+            THREADS = []
+            #RUN(READY_FILE_NAME)
         else:
             TIMES['ARGS  '] = time.time()-START_TIME
             #rx.cls()
@@ -1695,7 +1700,7 @@ if __name__ == "__main__":
                 #rx.cls()
                 SOURCE = Add_Verbose(SOURCE, INFO)
             #print(Lines_Added)
-            
+
             if not ARGS[3] and not ARGS[4]:
                 try:
                     rx.write(READY_FILE_NAME, '\n'.join(SOURCE))
@@ -1709,15 +1714,15 @@ if __name__ == "__main__":
                 rx.files.hide(READY_FILE_NAME)
             title = rx.terminal.get_title()
 
-            if ARGS[5]:
-                rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
-            if ARGS[4]:
-                #Setup_Env()
-                rx.write(f'./__RX_LC__/{FILE.split(".")[0]}', '\n'.join(SOURCE))
+        if ARGS[5]:
+            rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
+        if ARGS[4]:
+            #Setup_Env()
+            rx.write(f'./__RX_LC__/{FILE.split(".")[0]}', '\n'.join(SOURCE))
 
-            if not ARGS[3] and not ARGS[4] and not ARGS[5]:
-            #if not all([[ARGS[3],ARGS[4]],ARGS[5]]):
-                RUN(READY_FILE_NAME,THREADS)
+        if not ARGS[3] and not ARGS[4] and not ARGS[5]:
+        #if not all([[ARGS[3],ARGS[4]],ARGS[5]]):
+            RUN(READY_FILE_NAME,THREADS)
     
     except KeyboardInterrupt:
         #Clean_Up(File)
