@@ -10,6 +10,7 @@ Program/
 MODULE.py
 functions.txt
 tst*.*
+output/
 __RX_LC__/
 
 # Byte-compiled / optimized / DLL files

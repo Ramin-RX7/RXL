@@ -456,7 +456,7 @@ class IndentCheck:
        X switch-case works fine in normal run but is not translated when loading
        X $test 'anyway' not working
  #X  Check Array is defined with acceptable length
- #X  There couldnt be nested Switch-Case statements  (and Const-array?)
+ #X  There couldnt be nested Switch-Case statements  (and -Const-array?+not usefull)
  #>  CONSTs:
        #!  After NameError rest of code will be ignored
  #X  Unable to run file with double clicking
@@ -822,7 +822,7 @@ class Menu:
            #'Terminal'   : Menu.Terminal ,
             'Console'    : Menu.Console  ,
            #'System Info': Menu.SysInfo  ,
-           #'Compile'    : Menu.Compile  ,
+            'Compile'    : Menu.Compile  ,
             'Create Module Lite' : Menu.Create_SLModule
         }
         Linux_Dict = {
@@ -848,7 +848,7 @@ class Menu:
 
                 if inp.title() in Menu_Dict.keys():
                     Menu_Dict[inp.title()]()
-                if inp.startswith(tuple(Linux_Dict.keys())):
+                elif inp.startswith(tuple(Linux_Dict.keys())):
                     print('Linux Commands are not supported yet','red')
                 elif inp in ('commands'):
                     print('Beside all CMD commands, we also support these commands:')
@@ -930,6 +930,30 @@ class Menu:
         rx.write(output,Main)
         print(f'Module has been created successfully', 'green')
 
+    @staticmethod
+    def Compile():
+        Compiler = rx.io.selective_input('Compiler? [1-cx_freeze,2-pyinstaller]  ',
+                                         choices=['1','2'],error=True)
+        Compiler = {'1':'cxfreeze','2':'pyinstaller'}[Compiler]
+        Icon = input('Icon Path:  ')
+        Path = input('Path to save file:  ')
+
+        if Compiler == 'cxfreeze':
+            Icon = '--icon '+Icon if Icon else ''
+            Path = '--target-dir '+Path if Path else ''
+            Default_Args = '-s'
+        if Compiler == 'pyinstaller':
+            Icon = '-i '+Icon if Icon else ''
+            Path = '--specpath '+Path if Path else ''
+            Onefile  = rx.io.selective_input('Onefile? [1-One File, 2-One Directory]  ',
+                                             choices=['1','2'],error=True)
+            Onefile = '--onefile' if Onefile=='1' else '--onedir' 
+            Windowed = rx.io.selective_input('Window? [1-Console,2-Hide Console]  ',
+                                             choices=['1','2'],error=True)
+            Windowed = '--console' if Windowed=='1' else '--windowed'
+            Default_Args = '-y'
+        Args = input('Enter other arguments:  ')
+        rx.terminal.run(f"{Compiler} {Path} {Icon} {Default_Args} {Onefile} {Windowed} {Args}")
 
 #< Reading File >#
 def Read_File(filepath):
