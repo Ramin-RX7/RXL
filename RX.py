@@ -372,6 +372,9 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 ################
 # TODO:
+ #>  ARG[N] --> Name
+ #>  In installation:
+       check if python is installed (which version is installed too)
  #>  Syntax for 'foreach':
        foreach iterable[item]: pass
  #>  "$" Family:
@@ -932,7 +935,13 @@ class Menu:
 
     @staticmethod
     def Compile():
-        File = rx.io.get_files('Enter File Path:  ',times=1)
+        File = rx.io.get_files('Enter File Path:  ',times=1)[0]
+        File = rx.files.abspath(File)
+        #print(File)
+        #exit()
+        rx.terminal.run(f'python rx.py -T2P {File}')
+        File = File[:File.rindex('.')]+'.py'
+
         Compiler = rx.io.selective_input('Compiler? [1-cx_freeze,2-pyinstaller]  ',
                                          choices=['1','2'],error=True)
         Compiler = {'1':'cxfreeze','2':'pyinstaller'}[Compiler]
@@ -1163,8 +1172,8 @@ def Define_Structure(SOURCE, FILE, DEBUG):
 
     if DEBUG and not len(Changeable):
         print(f'{FILE}> No (Enough) Base-Option/Empty-lines at begining of file', 'red')
-
-    rx.files.write(f'./__RX_LC__/_{FILE}_info_',str(rx.files.mdftime(FILE)))
+    
+    rx.files.write(f'./__RX_LC__/_{os.path.basename(FILE)}_info_',str(rx.files.mdftime(FILE)))
 
     #print(CONSTS)
     return (SOURCE, 
@@ -1667,7 +1676,7 @@ if __name__ == "__main__":
         ARGS = Get_Args()                                                                    #] 
             # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P, 6:Prog_Args}  
         FILE   = ARGS[0]
-        READY_FILE_NAME = '_'+FILE+'_' #'‎'+FILE+'‎' THERE IS INVISIBLE CHAR IN QUOTES
+        READY_FILE_NAME = '_'+os.path.basename(FILE)+'_' #'‎'+FILE+'‎' THERE IS INVISIBLE CHAR IN QUOTES
         
         BACKUP_EXIST      =  bool(rx.files.exists(f"./__RX_LC__/_{FILE}_"))
         INFO_BACKUP_EXIST =  bool(rx.files.exists(f"./__RX_LC__/_{FILE}_info_"))
