@@ -153,6 +153,7 @@ class rx:
         chdir = os.chdir
         accname = os.getlogin
         device_name = __import__('platform').node
+        cwd = os.getcwd
     System = system
 
 
@@ -785,22 +786,24 @@ class Menu:
 
         from importlib import reload
 
-        rx.system.chdir(RX_PATH)
+        #rx.system.chdir(RX_PATH)
+        CWD = rx.system.cwd()
+
         PRE= ['import rx7 as rx','std=rx','print = std.style.print']
-        rx.write('_Console_.py', '\n'.join(PRE)+'\n')
+        rx.write(f'{CWD}/_Console_.py', '\n'.join(PRE)+'\n')
         import _Console_
         while True:
             try:
                 new = rx.io.wait_for_input('RX:Console> ')
                 if new.lower() in ('exit','quit','end'):
-                    rx.files.remove('_Console_.py')
+                    rx.files.remove(f'{CWD}/_Console_.py')
                     #sys.exit()
                     return
             except (KeyboardInterrupt,EOFError):
-                rx.files.remove('_Console_.py')
+                rx.files.remove(f'{CWD}/_Console_.py')
                 return#sys.exit()
 
-            rx.write('_Console_.py', new+'\n', 'a')
+            rx.write(f'{CWD}/_Console_.py', new+'\n', 'a')
 
             try:
                 reload(_Console_)
@@ -811,10 +814,10 @@ class Menu:
                 if '(_Console_.py,' in ERROR:
                     ERROR = ERROR[:ERROR.index('(_Console_.py,')]
                 print(str(type(e))[8:-2]+':  ' + ERROR, 'red')
-                rx.write('_Console_.py', '\n'.join(rx.read('_Console_.py').splitlines()[:-1])+'\n')
+                rx.write(f'{CWD}/_Console_.py', '\n'.join(rx.read(f'{CWD}/_Console_.py').splitlines()[:-1])+'\n')
 
-            if re.match(r'print\s*\(', rx.read('_Console_.py').splitlines()[-1].strip()):
-                rx.write('_Console_.py', '\n'.join(rx.read('_Console_.py').splitlines()[:-1])+'\n')
+            if re.match(r'print\s*\(', rx.read(f'{CWD}/_Console_.py').splitlines()[-1].strip()):
+                rx.write(f'{CWD}/_Console_.py', '\n'.join(rx.read(f'{CWD}/_Console_.py').splitlines()[:-1])+'\n')
 
     @staticmethod
     def Terminal():
@@ -947,7 +950,7 @@ class Menu:
         Compiler = {'1':'cxfreeze','2':'pyinstaller'}[Compiler]
         Icon = input('Icon Path:  ')
         Path = input('Path to save file:  ')
-        
+
         if Compiler == 'cxfreeze':
             Icon = '--icon '+Icon if Icon else ''
             Path = '--target-dir '+Path if Path else ''
