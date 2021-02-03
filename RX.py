@@ -373,7 +373,6 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 ################
 # TODO:
- #>  ARG[N] --> Name
  #>  In installation:
        check if python is installed (which version is installed too)
  #>  Syntax for 'foreach':
@@ -420,6 +419,7 @@ class IndentCheck:
  #X  do_when Keyword for Calling specifiec function when condition comes True
  #X  Improve Exception Catching when runing file
  #!  END OF LINES ERROR IN RED  (WHAT?!)
+ #✓  ARG[N] --> Name
  #✓  input = std.Input
  #✓  Save Cache
  #✓  SyntaxError in Syntax (after 'Regex=' line)
@@ -1676,11 +1676,12 @@ if __name__ == "__main__":
         TIMES['Start '] = time.time()-START_TIME #print(f'START  :: {time.time()-START_TIME}','green')
         Setup_Env()
         TIMES['SetEnv'] = time.time()-START_TIME
-        ARGS = Get_Args()                                                                    #] 
-            # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P, 6:Prog_Args}  
-        FILE   = ARGS[0]
-        READY_FILE_NAME = '_'+os.path.basename(FILE)+'_' #'‎'+FILE+'‎' THERE IS INVISIBLE CHAR IN QUOTES
+        # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P, 6:Prog_Args}
+        ARGS = Get_Args()
+        FILE, INFO, D, DEBUG, MT, T2P, Prog_Args = ARGS
         
+        READY_FILE_NAME = '_'+os.path.basename(FILE)+'_' #'‎'+FILE+'‎' THERE IS INVISIBLE CHAR IN QUOTES
+        PATH = rx.files.abspath(FILE)
         BACKUP_EXIST      =  bool(rx.files.exists(f"./__RX_LC__/_{FILE}_"))
         INFO_BACKUP_EXIST =  bool(rx.files.exists(f"./__RX_LC__/_{FILE}_info_"))
         if BACKUP_EXIST and (
@@ -1688,8 +1689,8 @@ if __name__ == "__main__":
         ):
             #print(f"MDFTIME REAL :: {rx.files.mdftime(FILE)}")
             #print(f"MDFTIME CACH :: {float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))}")
-            if ARGS[3] or ARGS[2]:
-                print('Using Cache')
+            if DEBUG or D:
+                print('[*] Using Cache', 'dodger_blue_1')
             try:
                 rx.files.copy(f'./__RX_LC__/_{FILE}_',READY_FILE_NAME)
             except PermissionError:
@@ -1702,18 +1703,18 @@ if __name__ == "__main__":
             TIMES['ARGS  '] = time.time()-START_TIME
             #rx.cls()
             SOURCE = Read_File(FILE)
-            SOURCE = Define_Structure(SOURCE, FILE, ARGS[2])                                     #] 
+            SOURCE = Define_Structure(SOURCE, FILE, D)                                     #] 
             INFO = SOURCE[4]
             TIMES['DefStr'] = time.time()-START_TIME
-            SOURCE,THREADS = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, ARGS[2])   #] 
+            SOURCE,THREADS = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, D)   #] 
             TIMES['Syntax'] = time.time()-START_TIME
             
-            if ARGS[1]:
+            if INFO:
                 #rx.cls()
                 SOURCE = Add_Verbose(SOURCE, INFO)
             #print(Lines_Added)
 
-            if not ARGS[3] and not ARGS[4]:
+            if (not DEBUG) and (not MT):
                 try:
                     rx.write(READY_FILE_NAME, '\n'.join(SOURCE))
                     rx.write(f"./__RX_LC__/{READY_FILE_NAME}", '\n'.join(SOURCE))
@@ -1726,13 +1727,13 @@ if __name__ == "__main__":
                 rx.files.hide(READY_FILE_NAME)
             title = rx.terminal.get_title()
 
-        if ARGS[5]:
+        if T2P:
             rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
-        if ARGS[4]:
+        if MT:
             #Setup_Env()
             rx.write(f'./__RX_LC__/{FILE.split(".")[0]}', '\n'.join(SOURCE))
 
-        if not ARGS[3] and not ARGS[4] and not ARGS[5]:
+        if (not DEBUG) and (not MT) and (T2P):
         #if not all([[ARGS[3],ARGS[4]],ARGS[5]]):
             RUN(READY_FILE_NAME,THREADS)
     
@@ -1749,7 +1750,7 @@ if __name__ == "__main__":
 
     finally:
         try:
-            if not ARGS[4]:
+            if not MT:
                 Clean_Up(FILE)
         except:
             pass
