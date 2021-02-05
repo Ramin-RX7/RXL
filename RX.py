@@ -373,7 +373,11 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 ################
 # TODO:
- #>  In installation:
+ #>  Syntax Conditions Order (By Usage)
+ #>  Options:
+       sth like "start service" to execute first code (for faster speed in first run)
+       ✓ No Cache
+ #>  Installation:
        check if python is installed (which version is installed too)
  #>  Syntax for 'foreach':
        foreach iterable[item]: pass
@@ -737,6 +741,12 @@ def Get_Args():
     )
 
     parser.add_argument(
+        '-nc','--no-cache',
+        action='store_false',
+        help='Translate To Python'
+    )
+    
+    parser.add_argument(
         'PROG_ARGS',
         action='store', 
         nargs=argparse.REMAINDER)
@@ -773,7 +783,9 @@ def Get_Args():
 
     #print('ARGS:  '+str(args))
     #sys.exit()
-    return args.FILE, args.info, args.d, args.debug, args.MT, args.T2P, args.PROG_ARGS
+    return (args.FILE, args.info, args.d, args.debug, 
+           args.MT   , args.T2P , args.PROG_ARGS    ,
+           args.no_cache)
 
 
 #< Menu >#
@@ -969,6 +981,7 @@ class Menu:
             Default_Args = '-y'
         Args = input('Enter other arguments:  ')
         rx.terminal.run(f"{Compiler} {File} {Path} {Icon} {Default_Args} {Onefile} {Windowed} {Args}")
+
 
 #< Reading File >#
 def Read_File(filepath):
@@ -1310,7 +1323,7 @@ def Syntax(SOURCE,
             Lines_Added += 1
 
         #] Switch and Case
-        elif Striped.startswith('switch')  or  Striped.startswith('Switch'):
+        elif Striped.startswith('switch')  or  Striped==('Switch'):
             #elif Regex:=re.match(r'(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text):
             Regex = re.match(r'(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text)
             if not Regex: raise SyntaxError
@@ -1521,7 +1534,6 @@ def Syntax(SOURCE,
 
             SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Array({Content}{Type}{Length})'
 
-
         #] $TEST
         elif Striped.startswith('$test '  )  or  Striped=='$test':
             #elif Regex:=re.match(r'(?P<Indent>\s*)\$test \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?(\s* anyway(s)? (?P<Anyway>.+))?',Text):
@@ -1676,15 +1688,16 @@ if __name__ == "__main__":
         TIMES['Start '] = time.time()-START_TIME #print(f'START  :: {time.time()-START_TIME}','green')
         Setup_Env()
         TIMES['SetEnv'] = time.time()-START_TIME
-        # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P, 6:Prog_Args}
+        # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P, 6:PROG_ARGS}
         ARGS = Get_Args()
-        FILE, INFO, D, DEBUG, MT, T2P, Prog_Args = ARGS
-        
+        FILE, INFO, D, DEBUG, MT, T2P, PROG_ARGS, CACHE  =  ARGS
+        TIMES['ARGS  '] = time.time()-START_TIME
+
         READY_FILE_NAME = '_'+os.path.basename(FILE)+'_' #'‎'+FILE+'‎' THERE IS INVISIBLE CHAR IN QUOTES
         PATH = rx.files.abspath(FILE)
         BACKUP_EXIST      =  bool(rx.files.exists(f"./__RX_LC__/_{FILE}_"))
         INFO_BACKUP_EXIST =  bool(rx.files.exists(f"./__RX_LC__/_{FILE}_info_"))
-        if BACKUP_EXIST and (
+        if CACHE and BACKUP_EXIST and (
             float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))==rx.files.mdftime(FILE)
         ):
             #print(f"MDFTIME REAL :: {rx.files.mdftime(FILE)}")
@@ -1700,15 +1713,14 @@ if __name__ == "__main__":
             THREADS = []
             #RUN(READY_FILE_NAME)
         else:
-            TIMES['ARGS  '] = time.time()-START_TIME
             #rx.cls()
             SOURCE = Read_File(FILE)
-            SOURCE = Define_Structure(SOURCE, FILE, D)                                     #] 
+            SOURCE = Define_Structure(SOURCE, FILE, D)
             INFO = SOURCE[4]
             TIMES['DefStr'] = time.time()-START_TIME
-            SOURCE,THREADS = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, D)   #] 
+            SOURCE,THREADS = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, D)
             TIMES['Syntax'] = time.time()-START_TIME
-            
+
             if INFO:
                 #rx.cls()
                 SOURCE = Add_Verbose(SOURCE, INFO)
@@ -1726,17 +1738,16 @@ if __name__ == "__main__":
                 rx.write('translated', '\n'.join(SOURCE))
                 rx.files.hide(READY_FILE_NAME)
             title = rx.terminal.get_title()
-
         if T2P:
             rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
         if MT:
             #Setup_Env()
             rx.write(f'./__RX_LC__/{FILE.split(".")[0]}', '\n'.join(SOURCE))
 
-        if (not DEBUG) and (not MT) and (T2P):
+        if (not DEBUG) and (not MT) and (not T2P):
         #if not all([[ARGS[3],ARGS[4]],ARGS[5]]):
             RUN(READY_FILE_NAME,THREADS)
-    
+
     except KeyboardInterrupt:
         #Clean_Up(File)
         Error('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)')
