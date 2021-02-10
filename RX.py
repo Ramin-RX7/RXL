@@ -121,8 +121,10 @@ class rx:
                     try:
                         os.rmdir(path)
                     except OSError:
-                        raise OSError(f"[WinError 145] The directory is not empty: '{path}'" + '\n' + ' '*23 + 
-                                    '(Use force=True as an argument of remove function to remove non-empty directories.)')               
+                        raise OSError(
+                            f"[WinError 145] The directory is not empty: '{path}'" + '\n' + ' '*23 + 
+                            '(Use force=True as an argument of remove function to' +
+                            ' remove non-empty directories.)')               
         @staticmethod
         def hide(path, mode:bool =True):
             import win32api, win32con
@@ -373,12 +375,13 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 ################
 # TODO:
+ #>  Make Dict for "if args.option" in Get_Args()
  #>  Syntax Conditions Order (By Usage)
  #>  Options:
-       sth like "start service" to execute first code (for faster speed in first run)
+       Sth like ("start service",-s --start) to execute first code (for faster speed in first run)
        ✓ No Cache
  #>  Installation:
-       check if python is installed (which version is installed too)
+       Check if python is installed (which version is installed too)
  #>  Syntax for 'foreach':
        foreach iterable[item]: pass
  #>  "$" Family:
@@ -398,7 +401,6 @@ class IndentCheck:
        >  New Syntaxes:
             >  Internet class functions
        ?  Clear the screen in extension run (? get operating system for cls/clear)
- #>  Add (-s --start) to args to start menu items
  #>  Load Modules:
        > Load modules with default Options
  #>  const keyword is not safe
@@ -534,7 +536,13 @@ r"""
 r"""
  %USERPROFILE%
  #setx /M path "%path%;E:\ramin\Coding\GitHub\RX-Language"
- #C:\Users\IRANIAN\AppData\Roaming\ActiveState\bin;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;D:\Programs\Coding\Git\cmd;C:\Users\IRANIAN\AppData\Local\Programs\Python\Python37;C:\Users\IRANIAN\AppData\Local\Programs\Python\Python37\Scripts;D:\Programs\Microsoft VS Code\bin;C:\Users\IRANIAN\AppData\Local\GitHubDesktop\bin;C:\Users\IRANIAN\AppData\Roaming\npm
+ #C:\Users\IRANIAN\AppData\Roaming\ActiveState\bin;
+  C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\WINDOWS\system32;C:\WINDOWS;
+  C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;
+  C:\WINDOWS\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;D:\Programs\Coding\Git\cmd;
+  C:\Users\IRANIAN\AppData\Local\Programs\Python\Python37;C:\Users\IRANIAN\AppData\Roaming\npm
+  C:\Users\IRANIAN\AppData\Local\Programs\Python\Python37\Scripts;
+  D:\Programs\Microsoft VS Code\bin;C:\Users\IRANIAN\AppData\Local\GitHubDesktop\bin;
 """
 
 #] Just to have
@@ -1519,8 +1527,7 @@ def Syntax(SOURCE,
 
         #] Array
         elif Striped.startswith('array '  )  or  Striped=='array':
-            #elif Regex:=re.match(r'(?P<Indent>\s*)array (?P<VarName>\w+)\[(?P<Length>\w+)?:?(?P<Type>\w+)?\]\s*=\s*{(?P<Content>.*)}',Text):
-            Regex=re.match(r'(?P<Indent>\s*)array (?P<VarName>\w+)\[(?P<Length>\w+)?:?(?P<Type>\w+)?\]\s*=\s*{(?P<Content>.*)}',Text)
+            Regex=re.match(r'(?P<Indent>\s*)array (?P<VarName>\w+)\[(?P<Length>\w+)?:?(?P<Type>\w+)\?\]\s*=\s*{(?P<Content>.*)}',Text)
             if not Regex:
                 raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'include'")
             Indent  = Regex.group('Indent')
@@ -1536,7 +1543,6 @@ def Syntax(SOURCE,
 
         #] $TEST
         elif Striped.startswith('$test '  )  or  Striped=='$test':
-            #elif Regex:=re.match(r'(?P<Indent>\s*)\$test \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?(\s* anyway(s)? (?P<Anyway>.+))?',Text):
             Regex=re.match(r'(?P<Indent>\s*)\$test \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?(\s* anyway(s)? (?P<Anyway>.+))?',Text)
             if not Regex:
                 raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'include'")
