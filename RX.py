@@ -378,6 +378,7 @@ class IndentCheck:
  #>  Make Dict for "if args.option" in Get_Args()
  #>  Syntax Conditions Order (By Usage)
  #>  Options:
+       Ignore Reloading LOADED_PACKAGES Option
        Sth like ("start service",-s --start) to execute first code (for faster speed in first run)
        ✓ No Cache
  #>  Installation:
@@ -432,7 +433,7 @@ class IndentCheck:
  #✓  Cache Option
 ###########
 # NOTE:
- #>  Ignore Reloading LOADED_PACKAGES ???
+ #>  Ignore case in Def_Str() with re.IGNORECASE
  #>  Correct color for Options in extension (and also ignore cases)
         >  && -- ||
  #>  do_while check for outline
@@ -1055,6 +1056,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     MODULE_SHORTCUT = 'std'#'sc'
     PRINT_TYPE = 'stylized'
     TYPE_SCANNER = False
+    Allow_Reload = False
     #BASED = False
     Changeable = []
     INFO = {
@@ -1085,7 +1087,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             Changeable.append(nom)
 
         #] Get Shortcut Name
-        elif re.match(r'((M|m)odule(-|_)?(N|n)ame)\s*:\s*\w+',line):
+        elif re.match(r'(Module(-|_)?Name)\s*:\s*\w+', line, re.IGNORECASE):
             #if BASED:
             #    raise ERRORS.BaseDefinedError('Modulename', line, SOURCE[:5].index(line), FILE)
             stripped = line[line.index(':')+1:].strip()
@@ -1110,10 +1112,9 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             Changeable.append(nom)
 
         #] Function Type Scanner          TODO: # Make it Shorter!
-        elif re.match(r'((F|f)unc(tion)?)-?((T|t)ype|(A|a)rg|(P|p)aram)-?((S|s)canner|(C|c)hecker)\s*:\s*\w+', line):
+        elif re.match(r'(Func(tion)?)(-|_)?(Type|Arg|Param)(-|_)?(Scanner|Checker)\s*:\s*\w+',line,re.IGNORECASE):
             #print("FOUND",'green')
             #BASED = True     # No Need to do it
-            
             if line.endswith('True'):
                 TYPE_SCANNER = True
             elif not line.strip().endswith('False'):
@@ -1124,7 +1125,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             Changeable.append(nom)
 
         #] Exit at the end
-        elif re.match(r'(End(-|_))?(Exit|Quit)\s*:\s*\w*', line):
+        elif re.match(r'(End(-|_))?(Exit|Quit)\s*:\s*\w*',line, re.IGNORECASE):
             if line.strip().lower().endswith('false'):
                 SOURCE.append('__import__("getpass").getpass("Press [Enter] to Exit")')
             elif not line.strip().lower().endswith('true'):
@@ -1135,7 +1136,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             Changeable.append(nom)
 
         #] Exit at the end
-        elif re.match(r'(Save(-|_))?(Cache)\s*:\s*\w*', line):
+        elif re.match(r'(Save(-|_))?(Cache)\s*:\s*\w*', line, re.IGNORECASE):
             if line.strip().lower().endswith('false'):
                 #print('Remove Cache True')
                 ABSPATH = os.path.dirname(rx.files.abspath(FILE))
@@ -1147,18 +1148,30 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             SOURCE[nom] = ''
             Changeable.append(nom)
 
+        #] Reload Module
+        elif re.match(r'Allow(-|_)Reload\s*:\s*', line, re.IGNORECASE):
+            if line.strip().lower().endswith('true'):
+                #print('Remove Cache True')
+                Allow_Reload = True
+            elif not line.strip().lower().endswith('false'):
+                stripped = line[line.index(':')+1:].strip()
+                raise ERRORS.ValueError(FILE, 'Allow-Reload', stripped, line, 
+                                        SOURCE.index(line)  , "[True,False]")
+            SOURCE[nom] = ''
+            Changeable.append(nom)
+
         #] Version
-        elif Regex:=re.match(r'Version\s*:\s*(?P<Version>[0-9]+(\.[0-9]+)?(\.[0-9]+)?)', line.strip()):
+        elif Regex:=re.match(r'Version\s*:\s*(?P<Version>[0-9]+(\.[0-9]+)?(\.[0-9]+)?)', line.rstrip(), re.IGNORECASE):
             INFO['Version'] = Regex.group('Version')
             SOURCE[nom] = ''
             Changeable.append(nom)
         #] Title
-        elif Regex:=re.match(r'Title\s*:\s*(?P<Title>[^>]+)(>.+)?', line.rstrip()):
+        elif Regex:=re.match(r'Title\s*:\s*(?P<Title>[^>]+)(>.+)?', line.rstrip(), re.IGNORECASE):
             INFO['Title'] = Regex.group('Title')
             SOURCE[nom] = ''
             Changeable.append(nom)
         #] Author
-        elif Regex:=re.match(r'Author\s*:\s*(?P<Author>.+)', line.rstrip()):
+        elif Regex:=re.match(r'Author\s*:\s*(?P<Author>.+)', line.rstrip(), re.IGNORECASE):
             INFO['Author'] = Regex.group('Author')
             SOURCE[nom] = ''
             Changeable.append(nom)
