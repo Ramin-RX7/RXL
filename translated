@@ -1,3 +1,4 @@
+ProgramStartTime= 1613165789.4605901
 import rx7 as ms
 std = ms
 print = ms.style.print
@@ -122,4 +123,6 @@ print('End')
 
 #ms.wait(10)
 
+EXECUTE_TIME_TEXT=round(__import__("time").time()-ProgramStartTime,3)
+print(f'\n\nExecution Time:  {EXECUTE_TIME_TEXT}\n')
 

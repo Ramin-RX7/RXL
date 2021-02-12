@@ -375,6 +375,7 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 ################
 # TODO:
+ #X  Using Cache with Execution Time
  #>  Make Dict for "if args.option" in Get_Args()
  #>  Syntax Conditions Order (By Usage)
  #>  Options:
@@ -1540,9 +1541,9 @@ def Syntax(SOURCE,
 
         #] Array
         elif Striped.startswith('array '  )  or  Striped=='array':
-            Regex=re.match(r'(?P<Indent>\s*)array (?P<VarName>\w+)\[(?P<Length>\w+)?:?(?P<Type>\w+)\?\]\s*=\s*{(?P<Content>.*)}',Text)
+            Regex=re.match(r'(?P<Indent>\s*)array \s*(?P<VarName>\w+)\s*\[\s*(?P<Length>\w+)?\s*:?\s*(?P<Type>\w+)?\s*\]\s*=\s*{(?P<Content>.*)}\s*',Text)
             if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'include'")
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'array'")
             Indent  = Regex.group('Indent')
             VarName = Regex.group('VarName')
             Length  = Regex.group('Length')
@@ -1558,7 +1559,7 @@ def Syntax(SOURCE,
         elif Striped.startswith('$test '  )  or  Striped=='$test':
             Regex=re.match(r'(?P<Indent>\s*)\$test \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?(\s* anyway(s)? (?P<Anyway>.+))?',Text)
             if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'include'")
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of '$test'")
             needed_lines = 2
             if Regex.group("Then"):
                 #print('Then True')
@@ -1621,14 +1622,14 @@ def Syntax(SOURCE,
         elif Striped.startswith('$cmd '   )  or  Striped=='$cmd' :
             Regex = re.match(r'(?P<Indent>\s*)\$cmd \s*(?P<Command>.+)',Text)
             if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'include'")
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of '$cmd'")
             SOURCE[Line_Nom-1] = f'std.terminal.run("{Regex.group("Command") if Regex else "cmd"}")'
 
         #] $CALL
         elif Striped.startswith('$call '  )  or  Striped=='$call':
             Regex = re.match(r'(?P<Indent>\s*)\$call (?P<Function>.+) \s*in \s*(?P<Time>.+)',Text)
             if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'include'")
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of '$call'")
             Indent = Regex.group('Indent'  )
             Delay  = Regex.group('Time'    )
             Func   = Regex.group('Function')
@@ -1709,7 +1710,7 @@ if __name__ == "__main__":
         TIMES['SetEnv'] = time.time()-START_TIME
         # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P, 6:PROG_ARGS}
         ARGS = Get_Args()
-        FILE, INFO, D, DEBUG, MT, T2P, PROG_ARGS, CACHE  =  ARGS
+        FILE, ADD_VERBOSE, D, DEBUG, MT, T2P, PROG_ARGS, CACHE  =  ARGS
         TIMES['ARGS  '] = time.time()-START_TIME
 
         READY_FILE_NAME = '_'+os.path.basename(FILE)+'_' #'‎'+FILE+'‎' THERE IS INVISIBLE CHAR IN QUOTES
@@ -1740,7 +1741,8 @@ if __name__ == "__main__":
             SOURCE,THREADS = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, D)
             TIMES['Syntax'] = time.time()-START_TIME
 
-            if INFO:
+            if ADD_VERBOSE:
+                #print(INFO,'green')
                 #rx.cls()
                 SOURCE = Add_Verbose(SOURCE, INFO)
             #print(Lines_Added)
