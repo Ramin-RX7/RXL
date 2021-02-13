@@ -28,7 +28,7 @@ class X:
     def func():
         print('$call')
 
-$call X.func in 0.25
+#$call X.func in 0.25
 
 def x():
     pass

@@ -95,13 +95,14 @@ class rx:
 
 
     class files:
-        rename  = os.rename
-        abspath = os.path.abspath
-        exists  = os.path.exists
-        mdftime = os.path.getmtime
-        move    = shutil.move
-        isfile = os.path.isfile
-        isdir = os.path.isdir
+        rename  =  os.rename
+        abspath =  os.path.abspath
+        exists  =  os.path.exists
+        mdftime =  os.path.getmtime
+        move    =  shutil.move
+        isfile  =  os.path.isfile
+        isdir   =  os.path.isdir
+        dirname =  os.path.dirname
         @staticmethod
         def copy(src,dest,preserve_metadata= True):
             if rx.files.isdir(src):
@@ -1650,10 +1651,10 @@ def Add_Verbose(SOURCE, INFO):
     print(f'Running  "{INFO["Title"]}" v{INFO["Version"]}  by "{INFO["Author"]}"')
     print('\n')
 
-    SOURCE.insert(0, f'ProgramStartTime= {START_TIME}')
-    EXECUTE_TIME_TEXT = 'round(__import__("time").time()-ProgramStartTime,3)'
-    SOURCE.insert(-1, 'EXECUTE_TIME_TEXT='+EXECUTE_TIME_TEXT) #{EXECUTE_TIME_TEXT-.35}/
-    SOURCE.insert(-1, r'''print(f'\n\nExecution Time:  {EXECUTE_TIME_TEXT}\n')''')
+    #SOURCE.insert(0, f'ProgramStartTime= {START_TIME}')
+    #EXECUTION_TIME_TEXT = 'round(__import__("time").time()-ProgramStartTime,3)'
+    #SOURCE.insert(-1, 'EXECUTION_TIME_TEXT='+EXECUTION_TIME_TEXT) #{EXECUTION_TIME_TEXT-.35}/
+    #SOURCE.insert(-1, r'''print(f'\n\nExecution Time:  {EXECUTION_TIME_TEXT}\n')''')
     #print(SOURCE[-3])
 
     return SOURCE
@@ -1715,9 +1716,11 @@ if __name__ == "__main__":
 
         READY_FILE_NAME = '_'+os.path.basename(FILE)+'_' #'‎'+FILE+'‎' THERE IS INVISIBLE CHAR IN QUOTES
         PATH = rx.files.abspath(FILE)
+        DIR  = rx.files.dirname(PATH)
         BACKUP_EXIST      =  bool(rx.files.exists(f"./__RX_LC__/_{FILE}_"))
         INFO_BACKUP_EXIST =  bool(rx.files.exists(f"./__RX_LC__/_{FILE}_info_"))
-        if CACHE and BACKUP_EXIST and (
+
+        if CACHE and BACKUP_EXIST and (not ADD_VERBOSE) and (
             float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))==rx.files.mdftime(FILE)
         ):
             #print(f"MDFTIME REAL :: {rx.files.mdftime(FILE)}")
@@ -1730,6 +1733,9 @@ if __name__ == "__main__":
                 rx.files.remove(READY_FILE_NAME)
                 rx.files.copy(f'./__RX_LC__/_{FILE}_',READY_FILE_NAME)
             SOURCE = rx.read(READY_FILE_NAME).split('\n')
+            if Regex:=re.match(r'ProgramStartTime\s*= \s*\w+(\.?\w*)',SOURCE[0]):
+                print('YES','green')
+                SOURCE[0] = 'ProgramStartTime= '+str(START_TIME)
             THREADS = []
             #RUN(READY_FILE_NAME)
         else:
@@ -1741,10 +1747,6 @@ if __name__ == "__main__":
             SOURCE,THREADS = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, D)
             TIMES['Syntax'] = time.time()-START_TIME
 
-            if ADD_VERBOSE:
-                #print(INFO,'green')
-                #rx.cls()
-                SOURCE = Add_Verbose(SOURCE, INFO)
             #print(Lines_Added)
 
             if (not DEBUG) and (not MT):
@@ -1767,8 +1769,18 @@ if __name__ == "__main__":
 
         if (not DEBUG) and (not MT) and (not T2P):
         #if not all([[ARGS[3],ARGS[4]],ARGS[5]]):
+            if ADD_VERBOSE:
+                #rx.cls()
+                NOW = str(__import__('datetime').datetime.now())
+                print(f'''Start  RX Language  at  "{NOW[:NOW.rindex('.')+5]}"''')
+                print(f'Running  "{INFO["Title"]}" v{INFO["Version"]}  by "{INFO["Author"]}"')
+                print('\n')
             RUN(READY_FILE_NAME,THREADS)
-
+            if ADD_VERBOSE:
+                EXECUTION_TIME_TEXT = round(__import__("time").time()-START_TIME,3)
+                print(f'\n\nExecution Time:  {EXECUTION_TIME_TEXT}\n')
+                #print(START_TIME)
+                #print(EXECUTION_TIME_TEXT)
     except KeyboardInterrupt:
         #Clean_Up(File)
         Error('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)')

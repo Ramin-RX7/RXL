@@ -1,4 +1,3 @@
-ProgramStartTime= 1613165789.4605901
 import rx7 as ms
 std = ms
 print = ms.style.print
@@ -29,7 +28,7 @@ class X:
     def func():
         print('$call')
 
-std.call(X.func,delay=0.25)
+#$call X.func in 0.25
 
 @ms.Check_Type
 def x():
@@ -123,6 +122,4 @@ print('End')
 
 #ms.wait(10)
 
-EXECUTE_TIME_TEXT=round(__import__("time").time()-ProgramStartTime,3)
-print(f'\n\nExecution Time:  {EXECUTE_TIME_TEXT}\n')
 
