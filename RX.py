@@ -376,16 +376,14 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 ################
 # TODO: 
- #X  Whole Include is Terrible!:
-       - Very Very Slow
-       - Wrong translation when using '#'
- #X  Check Array is defined with acceptable length
- #X  There couldnt be nested Switch-Case statements  (and -Const-array?+not usefull)
+ #>  Include:
+       >  *:*
+       >  class:*
+       x Very Very Slow
+       x Wrong translation when using '#'
+ #>  Check Array is defined with acceptable length
  #>  CONSTs:
        #!  After NameError rest of code will be ignored
- #X  Unable to run file with double clicking
- #X  Terminal is slow for loading code from first each time
- #?  why exe doesn't accept args
  #>  Make Dict for "if args.option" in Get_Args()
  #>  Syntax Conditions Order (By Usage)
  #>  Options:
@@ -394,8 +392,7 @@ class IndentCheck:
        ✓ No Cache
  #>  Installation:
        Check if python is installed (which version is installed too)
- #>  Syntax for 'foreach':
-       foreach iterable[item]: pass
+ #>  'foreach' New Syntax:  "foreach iterable[item]: pass"
  #>  "$" Family:
         call: accept args ('with')
        ✓ cmd -> terminal.run
@@ -418,14 +415,15 @@ class IndentCheck:
  #>  const keyword is not safe
  #>  Define Ready_Objs from std
  #>  Check for fast speed (if option of it is True)
- #>  Include:
-       >  *:*
-       >  class:*
  #>  Menu:
        >  TERMINAL
             > linux commands
  #>  Console support RX syntax ( '\n'.join(Syntax([line])) )
- #?  Debug Function in (--debug for debug-only && -d for run+debug)
+ #?  why exe doesn't accept args
+ #!  Debug Function in (--debug for debug-only && -d for run+debug)
+ #X  There couldnt be nested Switch-Case statements  (and -Const-array?+not usefull)
+ #X  Unable to run file with double clicking
+ #X  Terminal is slow for loading code from first each time
  #X  Add/Remove/Change some built-in objects methods
        ('forbiddenfruit' only works on linux)
  #X  Fix Const func to accept one object
@@ -445,7 +443,6 @@ class IndentCheck:
  #✓  Cache Option
 ###########
 # NOTE:
- #>  Ignore case in Def_Str() with re.IGNORECASE
  #>  Correct color for Options in extension (and also ignore cases)
         >  && -- ||
  #>  do_while check for outline
@@ -467,16 +464,17 @@ class IndentCheck:
  #X  Ready_File_Name without .rx extension?
  #X  def(:None)
  #X  Whole code in Try-Except
+ #✓  Ignore case in Def_Str() with re.IGNORECASE
  #✓  Cancel Lite
  #✓ All re.match in Syntax() to .startswith (15x faster)
  #✓  How to run python file instead of os.system
 ###########
 # BUG:
-    X switch-case works fine in normal run but is not translated when loading
-    X $test 'anyway' not working
- #✓ Every Load takes 0.2
- #✓  Get Remaining Args for PROGRAM
- #✓  Errors in red Color
+  X switch-case works fine in normal run but is not translated when loading
+  X $test 'anyway' not working
+  #✓ Every Load takes 0.2
+  #✓  Get Remaining Args for PROGRAM
+  #✓  Errors in red Color
 
 ########################################
 
