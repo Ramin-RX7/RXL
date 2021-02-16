@@ -375,8 +375,17 @@ class IndentCheck:
 ################################################################################
 # CHARS:  {✓ , ? , > , ! , X}
 ################
-# TODO:
- #X  Using Cache with Execution Time
+# TODO: 
+ #X  Whole Include is Terrible!:
+       - Very Very Slow
+       - Wrong translation when using '#'
+ #X  Check Array is defined with acceptable length
+ #X  There couldnt be nested Switch-Case statements  (and -Const-array?+not usefull)
+ #>  CONSTs:
+       #!  After NameError rest of code will be ignored
+ #X  Unable to run file with double clicking
+ #X  Terminal is slow for loading code from first each time
+ #?  why exe doesn't accept args
  #>  Make Dict for "if args.option" in Get_Args()
  #>  Syntax Conditions Order (By Usage)
  #>  Options:
@@ -428,6 +437,7 @@ class IndentCheck:
  #X  do_when Keyword for Calling specifiec function when condition comes True
  #X  Improve Exception Catching when runing file
  #!  END OF LINES ERROR IN RED  (WHAT?!)
+ #✓  Using Cache with Execution Time when using "load"
  #✓  ARG[N] --> Name
  #✓  input = std.Input
  #✓  Save Cache
@@ -462,19 +472,8 @@ class IndentCheck:
  #✓  How to run python file instead of os.system
 ###########
 # BUG:
- #X  Whole Include is Terrible!:
-       - Very Very Slow
-       - Wrong translation when using '#'
- #X  WTF!
-       X switch-case works fine in normal run but is not translated when loading
-       X $test 'anyway' not working
- #X  Check Array is defined with acceptable length
- #X  There couldnt be nested Switch-Case statements  (and -Const-array?+not usefull)
- #>  CONSTs:
-       #!  After NameError rest of code will be ignored
- #X  Unable to run file with double clicking
- #X  Terminal is slow for loading code from first each time
- #?  why exe doesn't accept args
+    X switch-case works fine in normal run but is not translated when loading
+    X $test 'anyway' not working
  #✓ Every Load takes 0.2
  #✓  Get Remaining Args for PROGRAM
  #✓  Errors in red Color
@@ -550,7 +549,7 @@ r"""
 
 #] Just to have
 r"""
-r'^((F|f)unc(tion)?)(-|_)?((T|t)ype|(A|a)rg|(P|p)aram)(-|_)?((S|s)canner|(C|c)hecker)\s*:\s*\w*'
+ r'^((F|f)unc(tion)?)(-|_)?((T|t)ype|(A|a)rg|(P|p)aram)(-|_)?((S|s)canner|(C|c)hecker)\s*:\s*\w*'
 """
 
 
@@ -1405,6 +1404,7 @@ def Syntax(SOURCE,
             for package in Packages:
                 if rx.files.exists(f'{package}.rx7'):
                     import threading
+                    #print(package,'green')
                     def TEST():
                         pack_out = rx.terminal.getoutput(f'python RX.py -MT {package}.rx7').strip()
                         
@@ -1725,8 +1725,8 @@ if __name__ == "__main__":
         ):
             #print(f"MDFTIME REAL :: {rx.files.mdftime(FILE)}")
             #print(f"MDFTIME CACH :: {float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))}")
-            if DEBUG or D:
-                print('[*] Using Cache', 'dodger_blue_1')
+            #if DEBUG or D:
+            #print('[*] Using Cache', 'dodger_blue_1')
             try:
                 rx.files.copy(f'./__RX_LC__/_{FILE}_',READY_FILE_NAME)
             except PermissionError:
