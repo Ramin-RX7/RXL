@@ -376,51 +376,55 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 ################
 # TODO: 
- #>  Include:
+ # EASY:
+    #> Make Dict for "if args.option" in Get_Args()
+    #> Syntax Conditions Order (By Usage)
+    #> Options:
+       #> Check for fast speed (if option of it is True)
+       #> Ignore Reloading LOADED_PACKAGES Option
+       Sth like ("start service",-s --start) to execute first code (for faster speed in first run)
+       ✓ No Cache
+    #> 'foreach' New Syntax:  "foreach iterable[item]: pass"
+    #> "$" Family:
+        call: accept args ('with')
+       ✓ cmd -> terminal.run
+    #> Extension:
+       >  New Syntaxes:
+            >  Internet class functions
+       ?  Clear the screen in extension run (? get operating system for cls/clear)
+    #> Define Ready_Objs from std
+    #> Menu:
+       >  TERMINAL
+            > linux commands
+
+ # MEDIUM:
+    #> CONSTs:
+          #!  After NameError rest of code will be ignored
+    #> Include:
        >  *:*
        >  class:*
        x Very Very Slow
-       x Wrong translation when using '#'
- #>  Check Array is defined with acceptable length
- #>  CONSTs:
-       #!  After NameError rest of code will be ignored
- #>  Make Dict for "if args.option" in Get_Args()
- #>  Syntax Conditions Order (By Usage)
- #>  Options:
-       Ignore Reloading LOADED_PACKAGES Option
-       Sth like ("start service",-s --start) to execute first code (for faster speed in first run)
-       ✓ No Cache
- #>  Installation:
+       x Wrong translation when using '#' 
+    #> Syncorize all DEBUGs  
+    #> Load Modules:
+       > Load modules with default Options
+    #> const keyword is not safe
+    #> Console support RX syntax ( '\n'.join(Syntax([line])) )
+
+ # HARD:
+    #> Installation:
        Check if python is installed (which version is installed too)
- #>  'foreach' New Syntax:  "foreach iterable[item]: pass"
- #>  "$" Family:
-        call: accept args ('with')
-       ✓ cmd -> terminal.run
- #>  Syncorize all DEBUGs
- #>  Function to check if expression is not in Quotes
-       #?  Split line by strings, check_syntax spliteds ,connect them again
-       #>  Not all conditions should be 'elif' in Syntax()
+    #> Function to check if expression is not in Quotes
+       #? Split line by strings, check_syntax spliteds ,connect them again
+       #> Not all conditions should be 'elif' in Syntax()
               ( I can get out part of ''/"" then use .replace() )
               func and Check_Type
               &memory
               until
               unless
               foreach
- #>  Extension:
-       >  New Syntaxes:
-            >  Internet class functions
-       ?  Clear the screen in extension run (? get operating system for cls/clear)
- #>  Load Modules:
-       > Load modules with default Options
- #>  const keyword is not safe
- #>  Define Ready_Objs from std
- #>  Check for fast speed (if option of it is True)
- #>  Menu:
-       >  TERMINAL
-            > linux commands
- #>  Console support RX syntax ( '\n'.join(Syntax([line])) )
- #?  why exe doesn't accept args
- #!  Debug Function in (--debug for debug-only && -d for run+debug)
+
+ #X  Check Array is defined with acceptable length
  #X  There couldnt be nested Switch-Case statements  (and -Const-array?+not usefull)
  #X  Unable to run file with double clicking
  #X  Terminal is slow for loading code from first each time
@@ -435,6 +439,7 @@ class IndentCheck:
  #X  do_when Keyword for Calling specifiec function when condition comes True
  #X  Improve Exception Catching when runing file
  #!  END OF LINES ERROR IN RED  (WHAT?!)
+ #✓  Debug Function in (--debug for debug-only && -d for run+debug)
  #✓  Using Cache with Execution Time when using "load"
  #✓  ARG[N] --> Name
  #✓  input = std.Input
@@ -470,6 +475,7 @@ class IndentCheck:
  #✓  How to run python file instead of os.system
 ###########
 # BUG:
+  X  why exe doesn't accept args
   X switch-case works fine in normal run but is not translated when loading
   X $test 'anyway' not working
   #✓ Every Load takes 0.2
