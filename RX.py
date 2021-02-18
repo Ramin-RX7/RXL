@@ -376,7 +376,7 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 ################
 # TODO: 
- # EASY:
+  # EASY:
     #> Make Dict for "if args.option" in Get_Args()
     #> Syntax Conditions Order (By Usage)
     #> Options:
@@ -397,9 +397,11 @@ class IndentCheck:
        >  TERMINAL
             > linux commands
 
- # MEDIUM:
+  # MEDIUM:
     #> CONSTs:
           #!  After NameError rest of code will be ignored
+          #>  Fix Const func to accept one object
+          #>  Constants Check for Error
     #> Include:
        >  *:*
        >  class:*
@@ -411,7 +413,7 @@ class IndentCheck:
     #> const keyword is not safe
     #> Console support RX syntax ( '\n'.join(Syntax([line])) )
 
- # HARD:
+  # HARD:
     #> Installation:
        Check if python is installed (which version is installed too)
     #> Function to check if expression is not in Quotes
@@ -423,21 +425,19 @@ class IndentCheck:
               until
               unless
               foreach
+    #>  Debug with running linters
+    #>  goto for For loops with naming For loops  (:NAME & goto NAME)
+    #>  Improve Exception Catching when runing file
+    #>  do_when Keyword for Calling specifiec function when condition comes True
+    #>  Terminal is slow for loading code from first each time
+    #>  Instead of using pip to download required modules, copy them
+        (Because we couldn't find rquirements for all packages)
+    #>  Add/Remove/Change some built-in objects methods
+        ('forbiddenfruit' only works on linux)
+    #>  Check Array is defined with acceptable length
+    #>  There couldnt be nested Switch-Case statements  (and -Const-array?+not usefull)
 
- #X  Check Array is defined with acceptable length
- #X  There couldnt be nested Switch-Case statements  (and -Const-array?+not usefull)
  #X  Unable to run file with double clicking
- #X  Terminal is slow for loading code from first each time
- #X  Add/Remove/Change some built-in objects methods
-       ('forbiddenfruit' only works on linux)
- #X  Fix Const func to accept one object
- #X  Constants Check for Error
- #X  Instead of using pip to download required modules, copy them
-      (Because we couldn't find rquirements for all packages)
- #X  Debug with running linters
- #X  goto for For loops with naming For loops  (:NAME & goto NAME)
- #X  do_when Keyword for Calling specifiec function when condition comes True
- #X  Improve Exception Catching when runing file
  #!  END OF LINES ERROR IN RED  (WHAT?!)
  #✓  Debug Function in (--debug for debug-only && -d for run+debug)
  #✓  Using Cache with Execution Time when using "load"
