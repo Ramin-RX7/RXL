@@ -377,6 +377,8 @@ class IndentCheck:
 ################
 # TODO: 
   # EASY:
+    #? "filter" be opposite (correct-filter)
+    #> "apply" instead of "map" 
     #> Make Dict for "if args.option" in Get_Args()
     #> Syntax Conditions Order (By Usage)
     #> Options:
@@ -398,6 +400,7 @@ class IndentCheck:
             > linux commands
 
   # MEDIUM:
+    #> Full debug
     #> CONSTs:
           #!  After NameError rest of code will be ignored
           #>  Fix Const func to accept one object
@@ -446,7 +449,9 @@ class IndentCheck:
  #✓  Save Cache
  #✓  SyntaxError in Syntax (after 'Regex=' line)
  #✓  Cache Option
-###########
+
+########################################
+
 # NOTE:
  #>  Correct color for Options in extension (and also ignore cases)
         >  && -- ||
@@ -1686,7 +1691,7 @@ def RUN(READY_FILE_NAME,THREADS=[]):
         for thread in THREADS:
             thread.join()
         TIMES['B_Run '] = time.time()-START_TIME
-        if TIMES['B_Run '] > 0.5:
+        if TIMES['B_Run '] >  0.5 + 0.3*len(THREADS):
             print('Running Speed is Slow','red')
         elif TIMES['B_Run '] < 0.01:
             pass#print('Running Speed is Super Fast','green')
@@ -1790,7 +1795,7 @@ if __name__ == "__main__":
         Error('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)')
 
     except Exception as E:
-        raise E# from None
+        #raise E# from None
         print('Traceback (most recent call last):')
         print('  Error occured when making environment ready to run')
         print('SystemError: '+str(E), 'red', style='bold')

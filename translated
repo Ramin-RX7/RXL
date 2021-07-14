@@ -119,7 +119,7 @@ if ('d' and
 
 print('End')
 #HELO = ''
-
+std.cls()
 #ms.wait(10)
 
 
