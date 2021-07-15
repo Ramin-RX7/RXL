@@ -85,7 +85,7 @@ load tst2
 load tst3
 #print(tst2.x,'dodger_blue_1')
 
-
+#map(hello,HELO)
 until XX:
  print('No XX')
 

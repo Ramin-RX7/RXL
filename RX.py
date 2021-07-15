@@ -377,8 +377,7 @@ class IndentCheck:
 ################
 # TODO: 
   # EASY:
-    #? "filter" be opposite (correct-filter)
-    #> "apply" instead of "map" 
+    #✓ "apply" instead of "map" 
     #> Make Dict for "if args.option" in Get_Args()
     #> Syntax Conditions Order (By Usage)
     #> Options:
@@ -389,7 +388,6 @@ class IndentCheck:
     #> 'foreach' New Syntax:  "foreach iterable[item]: pass"
     #> "$" Family:
         call: accept args ('with')
-       ✓ cmd -> terminal.run
     #> Extension:
        >  New Syntaxes:
             >  Internet class functions
@@ -440,15 +438,8 @@ class IndentCheck:
     #>  Check Array is defined with acceptable length
     #>  There couldnt be nested Switch-Case statements  (and -Const-array?+not usefull)
 
+ #>  END OF LINES ERROR IN RED (EOL)
  #X  Unable to run file with double clicking
- #!  END OF LINES ERROR IN RED  (WHAT?!)
- #✓  Debug Function in (--debug for debug-only && -d for run+debug)
- #✓  Using Cache with Execution Time when using "load"
- #✓  ARG[N] --> Name
- #✓  input = std.Input
- #✓  Save Cache
- #✓  SyntaxError in Syntax (after 'Regex=' line)
- #✓  Cache Option
 
 ########################################
 
@@ -1036,7 +1027,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                         Skip = line_in_str
                         #print(Skip)
                         continue
-        elif '"""' in Text:
+        elif "'''" in Text:
             if not "'''" in Text[Text.index("'''")+3:]:
                 for line_in_str,text_in_str in enumerate(SOURCE[Line_Nom:],1):
                     if "'''" in text_in_str:
@@ -1059,7 +1050,13 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             if INDENT_START <= INDENT:
                 #print('RX_Err','red')
                 raise ERRORS.IndentationError(Line_Nom+1, SOURCE[Line_Nom], FILE)
-
+        
+        pass
+        
+        if re.search(r'^def\s+map\s*\(',Text.strip())  or  re.search(r'map\s*=\s*lambda\s+.+:',Text.strip()):
+            map_defd = True
+        else:
+            map_defd = False
 
     #< OPTIONS >#
     MODULE_VERSION  = 'rx7'
@@ -1194,13 +1191,15 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     #] Bases
     STRING = []
     STRING.append(f"import {MODULE_VERSION} as {MODULE_SHORTCUT}")
-    STRING.append(f"std = {MODULE_SHORTCUT}")
+    STRING.append(f"std = rx = {MODULE_SHORTCUT}")
     STRING.append(f"print = {MODULE_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}")
     #] Direct Attributes
     STRING.append(F"input = {MODULE_SHORTCUT}.Input")
     STRING.append(f"Const = const = {MODULE_SHORTCUT}._Lang.Const")
     STRING.append(f"Array = array = {MODULE_SHORTCUT}._Lang.Array")
     STRING.append(f"Check_Type = {MODULE_SHORTCUT}.Check_Type")
+    #] Other ones
+    STRING.append("apply = __builtins__['map'] ; map = None")
     for key,value in INFO.items():
         STRING.append(f"setattr(std,'{key}','{value}')")
 
@@ -1565,6 +1564,7 @@ def Syntax(SOURCE,
 
             SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Array({Content}{Type}{Length})'
 
+
         #] $TEST
         elif Striped.startswith('$test '  )  or  Striped=='$test':
             Regex=re.match(r'(?P<Indent>\s*)\$test \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?(\s* anyway(s)? (?P<Anyway>.+))?',Text)
@@ -1701,7 +1701,7 @@ def RUN(READY_FILE_NAME,THREADS=[]):
         import runpy
         runpy.run_path(READY_FILE_NAME)
     except Exception as e:
-        #raise e
+        raise e
         print('Traceback (most recent call last):')
         print('  More Information in Next Updates...')
        #print(f'  File "{FILE}" in  "UNDEFINED"')
@@ -1795,7 +1795,7 @@ if __name__ == "__main__":
         Error('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)')
 
     except Exception as E:
-        #raise E# from None
+        raise E# from None
         print('Traceback (most recent call last):')
         print('  Error occured when making environment ready to run')
         print('SystemError: '+str(E), 'red', style='bold')

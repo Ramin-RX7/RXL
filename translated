@@ -1,13 +1,13 @@
 import rx7 as ms
-std = ms
+std = rx = ms
 print = ms.style.print
 input = ms.Input
 Const = const = ms._Lang.Const
 Array = array = ms._Lang.Array
 Check_Type = ms.Check_Type
+apply = __builtins__['map'] ; map = None
 setattr(std,'Version','1.7.4')
-setattr(std,'Author','Ramin.RX7')
-setattr(std,'Title','DramaX')
+setattr(std,'Author','Ramin.RX7');setattr(std,'Title','DramaX')
 print('Start')
 #include files: exists,remove
 import sys
@@ -91,7 +91,7 @@ tst2=ms.import_module('__RX_LC__/tst2');
 tst3=ms.import_module('__RX_LC__/tst3');
 #print(tst2.x,'dodger_blue_1')
 
-
+map(hello,HELO)
 while not (XX):
  print('No XX')
 
@@ -119,7 +119,7 @@ if ('d' and
 
 print('End')
 #HELO = ''
-std.cls()
+
 #ms.wait(10)
 
 
