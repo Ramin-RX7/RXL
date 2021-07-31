@@ -518,6 +518,7 @@ r"""
  1373  "function-declaration": {
  1836  "(?x)\n  (?<!\\.) \\b(\n    [A-Z]+[a-z]*Error\n  )\\b\n"        (Arithmetic | )
  #1883       | Module(-|_)(N|n)ame | (Method|Package(_|-)Version) | Func(_|-)Type(-|_)Checker | Print | (End-)?(Exit|Quit)\n
+ 2190  invalid.illegal.operator.python (deleted)
 """
 #] VS Ext
 r"""

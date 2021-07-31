@@ -91,7 +91,7 @@ tst2=ms.import_module('__RX_LC__/tst2');
 tst3=ms.import_module('__RX_LC__/tst3');
 #print(tst2.x,'dodger_blue_1')
 
-map(hello,HELO)
+#map(hello,HELO)
 while not (XX):
  print('No XX')
 
