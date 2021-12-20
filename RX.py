@@ -377,13 +377,14 @@ class IndentCheck:
 ################
 # TODO: 
   # EASY:
+    #> apply the own type of iterable after using apply()
     #✓ "apply" instead of "map" 
     #> Make Dict for "if args.option" in Get_Args()
     #> Syntax Conditions Order (By Usage)
     #> Options:
-       #> Check for fast speed (if option of it is True)
+       #X Check for fast speed (if option of it is True)
        #> Ignore Reloading LOADED_PACKAGES Option
-       Sth like ("start service",-s --start) to execute first code (for faster speed in first run)
+       #- Sth like ("start service",-s --start) to execute first code (for faster speed in first run)
        ✓ No Cache
     #> 'foreach' New Syntax:  "foreach iterable[item]: pass"
     #> "$" Family:
@@ -411,7 +412,6 @@ class IndentCheck:
     #> Syncorize all DEBUGs  
     #> Load Modules:
        > Load modules with default Options
-    #> const keyword is not safe
     #> Console support RX syntax ( '\n'.join(Syntax([line])) )
 
   # HARD:
@@ -706,7 +706,6 @@ def Get_Args():
     parser = argparse.ArgumentParser(
         'RX', allow_abbrev=True,
         description='"RX Language Executer"',
-
     )
 
     parser.add_argument(
@@ -714,49 +713,41 @@ def Get_Args():
         action='store_true',
         help='Show information about running file (Verbose option in other apps)'
     )
-
     parser.add_argument(
         'FILE',
         metavar='FILE', type=str, nargs='?',
         help='File to execute with RX language'
     )
-
     parser.add_argument(
         '-o','--options',
         action='store_true',
         help='Show Options to Customize File-Run and Exit'
     )
-
     parser.add_argument(
         '-d',
         action='store_true',
         help='Debug file/code/syntax Before running it and print Mistakes in Red color'
     )
-
     parser.add_argument(
         '--debug',
         action='store_true',
         help='Debug-Only mode. This will not run file. It just Debugs it'
     )
-
     parser.add_argument(
         '-MT',
         action='store_true',
         help='Module Test. Not Very Usefull For Beginers'
     )
-
     parser.add_argument(
         '-T2P',
         action='store_true',
         help='Translate To Python'
     )
-
     parser.add_argument(
         '-nc','--no-cache',
         action='store_false',
         help='Translate To Python'
     )
-    
     parser.add_argument(
         'PROG_ARGS',
         action='store', 
@@ -781,7 +772,6 @@ def Get_Args():
         print('  Exit              True                Exit after executing the code or not'                                               )
         print(                                                                                                                             )
        #print('"OPTIONS" SHOULD BE DEFINED AFTER "BASE OPTIONS"'                                                             , style='bold')
-
         sys.exit()
     elif not args.FILE:
         Menu.Console()
@@ -918,7 +908,7 @@ class Menu:
         import inspect
         import rx7 as STD  #lite
         File = rx.io.get_files('Enter listed functions file name:  ',times=1)[0]
-        output = 'MODULE.py'
+        output = 'RXSL.py'
 
         Main = 'import os,time,sys,subprocess,random,shutil\n\n'
 
@@ -1730,7 +1720,7 @@ if __name__ == "__main__":
         BACKUP_EXIST      =  bool(rx.files.exists(f"./__RX_LC__/_{FILE}_"))
         INFO_BACKUP_EXIST =  bool(rx.files.exists(f"./__RX_LC__/_{FILE}_info_"))
 
-        if CACHE and BACKUP_EXIST and (not ADD_VERBOSE) and (
+        if CACHE and BACKUP_EXIST and INFO_BACKUP_EXIST and (not ADD_VERBOSE) and ( #why "(not ADD_VERBOSE)" ?!
             float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))==rx.files.mdftime(FILE)
         ):
             #print(f"MDFTIME REAL :: {rx.files.mdftime(FILE)}")

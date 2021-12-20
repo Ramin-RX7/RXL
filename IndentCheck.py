@@ -1,5 +1,10 @@
 #! /usr/bin/env python3
 
+"""
+This module is used in "RX.py"
+Changes should be applied in both files
+"""
+
 """The Tab Nanny despises ambiguous indentation.  She knows no mercy.
 
 tabnanny -- Detection of ambiguous indentation
