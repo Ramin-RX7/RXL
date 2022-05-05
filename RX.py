@@ -463,20 +463,13 @@ class IndentCheck:
  #X  Copy modules to running dir
  #X  INFO['EMAIL']?
  #X  Ready_File_Name without .rx extension?
- #X  def(:None)
+ #X  def(:None) 
  #X  Whole code in Try-Except
- #✓  Ignore case in Def_Str() with re.IGNORECASE
- #✓  Cancel Lite
- #✓ All re.match in Syntax() to .startswith (15x faster)
- #✓  How to run python file instead of os.system
 ###########
 # BUG:
   X  why exe doesn't accept args
   X switch-case works fine in normal run but is not translated when loading
   X $test 'anyway' not working
-  #✓ Every Load takes 0.2
-  #✓  Get Remaining Args for PROGRAM
-  #✓  Errors in red Color
 
 ########################################
 
@@ -486,7 +479,7 @@ class IndentCheck:
  #> Check instal:  PrependPath=1 (also for pip and scripts/*.exe)
  #> Make .exe with cxfreeze && copy .exe fileS in py/scripts dir
  #> Auto install famous 3rd-parties (requests-urllib3)
- #> ".rx" to ".exe" 
+ #> ".rx" to ".exe"
 
 ################################################################################
 """
@@ -695,7 +688,7 @@ def Get_Args():
         #Console()
         #Menu.menu()
         Menu.Terminal()
-        exit()
+        sys.exit()
 
     #if len(sys.argv) > 3:
     #    print('Argument Parser Will be added in next versions','dodger_blue_1')
@@ -1282,7 +1275,7 @@ def Syntax(SOURCE,
                 if not Striped.startswith('def ')  and  not Striped.startswith('#'):
                     raise ERRORS.ConstantError(Line_Nom, item[1], Striped, item[0], FILE)
 
-        if False: pass
+        if False: pass  #Just to make rest of the conditions look similar
 
         #] Include
         elif Striped.startswith('include '  )  or  Striped=='include': 
@@ -1344,17 +1337,17 @@ def Syntax(SOURCE,
             Lines_Added += 1
 
         #] Switch and Case
-        elif Striped.startswith('switch')  or  Striped==('Switch'):
+        elif Striped.startswith('switch ')  or  Striped==('switch'):
             #elif Regex:=re.match(r'(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text):
             Regex = re.match(r'(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text)
             if not Regex: raise SyntaxError
-
+            
             indent = Regex.group('indent')
-            rules = 0
+            rules = 0  #?
             for nom2,line2 in enumerate(SOURCE[Line_Nom:], 1):
                 if not line2:
                     continue
-                if not re.match(r'(?P<indent2>\s*)\w+', line2) and  not rules:
+                if not re.match(r'(?P<indent2>\s*).+', line2) and  not rules:
                     #new = len(re.search(r'^(?P<indent2>\s*)', line2).group('indent2'))
                     LAST_LINE = nom2 + Line_Nom -1
                     break
@@ -1624,7 +1617,7 @@ def Syntax(SOURCE,
             Regex = re.match(r'(?P<Indent>\s*)\$cmd \s*(?P<Command>.+)',Text)
             if not Regex:
                 raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of '$cmd'")
-            SOURCE[Line_Nom-1] = f'std.terminal.run("{Regex.group("Command") if Regex else "cmd"}")'
+            SOURCE[Line_Nom-1] = f'{Regex.group("Indent")}std.terminal.run("{Regex.group("Command") if Regex else "cmd"}")'
 
         #] $CALL
         elif Striped.startswith('$call '  )  or  Striped=='$call':
@@ -1766,6 +1759,7 @@ if __name__ == "__main__":
         if MT:
             #Setup_Env()
             rx.write(f'./__RX_LC__/{FILE.split(".")[0]}', '\n'.join(SOURCE))
+            #print(f'{FILE.split(".")[0]} file created','red')
 
         if (not DEBUG) and (not MT) and (not T2P):
         #if not all([[ARGS[3],ARGS[4]],ARGS[5]]):
