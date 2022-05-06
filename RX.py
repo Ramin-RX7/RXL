@@ -173,18 +173,33 @@ class rx:
             return answer
 
         @staticmethod
-        def selective_input(prompt,choices,default=None,error=False):
+        def selective_input(prompt,choices,default=None,ignore_case=False,error=True,invalid='Invalid input'):
+            if type(choices) == dict: Choices = list(choices.keys())+list(choices.values())
+            else: Choices = choices
+
+            if ignore_case: Choices = [item.lower() for item in Choices]
+
             while True:
                 inp = input(prompt)
-                if not inp  or  inp not in choices:
+                inp = inp.lower() if ignore_case else inp
+                if (not inp)  or  (inp not in Choices):
                     if error:
-                        rx.style.print('Invalid input', 'red')
+                        print(invalid, 'red')
                     else:
-                        inp = default
-                        break
+                        if default:
+                            inp = default
+                            break
                 else:
                     break
+            if type(choices) == dict:
+                try:
+                    inp = choices[inp]
+                except KeyError:
+                    pass
             return inp
+
+
+
 
         @staticmethod
         def yesno_input(prompt,default=None):
@@ -377,6 +392,7 @@ class IndentCheck:
 ################
 # TODO: 
   # EASY:
+    #> Check lines for all conditions until there's nothing to translate
     #> apply the own type of iterable after using apply()
     #✓ "apply" instead of "map" 
     #> Make Dict for "if args.option" in Get_Args()
@@ -385,10 +401,11 @@ class IndentCheck:
        #X Check for fast speed (if option of it is True)
        #> Ignore Reloading LOADED_PACKAGES Option
        #- Sth like ("start service",-s --start) to execute first code (for faster speed in first run)
-       ✓ No Cache
     #> 'foreach' New Syntax:  "foreach iterable[item]: pass"
     #> "$" Family:
         call: accept args ('with')
+        $checkwait: make while true to only break when there's no exception
+        extra lines that are needed in "check" nad "checkwait" should be removed
     #> Extension:
        >  New Syntaxes:
             >  Internet class functions
@@ -745,6 +762,12 @@ def Get_Args():
         'PROG_ARGS',
         action='store', 
         nargs=argparse.REMAINDER)
+    
+    parser.add_argument(
+        "--compile",
+        action="store_true",
+        help = "Directly Goes to Compile menu"
+    )
 
 
     args = parser.parse_args()
@@ -766,10 +789,14 @@ def Get_Args():
         print(                                                                                                                             )
        #print('"OPTIONS" SHOULD BE DEFINED AFTER "BASE OPTIONS"'                                                             , style='bold')
         sys.exit()
+    
     elif not args.FILE:
         Menu.Console()
         #Menu()
         sys.exit()
+
+    elif args.compile:
+        Menu.Compile(args.FILE)
 
     if args.debug:
         args.d = True
@@ -943,8 +970,8 @@ class Menu:
         print(f'Module has been created successfully', 'green')
 
     @staticmethod
-    def Compile():
-        File = rx.io.get_files('Enter File Path:  ',times=1)[0]
+    def Compile(FILE=None):
+        File = FILE if FILE else rx.io.get_files('Enter File Path:  ',times=1)[0]
         File = rx.files.abspath(File)
         #print(File)
         #exit()
@@ -952,8 +979,7 @@ class Menu:
         File = File[:File.rindex('.')]+'.py'
 
         Compiler = rx.io.selective_input('Compiler? [1-cx_freeze,2-pyinstaller]  ',
-                                         choices=['1','2'],error=True)
-        Compiler = {'1':'cxfreeze','2':'pyinstaller'}[Compiler]
+                                         choices={'1':'cxfreeze','2':'pyinstaller'},error=True)
         Icon = input('Icon Path:  ')
         Path = input('Path to save file:  ')
 
@@ -975,7 +1001,7 @@ class Menu:
             Default_Args = '-y'
         Args = input('Enter other arguments:  ')
         rx.terminal.run(f"{Compiler} {File} {Path} {Icon} {Default_Args} {Onefile} {Windowed} {Args}")
-
+        exit()
 
 #< Reading File >#
 def Read_File(filepath):
@@ -1549,11 +1575,11 @@ def Syntax(SOURCE,
             SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Array({Content}{Type}{Length})'
 
 
-        #] $TEST
-        elif Striped.startswith('$test '  )  or  Striped=='$test':
-            Regex=re.match(r'(?P<Indent>\s*)\$test \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?(\s* anyway(s)? (?P<Anyway>.+))?',Text)
+        #] $check
+        elif Striped.startswith('$check '  )  or  Striped=='$check':
+            Regex=re.match(r'(?P<Indent>\s*)\$check \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?( \s*anyway(s)? (?P<Anyway>.+))?',Text)
             if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of '$test'")
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of '$check'")
             needed_lines = 2
             if Regex.group("Then"):
                 #print('Then True')
@@ -1594,7 +1620,7 @@ def Syntax(SOURCE,
 
             if len(free_lines)<needed_lines:
                 #print(free_lines,'red')
-                ERRORS.RaiseError('SpaceError',f"'$test' should have one extra blank line around it " +
+                ERRORS.RaiseError('SpaceError',f"'$check' should have one extra blank line around it " +
                                                f"per any extra keywords ({needed_lines-1} lines needed)",
                                   Text,Line_Nom,FILE)
 
@@ -1611,6 +1637,71 @@ def Syntax(SOURCE,
                 SOURCE[free_lines[3]] =  Indent+finally_
             
             Lines_Added += needed_lines
+        
+        elif Striped.startswith('$checkwait ')  or  Striped=='$checkwait':
+
+            Regex=re.match(r'(?P<Indent>\s*)\$checkwait \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?( \s*anyway(s)? (?P<Anyway>.+))?',Text)
+            if not Regex:
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of '$checkwait'")
+            needed_lines = 3
+            if Regex.group("Then"):
+                #print('Then True')
+                needed_lines += 1
+                else_ =  f' {Indent}else: {Regex.group("Then")}'
+            else:
+                else_ = ''
+            if Regex.group('Anyway'):
+                #print('Anyway True')
+                needed_lines += 1
+                finally_ =  f' {Indent}finally: {Regex.group("Anyway")}'
+            else:
+                #print('Anyway False')
+                finally_ = ''
+
+            nofound = True
+            line = int(Line_Nom)
+            pos_lines = 0
+            free_lines = []
+            free_lines.append(line-1)
+            while (nofound and line!=len(SOURCE)):
+                if  SOURCE[line].strip() or pos_lines>=needed_lines:
+                    nofound = False
+                else:
+                    free_lines.append(line)
+                    pos_lines+=1
+                line+=1
+            line = int(Line_Nom-2)
+            pre_lines = 0
+            nofound = True
+            while (nofound and line!=1):
+                if SOURCE[line].strip() or len(free_lines)>=needed_lines:
+                    nofound = False
+                else:
+                    free_lines.append(line)
+                    pre_lines+=1
+                line-=1
+
+            if len(free_lines)<needed_lines:
+                #print(free_lines,'red')
+                ERRORS.RaiseError('SpaceError',f"'$check' should have one extra blank line around it " +
+                                               f"per any extra keywords ({needed_lines-1} lines needed)",
+                                  Text,Line_Nom,FILE)
+
+            free_lines.sort()
+            Indent   =   Regex.group('Indent')
+            try_     =   f' {Indent}try: {Regex.group("Test")}'
+            except_  =   f' {Indent}except: pass'
+
+            SOURCE[free_lines[0]] =  Indent+"while True:"
+            SOURCE[free_lines[1]] =  Indent+try_+";break"
+            SOURCE[free_lines[2]] =  Indent+except_
+            if else_:
+                SOURCE[free_lines[3]] =  Indent+else_
+            if finally_:
+                SOURCE[free_lines[4]] =  Indent+finally_
+            
+            Lines_Added += needed_lines
+        
 
         #] $CMD
         elif Striped.startswith('$cmd '   )  or  Striped=='$cmd' :
@@ -1683,7 +1774,7 @@ def RUN(READY_FILE_NAME,THREADS=[]):
         print(f"B_Run :: {TIMES['B_Run ']}",'green')
         #sys.exit()
         import runpy
-        runpy.run_path(READY_FILE_NAME)
+        #runpy.run_path(READY_FILE_NAME)
     except Exception as e:
         raise e
         print('Traceback (most recent call last):')
