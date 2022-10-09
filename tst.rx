@@ -15,7 +15,7 @@ import sys
 array var[3:str] = {'a','b'}
 $cmd echo $cmd
 
-$checkwait hello+=2 then files,var# anyway 2
+#$checkwait hello+=2 then files,var# anyway 2
 
 
 import sys

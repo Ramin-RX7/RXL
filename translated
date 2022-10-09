@@ -14,10 +14,10 @@ import sys
 #sys.exit()
 var = ms._Lang.Array('a','b',type_=str,size=3)
 std.terminal.run("echo $cmd")
-while True:
- try: hello+=2;break
- except: pass
- else: files,var# anyway 2
+
+#$checkwait hello+=2 then files,var# anyway 2
+
+
 import sys
 print(sys.argv)
 

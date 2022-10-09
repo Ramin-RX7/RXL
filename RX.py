@@ -392,9 +392,10 @@ class IndentCheck:
 ################
 # TODO: 
   # EASY:
+    #> Check for cache in local directory of RX.py (not relative to running file)
     #> Check lines for all conditions until there's nothing to translate
     #> apply the own type of iterable after using apply()
-    #✓ "apply" instead of "map" 
+    #> "apply" instead of "map" --> Does not work when compiling "RX.py" with "pyinstaller"
     #> Make Dict for "if args.option" in Get_Args()
     #> Syntax Conditions Order (By Usage)
     #> Options:
@@ -1637,7 +1638,7 @@ def Syntax(SOURCE,
                 SOURCE[free_lines[3]] =  Indent+finally_
             
             Lines_Added += needed_lines
-        
+
         elif Striped.startswith('$checkwait ')  or  Striped=='$checkwait':
 
             Regex=re.match(r'(?P<Indent>\s*)\$checkwait \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?( \s*anyway(s)? (?P<Anyway>.+))?',Text)
@@ -1702,7 +1703,6 @@ def Syntax(SOURCE,
             
             Lines_Added += needed_lines
         
-
         #] $CMD
         elif Striped.startswith('$cmd '   )  or  Striped=='$cmd' :
             Regex = re.match(r'(?P<Indent>\s*)\$cmd \s*(?P<Command>.+)',Text)
@@ -1774,7 +1774,7 @@ def RUN(READY_FILE_NAME,THREADS=[]):
         print(f"B_Run :: {TIMES['B_Run ']}",'green')
         #sys.exit()
         import runpy
-        #runpy.run_path(READY_FILE_NAME)
+        runpy.run_path(READY_FILE_NAME)
     except Exception as e:
         raise e
         print('Traceback (most recent call last):')
