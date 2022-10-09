@@ -391,7 +391,10 @@ class IndentCheck:
 # CHARS:  {✓ , ? , > , ! , X}
 ################
 # TODO: 
+    ? What happens if we use cache and loaded module has changed
   # EASY:
+    #> Make function for cache check
+    #? "until & unless & foreach & func" replace or regex
     #> Check for cache in local directory of RX.py (not relative to running file)
     #> Check lines for all conditions until there's nothing to translate
     #> apply the own type of iterable after using apply()
@@ -561,7 +564,9 @@ r"""
 
 #] Just to have
 r"""
- r'^((F|f)unc(tion)?)(-|_)?((T|t)ype|(A|a)rg|(P|p)aram)(-|_)?((S|s)canner|(C|c)hecker)\s*:\s*\w*'
+  r'^((F|f)unc(tion)?)(-|_)?((T|t)ype|(A|a)rg|(P|p)aram)(-|_)?((S|s)canner|(C|c)hecker)\s*:\s*\w*'
+  #CxFreeze args:
+    
 """
 
 
@@ -1451,10 +1456,11 @@ def Syntax(SOURCE,
         #] until & unless & foreach & func
         elif Striped.startswith('until '  )  or  Striped=='until':
             #elif Regex:=re.match(r'(?P<Indent>\s*)until \s*(?P<Expression>.+):'  , Text):
-            Regex=re.match(r'(?P<Indent>\s*)until \s*(?P<Expression>.+):'  , Text)
+            Regex=re.match(r'(?P<Indent>\s*)until \s*(?P<Expression>.+):(?P<Rest>.*)'  , Text)
             if not Regex:
                 raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'until'")
-            SOURCE[Line_Nom-1] = f"{Regex.group('Indent')}while not ({Regex.group('Expression')}):"
+            SOURCE[Line_Nom-1] = f"{Regex.group('Indent')}while not ({Regex.group('Expression')}):{Regex.group('Rest')}"
+            # or i can replace "until" with "while not" (but still have to put paranthesis around condition)
         elif Striped.startswith('unless ' )  or  Striped=='unless':
             #elif Regex:=re.match(r'(?P<Indent>\s*)unless \s*(?P<Expression>.+):' , Text):
             Regex=re.match(r'(?P<Indent>\s*)unless \s*(?P<Expression>.+):' , Text)
@@ -1784,6 +1790,47 @@ def RUN(READY_FILE_NAME,THREADS=[]):
         sys.exit()
 
 
+#< Check Cache Suitability >#
+def Cache_Check():
+    #print(f"MDFTIME REAL :: {rx.files.mdftime(FILE)}")
+    #print(f"MDFTIME CACH :: {float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))}")        
+    if DEBUG or D or ADD_VERBOSE:
+        print('[*] Using Cache', 'dodger_blue_1')
+        try:
+            rx.files.copy(f'./__RX_LC__/_{FILE}_',READY_FILE_NAME)
+        except PermissionError:
+            rx.files.remove(READY_FILE_NAME)
+            rx.files.copy(f'./__RX_LC__/_{FILE}_',READY_FILE_NAME)
+        SOURCE = rx.read(READY_FILE_NAME).split('\n')
+        if Regex:=re.match(r'ProgramStartTime\s*= \s*\w+(\.?\w*)',SOURCE[0]):
+            print('YES','green')
+            SOURCE[0] = 'ProgramStartTime= '+str(START_TIME)
+    return SOURCE
+
+
+#< Make Neccassary Files for "RUN" >#
+def Ready_Files(): 
+    SOURCE = Read_File(FILE)
+    SOURCE = Define_Structure(SOURCE, FILE, D)
+    INFO = SOURCE[4]
+    TIMES['DefStr'] = time.time()-START_TIME
+    SOURCE,THREADS = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, D)
+    TIMES['Syntax'] = time.time()-START_TIME
+    #print(Lines_Added)
+    if (not DEBUG) and (not MT):
+        try:
+            rx.write(READY_FILE_NAME, '\n'.join(SOURCE))
+            rx.write(f"./__RX_LC__/{READY_FILE_NAME}", '\n'.join(SOURCE))
+        except PermissionError:
+            rx.files.remove(READY_FILE_NAME)
+            rx.write(READY_FILE_NAME, '\n'.join(SOURCE))
+            rx.files.remove(f"./__RX_LC__/{READY_FILE_NAME}")
+            rx.write(f"./__RX_LC__/{READY_FILE_NAME}", '\n'.join(SOURCE))
+        rx.write('translated', '\n'.join(SOURCE))
+        rx.files.hide(READY_FILE_NAME)
+    return SOURCE,THREADS,INFO
+
+
 
 
 
@@ -1793,7 +1840,7 @@ if __name__ == "__main__":
         TIMES['Start '] = time.time()-START_TIME #print(f'START  :: {time.time()-START_TIME}','green')
         Setup_Env()
         TIMES['SetEnv'] = time.time()-START_TIME
-        # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P, 6:PROG_ARGS}
+        # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P, 6:PROG_ARGS, 7:No_CACHE}
         ARGS = Get_Args()
         FILE, ADD_VERBOSE, D, DEBUG, MT, T2P, PROG_ARGS, CACHE  =  ARGS
         TIMES['ARGS  '] = time.time()-START_TIME
@@ -1804,47 +1851,17 @@ if __name__ == "__main__":
         BACKUP_EXIST      =  bool(rx.files.exists(f"./__RX_LC__/_{FILE}_"))
         INFO_BACKUP_EXIST =  bool(rx.files.exists(f"./__RX_LC__/_{FILE}_info_"))
 
-        if CACHE and BACKUP_EXIST and INFO_BACKUP_EXIST and (not ADD_VERBOSE) and ( #why "(not ADD_VERBOSE)" ?!
+        if CACHE and BACKUP_EXIST and INFO_BACKUP_EXIST and  (  #"(not ADD_VERBOSE)" ?!
             float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))==rx.files.mdftime(FILE)
-        ):
-            #print(f"MDFTIME REAL :: {rx.files.mdftime(FILE)}")
-            #print(f"MDFTIME CACH :: {float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))}")
-            #if DEBUG or D:
-            #print('[*] Using Cache', 'dodger_blue_1')
-            try:
-                rx.files.copy(f'./__RX_LC__/_{FILE}_',READY_FILE_NAME)
-            except PermissionError:
-                rx.files.remove(READY_FILE_NAME)
-                rx.files.copy(f'./__RX_LC__/_{FILE}_',READY_FILE_NAME)
-            SOURCE = rx.read(READY_FILE_NAME).split('\n')
-            if Regex:=re.match(r'ProgramStartTime\s*= \s*\w+(\.?\w*)',SOURCE[0]):
-                print('YES','green')
-                SOURCE[0] = 'ProgramStartTime= '+str(START_TIME)
+          ):
+            SOURCE = Cache_Check()
             THREADS = []
             #RUN(READY_FILE_NAME)
         else:
             #rx.cls()
-            SOURCE = Read_File(FILE)
-            SOURCE = Define_Structure(SOURCE, FILE, D)
-            INFO = SOURCE[4]
-            TIMES['DefStr'] = time.time()-START_TIME
-            SOURCE,THREADS = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, D)
-            TIMES['Syntax'] = time.time()-START_TIME
-
-            #print(Lines_Added)
-
-            if (not DEBUG) and (not MT):
-                try:
-                    rx.write(READY_FILE_NAME, '\n'.join(SOURCE))
-                    rx.write(f"./__RX_LC__/{READY_FILE_NAME}", '\n'.join(SOURCE))
-                except PermissionError:
-                    rx.files.remove(READY_FILE_NAME)
-                    rx.write(READY_FILE_NAME, '\n'.join(SOURCE))
-                    rx.files.remove(f"./__RX_LC__/{READY_FILE_NAME}")
-                    rx.write(f"./__RX_LC__/{READY_FILE_NAME}", '\n'.join(SOURCE))
-                rx.write('translated', '\n'.join(SOURCE))
-                rx.files.hide(READY_FILE_NAME)
+            SOURCE,THREADS,INFO = Ready_Files()
             title = rx.terminal.get_title()
+
         if T2P:
             rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
         if MT:
@@ -1883,4 +1900,4 @@ if __name__ == "__main__":
                 Clean_Up(FILE)
         except:
             pass
-        rx.terminal.set_title(rx.terminal.get_title())
+        rx.terminal.set_title(rx.terminal.get_title()) #What?
