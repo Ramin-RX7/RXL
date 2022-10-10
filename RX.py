@@ -1796,20 +1796,21 @@ def Cache_Check():
     #print(f"MDFTIME CACH :: {float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))}")        
     if DEBUG or D or ADD_VERBOSE:
         print('[*] Using Cache', 'dodger_blue_1')
-        try:
-            rx.files.copy(f'./__RX_LC__/_{FILE}_',READY_FILE_NAME)
-        except PermissionError:
-            rx.files.remove(READY_FILE_NAME)
-            rx.files.copy(f'./__RX_LC__/_{FILE}_',READY_FILE_NAME)
-        SOURCE = rx.read(READY_FILE_NAME).split('\n')
-        if Regex:=re.match(r'ProgramStartTime\s*= \s*\w+(\.?\w*)',SOURCE[0]):
-            print('YES','green')
-            SOURCE[0] = 'ProgramStartTime= '+str(START_TIME)
+    try:
+        rx.files.copy(f'./__RX_LC__/_{FILE}_',READY_FILE_NAME)
+    except PermissionError:
+        rx.files.remove(READY_FILE_NAME)
+        rx.files.copy(f'./__RX_LC__/_{FILE}_',READY_FILE_NAME)
+    SOURCE = rx.read(READY_FILE_NAME).split('\n')
+    if Regex:=re.match(r'ProgramStartTime\s*= \s*\w+(\.?\w*)',SOURCE[0]):
+        print('YES','green')
+        SOURCE[0] = 'ProgramStartTime= '+str(START_TIME)
     return SOURCE
 
 
 #< Make Neccassary Files for "RUN" >#
 def Ready_Files(): 
+    global TIMES
     SOURCE = Read_File(FILE)
     SOURCE = Define_Structure(SOURCE, FILE, D)
     INFO = SOURCE[4]
@@ -1831,6 +1832,21 @@ def Ready_Files():
     return SOURCE,THREADS,INFO
 
 
+#< Starting Code >#
+def Start_Lang():
+    if ADD_VERBOSE:
+        #rx.cls()
+        NOW = str(__import__('datetime').datetime.now())
+        # probably consider changing next line from "NOW" to "START_TIME"
+        print(f'''Start  RX Language  at  "{NOW[:NOW.rindex('.')+5]}"''')
+        print(f'Running  "{INFO["Title"]}" v{INFO["Version"]}  by "{INFO["Author"]}"')
+        print('\n')
+    RUN(READY_FILE_NAME,THREADS)
+    if ADD_VERBOSE:
+        EXECUTION_TIME_TEXT = round(__import__("time").time()-START_TIME,3)
+        print(f'\n\nExecution Time:  {EXECUTION_TIME_TEXT}\n')
+        #print(START_TIME)
+        #print(EXECUTION_TIME_TEXT)
 
 
 
@@ -1854,13 +1870,15 @@ if __name__ == "__main__":
         if CACHE and BACKUP_EXIST and INFO_BACKUP_EXIST and  (  #"(not ADD_VERBOSE)" ?!
             float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))==rx.files.mdftime(FILE)
           ):
-            SOURCE = Cache_Check()
+            try:     SOURCE = Cache_Check()
+            except:  raise#Ready_Files() 
             THREADS = []
             #RUN(READY_FILE_NAME)
         else:
             #rx.cls()
             SOURCE,THREADS,INFO = Ready_Files()
-            title = rx.terminal.get_title()
+        
+        title = rx.terminal.get_title()
 
         if T2P:
             rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
@@ -1868,21 +1886,8 @@ if __name__ == "__main__":
             #Setup_Env()
             rx.write(f'./__RX_LC__/{FILE.split(".")[0]}', '\n'.join(SOURCE))
             #print(f'{FILE.split(".")[0]} file created','red')
-
         if (not DEBUG) and (not MT) and (not T2P):
-        #if not all([[ARGS[3],ARGS[4]],ARGS[5]]):
-            if ADD_VERBOSE:
-                #rx.cls()
-                NOW = str(__import__('datetime').datetime.now())
-                print(f'''Start  RX Language  at  "{NOW[:NOW.rindex('.')+5]}"''')
-                print(f'Running  "{INFO["Title"]}" v{INFO["Version"]}  by "{INFO["Author"]}"')
-                print('\n')
-            RUN(READY_FILE_NAME,THREADS)
-            if ADD_VERBOSE:
-                EXECUTION_TIME_TEXT = round(__import__("time").time()-START_TIME,3)
-                print(f'\n\nExecution Time:  {EXECUTION_TIME_TEXT}\n')
-                #print(START_TIME)
-                #print(EXECUTION_TIME_TEXT)
+            Start_Lang()
     except KeyboardInterrupt:
         #Clean_Up(File)
         Error('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)')
