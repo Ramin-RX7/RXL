@@ -229,6 +229,11 @@ class rx:
     SF = AF = NF = io
 
 class IndentCheck:
+    """
+    This Class is a copy of tabnanny module in standard library
+    About half of the methods that are not used are deleted from the code
+    SOURCE: https://github.com/python/cpython/blob/3.10/Lib/tabnanny.py
+    """
     class NannyNag(Exception):
         def __init__(self, lineno, msg, line):
             self.lineno, self.msg, self.line = lineno, msg, line
@@ -238,6 +243,7 @@ class IndentCheck:
             return self.msg
         def get_line(self):
             return self.line
+
     @staticmethod
     def check(file):
 
@@ -270,7 +276,6 @@ class IndentCheck:
 
     class Whitespace:
         S, T = ' ','\t'
-
 
         def __init__(self, ws):
             self.raw  = ws
@@ -386,11 +391,13 @@ class IndentCheck:
                     msg = "indent not equal e.g. " + IndentCheck.format_witnesses(witness)
                     raise IndentCheck.NannyNag(start[0], msg, line)
 
+
 """ 
 ################################################################################
 # CHARS:  {✓ , ? , > , ! , X}
 ################
 # TODO: 
+    ? indentation check error
     ? What happens if we use cache and loaded module has changed
   # EASY:
     #> Make function for cache check
@@ -504,16 +511,6 @@ class IndentCheck:
 
 ################################################################################
 """
-
-#] APPS:
- #> Metasploit
- #> Nmap
- #> Git
- #> Sherlock
- #> SET
- #> Hashcat
- #> John
-
 #] CHANGES
 r"""
  C:\Users\IRANIAN\.vscode\extensions\ms-python.python-2020.8.105369\package.json   (1637)
@@ -566,8 +563,35 @@ r"""
 r"""
   r'^((F|f)unc(tion)?)(-|_)?((T|t)ype|(A|a)rg|(P|p)aram)(-|_)?((S|s)canner|(C|c)hecker)\s*:\s*\w*'
   #CxFreeze args:
-    
+
+  #Built-in parsing modules: parser,tokenize,ast    
 """
+"""
+Different Text Parsers Comparison:
+  NAME          |TUTORIAL| FEATURES | TIME 100 | IMP_T | EASE-OF-USE   
+  --------------|--------|----------|--------- |-------|--------------
+  canopy        |   +    |    0     |  +  006  | .001  |     +         
+  lark          |   +    |    +     |  0  017  | .037  |     +         
+  funcparserlib |   +    |    -     |  0  018  | .002  |     +         
+  parse         |   +    |    -     |  +  002  | .005  |     +         
+  parsimonious  |   -    |    0     |  +  001  | .030  |     +         
+  parsy         |   -    |    0     |  0       | .002  |     +         
+                                                                       
+  TextX         |   0    |    0     |  -  032  | .220  |     0         
+  pe            |   0    |    0     |  -  023  | .022  |     0         
+  PyLery        |   0    |    -     |  +  001  | .012  |     0         
+  Arpeggio      |   -    |    0     |  -  045  | .002  |     0         
+                                                                       
+  textparser    |   -    |    0     |  +  002  | .001  |     0         
+  parsec        |   -    |    0     |  0  018  | .001  |     0         
+  pyparsing     |   -    |    0     |  +  002  | .022  |     0         
+  Ply           |   -    |    0     |  +  002  | .008  |     -         
+  tatsu         |   0    |    0     |  -  345  | .038  |     0         
+  reparse       |   -    |    -     |  0       | .002  |     0         
+"""
+
+
+
 
 
 
@@ -1777,8 +1801,8 @@ def RUN(READY_FILE_NAME,THREADS=[]):
         elif TIMES['B_Run '] < 0.01:
             pass#print('Running Speed is Super Fast','green')
         #for k,v in TIMES.items(): print(f'{k} :: {v}','green')
-        print(f"B_Run :: {TIMES['B_Run ']}",'green')
-        #sys.exit()
+        # print(f"B_Run :: {TIMES['B_Run ']}",'green')
+        return
         import runpy
         runpy.run_path(READY_FILE_NAME)
     except Exception as e:
@@ -1853,9 +1877,11 @@ def Start_Lang():
 #< START OF THE CODE >#
 if __name__ == "__main__":
     try:
-        TIMES['Start '] = time.time()-START_TIME #print(f'START  :: {time.time()-START_TIME}','green')
+        TIMES['Start '] = time.time()-START_TIME
+
         Setup_Env()
         TIMES['SetEnv'] = time.time()-START_TIME
+
         # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P, 6:PROG_ARGS, 7:No_CACHE}
         ARGS = Get_Args()
         FILE, ADD_VERBOSE, D, DEBUG, MT, T2P, PROG_ARGS, CACHE  =  ARGS
@@ -1888,6 +1914,7 @@ if __name__ == "__main__":
             #print(f'{FILE.split(".")[0]} file created','red')
         if (not DEBUG) and (not MT) and (not T2P):
             Start_Lang()
+
     except KeyboardInterrupt:
         #Clean_Up(File)
         Error('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)')
