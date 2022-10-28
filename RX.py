@@ -568,26 +568,29 @@ r"""
 """
 """
 Different Text Parsers Comparison:
-  NAME          |TUTORIAL| FEATURES | TIME 100 | IMP_T | EASE-OF-USE   
-  --------------|--------|----------|--------- |-------|--------------
-  canopy        |   +    |    0     |  +  006  | .001  |     +         
-  lark          |   +    |    +     |  0  017  | .037  |     +         
-  funcparserlib |   +    |    -     |  0  018  | .002  |     +         
-  parse         |   +    |    -     |  +  002  | .005  |     +         
-  parsimonious  |   -    |    0     |  +  001  | .030  |     +         
-  parsy         |   -    |    0     |  0       | .002  |     +         
-                                                                       
-  TextX         |   0    |    0     |  -  032  | .220  |     0         
-  pe            |   0    |    0     |  -  023  | .022  |     0         
-  PyLery        |   0    |    -     |  +  001  | .012  |     0         
-  Arpeggio      |   -    |    0     |  -  045  | .002  |     0         
-                                                                       
-  textparser    |   -    |    0     |  +  002  | .001  |     0         
-  parsec        |   -    |    0     |  0  018  | .001  |     0         
-  pyparsing     |   -    |    0     |  +  002  | .022  |     0         
-  Ply           |   -    |    0     |  +  002  | .008  |     -         
-  tatsu         |   0    |    0     |  -  345  | .038  |     0         
-  reparse       |   -    |    -     |  0       | .002  |     0         
+NAME         |TUTORIAL| EASE-OF-USE | FEATURES | TIME 100 | IMP_T 
+-------------|--------|-------------|----------|----------|-------
+canopy       |   +    |     +       |    +     |  +  006  | .001  
+lark         |   0    |     0       |    +     |  0  017  | .037  
+funcparserlib|   +    |     -       |    0     |  0  018  | .002  
+parse        |   +    |     +       |    -     |  +  002  | .005  
+                                                                  
+TextX        |   +    |     0       |    0     |  -  032  | .220  
+PyLery       |   -    |     -       |    +     |  +  001  | .012  
+pe           |   0    |     +       |    -     |  -  023  | .022  
+tatsu       *|   0    |     0       |    0     |  -  345  | .038  
+parsimonious |   -    |     +       |    0     |  +  001  | .030  
+parsy        |   -    |     +       |    0     |  0       | .002  
+textparser   |   -    |     0       |    0     |  +  002  | .001  
+pyparsing    |   -    |     0       |    0     |  +  002  | .022  
+                                                                  
+parsec       |   -    |     0       |    0     |  0  018  | .001  
+Ply          |   -    |     -       |    0     |  +  002  | .008  
+reparse      |   -    |     0       |    -     |          | .002  
+Arpeggio     |   -    |     0       |    0     |  -  045  | .002  
+
+Antlr
+PyPEG
 """
 
 
@@ -627,6 +630,7 @@ def Setup_Env():
     rx.files.mkdir('__RX_LC__')
     #rx.write('__RX_LC__/__init__.py')
     rx.files.hide('__RX_LC__')
+
 
 
 #< List of all errors >#
@@ -723,6 +727,7 @@ class ERRORS:
                   'SyntaxError', msg,
                   Line_Text,Line_Nom,FILE
                   )
+
 
 
 #< Get Arguments >#
@@ -837,6 +842,7 @@ def Get_Args():
     return (args.FILE, args.info, args.d, args.debug, 
            args.MT   , args.T2P , args.PROG_ARGS    ,
            args.no_cache)
+
 
 
 #< Menu >#
@@ -1033,6 +1039,8 @@ class Menu:
         rx.terminal.run(f"{Compiler} {File} {Path} {Icon} {Default_Args} {Onefile} {Windowed} {Args}")
         exit()
 
+
+
 #< Reading File >#
 def Read_File(filepath):
     if filepath and rx.files.exists(filepath):
@@ -1042,6 +1050,7 @@ def Read_File(filepath):
     print(os.path.abspath(filepath), 'red')
     print(f"RX> can't open file '{filepath}': No such file", 'red') #or directory
     sys.exit()
+
 
 
 #< Method,Module_Name,Print,Indent,Const >#
@@ -1267,6 +1276,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             TYPE_SCANNER, INFO)
 
 
+
 #< Syntax >#
 def Syntax(SOURCE, 
            MODULE_VERSION ,  MODULE_SHORTCUT,
@@ -1334,7 +1344,7 @@ def Syntax(SOURCE,
         if False: pass  #Just to make rest of the conditions look similar
 
         #] Include
-        elif Striped.startswith('include '  )  or  Striped=='include': 
+        elif Striped.startswith('include ')  or  Striped=='include': 
             Regex=re.match(r'(?P<Indent>\s*)include \s*(?P<objects>.+)\s*', Text)
             if not Regex:
                 raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'include'")
@@ -1758,6 +1768,7 @@ def Syntax(SOURCE,
     return SOURCE,THREADS
 
 
+
 #< Verbose >#
 def Add_Verbose(SOURCE, INFO):
     NOW = str(__import__('datetime').datetime.now())
@@ -1772,6 +1783,7 @@ def Add_Verbose(SOURCE, INFO):
     #print(SOURCE[-3])
 
     return SOURCE
+
 
 
 #< Clean Everything Which is Not Needed >#
@@ -1789,6 +1801,7 @@ def Clean_Up(File='',Lib=True):   #] 0.03
     except: pass
 
 
+
 #< Running _FILE_ >#
 def RUN(READY_FILE_NAME,THREADS=[]):
     rx.terminal.set_title(f'RX - {os.path.basename(FILE)}')
@@ -1801,8 +1814,8 @@ def RUN(READY_FILE_NAME,THREADS=[]):
         elif TIMES['B_Run '] < 0.01:
             pass#print('Running Speed is Super Fast','green')
         #for k,v in TIMES.items(): print(f'{k} :: {v}','green')
-        # print(f"B_Run :: {TIMES['B_Run ']}",'green')
-        return
+        print(f"B_Run :: {TIMES['B_Run ']}",'green')
+        # return
         import runpy
         runpy.run_path(READY_FILE_NAME)
     except Exception as e:
@@ -1812,6 +1825,7 @@ def RUN(READY_FILE_NAME,THREADS=[]):
        #print(f'  File "{FILE}" in  "UNDEFINED"')
         Error(type(e).__name__+': '+str(e))
         sys.exit()
+
 
 
 #< Check Cache Suitability >#
@@ -1830,6 +1844,7 @@ def Cache_Check():
         print('YES','green')
         SOURCE[0] = 'ProgramStartTime= '+str(START_TIME)
     return SOURCE
+
 
 
 #< Make Neccassary Files for "RUN" >#
@@ -1856,6 +1871,7 @@ def Ready_Files():
     return SOURCE,THREADS,INFO
 
 
+
 #< Starting Code >#
 def Start_Lang():
     if ADD_VERBOSE:
@@ -1871,6 +1887,8 @@ def Start_Lang():
         print(f'\n\nExecution Time:  {EXECUTION_TIME_TEXT}\n')
         #print(START_TIME)
         #print(EXECUTION_TIME_TEXT)
+
+
 
 
 
@@ -1899,7 +1917,7 @@ if __name__ == "__main__":
             try:     SOURCE = Cache_Check()
             except:  raise#Ready_Files() 
             THREADS = []
-            #RUN(READY_FILE_NAME)
+            # RUN(READY_FILE_NAME)
         else:
             #rx.cls()
             SOURCE,THREADS,INFO = Ready_Files()
