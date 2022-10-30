@@ -1,19 +1,16 @@
 # Custom
 .vscode/
 .vscode-test/
+__RX_LC__/
 *.exe
-tst.*
 _Console_.py
-x.rx7
 translated
 Program/
 MODULE.py
-functions.txt
 tst*.*
 output/
-__RX_LC__/
-#tst2.rx7
-#tst3.rx7
+
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

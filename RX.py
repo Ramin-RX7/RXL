@@ -396,10 +396,11 @@ class IndentCheck:
 ################################################################################
 # CHARS:  {✓ , ? , > , ! , X}
 ################
-# TODO: 
+# TODO:
     ? indentation check error
     ? What happens if we use cache and loaded module has changed
   # EASY:
+    #> Organizing Files and Dirs of Repository
     #> Make function for cache check
     #? "until & unless & foreach & func" replace or regex
     #> Check for cache in local directory of RX.py (not relative to running file)
@@ -568,29 +569,18 @@ r"""
 """
 """
 Different Text Parsers Comparison:
-NAME         |TUTORIAL| EASE-OF-USE | FEATURES | TIME 100 | IMP_T 
--------------|--------|-------------|----------|----------|-------
-canopy       |   +    |     +       |    +     |  +  006  | .001  
-lark         |   0    |     0       |    +     |  0  017  | .037  
-funcparserlib|   +    |     -       |    0     |  0  018  | .002  
-parse        |   +    |     +       |    -     |  +  002  | .005  
-                                                                  
-TextX        |   +    |     0       |    0     |  -  032  | .220  
-PyLery       |   -    |     -       |    +     |  +  001  | .012  
-pe           |   0    |     +       |    -     |  -  023  | .022  
-tatsu       *|   0    |     0       |    0     |  -  345  | .038  
-parsimonious |   -    |     +       |    0     |  +  001  | .030  
-parsy        |   -    |     +       |    0     |  0       | .002  
-textparser   |   -    |     0       |    0     |  +  002  | .001  
-pyparsing    |   -    |     0       |    0     |  +  002  | .022  
-                                                                  
-parsec       |   -    |     0       |    0     |  0  018  | .001  
-Ply          |   -    |     -       |    0     |  +  002  | .008  
-reparse      |   -    |     0       |    -     |          | .002  
-Arpeggio     |   -    |     0       |    0     |  -  045  | .002  
+NAME         | TUTORIAL | EASE-OF-USE | FEATURES | TIME 100 | IMP_T  |     FEATURES-DETAILS      |
+-------------|----------|-------------|----------|----------|--------|---------------------------|
+canopy       |    +     |     +       |    +     |  +  006  | +  001 | Re+ ,PEG+,Actions+,Tree+  |
+lark         |    0     |     0       |    +     |  0  017  | -  037 | Re+ ,PEG+,Actions ,Lib    |
+parsimonious |    -     |     +       |    0     |  +  001  | -  030 |      PEGL,Actions ,       |
+PyLery       |    -     |     -       |    0     |  +  001  | 0  012 | Re++               Tree+  |
 
-Antlr
-PyPEG
+parse        |    +     |     +       |    -     |  +  002  | +  005 |           Actions+,Format |
+funcparserlib|    +     |     -       |    0     |  0  018  | +  002 |      OWN ,Actions ,Tree   |
+parsy        |    +     |     +       |    -     |  +  003  | +  002 | Re+       Actions         |
+pe           |    0     |     +       |    -     |  -  023  | 0  022 |      BOTH,Actions         |
+textparser   |    0     |     0       |    -     |  +  002  | +  001 |      OWN ,                |
 """
 
 
