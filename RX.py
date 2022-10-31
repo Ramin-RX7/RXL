@@ -1785,8 +1785,8 @@ def Clean_Up(File='',Lib=True):   #] 0.03
     #else: pass
     try: os.remove('_'+File+'_')
     except: pass
-    try: rx.files.remove('__pycache__', force=True)
-    except: pass
+    # try: rx.files.remove('__pycache__', force=True)
+    # except: pass
     try: rx.files.remove('_Console_.py')
     except: pass
 

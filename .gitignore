@@ -2,13 +2,15 @@
 .vscode/
 .vscode-test/
 __RX_LC__/
+Programs/
 *.exe
 _Console_.py
 translated
-Program/
-MODULE.py
-tst*.*
+# MODULE.py
+# tst*.*
 output/
+
+
 
 
 
