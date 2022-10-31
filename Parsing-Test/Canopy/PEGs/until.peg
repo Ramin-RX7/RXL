@@ -1,0 +1,3 @@
+grammar UNTIL
+    until  <-   indent:spaces? "until " spaces? expr:[^:]+ ":" rest:.*
+    spaces <-   " "*

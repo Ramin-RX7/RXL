@@ -40,11 +40,13 @@ $ canopy "grammer.peg" --lang python
 """
 
 
+from lib2to3.pgen2 import grammar
 import time
 import rx7 as rx
 from pprint import pprint
 
-rx.terminal.run("canopy cnp_grm.peg --lang python")
+
+
 
 
 rx.cls()
@@ -54,13 +56,34 @@ t = rx.record()
 
 
 
+import Grammar
 
 
-import cnp_grm
 
-tree = cnp_grm.parse('include !!hello')
 
-print(tree.pkg_name.text)
+line = "array myx [  5 : int  ] = {12dfsg3}"
+
+try:     tree = Grammar.parse(line,Grammar.Array)
+except:  raise
+
+
+if tree:
+    print(tree.options.elements[0].elements[3].type.text)
+else:
+    print("x")
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

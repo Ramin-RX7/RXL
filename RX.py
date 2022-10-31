@@ -1473,9 +1473,8 @@ def Syntax(SOURCE,
             #print(f'Load: {time.time()-t}','green')
 
         #] Memory Location of Object
-        elif re.search(r'''[,\(\[\{\+=: ]&\w+''', Text): #[^a-zA-Z0-9'"]
-            Search=re.search(r' ?&(\w+)', Text)
-            SOURCE[Line_Nom-1] = Text.replace(Search.group(),f'hex(id({Search.group(1)}))')
+        elif Regex:=re.search(r'''[,\(\[\{\+=: ]&(?P<var>\w+)''', Text): #[^a-zA-Z0-9'"]
+            SOURCE[Line_Nom-1] = Text.replace("&"+Regex.group("var"),f'hex(id({Regex.group("var")}))')
 
         #] until & unless & foreach & func
         elif Striped.startswith('until '  )  or  Striped=='until':
@@ -1487,10 +1486,10 @@ def Syntax(SOURCE,
             # or i can replace "until" with "while not" (but still have to put paranthesis around condition)
         elif Striped.startswith('unless ' )  or  Striped=='unless':
             #elif Regex:=re.match(r'(?P<Indent>\s*)unless \s*(?P<Expression>.+):' , Text):
-            Regex=re.match(r'(?P<Indent>\s*)unless \s*(?P<Expression>.+):' , Text)
+            Regex=re.match(r'(?P<Indent>\s*)unless \s*(?P<Expression>.+):(?P<Rest>.*)' , Text)
             if not Regex:
                 raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'unless'")
-            SOURCE[Line_Nom-1] = f"{Regex.group('Indent')}if not ({Regex.group('Expression')}):"
+            SOURCE[Line_Nom-1] = f"{Regex.group('Indent')}if not ({Regex.group('Expression')}):{Regex.group('Rest')}"
         elif Striped.startswith('foreach ')  or  Striped=='foreach':
             #elif Regex:=re.match(r'foreach \s*(?P<Expression>.+):', Striped):
             Regex=re.match(r'foreach \s*(?P<Expression>.+):', Striped)
@@ -1591,7 +1590,7 @@ def Syntax(SOURCE,
 
         #] Array
         elif Striped.startswith('array '  )  or  Striped=='array':
-            Regex=re.match(r'(?P<Indent>\s*)array \s*(?P<VarName>\w+)\s*\[\s*(?P<Length>\w+)?\s*:?\s*(?P<Type>\w+)?\s*\]\s*=\s*{(?P<Content>.*)}\s*',Text)
+            Regex=re.match(r'(?P<Indent>\s*)array \s*(?P<VarName>\w+)\s*\[\s*((?P<Length>\w+)?\s*(:?\s*(?P<Type>\w+))?\s*)?\]\s*=\s*{(?P<Content>.*)}\s*',Text)
             if not Regex:
                 raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'array'")
             Indent  = Regex.group('Indent')
@@ -1603,7 +1602,7 @@ def Syntax(SOURCE,
             Length  = '' if not Length  else ',size=' +Length
             Type    = '' if not Type    else ',type_='+Type
 
-            SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Array({Content}{Type}{Length})'
+            SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Array({Content},{Type},{Length})'
 
 
         #] $check
