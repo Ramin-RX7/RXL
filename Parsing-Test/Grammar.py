@@ -2,6 +2,7 @@
 in all "TreeNodeN".init:: super(...) can be changed to TreeNode(...)
 """
 
+__all__ = ["Load","Include","Until","Unless","Const","Array"]
 
 from collections import defaultdict
 import re
@@ -694,6 +695,8 @@ class Unless:
 
 
     class Grammar(object):
+        REGEX_1 = re.compile('^[^:]')
+
         def _read_unless(self):
             address0, index0 = FAILURE, self._offset
             cached = self._cache['unless'].get(index0)
@@ -736,7 +739,10 @@ class Unless:
                         address4 = FAILURE
                         index4, elements1, address5 = self._offset, [], None
                         while True:
-                            if self._offset < self._input_size:
+                            chunk1, max1 = None, self._offset + 1
+                            if max1 <= self._input_size:
+                                chunk1 = self._input[self._offset:max1]
+                            if chunk1 is not None and Unless.Grammar.REGEX_1.search(chunk1):
                                 address5 = TreeNode(self._input[self._offset:self._offset + 1], self._offset, [])
                                 self._offset = self._offset + 1
                             else:
@@ -745,7 +751,7 @@ class Unless:
                                     self._failure = self._offset
                                     self._expected = []
                                 if self._offset == self._failure:
-                                    self._expected.append(('UNLESS::unless', '<any char>'))
+                                    self._expected.append(('UNLESS::unless', '[^:]'))
                             if address5 is not FAILURE:
                                 elements1.append(address5)
                             else:
@@ -758,10 +764,10 @@ class Unless:
                         if address4 is not FAILURE:
                             elements0.append(address4)
                             address6 = FAILURE
-                            chunk1, max1 = None, self._offset + 1
-                            if max1 <= self._input_size:
-                                chunk1 = self._input[self._offset:max1]
-                            if chunk1 == ':':
+                            chunk2, max2 = None, self._offset + 1
+                            if max2 <= self._input_size:
+                                chunk2 = self._input[self._offset:max2]
+                            if chunk2 == ':':
                                 address6 = TreeNode(self._input[self._offset:self._offset + 1], self._offset, [])
                                 self._offset = self._offset + 1
                             else:

@@ -57,25 +57,31 @@ t = rx.record()
 
 
 import Grammar
+from Grammar import *
 
 
 
+source = [
+    "include raminrx",
+    "  load   hello",
+    "const myx =    help",
+    #"until myx: ",
+    #"    unless   help    :",
+    #"array myarr [5]    =  {4,5,6,7}"
+]
+grammars = [Const,Include,Unless,Until,Load,Array]
 
-line = "array myx [  5 : int  ] = {12dfsg3}"
-
-try:     tree = Grammar.parse(line,Grammar.Array)
-except:  raise
-
-
-if tree:
-    print(tree.options.elements[0].elements[3].type.text)
-else:
-    print("x")
+for line in source:
+    for grmr in grammars:
+        try:
+            a = Grammar.parse(line,grmr)
+        except:
+            pass
+        else:
+            print(a.elements[1].text)
 
 
-
-
-
+# print(Grammar.parse("array myarr [5]    =  {4,5,6,7}",Array))
 
 
 
