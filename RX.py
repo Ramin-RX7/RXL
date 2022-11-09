@@ -400,13 +400,10 @@ class IndentCheck:
     ? indentation check error
     ? What happens if we use cache and loaded module has changed
   # EASY:
-    #> Organizing Files and Dirs of Repository
-    #> Make function for cache check
     #? "until & unless & foreach & func" replace or regex
     #> Check for cache in local directory of RX.py (not relative to running file)
     #> Check lines for all conditions until there's nothing to translate
     #> apply the own type of iterable after using apply()
-    #> "apply" instead of "map" --> Does not work when compiling "RX.py" with "pyinstaller"
     #> Make Dict for "if args.option" in Get_Args()
     #> Syntax Conditions Order (By Usage)
     #> Options:
@@ -426,6 +423,8 @@ class IndentCheck:
     #> Menu:
        >  TERMINAL
             > linux commands
+    #>  Check Array is defined with acceptable length
+    #> "apply" instead of "map" --> Does not work when compiling "RX.py" with "pyinstaller"
 
   # MEDIUM:
     #> Full debug
@@ -433,6 +432,8 @@ class IndentCheck:
           #!  After NameError rest of code will be ignored
           #>  Fix Const func to accept one object
           #>  Constants Check for Error
+          #>  Const Func: Accepts args only with the name and type that is specified
+
     #> Include:
        >  *:*
        >  class:*
@@ -442,10 +443,9 @@ class IndentCheck:
     #> Load Modules:
        > Load modules with default Options
     #> Console support RX syntax ( '\n'.join(Syntax([line])) )
+    #> ".rx" to ".exe"
 
   # HARD:
-    #> Installation:
-       Check if python is installed (which version is installed too)
     #> Function to check if expression is not in Quotes
        #? Split line by strings, check_syntax spliteds ,connect them again
        #> Not all conditions should be 'elif' in Syntax()
@@ -460,11 +460,8 @@ class IndentCheck:
     #>  Improve Exception Catching when runing file
     #>  do_when Keyword for Calling specifiec function when condition comes True
     #>  Terminal is slow for loading code from first each time
-    #>  Instead of using pip to download required modules, copy them
-        (Because we couldn't find rquirements for all packages)
     #>  Add/Remove/Change some built-in objects methods
         ('forbiddenfruit' only works on linux)
-    #>  Check Array is defined with acceptable length
     #>  There couldnt be nested Switch-Case statements  (and -Const-array?+not usefull)
 
  #>  END OF LINES ERROR IN RED (EOL)
@@ -476,8 +473,6 @@ class IndentCheck:
  #>  Correct color for Options in extension (and also ignore cases)
         >  && -- ||
  #>  do_while check for outline
- #>  Package installer like pip? (if 3rd-party modules):
-        >  Create account (RX-Lang) in pypi to upload user packages
  #?  Blank line before all errors
  #?  All $Class be in one condition (faster or not?)
  #?  Combine sys.exit & cleanup
@@ -490,10 +485,6 @@ class IndentCheck:
  #?  New Errors Ext Color
  #!  Option for run translated or import it (import will ignore "if __name__ ...")
  #X  Copy modules to running dir
- #X  INFO['EMAIL']?
- #X  Ready_File_Name without .rx extension?
- #X  def(:None) 
- #X  Whole code in Try-Except
 ###########
 # BUG:
   X  why exe doesn't accept args
@@ -505,14 +496,11 @@ class IndentCheck:
 # TODO (Release):
  #?  A file to repair files (save all files in a zipfile)
  #> Annotations and Documentation (Docstring/Help)
- #> Check instal:  PrependPath=1 (also for pip and scripts/*.exe)
- #> Make .exe with cxfreeze && copy .exe fileS in py/scripts dir
- #> Auto install famous 3rd-parties (requests-urllib3)
- #> ".rx" to ".exe"
+
 
 ################################################################################
 """
-#] CHANGES
+#] CHANGES in VSCode-Ext from VSCode-Python-Ext
 r"""
  C:\Users\IRANIAN\.vscode\extensions\ms-python.python-2020.8.105369\package.json   (1637)
  C:\Users\IRANIAN\.vscode\extensions\ms-python.python-2020.8.105369\snippets\python.json   (END)
@@ -547,25 +535,10 @@ r"""
   support.function.builtin.python      yellow
   keyword.control.flow.python          purple
 """
-#] WHEN APP READY
-r"""
- %USERPROFILE%
- #setx /M path "%path%;E:\ramin\Coding\GitHub\RX-Language"
- #C:\Users\IRANIAN\AppData\Roaming\ActiveState\bin;
-  C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\WINDOWS\system32;C:\WINDOWS;
-  C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;
-  C:\WINDOWS\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;D:\Programs\Coding\Git\cmd;
-  C:\Users\IRANIAN\AppData\Local\Programs\Python\Python37;C:\Users\IRANIAN\AppData\Roaming\npm
-  C:\Users\IRANIAN\AppData\Local\Programs\Python\Python37\Scripts;
-  D:\Programs\Microsoft VS Code\bin;C:\Users\IRANIAN\AppData\Local\GitHubDesktop\bin;
-"""
-
 #] Just to have
 r"""
   r'^((F|f)unc(tion)?)(-|_)?((T|t)ype|(A|a)rg|(P|p)aram)(-|_)?((S|s)canner|(C|c)hecker)\s*:\s*\w*'
   #CxFreeze args:
-
-  #Built-in parsing modules: parser,tokenize,ast    
 """
 """
 Different Text Parsers Comparison:
@@ -573,14 +546,12 @@ NAME         | TUTORIAL | EASE-OF-USE | FEATURES | TIME 100 | IMP_T  |     FEATU
 -------------|----------|-------------|----------|----------|--------|---------------------------|
 canopy       |    +     |     +       |    +     |  +  006  | +  001 | Re+ ,PEG+,Actions+,Tree+  |
 lark         |    0     |     0       |    +     |  0  017  | -  037 | Re+ ,PEG+,Actions ,Lib    |
-parsimonious |    -     |     +       |    0     |  +  001  | -  030 |      PEGL,Actions ,       |
+parsimonious |    -     |     0       |    0     |  +  001  | -  030 |      PEGL,Actions ,       |
 PyLery       |    -     |     -       |    0     |  +  001  | 0  012 | Re++               Tree+  |
-
+                
 parse        |    +     |     +       |    -     |  +  002  | +  005 |           Actions+,Format |
 funcparserlib|    +     |     -       |    0     |  0  018  | +  002 |      OWN ,Actions ,Tree   |
-parsy        |    +     |     +       |    -     |  +  003  | +  002 | Re+       Actions         |
-pe           |    0     |     +       |    -     |  -  023  | 0  022 |      BOTH,Actions         |
-textparser   |    0     |     0       |    -     |  +  002  | +  001 |      OWN ,                |
+parsy        |    +     |     +       |    -     |  +  003  | +  002 | Re+       Actions         | 
 """
 
 
@@ -1289,7 +1260,7 @@ def Syntax(SOURCE,
         #t = time.time()
         #print(str(Line_Nom)+' '+Text)
 
-        Striped = Text.strip()
+        Stripped = Text.strip()
 
         #] && --- ||
         '''
@@ -1308,7 +1279,7 @@ def Syntax(SOURCE,
             continue
 
         # Ignore Docstrings and Comments       
-        if Text.strip().startswith('#')  or  not Striped:
+        if Stripped.startswith('#')  or  not Stripped:
             continue
         elif '"""' in Text  and  not ("'''" in Text and Text.index('"""')>Text.index("'''")):
             if not '"""' in Text[Text.index('"""')+3:]:
@@ -1328,16 +1299,16 @@ def Syntax(SOURCE,
         #] Check for Constant re-definition/change
         for item in CONSTS:
             if re.search(rf'( |;|^$){item[0]}\s*(\[.+\])?\s*=\s*[^=]+', Text):  # \s*.+  {?} 
-                if not Striped.startswith('def ')  and  not Striped.startswith('#'):
-                    raise ERRORS.ConstantError(Line_Nom, item[1], Striped, item[0], FILE)
+                if not Stripped.startswith('def ')  and  not Stripped.startswith('#'):
+                    raise ERRORS.ConstantError(Line_Nom, item[1], Stripped, item[0], FILE)
 
         if False: pass  #Just to make rest of the conditions look similar
 
         #] Include
-        elif Striped.startswith('include ')  or  Striped=='include': 
+        elif Stripped.startswith('include ')  or  Stripped=='include': 
             Regex=re.match(r'(?P<Indent>\s*)include \s*(?P<objects>.+)\s*', Text)
             if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'include'")
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'include'")
             Indent = Regex.group('Indent')
             OBJECTS = Regex.group('objects')
             To_Add = str(Indent)
@@ -1382,7 +1353,7 @@ def Syntax(SOURCE,
             # continue  # do it to all?
 
         #] Func Type checker
-        elif Striped.startswith('def ')   and  TYPE_SCANNER:  # Make it regex?
+        elif Stripped.startswith('def ')   and  TYPE_SCANNER:  # Make it regex?
             if SOURCE[Line_Nom-2].strip().endswith('Check_Type'):
                SOURCE[Line_Nom-2]= re.search(r'(\s*)',Text).group(1)+f'@std.Check_Type' 
             if SOURCE[Line_Nom-2].strip().startswith('@'):
@@ -1393,7 +1364,7 @@ def Syntax(SOURCE,
             Lines_Added += 1
 
         #] Switch and Case
-        elif Striped.startswith('switch ')  or  Striped==('switch'):
+        elif Stripped.startswith('switch ')  or  Stripped==('switch'):
             #elif Regex:=re.match(r'(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text):
             Regex = re.match(r'(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text)
             if not Regex: raise SyntaxError
@@ -1432,11 +1403,11 @@ def Syntax(SOURCE,
                     SOURCE[Line-1] = f'{indent}{IF_EL}if {variable} == {value}:' #+4
 
         #] Load User-Defined Modules        # TODO: Better regex to get packages
-        elif Striped.startswith('load ')  or  Striped=='load':
+        elif Stripped.startswith('load ')  or  Stripped=='load':
             #elif Regex:=re.match(r'(?P<indent>\s*)load \s*(\w+,?)?', Text):
             Regex = re.match(r'(?P<indent>\s*)load \s*(\w+,?)?', Text)
             if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'load'")
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'load'")
             #t = time.time()
             Indent = Regex.group('indent')
             Packages = re.split(r'\s*,\s*', Text)
@@ -1477,34 +1448,34 @@ def Syntax(SOURCE,
             SOURCE[Line_Nom-1] = Text.replace("&"+Regex.group("var"),f'hex(id({Regex.group("var")}))')
 
         #] until & unless & foreach & func
-        elif Striped.startswith('until '  )  or  Striped=='until':
+        elif Stripped.startswith('until '  )  or  Stripped=='until':
             #elif Regex:=re.match(r'(?P<Indent>\s*)until \s*(?P<Expression>.+):'  , Text):
             Regex=re.match(r'(?P<Indent>\s*)until \s*(?P<Expression>.+):(?P<Rest>.*)'  , Text)
             if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'until'")
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'until'")
             SOURCE[Line_Nom-1] = f"{Regex.group('Indent')}while not ({Regex.group('Expression')}):{Regex.group('Rest')}"
             # or i can replace "until" with "while not" (but still have to put paranthesis around condition)
-        elif Striped.startswith('unless ' )  or  Striped=='unless':
+        elif Stripped.startswith('unless ' )  or  Stripped=='unless':
             #elif Regex:=re.match(r'(?P<Indent>\s*)unless \s*(?P<Expression>.+):' , Text):
             Regex=re.match(r'(?P<Indent>\s*)unless \s*(?P<Expression>.+):(?P<Rest>.*)' , Text)
             if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'unless'")
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'unless'")
             SOURCE[Line_Nom-1] = f"{Regex.group('Indent')}if not ({Regex.group('Expression')}):{Regex.group('Rest')}"
-        elif Striped.startswith('foreach ')  or  Striped=='foreach':
+        elif Stripped.startswith('foreach ')  or  Stripped=='foreach':
             #elif Regex:=re.match(r'foreach \s*(?P<Expression>.+):', Striped):
-            Regex=re.match(r'foreach \s*(?P<Expression>.+):', Striped)
+            Regex=re.match(r'foreach \s*(?P<Expression>.+):', Stripped)
             if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'foreach'")
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'foreach'")
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('foreach', 'for', 1)
-        elif Striped.startswith('func '   )  or  Striped=='func':
+        elif Stripped.startswith('func '   )  or  Stripped=='func':
             #elif Regex:=re.match(r'func \s*(?P<Expression>.+)'    , Striped):
-            Regex=re.match(r'func \s*(?P<Expression>.+)'    , Striped)
+            Regex=re.match(r'func \s*(?P<Expression>.+)'    , Stripped)
             if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'func'")
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'func'")
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('func', 'def', 1)
 
         #] Const Var                        # TODO: Better regex
-        elif Striped.startswith('const '  )  or  Striped=='const':
+        elif Stripped.startswith('const '  )  or  Stripped=='const':
             #if Text.startswith(' '): raise LateDefine("'Const' Must Be Defined In The Main Scope")
             if Regex:=re.match(r'(?P<Indent>\s*)const\s+(?P<VarName>\w+)\s*=\s*(?P<Value>.+)\s*', Text):
                 Indent  =  Regex.group('Indent' )
@@ -1589,10 +1560,10 @@ def Syntax(SOURCE,
             SOURCE[WHILE_LINE] = SOURCE[WHILE_LINE]+':'
 
         #] Array
-        elif Striped.startswith('array '  )  or  Striped=='array':
+        elif Stripped.startswith('array '  )  or  Stripped=='array':
             Regex=re.match(r'(?P<Indent>\s*)array \s*(?P<VarName>\w+)\s*\[\s*((?P<Length>\w+)?\s*(:?\s*(?P<Type>\w+))?\s*)?\]\s*=\s*{(?P<Content>.*)}\s*',Text)
             if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of 'array'")
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'array'")
             Indent  = Regex.group('Indent')
             VarName = Regex.group('VarName')
             Length  = Regex.group('Length')
@@ -1606,10 +1577,10 @@ def Syntax(SOURCE,
 
 
         #] $check
-        elif Striped.startswith('$check '  )  or  Striped=='$check':
+        elif Stripped.startswith('$check '  )  or  Stripped=='$check':
             Regex=re.match(r'(?P<Indent>\s*)\$check \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?( \s*anyway(s)? (?P<Anyway>.+))?',Text)
             if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of '$check'")
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of '$check'")
             needed_lines = 2
             if Regex.group("Then"):
                 #print('Then True')
@@ -1668,11 +1639,11 @@ def Syntax(SOURCE,
             
             Lines_Added += needed_lines
 
-        elif Striped.startswith('$checkwait ')  or  Striped=='$checkwait':
+        elif Stripped.startswith('$checkwait ')  or  Stripped=='$checkwait':
 
             Regex=re.match(r'(?P<Indent>\s*)\$checkwait \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?( \s*anyway(s)? (?P<Anyway>.+))?',Text)
             if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of '$checkwait'")
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of '$checkwait'")
             needed_lines = 3
             if Regex.group("Then"):
                 #print('Then True')
@@ -1733,24 +1704,24 @@ def Syntax(SOURCE,
             Lines_Added += needed_lines
         
         #] $CMD
-        elif Striped.startswith('$cmd '   )  or  Striped=='$cmd' :
+        elif Stripped.startswith('$cmd '   )  or  Stripped=='$cmd' :
             Regex = re.match(r'(?P<Indent>\s*)\$cmd \s*(?P<Command>.+)',Text)
             if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of '$cmd'")
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of '$cmd'")
             SOURCE[Line_Nom-1] = f'{Regex.group("Indent")}std.terminal.run("{Regex.group("Command") if Regex else "cmd"}")'
 
         #] $CALL
-        elif Striped.startswith('$call '  )  or  Striped=='$call':
+        elif Stripped.startswith('$call '  )  or  Stripped=='$call':
             Regex = re.match(r'(?P<Indent>\s*)\$call (?P<Function>.+) \s*in \s*(?P<Time>.+)',Text)
             if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Striped,f"Wrong use of '$call'")
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of '$call'")
             Indent = Regex.group('Indent'  )
             Delay  = Regex.group('Time'    )
             Func   = Regex.group('Function')
             SOURCE[Line_Nom-1] = f"{Indent}std.call({Func},delay={Delay})"
 
         #] $CLEAR
-        elif Striped in ('$cls','$clear'):
+        elif Stripped in ('$cls','$clear'):
             SOURCE[Line_Nom-1] = f"{' '*Text.index('$')}std.cls()"
 
         #print(f"{Line_Nom} :: {time.time()-t} {Striped[:5]}",'red')
