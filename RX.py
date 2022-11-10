@@ -1029,8 +1029,9 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             Skip = Skip-1
             continue
 
+        Stripped = Text.strip()
         # Ignore Docstrings and Comments        
-        if Text.strip().startswith('#'):
+        if Stripped.startswith('#'):
             continue
         elif '"""' in Text  and  not ("'''" in Text and Text.index('"""')>Text.index("'''")):
             if not '"""' in Text[Text.index('"""')+3:]:
@@ -1048,7 +1049,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                         continue
 
         #] Indent
-        if Text.strip().endswith(':'):#.startswith(Keywords):
+        if Stripped.endswith(':'):#.startswith(Keywords):
             BREAK = False
             LINE = int(Line_Nom)
             while not BREAK:
@@ -1065,7 +1066,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
         
         pass
         
-        if re.search(r'^def\s+map\s*\(',Text.strip())  or  re.search(r'map\s*=\s*lambda\s+.+:',Text.strip()):
+        if re.search(r'^def\s+map\s*\(',Stripped)  or  re.search(r'map\s*=\s*lambda\s+.+:',Stripped):
             map_defd = True
         else:
             map_defd = False
@@ -1489,13 +1490,13 @@ def Syntax(SOURCE,
                     print(f"{FILE}:{Line_Nom}> Constant Variable Name ({VarName}) is not UPPERCASED",'red')
                     '''
                      raise ERRORS.ConstantError(Line_Nom=Line_Nom, 
-                                               Line_Text=Text.strip(), 
+                                               Line_Text=Stripped, 
                                                File=FILE, 
                                                msg='Constant Variable Name Must be UPPERCASE')
                     '''
                 for item in CONSTS:  #] Check if Const X is already defined
                     if VarName == item[0]:
-                        raise ERRORS.ConstantError(Line_Nom, item[1], Text.strip(), item[0], FILE)
+                        raise ERRORS.ConstantError(Line_Nom, item[1], Stripped, item[0], FILE)
                 CONSTS.add((VarName, Line_Nom))
 
         #] Const Array
@@ -1811,7 +1812,7 @@ def Cache_Check():
 
 
 #< Make Neccassary Files for "RUN" >#
-def Ready_Files(): 
+def Prepare_Files(): 
     global TIMES
     SOURCE = Read_File(FILE)
     SOURCE = Define_Structure(SOURCE, FILE, D)
@@ -1878,12 +1879,12 @@ if __name__ == "__main__":
             float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))==rx.files.mdftime(FILE)
           ):
             try:     SOURCE = Cache_Check()
-            except:  raise#Ready_Files() 
+            except:  raise#Prepare_Files() 
             THREADS = []
             # RUN(READY_FILE_NAME)
         else:
             #rx.cls()
-            SOURCE,THREADS,INFO = Ready_Files()
+            SOURCE,THREADS,INFO = Prepare_Files()
         
         title = rx.terminal.get_title()
 
@@ -1896,9 +1897,11 @@ if __name__ == "__main__":
         if (not DEBUG) and (not MT) and (not T2P):
             Start_Lang()
 
+
     except KeyboardInterrupt:
         #Clean_Up(File)
         Error('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)')
+
 
     except Exception as E:
         raise E# from None
@@ -1906,6 +1909,7 @@ if __name__ == "__main__":
         print('  Error occured when making environment ready to run')
         print('SystemError: '+str(E), 'red', style='bold')
         print('Please report this to the RX maintainer, along with the traceback and version')
+
 
     finally:
         try:

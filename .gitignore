@@ -9,6 +9,7 @@ translated
 # MODULE.py
 # tst*.*
 output/
+Parsing-Test/PEGs/tst.py
 
 
 

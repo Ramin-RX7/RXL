@@ -1,4 +1,7 @@
 grammar LOAD
-  load     <-   indent:spaces? "load " spaces? pkg_name spaces?
+  load  <-   indent:spaces? "load " spaces? pkgs:(pkg_name (spaces? "," spaces? pkg_name )* ","?) spaces?
   spaces   <-   " "*
   pkg_name <-   [a-zA-Z_]+ [a-zA-Z0-9_]*
+
+  
+  #list(map(str.strip,x.pkgs.text.split(",")))

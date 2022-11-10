@@ -1,4 +1,13 @@
+#include System
+#include System,Terminal
+#include System,Terminal,
+#include System: pid
+#include System: pid,cwd
+#include System: pid,cwd,
+
 grammar INCLUDE
-  include  <-   indent:spaces? "include " spaces? pkg_name spaces?
-  spaces   <-   " "*
+  include  <-   indent:s? "include " s? obj:":"? pkgs:(s? pkg_name (s? "," s? pkg_name )* ","?) s?
+  s   <-   " "*
   pkg_name <-   [a-zA-Z_]+ [a-zA-Z0-9_]*
+
+  #re.split("\s*,\s*")   /   list(map(str.strip,x.pkgs.text.split(",")))
