@@ -567,7 +567,7 @@
 		"patterns": [
 			{
 				"name": "storage.type.class.python",
-				"match": "(?x)\n  (\\$(test|cmd|call|clear|cls))"
+				"match": "(?x)\n  (\\$(test|check|checkwait|cmd|call|clear|cls))"
 			}
 		]
 	},

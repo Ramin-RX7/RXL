@@ -1,0 +1,4 @@
+#(?P<Indent>\s*)\$check \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?(\s* anyway(s)? (?P<Anyway>.+))?
+grammar CHECK
+    const  <-   indent:s? "$check " s? test:(!(" then "/" anyway "/" anyways ") .)+ s? then:("then " s? thenin:(!(" anyway" "s"? " ") .)+)? anyway:(s? "anyway" "s"? " " s? anywayin:.+)?
+    s      <-   " "*

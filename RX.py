@@ -400,6 +400,8 @@ class IndentCheck:
     ? indentation check error
     ? What happens if we use cache and loaded module has changed
   # EASY:
+    #> $check & $ $checkwait should be combined and be in the same "if" in Syntax()
+        also $test
     #? "until & unless & foreach & func" replace or regex
     #> Check for cache in local directory of RX.py (not relative to running file)
     #> Check lines for all conditions until there's nothing to translate
@@ -1577,10 +1579,11 @@ def Syntax(SOURCE,
 
 
         #] $check
-        elif Stripped.startswith('$check '  )  or  Stripped=='$check':
+        elif Stripped.startswith('$check ')  or  Stripped=='$check':
             Regex=re.match(r'(?P<Indent>\s*)\$check \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?( \s*anyway(s)? (?P<Anyway>.+))?',Text)
             if not Regex:
                 raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of '$check'")
+            Indent   =   Regex.group('Indent')
             needed_lines = 2
             if Regex.group("Then"):
                 #print('Then True')
