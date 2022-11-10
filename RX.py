@@ -588,12 +588,14 @@ TIMES = {}
 
 
 
-#< Make Things Ready For Running >#   0.004
+#< Make Things Ready For Running >#   0.000 (with .hide():0.003)
 def Setup_Env():
-    rx.files.mkdir('__RX_LC__')
-    #rx.write('__RX_LC__/__init__.py')
-    rx.files.hide('__RX_LC__')
-
+    if not rx.files.exists("__RX_LC__"):
+        rx.files.mkdir('__RX_LC__')
+        #rx.write('__RX_LC__/__init__.py')
+        rx.files.hide('__RX_LC__')
+        return False
+    return True
 
 
 #< List of all errors >#
@@ -1232,7 +1234,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     if DEBUG and not len(Changeable):
         print(f'{FILE}> No (Enough) Base-Option/Empty-lines at begining of file', 'red')
     
-    rx.files.write(f'./__RX_LC__/_{os.path.basename(FILE)}_info_',str(rx.files.mdftime(FILE)))
+    # rx.files.write(f'./__RX_LC__/_{os.path.basename(FILE)}_info_',str(rx.files.mdftime(FILE)))
 
     #print(CONSTS)
     return (SOURCE, 
@@ -1777,8 +1779,8 @@ def RUN(READY_FILE_NAME,THREADS=[]):
             print('Running Speed is Slow','red')
         elif TIMES['B_Run '] < 0.01:
             pass#print('Running Speed is Super Fast','green')
-        #for k,v in TIMES.items(): print(f'{k} :: {v}','green')
-        print(f"B_Run :: {TIMES['B_Run ']}",'green')
+        for k,v in TIMES.items(): print(f'{k} :: {v}','green')
+        print(f"B_Run  :: {TIMES['B_Run ']}",'green')
         # return
         import runpy
         runpy.run_path(READY_FILE_NAME)
@@ -1795,7 +1797,8 @@ def RUN(READY_FILE_NAME,THREADS=[]):
 #< Check Cache Suitability >#
 def Cache_Check():
     #print(f"MDFTIME REAL :: {rx.files.mdftime(FILE)}")
-    #print(f"MDFTIME CACH :: {float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))}")        
+    #print(f"MDFTIME CACH :: {float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))}") 
+           
     if DEBUG or D or ADD_VERBOSE:
         print('[*] Using Cache', 'dodger_blue_1')
     try:
@@ -1803,6 +1806,7 @@ def Cache_Check():
     except PermissionError:
         rx.files.remove(READY_FILE_NAME)
         rx.files.copy(f'./__RX_LC__/_{FILE}_',READY_FILE_NAME)
+
     SOURCE = rx.read(READY_FILE_NAME).split('\n')
     if Regex:=re.match(r'ProgramStartTime\s*= \s*\w+(\.?\w*)',SOURCE[0]):
         print('YES','green')
@@ -1813,14 +1817,16 @@ def Cache_Check():
 
 #< Make Neccassary Files for "RUN" >#
 def Prepare_Files(): 
-    global TIMES
+    global TIMES, Lines_Added
     SOURCE = Read_File(FILE)
     SOURCE = Define_Structure(SOURCE, FILE, D)
     INFO = SOURCE[4]
     TIMES['DefStr'] = time.time()-START_TIME
     SOURCE,THREADS = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, D)
     TIMES['Syntax'] = time.time()-START_TIME
-    #print(Lines_Added)
+    
+    SOURCE.insert(0,SOURCE[0]+"#"+str(int(rx.files.mdftime(FILE))))
+
     if (not DEBUG) and (not MT):
         try:
             rx.write(READY_FILE_NAME, '\n'.join(SOURCE))
@@ -1831,7 +1837,7 @@ def Prepare_Files():
             rx.files.remove(f"./__RX_LC__/{READY_FILE_NAME}")
             rx.write(f"./__RX_LC__/{READY_FILE_NAME}", '\n'.join(SOURCE))
         rx.write('translated', '\n'.join(SOURCE))
-        rx.files.hide(READY_FILE_NAME)
+        # rx.files.hide(READY_FILE_NAME)
     return SOURCE,THREADS,INFO
 
 
@@ -1861,23 +1867,24 @@ if __name__ == "__main__":
     try:
         TIMES['Start '] = time.time()-START_TIME
 
-        Setup_Env()
+        cache_dir_existed = Setup_Env()
         TIMES['SetEnv'] = time.time()-START_TIME
 
         # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P, 6:PROG_ARGS, 7:No_CACHE}
         ARGS = Get_Args()
         FILE, ADD_VERBOSE, D, DEBUG, MT, T2P, PROG_ARGS, CACHE  =  ARGS
+        CACHE = CACHE if cache_dir_existed  else False
         TIMES['ARGS  '] = time.time()-START_TIME
 
         READY_FILE_NAME = '_'+os.path.basename(FILE)+'_' #'‎'+FILE+'‎' THERE IS INVISIBLE CHAR IN QUOTES
         PATH = rx.files.abspath(FILE)
         DIR  = rx.files.dirname(PATH)
-        BACKUP_EXIST      =  bool(rx.files.exists(f"./__RX_LC__/_{FILE}_"))
-        INFO_BACKUP_EXIST =  bool(rx.files.exists(f"./__RX_LC__/_{FILE}_info_"))
+        BACKUP_EXIST      =  bool(rx.files.exists(f"./__RX_LC__/_{FILE}_")) if CACHE   else False
+        if BACKUP_EXIST:
+            try:    BACKUP_MDF_TIME   = int(rx.files.read(f'./__RX_LC__/_{FILE}_').split("\n")[0][-10:])
+            except ValueError: BACKUP_EXIST=False
 
-        if CACHE and BACKUP_EXIST and INFO_BACKUP_EXIST and  (  #"(not ADD_VERBOSE)" ?!
-            float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))==rx.files.mdftime(FILE)
-          ):
+        if CACHE and BACKUP_EXIST and (BACKUP_MDF_TIME==int(rx.files.mdftime(FILE))): #"(not ADD_VERBOSE)" ?!
             try:     SOURCE = Cache_Check()
             except:  raise#Prepare_Files() 
             THREADS = []
@@ -1885,7 +1892,7 @@ if __name__ == "__main__":
         else:
             #rx.cls()
             SOURCE,THREADS,INFO = Prepare_Files()
-        
+
         title = rx.terminal.get_title()
 
         if T2P:
