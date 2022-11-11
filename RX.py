@@ -164,12 +164,8 @@ class rx:
         @staticmethod
         def wait_for_input(prompt):
             answer= ''
-            #try:
             while not answer:
                     answer = input(prompt)
-            #except (EOFError,KeyboardInterrupt):
-            #    print('EXITING...','red')
-            #    sys.exit()
             return answer
 
         @staticmethod
@@ -198,9 +194,6 @@ class rx:
                     pass
             return inp
 
-
-
-
         @staticmethod
         def yesno_input(prompt,default=None):
             return rx.io.selective_input(prompt,['y','yes','n','no'],default,not bool(default))
@@ -226,6 +219,11 @@ class rx:
             if sort:
                 return sorted(list(List))
             return list(List)
+
+        @staticmethod
+        def getpass(prompt):
+            import getpass as Getpass
+            return Getpass.getpass(prompt=prompt)    
     SF = AF = NF = io
 
 class IndentCheck:
@@ -398,25 +396,21 @@ class IndentCheck:
 ################
 # TODO:
     ? indentation check error
-    ? What happens if we use cache and loaded module has changed
   # EASY:
     #> $check & $ $checkwait should be combined and be in the same "if" in Syntax()
         also $test
     #? "until & unless & foreach & func" replace or regex
-    #> Check for cache in local directory of RX.py (not relative to running file)
     #> Check lines for all conditions until there's nothing to translate
     #> apply the own type of iterable after using apply()
     #> Make Dict for "if args.option" in Get_Args()
     #> Syntax Conditions Order (By Usage)
     #> Options:
-       #X Check for fast speed (if option of it is True)
        #> Ignore Reloading LOADED_PACKAGES Option
-       #- Sth like ("start service",-s --start) to execute first code (for faster speed in first run)
     #> 'foreach' New Syntax:  "foreach iterable[item]: pass"
     #> "$" Family:
         call: accept args ('with')
         $checkwait: make while true to only break when there's no exception
-        extra lines that are needed in "check" nad "checkwait" should be removed
+        extra lines that are needed in "check" and "checkwait" should be removed
     #> Extension:
        >  New Syntaxes:
             >  Internet class functions
@@ -429,25 +423,27 @@ class IndentCheck:
     #> "apply" instead of "map" --> Does not work when compiling "RX.py" with "pyinstaller"
 
   # MEDIUM:
-    #> Full debug
+    #> What happens if we use cache and loaded module has changed
+    #> Full debug:
+          #> Syncorize all DEBUGs  
     #> CONSTs:
           #!  After NameError rest of code will be ignored
           #>  Fix Const func to accept one object
           #>  Constants Check for Error
           #>  Const Func: Accepts args only with the name and type that is specified
-
     #> Include:
        >  *:*
        >  class:*
        x Very Very Slow
-       x Wrong translation when using '#' 
-    #> Syncorize all DEBUGs  
+       x Wrong translation when using '#'
     #> Load Modules:
        > Load modules with default Options
-    #> Console support RX syntax ( '\n'.join(Syntax([line])) )
     #> ".rx" to ".exe"
+    #> END OF LINES ERROR IN RED (EOL)
+    #> Unable to run file with double clicking
 
   # HARD:
+    #> Console support RX syntax ( '\n'.join(Syntax([line])) )
     #> Function to check if expression is not in Quotes
        #? Split line by strings, check_syntax spliteds ,connect them again
        #> Not all conditions should be 'elif' in Syntax()
@@ -457,48 +453,43 @@ class IndentCheck:
               until
               unless
               foreach
-    #>  Debug with running linters
-    #>  goto for For loops with naming For loops  (:NAME & goto NAME)
-    #>  Improve Exception Catching when runing file
-    #>  do_when Keyword for Calling specifiec function when condition comes True
-    #>  Terminal is slow for loading code from first each time
-    #>  Add/Remove/Change some built-in objects methods
-        ('forbiddenfruit' only works on linux)
-    #>  There couldnt be nested Switch-Case statements  (and -Const-array?+not usefull)
-
- #>  END OF LINES ERROR IN RED (EOL)
- #X  Unable to run file with double clicking
+    #> Debug with running linters
+    #> goto for For loops with naming For loops  (:NAME & goto NAME)
+    #> Improve Exception Catching when runing file
+    #> do_when Keyword for Calling specifiec function when condition comes True
+    #> Terminal is slow for loading code from first each time
+    #> Add/Remove/Change some built-in objects methods
+          like:   map (-> apply)
+          ('forbiddenfruit' only works on linux)
+    #> There couldnt be nested Switch-Case statements
 
 ########################################
 
 # NOTE:
+ #? Using __pycache__ dir for as cache dir
  #>  Correct color for Options in extension (and also ignore cases)
         >  && -- ||
  #>  do_while check for outline
+ #? Check for cache in local directory of RX.py (not relative to running file)
  #?  Blank line before all errors
  #?  All $Class be in one condition (faster or not?)
  #?  Combine sys.exit & cleanup
  #?  No Break if there is python code in Base Lines
  #?  Ignore module loading output error
  #?  &&  ---  ||
- #?  Generate:yield(:None)
  #?  CONST at the beginning
  #?  Stop Imports
- #?  New Errors Ext Color
- #!  Option for run translated or import it (import will ignore "if __name__ ...")
- #X  Copy modules to running dir
+ #X  Generate:yield(:None)
 ###########
 # BUG:
   X  why exe doesn't accept args
   X switch-case works fine in normal run but is not translated when loading
-  X $test 'anyway' not working
 
 ########################################
 
 # TODO (Release):
  #?  A file to repair files (save all files in a zipfile)
  #> Annotations and Documentation (Docstring/Help)
-
 
 ################################################################################
 """
@@ -588,8 +579,8 @@ TIMES = {}
 
 
 
-#< Make Things Ready For Running >#   0.000 (with .hide():0.003)
-def Setup_Env():
+#< Make Things Ready For Running >#
+def Setup_Env():     #]  0.000 (with .hide():0.003)
     if not rx.files.exists("__RX_LC__"):
         rx.files.mkdir('__RX_LC__')
         #rx.write('__RX_LC__/__init__.py')
@@ -702,22 +693,13 @@ def Get_Args():
     #print(os.getcwd(),'green')
 
     if len(sys.argv) == 1:
-        #Console()
-        #Menu.menu()
         Menu.Terminal()
-        sys.exit()
-
-    #if len(sys.argv) > 3:
-    #    print('Argument Parser Will be added in next versions','dodger_blue_1')
-    #    sys.exit()
-
-
+        return False
 
     parser = argparse.ArgumentParser(
         'RX', allow_abbrev=True,
         description='"RX Language Executer"',
     )
-
     parser.add_argument(
         '-i', '--info',
         action='store_true',
@@ -769,7 +751,6 @@ def Get_Args():
         help = "Directly Goes to Compile menu"
     )
 
-
     args = parser.parse_args()
     #print(args.PROG_ARGS,'red')
 
@@ -788,12 +769,12 @@ def Get_Args():
         print('  Exit              True                Exit after executing the code or not'                                               )
         print(                                                                                                                             )
        #print('"OPTIONS" SHOULD BE DEFINED AFTER "BASE OPTIONS"'                                                             , style='bold')
-        sys.exit()
+        return False
     
     elif not args.FILE:
         Menu.Console()
         #Menu()
-        sys.exit()
+        return False
 
     elif args.compile:
         Menu.Compile(args.FILE)
@@ -803,7 +784,6 @@ def Get_Args():
 
 
     #print('ARGS:  '+str(args))
-    #sys.exit()
     return (args.FILE, args.info, args.d, args.debug, 
            args.MT   , args.T2P , args.PROG_ARGS    ,
            args.no_cache)
@@ -831,11 +811,10 @@ class Menu:
                 new = rx.io.wait_for_input('RX:Console> ')
                 if new.lower() in ('exit','quit','end'):
                     rx.files.remove(f'{CWD}/_Console_.py')
-                    #sys.exit()
                     return
             except (KeyboardInterrupt,EOFError):
                 rx.files.remove(f'{CWD}/_Console_.py')
-                return#sys.exit()
+                return
 
             rx.write(f'{CWD}/_Console_.py', new+'\n', 'a')
 
@@ -891,22 +870,28 @@ class Menu:
                 elif inp.startswith(tuple(Linux_Dict.keys())):
                     print('Linux Commands are not supported yet','red')
                 elif inp in ('commands'):
-                    print('Beside all CMD commands, we also support these commands:')
+                    # print('Beside all CMD commands, we also support these commands:')
+                    print("Supported Commands are listed below:")
                     print('  - Console')
                     print('  - System Info')
                     print('  - Compile')
                     print('  - Create Module Lite')
+                    print()
+                    print("  - cd")
+                    print("  - python")
+                    print("  - cls/clear")
+                    print("  - (basically most terminal commands)")
                 elif inp in ('exit','quit'):
                     Clean_Up()
                     sys.exit()
                 elif Regex:=re.match(r'cd (?P<path>.+)',inp):
                     try:
-                        os.chdir(Regex.group('path'))
+                        rx.system.chdir(Regex.group('path'))
                     except (FileNotFoundError,NotADirectoryError):
                         print('Invalid path','red')
                 elif inp == 'python':
                     rx.terminal.run('python')
-                elif inp == 'cmd':
+                elif inp == 'cmd':   
                     rx.terminal.run('cmd')
                 elif inp in ('cls','clear'):
                     rx.terminal.run('cls')
@@ -922,7 +907,7 @@ class Menu:
                             print(output)
             except (EOFError,KeyboardInterrupt):
                 print('\nExiting...','red')
-                return#sys.exit()
+                return
 
     @staticmethod
     def Create_SLModule():
@@ -975,7 +960,6 @@ class Menu:
         File = FILE if FILE else rx.io.get_files('Enter File Path:  ',times=1)[0]
         File = rx.files.abspath(File)
         #print(File)
-        #exit()
         rx.terminal.run(f'python rx.py -T2P {File}')
         File = File[:File.rindex('.')]+'.py'
 
@@ -1002,7 +986,10 @@ class Menu:
             Default_Args = '-y'
         Args = input('Enter other arguments:  ')
         rx.terminal.run(f"{Compiler} {File} {Path} {Icon} {Default_Args} {Onefile} {Windowed} {Args}")
-        exit()
+        print("\n\n[*] Done")
+        print("Press Enter to Continue")
+        rx.io.getpass("")
+        print()
 
 
 
@@ -1872,6 +1859,8 @@ if __name__ == "__main__":
 
         # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P, 6:PROG_ARGS, 7:No_CACHE}
         ARGS = Get_Args()
+        if not ARGS:
+            Clean_Up;sys.exit()
         FILE, ADD_VERBOSE, D, DEBUG, MT, T2P, PROG_ARGS, CACHE  =  ARGS
         CACHE = CACHE if cache_dir_existed  else False
         TIMES['ARGS  '] = time.time()-START_TIME
