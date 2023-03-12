@@ -1,0 +1,106 @@
+[MAIN]
+    ☐ @easy apply the own type of iterable after using apply()
+    ☐ @easy Define Ready_Objs from std
+    ☐ @easy Check Array is defined with acceptable length
+    ☐ @easy "apply" instead of "map" --> Does not work when compiling with "pyinstaller"
+    ☐ @med ".rx" to ".exe"
+    ☐ @med END OF LINES ERROR IN RED (EOL)
+    ☐ @med Unable to run file with double clicking
+    ☐ @hard Improve Exception Catching when runing file
+    ☐ @hard Terminal is slow for loading code from first each time
+    ☐ @hard Add/Remove/Change some built-in objects methods
+          like:   map (-> apply)
+          ('forbiddenfruit' only works on linux)
+    ?  Check for cache in local directory of RX.py (not relative to running file)
+    ?  Using __pycache__ dir for as cache dir
+    ?  Blank line before all errors
+    ?  Combine sys.exit & cleanup
+    ?  No Break if there is python code in Base Lines
+    ?  Ignore module loading output error
+    ?  &&  ---  ||
+    ?  CONST at the beginning
+    ?  Stop Imports
+    ?  Generate:yield(:None)
+    ☐ exe doesn't accept args
+    ?  A file to repair files (save all files in a zipfile)
+    ☐ Annotations and Documentation (Docstring/Help)
+
+    Load_Modules:
+        ☐ @med What happens if we use cache and loaded module has changed
+        ☐ @med Load modules with default Options
+        ☐ switch-case works fine in normal run but is not translated when loading
+
+    Full_debug:
+        ☐ @med Synchronize all DEBUGs
+        ☐ @hard Debug with running linters
+
+    CONSTs:
+        ☐ @med Fix Const func to accept one object
+        ☐ @med Constants Check for Error
+        ☐ @med Const Func: Accepts args only with the name and type that is specified
+        !  @med After NameError rest of code will be ignored
+
+    Install.py:
+      ☐ Check for python path
+      ☐ Check to see if python path and python/scripts/ are in PATH
+      ☐ Copy Files to python/scripts/
+
+
+
+[Syntax]
+
+    ☐ @easy Using re.compile instead of re.match/re.search
+    ?  @easy "until & unless & foreach & func" replace or regex
+    ☐ @easy Check lines for all conditions until there's nothing to translate
+    ☐ @easy Syntax Conditions Order (By Usage)
+    ☐ @easy 'foreach' New Syntax:  "foreach iterable[item]: pass"
+    ☐ @hard Console support RX syntax ( '\n'.join(Syntax([line])) )
+    ?  @hard Split line by strings, check_syntax spliteds ,connect them again
+            ( I can get out part of ''/"" then use .replace() )
+    ☐ @hard Function to check if expression is not in Quotes
+              func and Check_Type
+              &memory
+              until
+              unless
+              foreach
+    ☐ @hard Not all conditions should be 'elif' in Syntax()
+    ☐ @hard goto for For loops with naming For loops  (:NAME & goto NAME)
+    ☐ @hard do_when Keyword for Calling specifiec function when condition comes True
+    ☐ @hard There couldnt be nested Switch-Case statements
+    ☐ do_while check for outline
+
+    $_family:
+        ?  All `$commands` be in one condition (faster or not?)
+
+        ☐ @easy $check & $ $checkwait should be combined and be in the same "if" in Syntax()
+            also $test
+        ☐ @easy $call: accept args ('with')
+        ☐ @easy $checkwait: make while true to only break when there's no exception
+            extra lines that are needed in "check" and "checkwait" should be removed
+
+    Include:
+       ☐ @med *:*
+       ☐ @med class:*
+       ☐ @med Very Very Slow
+       ☐ @med Wrong translation when using '#'
+
+
+
+[Menu]
+    Terminal:
+        ☐ @easy linux commands
+
+
+
+[Options]
+    ☐ @easy Ignore Reloading LOADED_PACKAGES Option
+    ☐ @easy Make Dict for "if args.option" in Get_Args()
+
+
+
+[Extension]
+    New_Syntaxes:
+        ☐ @easy Internet class functions
+
+    ?  @easy Clear the screen in extension run (? get operating system for cls/clear)
+    ?  Correct color for Options in extension (and also ignore cases)

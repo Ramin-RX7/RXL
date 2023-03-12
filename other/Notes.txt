@@ -1,0 +1,39 @@
+> Func-Type-Scanner
+  r'^((F|f)unc(tion)?)(-|_)?((T|t)ype|(A|a)rg|(P|p)aram)(-|_)?((S|s)canner|(C|c)hecker)\s*:\s*\w*'
+  #CxFreeze args:
+    ???
+
+
+
+> Different Text Parsers Comparison:
+NAME         | TUTORIAL | EASE-OF-USE | FEATURES | TIME 100 | IMP_T  |     FEATURES-DETAILS      |
+-------------|----------|-------------|----------|----------|--------|---------------------------|
+canopy       |    +     |     +       |    +     |  +  006  | +  001 | Re+ ,PEG+,Actions+,Tree+  |
+lark         |    0     |     0       |    +     |  0  017  | -  037 | Re+ ,PEG+,Actions ,Lib    |
+parsimonious |    -     |     0       |    0     |  +  001  | -  030 |      PEGL,Actions ,       |
+PyLery       |    -     |     -       |    0     |  +  001  | 0  012 | Re++               Tree+  |
+
+parse        |    +     |     +       |    -     |  +  002  | +  005 |           Actions+,Format |
+funcparserlib|    +     |     -       |    0     |  0  018  | +  002 |      OWN ,Actions ,Tree   |
+parsy        |    +     |     +       |    -     |  +  003  | +  002 | Re+       Actions         |
+
+
+
+#] CHANGES in VSCode-Ext from VSCode-Python-Ext
+ C:\Users\USERNAME\.vscode\extensions\ms-python.python-2020.8.105369\package.json   (1637)
+ C:\Users\USERNAME\.vscode\extensions\ms-python.python-2020.8.105369\snippets\python.json   (END)
+ D:\Programs\Microsoft VS Code\resources\app\extensions\rx\language-configuration.json 13
+
+ D:\Programs\Microsoft VS Code\resources\app\extensions\python\syntaxes\MagicPython.tmLanguage.json
+ (1746 at the end) 276
+ 33    "include": "#class-declarations"
+ 280   "name": "storage.type.classx.python",
+ 1025  "class-declarations": {
+ 1751  "builtin-types": {
+ 1784   | include        (and much more)
+ 366   "rx-class-names": {
+ 362   "include": "#rx-class-names"
+ 1373  "function-declaration": {
+ 1836  "(?x)\n  (?<!\\.) \\b(\n    [A-Z]+[a-z]*Error\n  )\\b\n"        (Arithmetic | )
+ #1883       | Module(-|_)(N|n)ame | (Method|Package(_|-)Version) | Func(_|-)Type(-|_)Checker | Print | (End-)?(Exit|Quit)\n
+ 2190  invalid.illegal.operator.python (deleted)
