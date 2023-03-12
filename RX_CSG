@@ -408,18 +408,3 @@ RX-Language  Coding Style Guide
     + Constants are usually defined on a module level and 
       written in all capital letters with underscores separating words. 
       (Examples include MAX_OVERFLOW and TOTAL)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

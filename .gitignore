@@ -6,12 +6,13 @@ Programs/
 *.exe
 _Console_.py
 translated
+Sec.SQ
 # MODULE.py
 # tst*.*
 output/
 Parsing-Test/PEGs/tst.py
-
-
+Eso_BluePrint.txt
+RegexDoc.py
 
 
 

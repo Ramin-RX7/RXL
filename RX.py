@@ -19,7 +19,7 @@ class rx:
         def __init__(self):
             self.__start= time.time()
             self.laps=[]
-        def lap(self,save=True, Round=15):     
+        def lap(self,save=True, Round=15):
             lp= round(time.time()-self.__start,Round)
             if save: self.laps.append(lp)
             return lp
@@ -50,7 +50,7 @@ class rx:
                 pass
             if color=='default':
                 color=7 #188
-            self.text= text     
+            self.text= text
             self.content= fg(color)+bg(BG)+text+attr(0)
         def __str__(self):
             return self.content
@@ -115,7 +115,7 @@ class rx:
             if os.path.isfile(path):
                 os.remove(path)
             else:
-                if force: 
+                if force:
                     import shutil
                     shutil.rmtree(path)
                 else:
@@ -123,9 +123,9 @@ class rx:
                         os.rmdir(path)
                     except OSError:
                         raise OSError(
-                            f"[WinError 145] The directory is not empty: '{path}'" + '\n' + ' '*23 + 
+                            f"[WinError 145] The directory is not empty: '{path}'" + '\n' + ' '*23 +
                             '(Use force=True as an argument of remove function to' +
-                            ' remove non-empty directories.)')               
+                            ' remove non-empty directories.)')
         @staticmethod
         def hide(path, mode:bool =True):
             import win32api, win32con
@@ -160,7 +160,7 @@ class rx:
     System = system
 
 
-    class io: 
+    class io:
         @staticmethod
         def wait_for_input(prompt):
             answer= ''
@@ -223,7 +223,7 @@ class rx:
         @staticmethod
         def getpass(prompt):
             import getpass as Getpass
-            return Getpass.getpass(prompt=prompt)    
+            return Getpass.getpass(prompt=prompt)
     SF = AF = NF = io
 
 class IndentCheck:
@@ -257,7 +257,7 @@ class IndentCheck:
             return (False,f"Token Error: {msg}")
 
         except IndentationError as msg:
-            return (False,f"Indentation Error: {msg}") 
+            return (False,f"Indentation Error: {msg}")
 
         except IndentCheck.NannyNag as nag:
             badline = nag.get_lineno()
@@ -390,13 +390,14 @@ class IndentCheck:
                     raise IndentCheck.NannyNag(start[0], msg, line)
 
 
-""" 
+"""
 ################################################################################
 # CHARS:  {✓ , ? , > , ! , X}
 ################
 # TODO:
     ? indentation check error
   # EASY:
+    #> Using re.compile instead of re.match/re.search
     #> $check & $ $checkwait should be combined and be in the same "if" in Syntax()
         also $test
     #? "until & unless & foreach & func" replace or regex
@@ -425,7 +426,7 @@ class IndentCheck:
   # MEDIUM:
     #> What happens if we use cache and loaded module has changed
     #> Full debug:
-          #> Syncorize all DEBUGs  
+          #> Syncorize all DEBUGs
     #> CONSTs:
           #!  After NameError rest of code will be ignored
           #>  Fix Const func to accept one object
@@ -491,12 +492,20 @@ class IndentCheck:
  #?  A file to repair files (save all files in a zipfile)
  #> Annotations and Documentation (Docstring/Help)
 
+########################################
+
+#< Install.py >#
+  #> Check for python path
+  #> Check to see if python path and python/scripts/ are in PATH
+  #> Copy Files to python/scripts/
+
+
 ################################################################################
 """
 #] CHANGES in VSCode-Ext from VSCode-Python-Ext
 r"""
- C:\Users\IRANIAN\.vscode\extensions\ms-python.python-2020.8.105369\package.json   (1637)
- C:\Users\IRANIAN\.vscode\extensions\ms-python.python-2020.8.105369\snippets\python.json   (END)
+ C:\Users\USERNAME\.vscode\extensions\ms-python.python-2020.8.105369\package.json   (1637)
+ C:\Users\USERNAME\.vscode\extensions\ms-python.python-2020.8.105369\snippets\python.json   (END)
  D:\Programs\Microsoft VS Code\resources\app\extensions\rx\language-configuration.json 13
 
  D:\Programs\Microsoft VS Code\resources\app\extensions\python\syntaxes\MagicPython.tmLanguage.json
@@ -517,7 +526,6 @@ r"""
 r"""
  git add . && git commit
  vsce publish VERSION
- brs326qo5vgc774pezvenvixu4sj3c2lbwgqv66uwzsopcocl6ea
 
  Colors:
   invalid.deprecated.backtick.python   red
@@ -541,10 +549,10 @@ canopy       |    +     |     +       |    +     |  +  006  | +  001 | Re+ ,PEG+
 lark         |    0     |     0       |    +     |  0  017  | -  037 | Re+ ,PEG+,Actions ,Lib    |
 parsimonious |    -     |     0       |    0     |  +  001  | -  030 |      PEGL,Actions ,       |
 PyLery       |    -     |     -       |    0     |  +  001  | 0  012 | Re++               Tree+  |
-                
+
 parse        |    +     |     +       |    -     |  +  002  | +  005 |           Actions+,Format |
 funcparserlib|    +     |     -       |    0     |  0  018  | +  002 |      OWN ,Actions ,Tree   |
-parsy        |    +     |     +       |    -     |  +  003  | +  002 | Re+       Actions         | 
+parsy        |    +     |     +       |    -     |  +  003  | +  002 | Re+       Actions         |
 """
 
 
@@ -565,10 +573,10 @@ RX_PATH = os.path.abspath(__file__)[:-6]
 
 CLASSES = (
            ['Files'   , 'System', 'Random'    , 'Record', 'Style'   ,
-            'Terminal', 'Tuple' , 'Decorator' , 'IO'    , 'Internet', 
-            'Date_Time'], 
-           ['files'   , 'system', 'random'    , 'record', 'style'   , 
-            'terminal', 'Tuple' , 'decorator' , 'io'    , 'internet', 
+            'Terminal', 'Tuple' , 'Decorator' , 'IO'    , 'Internet',
+            'Date_Time'],
+           ['files'   , 'system', 'random'    , 'record', 'style'   ,
+            'terminal', 'Tuple' , 'decorator' , 'io'    , 'internet',
             'date_time'],
            )
 
@@ -610,8 +618,8 @@ class ERRORS:
             )
 
     class ValueError(Exception):
-        def __init__(self, 
-                File,       attribute=None , value=None, Line_Text='', 
+        def __init__(self,
+                File,       attribute=None , value=None, Line_Text='',
                 Line_Nom=0, correct_list=[], msg=None):
             MSG = msg if msg else f"'{attribute}' can not be '{value}'. Valid Choices: {correct_list}"
             raise ERRORS.RaiseError(
@@ -621,7 +629,7 @@ class ERRORS:
 
     class ConstantError(Exception):
         def __init__(self,
-          Line_Nom=0  , Line_Def=0, Line_Text='', 
+          Line_Nom=0  , Line_Def=0, Line_Text='',
           Attribute='', File=''   , msg=None):
             MSG = msg if msg else f"Redefinition of '{Attribute}' (Already Defined At Line {Line_Def})"
             raise ERRORS.RaiseError(
@@ -742,9 +750,9 @@ def Get_Args():
     )
     parser.add_argument(
         'PROG_ARGS',
-        action='store', 
+        action='store',
         nargs=argparse.REMAINDER)
-    
+
     parser.add_argument(
         "--compile",
         action="store_true",
@@ -770,7 +778,7 @@ def Get_Args():
         print(                                                                                                                             )
        #print('"OPTIONS" SHOULD BE DEFINED AFTER "BASE OPTIONS"'                                                             , style='bold')
         return False
-    
+
     elif not args.FILE:
         Menu.Console()
         #Menu()
@@ -784,7 +792,7 @@ def Get_Args():
 
 
     #print('ARGS:  '+str(args))
-    return (args.FILE, args.info, args.d, args.debug, 
+    return (args.FILE, args.info, args.d, args.debug,
            args.MT   , args.T2P , args.PROG_ARGS    ,
            args.no_cache)
 
@@ -837,7 +845,7 @@ class Menu:
         rx.cls()
         rx.terminal.set_title(f'RX:Terminal  |  {rx.system.device_name()}:{rx.system.accname()}')
         NOW = str(__import__('datetime').datetime.now())
-        Menu_Dict = { 
+        Menu_Dict = {
            #'Terminal'   : Menu.Terminal ,
             'Console'    : Menu.Console  ,
            #'System Info': Menu.SysInfo  ,
@@ -891,7 +899,7 @@ class Menu:
                         print('Invalid path','red')
                 elif inp == 'python':
                     rx.terminal.run('python')
-                elif inp == 'cmd':   
+                elif inp == 'cmd':
                     rx.terminal.run('cmd')
                 elif inp in ('cls','clear'):
                     rx.terminal.run('cls')
@@ -929,7 +937,7 @@ class Menu:
         # files.isdir
         classes = {'files':Files,'terminal':Terminal,'record':Record,
                 'random':Random, 'io':IO,'style':Style,
-                'decorator':Decorator,'system':System 
+                'decorator':Decorator,'system':System
                 }
         classes_names = list(classes.keys())
 
@@ -972,14 +980,14 @@ class Menu:
             Icon = '--icon '+Icon if Icon else ''
             Path = '--target-dir '+Path if Path else ''
             Default_Args = '-s'
-            Onefile  = '' 
+            Onefile  = ''
             Windowed = ''
         if Compiler == 'pyinstaller':
             Icon = '-i '+Icon if Icon else ''
             Path = '--specpath '+Path if Path else ''
             Onefile  = rx.io.selective_input('Onefile? [1-One File, 2-One Directory]  ',
                                              choices=['1','2'],error=True)
-            Onefile  = '--onefile' if Onefile=='1' else '--onedir' 
+            Onefile  = '--onefile' if Onefile=='1' else '--onedir'
             Windowed = rx.io.selective_input('Window? [1-Console,2-Hide Console]  ',
                                              choices=['1','2'],error=True)
             Windowed = '--console' if Windowed=='1' else '--windowed'
@@ -1019,7 +1027,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             continue
 
         Stripped = Text.strip()
-        # Ignore Docstrings and Comments        
+        # Ignore Docstrings and Comments
         if Stripped.startswith('#'):
             continue
         elif '"""' in Text  and  not ("'''" in Text and Text.index('"""')>Text.index("'''")):
@@ -1052,9 +1060,9 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             if INDENT_START <= INDENT:
                 #print('RX_Err','red')
                 raise ERRORS.IndentationError(Line_Nom+1, SOURCE[Line_Nom], FILE)
-        
+
         pass
-        
+
         if re.search(r'^def\s+map\s*\(',Stripped)  or  re.search(r'map\s*=\s*lambda\s+.+:',Stripped):
             map_defd = True
         else:
@@ -1075,7 +1083,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     Skip = 0
 
     for nom,line in enumerate(SOURCE[:10]):
-        
+
         r''' Normal|Lite
             #] Get Version (Method) of Tools
             elif re.match(r'(Method|Package(-|_)Version)\s*:\s*\w+', line):
@@ -1086,7 +1094,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                     MODULE_VERSION = 'rx7.lite'
                 elif not StripLow.endswith('normal'):
                     stripped = line[line.index(':')+1:].strip()
-                    raise ERRORS.ValueError(FILE, 'Method', stripped, line, 
+                    raise ERRORS.ValueError(FILE, 'Method', stripped, line,
                                         SOURCE[:5].index(line), ['lite','normal'])
                 SOURCE[nom] = ''
                 Changeable.append(nom)
@@ -1115,7 +1123,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 PRINT_TYPE = 'normal'
             elif not line.strip().lower().endswith('stylized'):
                 stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.ValueError(FILE, 'print', stripped, line, 
+                raise ERRORS.ValueError(FILE, 'print', stripped, line,
                                        SOURCE[:10].index(line), ['lite','normal'])
             SOURCE[nom] = ''
             Changeable.append(nom)
@@ -1128,7 +1136,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 TYPE_SCANNER = True
             elif not line.strip().endswith('False'):
                 stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.ValueError(FILE, 'func_type_checker', stripped, line, 
+                raise ERRORS.ValueError(FILE, 'func_type_checker', stripped, line,
                                        SOURCE.index(line), "[True,False]")
             SOURCE[nom] = ''
             Changeable.append(nom)
@@ -1139,7 +1147,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 SOURCE.append('__import__("getpass").getpass("Press [Enter] to Exit")')
             elif not line.strip().lower().endswith('true'):
                 stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.ValueError(FILE, 'Exit', stripped, line, 
+                raise ERRORS.ValueError(FILE, 'Exit', stripped, line,
                                        SOURCE.index(line), "[True,False]")
             SOURCE[nom] = ''
             Changeable.append(nom)
@@ -1152,7 +1160,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 SOURCE.insert(-1,f'std.files.remove("{ABSPATH}/__RX_LC__",force=True)')
             elif not line.strip().lower().endswith('true'):
                 stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.ValueError(FILE, 'Exit', stripped, line, 
+                raise ERRORS.ValueError(FILE, 'Exit', stripped, line,
                                        SOURCE.index(line), "[True,False]")
             SOURCE[nom] = ''
             Changeable.append(nom)
@@ -1164,7 +1172,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 Allow_Reload = True
             elif not line.strip().lower().endswith('false'):
                 stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.ValueError(FILE, 'Allow-Reload', stripped, line, 
+                raise ERRORS.ValueError(FILE, 'Allow-Reload', stripped, line,
                                         SOURCE.index(line)  , "[True,False]")
             SOURCE[nom] = ''
             Changeable.append(nom)
@@ -1189,7 +1197,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             break
 
     #print(INFO)
-    
+
     #] Bases
     STRING = []
     STRING.append(f"import {MODULE_VERSION} as {MODULE_SHORTCUT}")
@@ -1220,26 +1228,26 @@ def Define_Structure(SOURCE, FILE, DEBUG):
 
     if DEBUG and not len(Changeable):
         print(f'{FILE}> No (Enough) Base-Option/Empty-lines at begining of file', 'red')
-    
+
     # rx.files.write(f'./__RX_LC__/_{os.path.basename(FILE)}_info_',str(rx.files.mdftime(FILE)))
 
     #print(CONSTS)
-    return (SOURCE, 
+    return (SOURCE,
             MODULE_VERSION, MODULE_SHORTCUT,
             TYPE_SCANNER, INFO)
 
 
 
 #< Syntax >#
-def Syntax(SOURCE, 
+def Syntax(SOURCE,
            MODULE_VERSION ,  MODULE_SHORTCUT,
            TYPE_SCANNER   ,
            FILE           ,  DEBUG):
-    
+
     global Lines_Added
     '''
      #print(TYPE_SCANNER,'red')
-     Keywords = ('if' , 'elif' , 'except' , 'def', 
+     Keywords = ('if' , 'elif' , 'except' , 'def',
                 'for', 'while', 'foreach', 'until', 'unless',
                 'try', 'else' , 'switch' , 'class', 'case',
                 )
@@ -1270,7 +1278,7 @@ def Syntax(SOURCE,
             #print(Skip)
             continue
 
-        # Ignore Docstrings and Comments       
+        # Ignore Docstrings and Comments
         if Stripped.startswith('#')  or  not Stripped:
             continue
         elif '"""' in Text  and  not ("'''" in Text and Text.index('"""')>Text.index("'''")):
@@ -1290,14 +1298,14 @@ def Syntax(SOURCE,
 
         #] Check for Constant re-definition/change
         for item in CONSTS:
-            if re.search(rf'( |;|^$){item[0]}\s*(\[.+\])?\s*=\s*[^=]+', Text):  # \s*.+  {?} 
+            if re.search(rf'( |;|^$){item[0]}\s*(\[.+\])?\s*=\s*[^=]+', Text):  # \s*.+  {?}
                 if not Stripped.startswith('def ')  and  not Stripped.startswith('#'):
                     raise ERRORS.ConstantError(Line_Nom, item[1], Stripped, item[0], FILE)
 
         if False: pass  #Just to make rest of the conditions look similar
 
         #] Include
-        elif Stripped.startswith('include ')  or  Stripped=='include': 
+        elif Stripped.startswith('include ')  or  Stripped=='include':
             Regex=re.match(r'(?P<Indent>\s*)include \s*(?P<objects>.+)\s*', Text)
             if not Regex:
                 raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'include'")
@@ -1319,7 +1327,7 @@ def Syntax(SOURCE,
                 RX_M = rx7
                 CLASS = Reg2.group('CLASS')
                 OBJ2  = Reg2.group('OBJECTS')
-                
+
                 method_list = [func for func in dir(eval(f'RX_M.{CLASS}')) if (
                     callable(getattr(eval(f'RX_M.{CLASS}'), func))  and  not func.startswith("__"))]
                 if CLASS not in CLASSES[0]+CLASSES[1]:
@@ -1347,7 +1355,7 @@ def Syntax(SOURCE,
         #] Func Type checker
         elif Stripped.startswith('def ')   and  TYPE_SCANNER:  # Make it regex?
             if SOURCE[Line_Nom-2].strip().endswith('Check_Type'):
-               SOURCE[Line_Nom-2]= re.search(r'(\s*)',Text).group(1)+f'@std.Check_Type' 
+               SOURCE[Line_Nom-2]= re.search(r'(\s*)',Text).group(1)+f'@std.Check_Type'
             if SOURCE[Line_Nom-2].strip().startswith('@'):
                 continue
             indent = Text.index('def ')
@@ -1360,7 +1368,7 @@ def Syntax(SOURCE,
             #elif Regex:=re.match(r'(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text):
             Regex = re.match(r'(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text)
             if not Regex: raise SyntaxError
-            
+
             indent = Regex.group('indent')
             rules = 0  #?
             for nom2,line2 in enumerate(SOURCE[Line_Nom:], 1):
@@ -1411,14 +1419,14 @@ def Syntax(SOURCE,
             #rx.files.mkdir('__RX_LC__')
             #if not rx.files.exists('__RX_LC__/__init__.py'):
             #    rx.write('__RX_LC__/__init__.py')
-            
+
             for package in Packages:
                 if rx.files.exists(f'{package}.rx7'):
                     import threading
                     #print(package,'green')
                     def TEST():
                         pack_out = rx.terminal.getoutput(f'python RX.py -MT {package}.rx7').strip()
-                        
+
                         if len(pack_out):
                             #print(pack_out)
                             if re.match(r'\w+Error', pack_out.splitlines()[-1]):
@@ -1478,9 +1486,9 @@ def Syntax(SOURCE,
                     #] maybe it should be just a warning
                     print(f"{FILE}:{Line_Nom}> Constant Variable Name ({VarName}) is not UPPERCASED",'red')
                     '''
-                     raise ERRORS.ConstantError(Line_Nom=Line_Nom, 
-                                               Line_Text=Stripped, 
-                                               File=FILE, 
+                     raise ERRORS.ConstantError(Line_Nom=Line_Nom,
+                                               Line_Text=Stripped,
+                                               File=FILE,
                                                msg='Constant Variable Name Must be UPPERCASE')
                     '''
                 for item in CONSTS:  #] Check if Const X is already defined
@@ -1511,13 +1519,13 @@ def Syntax(SOURCE,
                     print(f"'{Type_Content}'  ({FILE}:{Line_Nom}:{VarName})", 'red')#, style='bold')
             '''
             if VarName != VarName.upper()  and  DEBUG:
-                print(f"{FILE}:{Line_Nom}> Constant Variable Name ({VarName}) is not UPPERCASED",'red')                
+                print(f"{FILE}:{Line_Nom}> Constant Variable Name ({VarName}) is not UPPERCASED",'red')
             CONSTS.add((VarName, Line_Nom))
             Indent = Regex.group('Indent')
             SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Const({Content})'
 
         #] do_while
-        elif Regex:=re.match(r'(?P<Indent>\s*)do\s*:\s*',Text): 
+        elif Regex:=re.match(r'(?P<Indent>\s*)do\s*:\s*',Text):
             #elif Striped.startswith('do '     )  or  Striped=='do':
             Regex=re.match(r'(?P<Indent>\s*)do\s*:\s*',Text)
             if not Regex: raise SyntaxError
@@ -1629,7 +1637,7 @@ def Syntax(SOURCE,
                 SOURCE[free_lines[2]] =  Indent+else_
             if finally_:
                 SOURCE[free_lines[3]] =  Indent+finally_
-            
+
             Lines_Added += needed_lines
 
         elif Stripped.startswith('$checkwait ')  or  Stripped=='$checkwait':
@@ -1693,9 +1701,9 @@ def Syntax(SOURCE,
                 SOURCE[free_lines[3]] =  Indent+else_
             if finally_:
                 SOURCE[free_lines[4]] =  Indent+finally_
-            
+
             Lines_Added += needed_lines
-        
+
         #] $CMD
         elif Stripped.startswith('$cmd '   )  or  Stripped=='$cmd' :
             Regex = re.match(r'(?P<Indent>\s*)\$cmd \s*(?P<Command>.+)',Text)
@@ -1784,8 +1792,8 @@ def RUN(READY_FILE_NAME,THREADS=[]):
 #< Check Cache Suitability >#
 def Cache_Check():
     #print(f"MDFTIME REAL :: {rx.files.mdftime(FILE)}")
-    #print(f"MDFTIME CACH :: {float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))}") 
-           
+    #print(f"MDFTIME CACH :: {float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))}")
+
     if DEBUG or D or ADD_VERBOSE:
         print('[*] Using Cache', 'dodger_blue_1')
     try:
@@ -1803,7 +1811,7 @@ def Cache_Check():
 
 
 #< Make Neccassary Files for "RUN" >#
-def Prepare_Files(): 
+def Prepare_Files():
     global TIMES, Lines_Added
     SOURCE = Read_File(FILE)
     SOURCE = Define_Structure(SOURCE, FILE, D)
@@ -1811,7 +1819,7 @@ def Prepare_Files():
     TIMES['DefStr'] = time.time()-START_TIME
     SOURCE,THREADS = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, D)
     TIMES['Syntax'] = time.time()-START_TIME
-    
+
     SOURCE.insert(0,SOURCE[0]+"#"+str(int(rx.files.mdftime(FILE))))
 
     if (not DEBUG) and (not MT):
@@ -1875,7 +1883,7 @@ if __name__ == "__main__":
 
         if CACHE and BACKUP_EXIST and (BACKUP_MDF_TIME==int(rx.files.mdftime(FILE))): #"(not ADD_VERBOSE)" ?!
             try:     SOURCE = Cache_Check()
-            except:  raise#Prepare_Files() 
+            except:  raise#Prepare_Files()
             THREADS = []
             # RUN(READY_FILE_NAME)
         else:
