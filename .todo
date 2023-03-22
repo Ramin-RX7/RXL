@@ -25,12 +25,12 @@
     ?  A file to repair files (save all files in a zipfile)
     ☐ Annotations and Documentation (Docstring/Help)
 
-    Load_Modules:
+    Load Modules:
         ☐ @med What happens if we use cache and loaded module has changed
         ☐ @med Load modules with default Options
         ☐ switch-case works fine in normal run but is not translated when loading
 
-    Full_debug:
+    Full debug:
         ☐ @med Synchronize all DEBUGs
         ☐ @hard Debug with running linters
 
@@ -68,8 +68,9 @@
     ☐ @hard do_when Keyword for Calling specifiec function when condition comes True
     ☐ @hard There couldnt be nested Switch-Case statements
     ☐ do_while check for outline
+    ☐ Use re.X as flag for better regex
 
-    $_family:
+    $ family:
         ?  All `$commands` be in one condition (faster or not?)
 
         ☐ @easy $check & $ $checkwait should be combined and be in the same "if" in Syntax()
@@ -86,6 +87,13 @@
 
 
 
+[Definde-Structure]
+    ? make a module out of defined structures and add `from module import *`
+        (so only one line would be added to the file)
+    ✔ improve regex
+
+
+
 [Menu]
     Terminal:
         ☐ @easy linux commands
@@ -99,7 +107,7 @@
 
 
 [Extension]
-    New_Syntaxes:
+    New Syntaxes:
         ☐ @easy Internet class functions
 
     ?  @easy Clear the screen in extension run (? get operating system for cls/clear)

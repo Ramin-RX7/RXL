@@ -395,7 +395,7 @@ class IndentCheck:
 
 
 
-__version__ = '1.0.0'
+__version__ = '0.0.1'
 
 START_TIME = time.time()
 
@@ -885,6 +885,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             while not BREAK:
                 if SOURCE[LINE-1].strip().endswith(':'):
                     BREAK = True
+                    print("break")
                 else:
                     LINE += 1
 
@@ -895,8 +896,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 raise ERRORS.IndentationError(Line_Nom+1, SOURCE[Line_Nom], FILE)
 
         pass
-
-        if re.search(r'^def\s+map\s*\(',Stripped)  or  re.search(r'map\s*=\s*lambda\s+.+:',Stripped):
+        if re.search(r'^(def)|(class)\s+map\s*\(',Stripped)  or  re.search(r'map\s*=\s*lambda\s+.+:',Stripped):
             map_defd = True
         else:
             map_defd = False
@@ -907,7 +907,6 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     PRINT_TYPE = 'stylized'
     TYPE_SCANNER = False
     Allow_Reload = False
-    #BASED = False
     Changeable = []
     INFO = {
         'Version':'1.0.0',
@@ -932,102 +931,83 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 SOURCE[nom] = ''
                 Changeable.append(nom)
         '''
+        rstrip = line.rstrip()
 
         if not line.strip() or line.strip().startswith('#'):
-            Changeable.append(nom)
+            pass
 
         #] Get Shortcut Name
-        elif re.match(r'(Module(-|_)?Name)\s*:\s*\w+', line, re.IGNORECASE):
-            #if BASED:
-            #    raise ERRORS.BaseDefinedError('Modulename', line, SOURCE[:5].index(line), FILE)
-            stripped = line[line.index(':')+1:].strip()
-            if re.search(r'\w+', stripped).group() == stripped:
-                MODULE_SHORTCUT = str(stripped)
-            else:
-                raise ERRORS.ValueError(msg='Invalid Value For  modulename/module_name', File=FILE)
-                        #SOURCE.remove(line)
-            SOURCE[nom] = ''
-            Changeable.append(nom)
+        elif regex:=re.match(r'Module-?Name\s*:\s*(?P<name>.+)',
+                             rstrip, re.IGNORECASE):
+            MODULE_SHORTCUT = regex.group("name")
+            if not re.match(r'\w+', MODULE_SHORTCUT):
+                raise ERRORS.ValueError(msg='Invalid Value For  modulename/module_name',
+                                        File=FILE)
 
         #] Print Function Method
-        elif re.match(r'Print\s*:\s*\w*', line):
-            #BASED = True
-            if line.strip().lower().endswith('normal'):
-                PRINT_TYPE = 'normal'
-            elif not line.strip().lower().endswith('stylized'):
-                stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.ValueError(FILE, 'print', stripped, line,
-                                       SOURCE[:10].index(line), ['lite','normal'])
-            SOURCE[nom] = ''
-            Changeable.append(nom)
+        elif regex:=re.match(r'Print\s*:\s*(?P<type>.+)',
+                             rstrip, re.IGNORECASE):
+            PRINT_TYPE = regex.group("type").lower()
+            if not (PRINT_TYPE in ("normal","stylized")):
+                raise ERRORS.ValueError(FILE, 'print', PRINT_TYPE, line,
+                                       SOURCE.index(line), ['lite','normal'])
 
         #] Function Type Scanner          TODO: # Make it Shorter!
-        elif re.match(r'(Func(tion)?)(-|_)?(Type|Arg|Param)(-|_)?(Scanner|Checker)\s*:\s*\w+',line,re.IGNORECASE):
-            #print("FOUND",'green')
-            #BASED = True     # No Need to do it
-            if line.endswith('True'):
-                TYPE_SCANNER = True
-            elif not line.strip().endswith('False'):
-                stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.ValueError(FILE, 'func_type_checker', stripped, line,
+        elif regex:=re.match(r'func(tion)?-?type-?checker\s*:\s*(?P<flag>.+)',
+                             rstrip,re.IGNORECASE):
+            #r'(Func(tion)?)(-|_)?(Type|Arg|Param)(-|_)?(Scanner|Checker)\s*:\s*\w+\s*'
+            TYPE_SCANNER = regex.group("flag").capitalize()
+            if TYPE_SCANNER not in ("True","False"):
+                raise ERRORS.ValueError(FILE, 'func_type_checker', TYPE_SCANNER, line,
                                        SOURCE.index(line), "[True,False]")
-            SOURCE[nom] = ''
-            Changeable.append(nom)
 
         #] Exit at the end
-        elif re.match(r'(End(-|_))?(Exit|Quit)\s*:\s*\w*',line, re.IGNORECASE):
-            if line.strip().lower().endswith('false'):
+        elif regex:=re.match(r'End-?(Exit|Quit)\s*:\s*(?P<flag>.+)',
+                      rstrip, re.IGNORECASE):
+            flag = regex.group("flag").capitalize()
+            if flag in ("True","False")  and  flag == "False":
                 SOURCE.append('__import__("getpass").getpass("Press [Enter] to Exit")')
-            elif not line.strip().lower().endswith('true'):
-                stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.ValueError(FILE, 'Exit', stripped, line,
+            else:
+                raise ERRORS.ValueError(FILE, 'Exit', rstrip, line,
                                        SOURCE.index(line), "[True,False]")
-            SOURCE[nom] = ''
-            Changeable.append(nom)
 
         #] Exit at the end
-        elif re.match(r'(Save(-|_))?(Cache)\s*:\s*\w*', line, re.IGNORECASE):
-            if line.strip().lower().endswith('false'):
-                #print('Remove Cache True')
+        elif regex:=re.match(r'Save-?Cache\s*:\s*(?P<flag>.+)', rstrip, re.IGNORECASE):
+            flag = regex.group("flag").capitalize()
+            if flag in ("True","False")  and  flag=='False':
                 ABSPATH = os.path.dirname(rx.files.abspath(FILE))
                 SOURCE.insert(-1,f'std.files.remove("{ABSPATH}/__RX_LC__",force=True)')
-            elif not line.strip().lower().endswith('true'):
-                stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.ValueError(FILE, 'Exit', stripped, line,
+            else:
+                raise ERRORS.ValueError(FILE, 'SaveCache', flag, line,
                                        SOURCE.index(line), "[True,False]")
-            SOURCE[nom] = ''
-            Changeable.append(nom)
 
         #] Reload Module
-        elif re.match(r'Allow(-|_)Reload\s*:\s*', line, re.IGNORECASE):
-            if line.strip().lower().endswith('true'):
-                #print('Remove Cache True')
+        elif regex:=re.match(r'Allow-?Reload\s*:(?P<flag>.+)', rstrip, re.IGNORECASE):
+            flag = regex.group("flag").capitalize()
+            if flag in ("False","True")  and  flag=="True":
                 Allow_Reload = True
-            elif not line.strip().lower().endswith('false'):
-                stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.ValueError(FILE, 'Allow-Reload', stripped, line,
+            else:
+                raise ERRORS.ValueError(FILE, 'Allow-Reload', flag, line,
                                         SOURCE.index(line)  , "[True,False]")
-            SOURCE[nom] = ''
-            Changeable.append(nom)
 
         #] Version
-        elif Regex:=re.match(r'Version\s*:\s*(?P<Version>[0-9]+(\.[0-9]+)?(\.[0-9]+)?)', line.rstrip(), re.IGNORECASE):
+        elif Regex:=re.match(r'Version\s*:\s*(?P<Version>[0-9]+(\.[0-9]+)?(\.[0-9]+)?)',
+                             rstrip, re.IGNORECASE):
             INFO['Version'] = Regex.group('Version')
-            SOURCE[nom] = ''
-            Changeable.append(nom)
         #] Title
-        elif Regex:=re.match(r'Title\s*:\s*(?P<Title>[^>]+)(>.+)?', line.rstrip(), re.IGNORECASE):
+        elif Regex:=re.match(r'Title\s*:\s*(?P<Title>[^>]+)(>.+)?',
+                             rstrip, re.IGNORECASE):
             INFO['Title'] = Regex.group('Title')
-            SOURCE[nom] = ''
-            Changeable.append(nom)
         #] Author
-        elif Regex:=re.match(r'Author\s*:\s*(?P<Author>.+)', line.rstrip(), re.IGNORECASE):
+        elif Regex:=re.match(r'Author\s*:\s*(?P<Author>.+)',
+                             rstrip, re.IGNORECASE):
             INFO['Author'] = Regex.group('Author')
-            SOURCE[nom] = ''
-            Changeable.append(nom)
 
         else:
             break
+
+        Changeable.append(nom)
+        SOURCE[nom] = ''
 
     #print(INFO)
 
@@ -1042,7 +1022,8 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     STRING.append(f"Array = array = {MODULE_SHORTCUT}._Lang.Array")
     STRING.append(f"Check_Type = {MODULE_SHORTCUT}.Check_Type")
     #] Other ones
-    STRING.append("apply = __builtins__['map'] ; map = None")
+    if not map_defd:
+        STRING.append("apply = __builtins__['map'] ; map = None")
     for key,value in INFO.items():
         STRING.append(f"setattr(std,'{key}','{value}')")
 
@@ -1052,8 +1033,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 SOURCE[line] = ';'.join(STRING)
             else:
                 try:
-                    SOURCE[line] = STRING[0]
-                    STRING = STRING[1:]
+                    SOURCE[line] = STRING.pop(0)
                 except IndexError:
                     break
     else:
