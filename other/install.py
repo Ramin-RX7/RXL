@@ -13,18 +13,10 @@ ROAMING  =  f"C:\\Users\\{USERNAME}\\AppData\\Roaming\\Python\\Python38\\Scripts
 '''
 
 print('Waiting For Response From Python ...')
-while True:
-    '''pip_exists =  os.path.exists(LOCAL)  or  os.path.exists(GLOBAL)  or  os.path.exists(ROAMING)
-    if pip_exists:
-        break'''
-    #not sure if this works (scripts/pip.exe should exist, not lib/site/packages/pip.py)
-    try:
-        import pip
-        break
-    except:
-        pass
-
-time.sleep(3)
+try:
+    import pip
+except:
+    raise ImportError("Please install 'pip' before trying to install 'RX Lang'")
 print('Done')
 
 print('Installing RX Language ...')
@@ -45,5 +37,6 @@ print('Done')
 print('Copying Files...')
 import rx7 as rx
 rx.files.copy('RX.py',os.path.dirname(sys.executable)+'/Scripts')
+print("Done")
 
-
+print("RX-Lang has been installed successfully.")

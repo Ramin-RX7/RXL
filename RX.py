@@ -527,6 +527,50 @@ class ERRORS:
 
 
 
+class REGEX:
+
+    _INCLUDE = ...
+
+    class SwitchCase:
+        switch = re.compile(r'(?P<indent>\s*)switch\s+(?P<VARIABLE>\w+)\s*:')
+        default = re.compile(r'^default\s*:\s*')
+        case = re.compile(r'case\s+(?P<Nobreak>(nobreak)?(?P<VALUE>.+):')
+
+    load = re.compile(r'(?P<indent>\s*)load \s*(\w+,?)?')
+
+    memory_loc = re.compile(r'[,\(\[\{\+=: ]&(?P<var>\w+)')
+
+    until = re.compile(r'(?P<Indent>\s*)until \s*(?P<Expression>.+):(?P<Rest>.*)')
+
+    unless = re.compile(r'(?P<Indent>\s*)unless \s*(?P<Expression>.+):(?P<Rest>.*)')
+
+    foreach = re.compile(r'foreach \s*(?P<Expression>.+):')
+
+    func = re.compile(r'func \s*(?P<Expression>.+)')
+
+    const = re.compile(r'(?P<Indent>\s*)const\s+(?P<VarName>\w+)\s*=\s*(?P<Value>.+)\s*')
+
+    const_array = re.compile(r'(?P<Indent>\s*)(?P<VarName>\w+)\s*=\s*<(?P<Content>.*)>')
+
+    class DoWhile:
+        do = re.compile(r'(?P<Indent>\s*)do\s*:\s*')
+        while_ = re.compile(r'while\s*\(.+\)')
+
+    array = re.compile(r'(?P<Indent>\s*)array \s*(?P<VarName>\w+)\s*\[\s*((?P<Length>\w+)?\s*(:?\s*(?P<Type>\w+))?\s*)?\]\s*=\s*{(?P<Content>.*)}\s*')
+
+    class Commands:
+
+        check = re.compile(r'(?P<Indent>\s*)\$check \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?( \s*anyway(s)? (?P<Anyway>.+))?')
+
+        checkwait = re.compile("r'(?P<Indent>\s*)\$checkwait \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?( \s*anyway(s)? (?P<Anyway>.+))?'")
+
+        cmd = re.compile(r'(?P<Indent>\s*)\$cmd \s*(?P<Command>.+)')
+
+        call = re.compile(r'(?P<Indent>\s*)\$call (?P<Function>.+) \s*in \s*(?P<Time>.+)')
+
+        _clear = NotImplemented
+
+
 #< Get Arguments >#
 def Get_Args():
 
@@ -647,6 +691,7 @@ class Menu:
         PRE= ['import rx7 as rx','std=rx','print = std.style.print']
         rx.write(f'{CWD}/_Console_.py', '\n'.join(PRE)+'\n')
         import _Console_
+        # _Console_ = __import__("_Console_") importlib.import_module("_Console_")
         while True:
             try:
                 new = rx.io.wait_for_input('RX:Console> ')
@@ -860,6 +905,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             continue
 
         Stripped = Text.strip()
+
         # Ignore Docstrings and Comments
         if Stripped.startswith('#'):
             continue
@@ -952,7 +998,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
                 raise ERRORS.ValueError(FILE, 'print', PRINT_TYPE, line,
                                        SOURCE.index(line), ['lite','normal'])
 
-        #] Function Type Scanner          TODO: # Make it Shorter!
+        #] Function Type Scanner
         elif regex:=re.match(r'func(tion)?-?type-?checker\s*:\s*(?P<flag>.+)',
                              rstrip,re.IGNORECASE):
             #r'(Func(tion)?)(-|_)?(Type|Arg|Param)(-|_)?(Scanner|Checker)\s*:\s*\w+\s*'
@@ -1179,7 +1225,7 @@ def Syntax(SOURCE,
         #] Switch and Case
         elif Stripped.startswith('switch ')  or  Stripped==('switch'):
             #elif Regex:=re.match(r'(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text):
-            Regex = re.match(r'(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text)
+            Regex = re.match(r'(?P<indent>\s*)switch\s+(?P<VARIABLE>\w+)\s*:', Stripped)
             if not Regex: raise SyntaxError
 
             indent = Regex.group('indent')
@@ -1198,10 +1244,10 @@ def Syntax(SOURCE,
             Default = False
             SOURCE[Line_Nom-1] = f'{indent}if False: pass'
             for Line,snc in enumerate(SOURCE[Line_Nom-1:LAST_LINE], Line_Nom):
-                if re.match(r'^(D|d)efault\s*:\s*',snc.strip()):
+                if re.match(r'^default\s*:',snc.strip()):
                     SOURCE[Line-1] = indent+'else:'
                     Default = True
-                SEARCH_VALUE = re.match(r'(C|c)ase\s+(?P<Nobreak>(N|n)obreak)?(?P<VALUE>.+):\s*', snc.strip())
+                SEARCH_VALUE = re.match(r'case\s+(?P<Nobreak>(nobreak)?(?P<VALUE>.+):', snc.strip())
                 if SEARCH_VALUE:
                     if Default:
                         raise ERRORS.SyntaxError(FILE,Line_Nom+Line,snc,
@@ -1257,7 +1303,7 @@ def Syntax(SOURCE,
             #print(f'Load: {time.time()-t}','green')
 
         #] Memory Location of Object
-        elif Regex:=re.search(r'''[,\(\[\{\+=: ]&(?P<var>\w+)''', Text): #[^a-zA-Z0-9'"]
+        elif Regex:=re.search(r'[,\(\[\{\+=: ]&(?P<var>\w+)', Text): #[^a-zA-Z0-9'"]
             SOURCE[Line_Nom-1] = Text.replace("&"+Regex.group("var"),f'hex(id({Regex.group("var")}))')
 
         #] until & unless & foreach & func
@@ -1340,8 +1386,8 @@ def Syntax(SOURCE,
         #] do_while
         elif Regex:=re.match(r'(?P<Indent>\s*)do\s*:\s*',Text):
             #elif Striped.startswith('do '     )  or  Striped=='do':
-            Regex=re.match(r'(?P<Indent>\s*)do\s*:\s*',Text)
-            if not Regex: raise SyntaxError
+            if not Regex:
+                raise SyntaxError
 
             Indent = Regex.group('Indent')
 
