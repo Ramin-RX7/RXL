@@ -534,7 +534,7 @@ class REGEX:
     class SwitchCase:
         switch = re.compile(r'(?P<indent>\s*)switch\s+(?P<VARIABLE>\w+)\s*:')
         default = re.compile(r'^default\s*:\s*')
-        case = re.compile(r'case\s+(?P<Nobreak>(nobreak)?(?P<VALUE>.+):')
+        case = re.compile(r'case\s+(?P<Nobreak>(nobreak)?)(?P<VALUE>.+):')
 
     load = re.compile(r'(?P<indent>\s*)load \s*(\w+,?)?')
 
@@ -931,7 +931,6 @@ def Define_Structure(SOURCE, FILE, DEBUG):
             while not BREAK:
                 if SOURCE[LINE-1].strip().endswith(':'):
                     BREAK = True
-                    print("break")
                 else:
                     LINE += 1
 
@@ -1011,10 +1010,11 @@ def Define_Structure(SOURCE, FILE, DEBUG):
         elif regex:=re.match(r'End-?(Exit|Quit)\s*:\s*(?P<flag>.+)',
                       rstrip, re.IGNORECASE):
             flag = regex.group("flag").capitalize()
-            if flag in ("True","False")  and  flag == "False":
-                SOURCE.append('__import__("getpass").getpass("Press [Enter] to Exit")')
+            if flag in ("True","False"):
+                if flag == "False":
+                    SOURCE.append('__import__("getpass").getpass("Press [Enter] to Exit")')
             else:
-                raise ERRORS.ValueError(FILE, 'Exit', rstrip, line,
+                raise ERRORS.ValueError(FILE, 'Exit', flag, line,
                                        SOURCE.index(line), "[True,False]")
 
         #] Exit at the end
@@ -1064,8 +1064,8 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     STRING.append(f"print = {MODULE_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}")
     #] Direct Attributes
     STRING.append(F"input = {MODULE_SHORTCUT}.Input")
-    STRING.append(f"Const = const = {MODULE_SHORTCUT}._Lang.Const")
-    STRING.append(f"Array = array = {MODULE_SHORTCUT}._Lang.Array")
+    # STRING.append(f"Const = const = {MODULE_SHORTCUT}._Lang.Const")
+    # STRING.append(f"Array = array = {MODULE_SHORTCUT}._Lang.Array")
     STRING.append(f"Check_Type = {MODULE_SHORTCUT}.Check_Type")
     #] Other ones
     if not map_defd:
@@ -1223,7 +1223,7 @@ def Syntax(SOURCE,
             Lines_Added += 1
 
         #] Switch and Case
-        elif Stripped.startswith('switch ')  or  Stripped==('switch'):
+        elif False and (Stripped.startswith('switch ')  or  Stripped==('switch')):
             #elif Regex:=re.match(r'(?P<indent>\s*)(S|s)witch\s+(?P<VARIABLE>\w+)\s*:', Text):
             Regex = re.match(r'(?P<indent>\s*)switch\s+(?P<VARIABLE>\w+)\s*:', Stripped)
             if not Regex: raise SyntaxError
@@ -1247,7 +1247,7 @@ def Syntax(SOURCE,
                 if re.match(r'^default\s*:',snc.strip()):
                     SOURCE[Line-1] = indent+'else:'
                     Default = True
-                SEARCH_VALUE = re.match(r'case\s+(?P<Nobreak>(nobreak)?(?P<VALUE>.+):', snc.strip())
+                SEARCH_VALUE = re.match(r'case\s+(?P<Nobreak>(nobreak)?)(?P<VALUE>.+):', snc.strip())
                 if SEARCH_VALUE:
                     if Default:
                         raise ERRORS.SyntaxError(FILE,Line_Nom+Line,snc,
@@ -1750,7 +1750,6 @@ if __name__ == "__main__":
             SOURCE,THREADS,INFO = Prepare_Files()
 
         title = rx.terminal.get_title()
-
         if T2P:
             rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
         if MT:
@@ -1780,4 +1779,4 @@ if __name__ == "__main__":
                 Clean_Up(FILE)
         except:
             pass
-        rx.terminal.set_title(rx.terminal.get_title()) #What?
+        rx.terminal.set_title(title)

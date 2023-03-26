@@ -1,4 +1,6 @@
 [MAIN]
+    ☐ @high @norm better `array` implementation
+    ☐ @high @norm better `const` implementation
     ☐ @low @easy apply the own type of iterable after using apply()
     ☐ @low @easy Define Ready_Objs from std
     ☐ @low @easy Check if Array is defined with acceptable length
@@ -50,25 +52,23 @@
 [Syntax]
 
     ☐ @high @med `load` is unsafe (as it will be run from terminal)
-    ☐ @easy Using re.compile instead of re.match/re.search
+    ☐✔@easy Using re.compile instead of re.match/re.search
     ?  @easy "until & unless & foreach & func" replace or regex
-    ☐ @easy Check lines for all conditions until there's nothing to translate
-    ☐ @easy Syntax Conditions Order (By Usage)
-    ☐ @easy 'foreach' New Syntax:  "foreach iterable[item]: pass"
-    ☐ @hard Console support RX syntax ( '\n'.join(Syntax([line])) )
-    ?  @hard Split line by strings, check_syntax spliteds ,connect them again
+    ☐ @med@easy Check lines for all conditions until there's nothing to translate
+    ☐ @low @easy `Syntax` Conditions Order (By Usage)
+    ☐ @med @easy 'foreach' New Syntax:  "foreach iterable[item]: pass"
+    ☐ @high @hard Console support RX syntax ( '\n'.join(Syntax([line])) )
+    ☐ @high @hard Split line by strings, check_syntax spliteds ,connect them again
             ( I can get out part of ''/"" then use .replace() )
-    ☐ @hard Function to check if expression is not in Quotes
+    ☐ @high @hard Function to check if expression is not in Quotes
               func and Check_Type
               &memory
               until
               unless
               foreach
-    ☐ @hard Not all conditions should be 'elif' in Syntax()
-    ☐ @hard goto for For loops with naming For loops  (:NAME & goto NAME)
-    ☐ @hard do_when Keyword for Calling specifiec function when condition comes True
-    ☐ @hard There couldnt be nested Switch-Case statements
-    ☐ Use re.X as flag for better regex
+    ☐ @high @hard Not all conditions should be 'elif' in Syntax()
+    ☐ @high @hard There couldnt be nested Switch-Case statements
+    ☐ @low @easy Use re.X as flag for better regex
     !  do_while check for outline
 
     $ family:
@@ -81,10 +81,10 @@
             extra lines that are needed in "check" and "checkwait" should be removed
 
     Include:
-       ☐ @med *:*
-       ☐ @med class:*
-       ☐ @med Very Very Slow
-       ☐ @med Wrong translation when using '#'
+       ☐ @med @easy *:*
+       ☐ @med @easy class:*
+       ☐ @high @norm Very Very Slow
+       ☐ @med @hard Wrong translation when using '#'
 
 
 
@@ -97,19 +97,25 @@
 
 [Menu]
     Terminal:
-        ☐ @easy linux commands
+        ☐ @low @easy linux commands
 
 
 
 [Options]
-    ☐ @easy Ignore Reloading LOADED_PACKAGES Option
-    ☐ @easy Make Dict for "if args.option" in Get_Args()
+    ☐ @low @easy Ignore Reloading LOADED_PACKAGES Option
+    ☐ @med @easy Make Dict for "if args.option" in Get_Args()
 
 
 
 [Extension]
     New Syntaxes:
-        ☐ @easy Internet class functions
+        ☐ @med @easy Internet class functions
 
     ?  @easy Clear the screen in extension run (? get operating system for cls/clear)
     ?  Correct color for Options in extension (and also ignore cases)
+
+
+
+[New Features]
+    ☐ @med @norm Enums
+    ☐ @med @norm Dataclasses
