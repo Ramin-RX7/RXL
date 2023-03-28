@@ -1060,12 +1060,10 @@ def Define_Structure(SOURCE, FILE, DEBUG):
     #] Bases
     STRING = []
     STRING.append(f"import {MODULE_VERSION} as {MODULE_SHORTCUT}")
-    STRING.append(f"std = rx = {MODULE_SHORTCUT}")
+    STRING.append(f"std = rx = {MODULE_SHORTCUT};std.RXL = __import__('RXL')")
     STRING.append(f"print = {MODULE_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}")
     #] Direct Attributes
     STRING.append(F"input = {MODULE_SHORTCUT}.Input")
-    # STRING.append(f"Const = const = {MODULE_SHORTCUT}._Lang.Const")
-    # STRING.append(f"Array = array = {MODULE_SHORTCUT}._Lang.Array")
     STRING.append(f"Check_Type = {MODULE_SHORTCUT}.Check_Type")
     #] Other ones
     if not map_defd:
@@ -1381,7 +1379,10 @@ def Syntax(SOURCE,
 
         #] Array
         elif Stripped.startswith('array '  )  or  Stripped=='array':
-            Regex=re.match(r'(?P<Indent>\s*)array \s*(?P<VarName>\w+)\s*\[\s*((?P<Length>\w+)?\s*(:?\s*(?P<Type>\w+))?\s*)?\]\s*=\s*{(?P<Content>.*)}\s*',Text)
+            Regex=re.match(r'''(?P<Indent>\s*)array \s*(?P<VarName>\w+)
+                               \s*\[\s*((?P<Type>.+)?\s*:(\s*(?P<Length>.+))?\s*)?\]\s*=
+                               \s*<(?P<Content>.*)>\s*''',
+                           Text,re.VERBOSE)
             if not Regex:
                 raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'array'")
             Indent  = Regex.group('Indent')
@@ -1390,10 +1391,12 @@ def Syntax(SOURCE,
             Type    = Regex.group('Type')
             Content = Regex.group('Content')
 
-            Length  = '' if not Length  else ',size=' +Length
-            Type    = '' if not Type    else ',type_='+Type
+            Length  =  '' if not Length  else ', max_length='+Length
+            Type    =  '' if not Length  else ', type_='+Length
 
-            SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Array({Content},{Type},{Length})'
+
+            # SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Array({Content},{Type},{Length})'
+            SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}.RXL.array({Content}{Type}{Length})'
 
 
         #] $check

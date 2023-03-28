@@ -8,7 +8,7 @@ s = setup(
     version = "0.0.1",
     license = "LGPL",
     description = "RXL Features",
-    url = "https://github.com/Ramin-RX7/RX7-Lib/",
+    url = "https://github.com/Ramin-RX7/RX-Language/tree/master/RXL/",
     packages = find_packages(),
     install_requires = [],
     python_requires = ">= 3.8",
