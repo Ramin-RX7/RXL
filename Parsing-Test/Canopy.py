@@ -40,7 +40,7 @@ $ canopy "grammer.peg" --lang python
 """
 
 
-from lib2to3.pgen2 import grammar
+# from lib2to3.pgen2 import grammar
 import time
 import rx7 as rx
 from pprint import pprint
@@ -63,25 +63,28 @@ from Grammar import *
 
 source = [
     "include raminrx",
-    "  load   hello",
-    "const myx =    help",
-    #"until myx: ",
-    #"    unless   help    :",
-    #"array myarr [5]    =  {4,5,6,7}"
-]
-grammars = [Const,Include,Unless,Until,Load,Array]
+    "load adsf",
+    "array  [adsf:asdf]<asdf>",
 
-for line in source:
-    for grmr in grammars:
+    "const myx =    help",
+    "until myx: ",
+    "    unless   help    :",
+]
+grammars = [Include,Load,Array,Const,Until,Unless]
+
+for i,line in enumerate(source):
+    for j,grmr in enumerate(grammars):
         try:
             a = Grammar.parse(line,grmr)
         except:
-            pass
+            pass# print("Error")
         else:
-            print(a.elements)
+            print("\n")
+            print(i,j)
+            for k in a.elements:
+                print(k.text, end="|")
 
 
-# print(Grammar.parse("array myarr [5]    =  {4,5,6,7}",Array))
 
 
 

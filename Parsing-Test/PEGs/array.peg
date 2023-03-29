@@ -1,8 +1,8 @@
 #(?P<Indent>\s*)array \s*(?P<VarName>\w+)\s*\[\s*((?P<Type>.+)?\s*:(\s*(?P<Length>.+))?\s*)?\]\s*=\s*<(?P<Content>.*)>\s*
 
 grammar ARRAY
-    array  <-   !w "array " s "[" options "]" s "<" values:[^>]* ">"
+    array  <-   "array " s options s "<" values:(!">" .)+ ">"
 
-    options <- s (type_:.* s ":" s max_length:.* s)
+    options <- "[" type_:.* ":" max_length:.* "]"
     s    <-   " "*
-    w    <-   [a-zA-Z0-9_]
+    w    <-   [a-zA-Z0-9]+
