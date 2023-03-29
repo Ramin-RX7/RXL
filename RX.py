@@ -1379,10 +1379,11 @@ def Syntax(SOURCE,
 
         #] Array
         elif Stripped.startswith('array '  )  or  Stripped=='array':
-            Regex=re.match(r'''(?P<Indent>\s*)array \s*(?P<VarName>\w+)
-                               \s*\[\s*((?P<Type>.+)?\s*:(\s*(?P<Length>.+))?\s*)?\]\s*=
-                               \s*<(?P<Content>.*)>\s*''',
+            #"array " s "[" s type_:.* s ":" s max_length:.* s "]" s "<" values:[^>]* ">"
+            Regex=re.search(r'''[^a-zA-Z0-9_]array \s*
+                               \s*\[\s*(?P<Type>.+)?\s*:\s*(?P<Length>.+)?\s*\]\s*<(?P<Content>.*)>''',
                            Text,re.VERBOSE)
+            continue
             if not Regex:
                 raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'array'")
             Indent  = Regex.group('Indent')

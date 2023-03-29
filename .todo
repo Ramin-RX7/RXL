@@ -1,5 +1,6 @@
 [MAIN]
-    ☐ @high @norm better `array` implementation
+    ☐ Be [more] based on OOP
+    ✔ @high @norm @RXL-Lib better `array` implementation
     ☐ @high @norm better `const` implementation
     ☐ @low @easy apply the own type of iterable after using apply()
     ☐ @low @easy Define Ready_Objs from std
@@ -117,5 +118,6 @@
 
 
 [New Features]
+    ☐ @med @norm Static-Class
     ☐ @med @norm Enums
-    ☐ @med @norm Dataclasses
+    ☐ @med @norm @RXL-Lib Dataclasses

@@ -14,7 +14,7 @@ $ canopy "grammer.peg" --lang python
  - Case-Insensitive strings are between ``
  - Regex (out of strings):  . [] ? + * {n}{n,m}{n,}
  - Labelled Nodes (Named):  name:expr  ::  makes new node named "name" in tree (not in elements)
-    (all referenced rules also make nodes in tree) 
+    (all referenced rules also make nodes in tree)
  - Add "@" before expr to mute it
  - To make ordered-or: "/"
  - To check but not consume: "&" before expr
@@ -78,7 +78,7 @@ for line in source:
         except:
             pass
         else:
-            print(a.elements[1].text)
+            print(a.elements)
 
 
 # print(Grammar.parse("array myarr [5]    =  {4,5,6,7}",Array))
