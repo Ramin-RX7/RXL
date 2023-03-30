@@ -73,8 +73,8 @@
     !  do_while check for outline
 
     $ family:
+        ☐ checkwait: add delay and maximum attempt number
         ?  All `$commands` be in one condition (faster or not?)
-
         ☐ @easy $check & $ $checkwait should be combined and be in the same "if" in Syntax()
             also $test
         ☐ @easy $call: accept args ('with')
@@ -121,3 +121,14 @@
     ☐ @med @norm Static-Class
     ☐ @med @norm Enums
     ☐ @med @norm @RXL-Lib Dataclasses
+
+
+
+[Canopy]
+    ☐ @high Remaining Syntax:
+        Type-Scanner
+        foreach
+        func
+        const
+        do while
+        $checkwait

@@ -73,6 +73,7 @@ source = [
 grammars = [Include,Load,Array,Const,Until,Unless]
 
 for i,line in enumerate(source):
+    continue
     for j,grmr in enumerate(grammars):
         try:
             a = Grammar.parse(line,grmr)
@@ -85,10 +86,28 @@ for i,line in enumerate(source):
                 print(k.text, end="|")
 
 
+source = [
+
+]
+commands = [C_Check,C_Cmd]
+for i,line in enumerate(source):
+    continue
+    for j,grmr in enumerate(commands):
+        try:
+            a = Grammar.parse(line,grmr)
+        except:
+            pass# print("Error")
+        else:
+            print("\n")
+            print(i,j)
+            for k in a.elements:
+                print(k.text, end="|")
 
 
 
-
+a = Grammar.parse("   $clear", C_Clear)
+for element in a.elements:
+    print(">>>",element.text)
 
 
 

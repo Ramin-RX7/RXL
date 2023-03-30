@@ -1,0 +1,4 @@
+#(?P<Indent>\s*)\$cmd \s*(?P<Command>.+)
+grammar C_CMD
+    cmd  <-     indent:s "$cmd"  (" "+  command:.*)?
+    s <- " "*

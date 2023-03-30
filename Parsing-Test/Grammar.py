@@ -2,7 +2,8 @@
 in all "TreeNodeN".init:: super(...) can be changed to TreeNode(...)
 """
 
-__all__ = ["Load","Include","Until","Unless","Const","Array"]
+__all__ = ["Load","Include","Until","Unless","Const","Array",
+           "C_Check","C_Cmd", "C_Call", "C_Clear"]
 
 from collections import defaultdict
 import re
@@ -1690,14 +1691,12 @@ class Array:
 
 
 
-
-
-
 class C_Check:
     class TreeNode1(TreeNode):
         def __init__(self, text, offset, elements):
             super(C_Check.TreeNode1, self).__init__(text, offset, elements)
             self.indent = elements[0]
+            self.s = elements[4]
             self.test = elements[3]
             self.then = elements[5]
             self.anyway = elements[6]
@@ -1706,29 +1705,28 @@ class C_Check:
     class TreeNode2(TreeNode):
         def __init__(self, text, offset, elements):
             super(C_Check.TreeNode2, self).__init__(text, offset, elements)
+            self.s = elements[1]
             self.thenin = elements[2]
 
 
     class TreeNode3(TreeNode):
         def __init__(self, text, offset, elements):
             super(C_Check.TreeNode3, self).__init__(text, offset, elements)
+            self.s = elements[4]
             self.anywayin = elements[5]
 
 
-    class Grammar(Grammar_Base,object):
-        def _read_const(self):
+
+    class Grammar(object):
+        def _read_c_check(self):
             address0, index0 = FAILURE, self._offset
-            cached = self._cache['const'].get(index0)
+            cached = self._cache['c_check'].get(index0)
             if cached:
                 self._offset = cached[1]
                 return cached[0]
             index1, elements0 = self._offset, []
             address1 = FAILURE
-            index2 = self._offset
             address1 = self._read_s()
-            if address1 is FAILURE:
-                address1 = TreeNode(self._input[index2:index2], index2, [])
-                self._offset = index2
             if address1 is not FAILURE:
                 elements0.append(address1)
                 address2 = FAILURE
@@ -1744,24 +1742,20 @@ class C_Check:
                         self._failure = self._offset
                         self._expected = []
                     if self._offset == self._failure:
-                        self._expected.append(('CHECK::const', '"$check "'))
+                        self._expected.append(('C_CHECK::c_check', '"$check "'))
                 if address2 is not FAILURE:
                     elements0.append(address2)
                     address3 = FAILURE
-                    index3 = self._offset
                     address3 = self._read_s()
-                    if address3 is FAILURE:
-                        address3 = TreeNode(self._input[index3:index3], index3, [])
-                        self._offset = index3
                     if address3 is not FAILURE:
                         elements0.append(address3)
                         address4 = FAILURE
-                        index4, elements1, address5 = self._offset, [], None
+                        index2, elements1, address5 = self._offset, [], None
                         while True:
-                            index5, elements2 = self._offset, []
+                            index3, elements2 = self._offset, []
                             address6 = FAILURE
-                            index6 = self._offset
-                            index7 = self._offset
+                            index4 = self._offset
+                            index5 = self._offset
                             chunk1, max1 = None, self._offset + 6
                             if max1 <= self._input_size:
                                 chunk1 = self._input[self._offset:max1]
@@ -1774,9 +1768,9 @@ class C_Check:
                                     self._failure = self._offset
                                     self._expected = []
                                 if self._offset == self._failure:
-                                    self._expected.append(('CHECK::const', '" then "'))
+                                    self._expected.append(('C_CHECK::c_check', '" then "'))
                             if address6 is FAILURE:
-                                self._offset = index7
+                                self._offset = index5
                                 chunk2, max2 = None, self._offset + 8
                                 if max2 <= self._input_size:
                                     chunk2 = self._input[self._offset:max2]
@@ -1789,9 +1783,9 @@ class C_Check:
                                         self._failure = self._offset
                                         self._expected = []
                                     if self._offset == self._failure:
-                                        self._expected.append(('CHECK::const', '" anyway "'))
+                                        self._expected.append(('C_CHECK::c_check', '" anyway "'))
                                 if address6 is FAILURE:
-                                    self._offset = index7
+                                    self._offset = index5
                                     chunk3, max3 = None, self._offset + 9
                                     if max3 <= self._input_size:
                                         chunk3 = self._input[self._offset:max3]
@@ -1804,10 +1798,10 @@ class C_Check:
                                             self._failure = self._offset
                                             self._expected = []
                                         if self._offset == self._failure:
-                                            self._expected.append(('CHECK::const', '" anyways "'))
+                                            self._expected.append(('C_CHECK::c_check', '" anyways "'))
                                     if address6 is FAILURE:
-                                        self._offset = index7
-                            self._offset = index6
+                                        self._offset = index5
+                            self._offset = index4
                             if address6 is FAILURE:
                                 address6 = TreeNode(self._input[self._offset:self._offset], self._offset, [])
                                 self._offset = self._offset
@@ -1825,42 +1819,38 @@ class C_Check:
                                         self._failure = self._offset
                                         self._expected = []
                                     if self._offset == self._failure:
-                                        self._expected.append(('CHECK::const', '<any char>'))
+                                        self._expected.append(('C_CHECK::c_check', '<any char>'))
                                 if address7 is not FAILURE:
                                     elements2.append(address7)
                                 else:
                                     elements2 = None
-                                    self._offset = index5
+                                    self._offset = index3
                             else:
                                 elements2 = None
-                                self._offset = index5
+                                self._offset = index3
                             if elements2 is None:
                                 address5 = FAILURE
                             else:
-                                address5 = TreeNode(self._input[index5:self._offset], index5, elements2)
+                                address5 = TreeNode(self._input[index3:self._offset], index3, elements2)
                                 self._offset = self._offset
                             if address5 is not FAILURE:
                                 elements1.append(address5)
                             else:
                                 break
                         if len(elements1) >= 1:
-                            address4 = TreeNode(self._input[index4:self._offset], index4, elements1)
+                            address4 = TreeNode(self._input[index2:self._offset], index2, elements1)
                             self._offset = self._offset
                         else:
                             address4 = FAILURE
                         if address4 is not FAILURE:
                             elements0.append(address4)
                             address8 = FAILURE
-                            index8 = self._offset
                             address8 = self._read_s()
-                            if address8 is FAILURE:
-                                address8 = TreeNode(self._input[index8:index8], index8, [])
-                                self._offset = index8
                             if address8 is not FAILURE:
                                 elements0.append(address8)
                                 address9 = FAILURE
-                                index9 = self._offset
-                                index10, elements3 = self._offset, []
+                                index6 = self._offset
+                                index7, elements3 = self._offset, []
                                 address10 = FAILURE
                                 chunk4, max4 = None, self._offset + 5
                                 if max4 <= self._input_size:
@@ -1874,24 +1864,20 @@ class C_Check:
                                         self._failure = self._offset
                                         self._expected = []
                                     if self._offset == self._failure:
-                                        self._expected.append(('CHECK::const', '"then "'))
+                                        self._expected.append(('C_CHECK::c_check', '"then "'))
                                 if address10 is not FAILURE:
                                     elements3.append(address10)
                                     address11 = FAILURE
-                                    index11 = self._offset
                                     address11 = self._read_s()
-                                    if address11 is FAILURE:
-                                        address11 = TreeNode(self._input[index11:index11], index11, [])
-                                        self._offset = index11
                                     if address11 is not FAILURE:
                                         elements3.append(address11)
                                         address12 = FAILURE
-                                        index12, elements4, address13 = self._offset, [], None
+                                        index8, elements4, address13 = self._offset, [], None
                                         while True:
-                                            index13, elements5 = self._offset, []
+                                            index9, elements5 = self._offset, []
                                             address14 = FAILURE
-                                            index14 = self._offset
-                                            index15, elements6 = self._offset, []
+                                            index10 = self._offset
+                                            index11, elements6 = self._offset, []
                                             address15 = FAILURE
                                             chunk5, max5 = None, self._offset + 7
                                             if max5 <= self._input_size:
@@ -1905,11 +1891,11 @@ class C_Check:
                                                     self._failure = self._offset
                                                     self._expected = []
                                                 if self._offset == self._failure:
-                                                    self._expected.append(('CHECK::const', '" anyway"'))
+                                                    self._expected.append(('C_CHECK::c_check', '" anyway"'))
                                             if address15 is not FAILURE:
                                                 elements6.append(address15)
                                                 address16 = FAILURE
-                                                index16 = self._offset
+                                                index12 = self._offset
                                                 chunk6, max6 = None, self._offset + 1
                                                 if max6 <= self._input_size:
                                                     chunk6 = self._input[self._offset:max6]
@@ -1922,10 +1908,10 @@ class C_Check:
                                                         self._failure = self._offset
                                                         self._expected = []
                                                     if self._offset == self._failure:
-                                                        self._expected.append(('CHECK::const', '"s"'))
+                                                        self._expected.append(('C_CHECK::c_check', '"s"'))
                                                 if address16 is FAILURE:
-                                                    address16 = TreeNode(self._input[index16:index16], index16, [])
-                                                    self._offset = index16
+                                                    address16 = TreeNode(self._input[index12:index12], index12, [])
+                                                    self._offset = index12
                                                 if address16 is not FAILURE:
                                                     elements6.append(address16)
                                                     address17 = FAILURE
@@ -1941,24 +1927,24 @@ class C_Check:
                                                             self._failure = self._offset
                                                             self._expected = []
                                                         if self._offset == self._failure:
-                                                            self._expected.append(('CHECK::const', '" "'))
+                                                            self._expected.append(('C_CHECK::c_check', '" "'))
                                                     if address17 is not FAILURE:
                                                         elements6.append(address17)
                                                     else:
                                                         elements6 = None
-                                                        self._offset = index15
+                                                        self._offset = index11
                                                 else:
                                                     elements6 = None
-                                                    self._offset = index15
+                                                    self._offset = index11
                                             else:
                                                 elements6 = None
-                                                self._offset = index15
+                                                self._offset = index11
                                             if elements6 is None:
                                                 address14 = FAILURE
                                             else:
-                                                address14 = TreeNode(self._input[index15:self._offset], index15, elements6)
+                                                address14 = TreeNode(self._input[index11:self._offset], index11, elements6)
                                                 self._offset = self._offset
-                                            self._offset = index14
+                                            self._offset = index10
                                             if address14 is FAILURE:
                                                 address14 = TreeNode(self._input[self._offset:self._offset], self._offset, [])
                                                 self._offset = self._offset
@@ -1976,26 +1962,26 @@ class C_Check:
                                                         self._failure = self._offset
                                                         self._expected = []
                                                     if self._offset == self._failure:
-                                                        self._expected.append(('CHECK::const', '<any char>'))
+                                                        self._expected.append(('C_CHECK::c_check', '<any char>'))
                                                 if address18 is not FAILURE:
                                                     elements5.append(address18)
                                                 else:
                                                     elements5 = None
-                                                    self._offset = index13
+                                                    self._offset = index9
                                             else:
                                                 elements5 = None
-                                                self._offset = index13
+                                                self._offset = index9
                                             if elements5 is None:
                                                 address13 = FAILURE
                                             else:
-                                                address13 = TreeNode(self._input[index13:self._offset], index13, elements5)
+                                                address13 = TreeNode(self._input[index9:self._offset], index9, elements5)
                                                 self._offset = self._offset
                                             if address13 is not FAILURE:
                                                 elements4.append(address13)
                                             else:
                                                 break
                                         if len(elements4) >= 1:
-                                            address12 = TreeNode(self._input[index12:self._offset], index12, elements4)
+                                            address12 = TreeNode(self._input[index8:self._offset], index8, elements4)
                                             self._offset = self._offset
                                         else:
                                             address12 = FAILURE
@@ -2003,32 +1989,28 @@ class C_Check:
                                             elements3.append(address12)
                                         else:
                                             elements3 = None
-                                            self._offset = index10
+                                            self._offset = index7
                                     else:
                                         elements3 = None
-                                        self._offset = index10
+                                        self._offset = index7
                                 else:
                                     elements3 = None
-                                    self._offset = index10
+                                    self._offset = index7
                                 if elements3 is None:
                                     address9 = FAILURE
                                 else:
-                                    address9 = C_Check.TreeNode2(self._input[index10:self._offset], index10, elements3)
+                                    address9 = C_Check.TreeNode2(self._input[index7:self._offset], index7, elements3)
                                     self._offset = self._offset
                                 if address9 is FAILURE:
-                                    address9 = TreeNode(self._input[index9:index9], index9, [])
-                                    self._offset = index9
+                                    address9 = TreeNode(self._input[index6:index6], index6, [])
+                                    self._offset = index6
                                 if address9 is not FAILURE:
                                     elements0.append(address9)
                                     address19 = FAILURE
-                                    index17 = self._offset
-                                    index18, elements7 = self._offset, []
+                                    index13 = self._offset
+                                    index14, elements7 = self._offset, []
                                     address20 = FAILURE
-                                    index19 = self._offset
                                     address20 = self._read_s()
-                                    if address20 is FAILURE:
-                                        address20 = TreeNode(self._input[index19:index19], index19, [])
-                                        self._offset = index19
                                     if address20 is not FAILURE:
                                         elements7.append(address20)
                                         address21 = FAILURE
@@ -2044,11 +2026,11 @@ class C_Check:
                                                 self._failure = self._offset
                                                 self._expected = []
                                             if self._offset == self._failure:
-                                                self._expected.append(('CHECK::const', '"anyway"'))
+                                                self._expected.append(('C_CHECK::c_check', '"anyway"'))
                                         if address21 is not FAILURE:
                                             elements7.append(address21)
                                             address22 = FAILURE
-                                            index20 = self._offset
+                                            index15 = self._offset
                                             chunk9, max9 = None, self._offset + 1
                                             if max9 <= self._input_size:
                                                 chunk9 = self._input[self._offset:max9]
@@ -2061,10 +2043,10 @@ class C_Check:
                                                     self._failure = self._offset
                                                     self._expected = []
                                                 if self._offset == self._failure:
-                                                    self._expected.append(('CHECK::const', '"s"'))
+                                                    self._expected.append(('C_CHECK::c_check', '"s"'))
                                             if address22 is FAILURE:
-                                                address22 = TreeNode(self._input[index20:index20], index20, [])
-                                                self._offset = index20
+                                                address22 = TreeNode(self._input[index15:index15], index15, [])
+                                                self._offset = index15
                                             if address22 is not FAILURE:
                                                 elements7.append(address22)
                                                 address23 = FAILURE
@@ -2080,19 +2062,15 @@ class C_Check:
                                                         self._failure = self._offset
                                                         self._expected = []
                                                     if self._offset == self._failure:
-                                                        self._expected.append(('CHECK::const', '" "'))
+                                                        self._expected.append(('C_CHECK::c_check', '" "'))
                                                 if address23 is not FAILURE:
                                                     elements7.append(address23)
                                                     address24 = FAILURE
-                                                    index21 = self._offset
                                                     address24 = self._read_s()
-                                                    if address24 is FAILURE:
-                                                        address24 = TreeNode(self._input[index21:index21], index21, [])
-                                                        self._offset = index21
                                                     if address24 is not FAILURE:
                                                         elements7.append(address24)
                                                         address25 = FAILURE
-                                                        index22, elements8, address26 = self._offset, [], None
+                                                        index16, elements8, address26 = self._offset, [], None
                                                         while True:
                                                             if self._offset < self._input_size:
                                                                 address26 = TreeNode(self._input[self._offset:self._offset + 1], self._offset, [])
@@ -2103,13 +2081,13 @@ class C_Check:
                                                                     self._failure = self._offset
                                                                     self._expected = []
                                                                 if self._offset == self._failure:
-                                                                    self._expected.append(('CHECK::const', '<any char>'))
+                                                                    self._expected.append(('C_CHECK::c_check', '<any char>'))
                                                             if address26 is not FAILURE:
                                                                 elements8.append(address26)
                                                             else:
                                                                 break
                                                         if len(elements8) >= 1:
-                                                            address25 = TreeNode(self._input[index22:self._offset], index22, elements8)
+                                                            address25 = TreeNode(self._input[index16:self._offset], index16, elements8)
                                                             self._offset = self._offset
                                                         else:
                                                             address25 = FAILURE
@@ -2117,30 +2095,30 @@ class C_Check:
                                                             elements7.append(address25)
                                                         else:
                                                             elements7 = None
-                                                            self._offset = index18
+                                                            self._offset = index14
                                                     else:
                                                         elements7 = None
-                                                        self._offset = index18
+                                                        self._offset = index14
                                                 else:
                                                     elements7 = None
-                                                    self._offset = index18
+                                                    self._offset = index14
                                             else:
                                                 elements7 = None
-                                                self._offset = index18
+                                                self._offset = index14
                                         else:
                                             elements7 = None
-                                            self._offset = index18
+                                            self._offset = index14
                                     else:
                                         elements7 = None
-                                        self._offset = index18
+                                        self._offset = index14
                                     if elements7 is None:
                                         address19 = FAILURE
                                     else:
-                                        address19 = C_Check.TreeNode3(self._input[index18:self._offset], index18, elements7)
+                                        address19 = C_Check.TreeNode3(self._input[index14:self._offset], index14, elements7)
                                         self._offset = self._offset
                                     if address19 is FAILURE:
-                                        address19 = TreeNode(self._input[index17:index17], index17, [])
-                                        self._offset = index17
+                                        address19 = TreeNode(self._input[index13:index13], index13, [])
+                                        self._offset = index13
                                     if address19 is not FAILURE:
                                         elements0.append(address19)
                                     else:
@@ -2169,21 +2147,654 @@ class C_Check:
             else:
                 address0 = C_Check.TreeNode1(self._input[index1:self._offset], index1, elements0)
                 self._offset = self._offset
-            self._cache['const'][index0] = (address0, self._offset)
+            self._cache['c_check'][index0] = (address0, self._offset)
+            return address0
+
+        def _read_s(self):
+            address0, index0 = FAILURE, self._offset
+            cached = self._cache['s'].get(index0)
+            if cached:
+                self._offset = cached[1]
+                return cached[0]
+            index1, elements0, address1 = self._offset, [], None
+            while True:
+                chunk0, max0 = None, self._offset + 1
+                if max0 <= self._input_size:
+                    chunk0 = self._input[self._offset:max0]
+                if chunk0 == ' ':
+                    address1 = TreeNode(self._input[self._offset:self._offset + 1], self._offset, [])
+                    self._offset = self._offset + 1
+                else:
+                    address1 = FAILURE
+                    if self._offset > self._failure:
+                        self._failure = self._offset
+                        self._expected = []
+                    if self._offset == self._failure:
+                        self._expected.append(('C_CHECK::s', '" "'))
+                if address1 is not FAILURE:
+                    elements0.append(address1)
+                else:
+                    break
+            if len(elements0) >= 0:
+                address0 = TreeNode(self._input[index1:self._offset], index1, elements0)
+                self._offset = self._offset
+            else:
+                address0 = FAILURE
+            self._cache['s'][index0] = (address0, self._offset)
             return address0
 
 
 
 
+class C_Cmd:
+    class TreeNode1(TreeNode):
+        def __init__(self, text, offset, elements):
+            super(C_Cmd.TreeNode1, self).__init__(text, offset, elements)
+            self.indent = elements[0]
+            self.s = elements[0]
+
+
+    class TreeNode2(TreeNode):
+        def __init__(self, text, offset, elements):
+            super(C_Cmd.TreeNode2, self).__init__(text, offset, elements)
+            self.command = elements[1]
+
+
+
+    class Grammar(object):
+        def _read_cmd(self):
+            address0, index0 = FAILURE, self._offset
+            cached = self._cache['cmd'].get(index0)
+            if cached:
+                self._offset = cached[1]
+                return cached[0]
+            index1, elements0 = self._offset, []
+            address1 = FAILURE
+            address1 = self._read_s()
+            if address1 is not FAILURE:
+                elements0.append(address1)
+                address2 = FAILURE
+                chunk0, max0 = None, self._offset + 4
+                if max0 <= self._input_size:
+                    chunk0 = self._input[self._offset:max0]
+                if chunk0 == '$cmd':
+                    address2 = TreeNode(self._input[self._offset:self._offset + 4], self._offset, [])
+                    self._offset = self._offset + 4
+                else:
+                    address2 = FAILURE
+                    if self._offset > self._failure:
+                        self._failure = self._offset
+                        self._expected = []
+                    if self._offset == self._failure:
+                        self._expected.append(('C_CMD::cmd', '"$cmd"'))
+                if address2 is not FAILURE:
+                    elements0.append(address2)
+                    address3 = FAILURE
+                    index2 = self._offset
+                    index3, elements1 = self._offset, []
+                    address4 = FAILURE
+                    index4, elements2, address5 = self._offset, [], None
+                    while True:
+                        chunk1, max1 = None, self._offset + 1
+                        if max1 <= self._input_size:
+                            chunk1 = self._input[self._offset:max1]
+                        if chunk1 == ' ':
+                            address5 = TreeNode(self._input[self._offset:self._offset + 1], self._offset, [])
+                            self._offset = self._offset + 1
+                        else:
+                            address5 = FAILURE
+                            if self._offset > self._failure:
+                                self._failure = self._offset
+                                self._expected = []
+                            if self._offset == self._failure:
+                                self._expected.append(('C_CMD::cmd', '" "'))
+                        if address5 is not FAILURE:
+                            elements2.append(address5)
+                        else:
+                            break
+                    if len(elements2) >= 1:
+                        address4 = TreeNode(self._input[index4:self._offset], index4, elements2)
+                        self._offset = self._offset
+                    else:
+                        address4 = FAILURE
+                    if address4 is not FAILURE:
+                        elements1.append(address4)
+                        address6 = FAILURE
+                        index5, elements3, address7 = self._offset, [], None
+                        while True:
+                            if self._offset < self._input_size:
+                                address7 = TreeNode(self._input[self._offset:self._offset + 1], self._offset, [])
+                                self._offset = self._offset + 1
+                            else:
+                                address7 = FAILURE
+                                if self._offset > self._failure:
+                                    self._failure = self._offset
+                                    self._expected = []
+                                if self._offset == self._failure:
+                                    self._expected.append(('C_CMD::cmd', '<any char>'))
+                            if address7 is not FAILURE:
+                                elements3.append(address7)
+                            else:
+                                break
+                        if len(elements3) >= 0:
+                            address6 = TreeNode(self._input[index5:self._offset], index5, elements3)
+                            self._offset = self._offset
+                        else:
+                            address6 = FAILURE
+                        if address6 is not FAILURE:
+                            elements1.append(address6)
+                        else:
+                            elements1 = None
+                            self._offset = index3
+                    else:
+                        elements1 = None
+                        self._offset = index3
+                    if elements1 is None:
+                        address3 = FAILURE
+                    else:
+                        address3 = C_Cmd.TreeNode2(self._input[index3:self._offset], index3, elements1)
+                        self._offset = self._offset
+                    if address3 is FAILURE:
+                        address3 = TreeNode(self._input[index2:index2], index2, [])
+                        self._offset = index2
+                    if address3 is not FAILURE:
+                        elements0.append(address3)
+                    else:
+                        elements0 = None
+                        self._offset = index1
+                else:
+                    elements0 = None
+                    self._offset = index1
+            else:
+                elements0 = None
+                self._offset = index1
+            if elements0 is None:
+                address0 = FAILURE
+            else:
+                address0 = C_Cmd.TreeNode1(self._input[index1:self._offset], index1, elements0)
+                self._offset = self._offset
+            self._cache['cmd'][index0] = (address0, self._offset)
+            return address0
+
+        def _read_s(self):
+            address0, index0 = FAILURE, self._offset
+            cached = self._cache['s'].get(index0)
+            if cached:
+                self._offset = cached[1]
+                return cached[0]
+            index1, elements0, address1 = self._offset, [], None
+            while True:
+                chunk0, max0 = None, self._offset + 1
+                if max0 <= self._input_size:
+                    chunk0 = self._input[self._offset:max0]
+                if chunk0 == ' ':
+                    address1 = TreeNode(self._input[self._offset:self._offset + 1], self._offset, [])
+                    self._offset = self._offset + 1
+                else:
+                    address1 = FAILURE
+                    if self._offset > self._failure:
+                        self._failure = self._offset
+                        self._expected = []
+                    if self._offset == self._failure:
+                        self._expected.append(('C_CMD::s', '" "'))
+                if address1 is not FAILURE:
+                    elements0.append(address1)
+                else:
+                    break
+            if len(elements0) >= 0:
+                address0 = TreeNode(self._input[index1:self._offset], index1, elements0)
+                self._offset = self._offset
+            else:
+                address0 = FAILURE
+            self._cache['s'][index0] = (address0, self._offset)
+            return address0
+
+
+
+
+class C_Call:
+    class TreeNode1(TreeNode):
+        def __init__(self, text, offset, elements):
+            super(C_Call.TreeNode1, self).__init__(text, offset, elements)
+            self.indent = elements[0]
+            self.s = elements[5]
+            self.func = elements[2]
+            self.delay = elements[6]
 
 
 
 
 
+    class Grammar(object):
+        REGEX_1 = re.compile('^[a-zA-Z_]')
+        REGEX_2 = re.compile('^[a-zA-Z0-9_]')
+
+        def _read_c_call(self):
+            address0, index0 = FAILURE, self._offset
+            cached = self._cache['c_call'].get(index0)
+            if cached:
+                self._offset = cached[1]
+                return cached[0]
+            index1, elements0 = self._offset, []
+            address1 = FAILURE
+            address1 = self._read_s()
+            if address1 is not FAILURE:
+                elements0.append(address1)
+                address2 = FAILURE
+                chunk0, max0 = None, self._offset + 6
+                if max0 <= self._input_size:
+                    chunk0 = self._input[self._offset:max0]
+                if chunk0 == '$call ':
+                    address2 = TreeNode(self._input[self._offset:self._offset + 6], self._offset, [])
+                    self._offset = self._offset + 6
+                else:
+                    address2 = FAILURE
+                    if self._offset > self._failure:
+                        self._failure = self._offset
+                        self._expected = []
+                    if self._offset == self._failure:
+                        self._expected.append(('C_CALL::c_call', '"$call "'))
+                if address2 is not FAILURE:
+                    elements0.append(address2)
+                    address3 = FAILURE
+                    index2, elements1, address4 = self._offset, [], None
+                    while True:
+                        index3, elements2 = self._offset, []
+                        address5 = FAILURE
+                        index4 = self._offset
+                        chunk1, max1 = None, self._offset + 3
+                        if max1 <= self._input_size:
+                            chunk1 = self._input[self._offset:max1]
+                        if chunk1 == ' in':
+                            address5 = TreeNode(self._input[self._offset:self._offset + 3], self._offset, [])
+                            self._offset = self._offset + 3
+                        else:
+                            address5 = FAILURE
+                            if self._offset > self._failure:
+                                self._failure = self._offset
+                                self._expected = []
+                            if self._offset == self._failure:
+                                self._expected.append(('C_CALL::c_call', '" in"'))
+                        self._offset = index4
+                        if address5 is FAILURE:
+                            address5 = TreeNode(self._input[self._offset:self._offset], self._offset, [])
+                            self._offset = self._offset
+                        else:
+                            address5 = FAILURE
+                        if address5 is not FAILURE:
+                            elements2.append(address5)
+                            address6 = FAILURE
+                            if self._offset < self._input_size:
+                                address6 = TreeNode(self._input[self._offset:self._offset + 1], self._offset, [])
+                                self._offset = self._offset + 1
+                            else:
+                                address6 = FAILURE
+                                if self._offset > self._failure:
+                                    self._failure = self._offset
+                                    self._expected = []
+                                if self._offset == self._failure:
+                                    self._expected.append(('C_CALL::c_call', '<any char>'))
+                            if address6 is not FAILURE:
+                                elements2.append(address6)
+                            else:
+                                elements2 = None
+                                self._offset = index3
+                        else:
+                            elements2 = None
+                            self._offset = index3
+                        if elements2 is None:
+                            address4 = FAILURE
+                        else:
+                            address4 = TreeNode(self._input[index3:self._offset], index3, elements2)
+                            self._offset = self._offset
+                        if address4 is not FAILURE:
+                            elements1.append(address4)
+                        else:
+                            break
+                    if len(elements1) >= 1:
+                        address3 = TreeNode(self._input[index2:self._offset], index2, elements1)
+                        self._offset = self._offset
+                    else:
+                        address3 = FAILURE
+                    if address3 is not FAILURE:
+                        elements0.append(address3)
+                        address7 = FAILURE
+                        index5, elements3, address8 = self._offset, [], None
+                        while True:
+                            chunk2, max2 = None, self._offset + 1
+                            if max2 <= self._input_size:
+                                chunk2 = self._input[self._offset:max2]
+                            if chunk2 == ' ':
+                                address8 = TreeNode(self._input[self._offset:self._offset + 1], self._offset, [])
+                                self._offset = self._offset + 1
+                            else:
+                                address8 = FAILURE
+                                if self._offset > self._failure:
+                                    self._failure = self._offset
+                                    self._expected = []
+                                if self._offset == self._failure:
+                                    self._expected.append(('C_CALL::c_call', '" "'))
+                            if address8 is not FAILURE:
+                                elements3.append(address8)
+                            else:
+                                break
+                        if len(elements3) >= 1:
+                            address7 = TreeNode(self._input[index5:self._offset], index5, elements3)
+                            self._offset = self._offset
+                        else:
+                            address7 = FAILURE
+                        if address7 is not FAILURE:
+                            elements0.append(address7)
+                            address9 = FAILURE
+                            chunk3, max3 = None, self._offset + 3
+                            if max3 <= self._input_size:
+                                chunk3 = self._input[self._offset:max3]
+                            if chunk3 == 'in ':
+                                address9 = TreeNode(self._input[self._offset:self._offset + 3], self._offset, [])
+                                self._offset = self._offset + 3
+                            else:
+                                address9 = FAILURE
+                                if self._offset > self._failure:
+                                    self._failure = self._offset
+                                    self._expected = []
+                                if self._offset == self._failure:
+                                    self._expected.append(('C_CALL::c_call', '"in "'))
+                            if address9 is not FAILURE:
+                                elements0.append(address9)
+                                address10 = FAILURE
+                                address10 = self._read_s()
+                                if address10 is not FAILURE:
+                                    elements0.append(address10)
+                                    address11 = FAILURE
+                                    index6, elements4, address12 = self._offset, [], None
+                                    while True:
+                                        if self._offset < self._input_size:
+                                            address12 = TreeNode(self._input[self._offset:self._offset + 1], self._offset, [])
+                                            self._offset = self._offset + 1
+                                        else:
+                                            address12 = FAILURE
+                                            if self._offset > self._failure:
+                                                self._failure = self._offset
+                                                self._expected = []
+                                            if self._offset == self._failure:
+                                                self._expected.append(('C_CALL::c_call', '<any char>'))
+                                        if address12 is not FAILURE:
+                                            elements4.append(address12)
+                                        else:
+                                            break
+                                    if len(elements4) >= 1:
+                                        address11 = TreeNode(self._input[index6:self._offset], index6, elements4)
+                                        self._offset = self._offset
+                                    else:
+                                        address11 = FAILURE
+                                    if address11 is not FAILURE:
+                                        elements0.append(address11)
+                                    else:
+                                        elements0 = None
+                                        self._offset = index1
+                                else:
+                                    elements0 = None
+                                    self._offset = index1
+                            else:
+                                elements0 = None
+                                self._offset = index1
+                        else:
+                            elements0 = None
+                            self._offset = index1
+                    else:
+                        elements0 = None
+                        self._offset = index1
+                else:
+                    elements0 = None
+                    self._offset = index1
+            else:
+                elements0 = None
+                self._offset = index1
+            if elements0 is None:
+                address0 = FAILURE
+            else:
+                address0 = C_Call.TreeNode1(self._input[index1:self._offset], index1, elements0)
+                self._offset = self._offset
+            self._cache['c_call'][index0] = (address0, self._offset)
+            return address0
+
+        def _read_s(self):
+            address0, index0 = FAILURE, self._offset
+            cached = self._cache['s'].get(index0)
+            if cached:
+                self._offset = cached[1]
+                return cached[0]
+            index1, elements0, address1 = self._offset, [], None
+            while True:
+                chunk0, max0 = None, self._offset + 1
+                if max0 <= self._input_size:
+                    chunk0 = self._input[self._offset:max0]
+                if chunk0 == ' ':
+                    address1 = TreeNode(self._input[self._offset:self._offset + 1], self._offset, [])
+                    self._offset = self._offset + 1
+                else:
+                    address1 = FAILURE
+                    if self._offset > self._failure:
+                        self._failure = self._offset
+                        self._expected = []
+                    if self._offset == self._failure:
+                        self._expected.append(('C_CALL::s', '" "'))
+                if address1 is not FAILURE:
+                    elements0.append(address1)
+                else:
+                    break
+            if len(elements0) >= 0:
+                address0 = TreeNode(self._input[index1:self._offset], index1, elements0)
+                self._offset = self._offset
+            else:
+                address0 = FAILURE
+            self._cache['s'][index0] = (address0, self._offset)
+            return address0
+
+        def _read_variable(self):
+            address0, index0 = FAILURE, self._offset
+            cached = self._cache['variable'].get(index0)
+            if cached:
+                self._offset = cached[1]
+                return cached[0]
+            index1, elements0 = self._offset, []
+            address1 = FAILURE
+            index2, elements1, address2 = self._offset, [], None
+            while True:
+                chunk0, max0 = None, self._offset + 1
+                if max0 <= self._input_size:
+                    chunk0 = self._input[self._offset:max0]
+                if chunk0 is not None and Grammar.REGEX_1.search(chunk0):
+                    address2 = TreeNode(self._input[self._offset:self._offset + 1], self._offset, [])
+                    self._offset = self._offset + 1
+                else:
+                    address2 = FAILURE
+                    if self._offset > self._failure:
+                        self._failure = self._offset
+                        self._expected = []
+                    if self._offset == self._failure:
+                        self._expected.append(('C_CALL::variable', '[a-zA-Z_]'))
+                if address2 is not FAILURE:
+                    elements1.append(address2)
+                else:
+                    break
+            if len(elements1) >= 1:
+                address1 = TreeNode(self._input[index2:self._offset], index2, elements1)
+                self._offset = self._offset
+            else:
+                address1 = FAILURE
+            if address1 is not FAILURE:
+                elements0.append(address1)
+                address3 = FAILURE
+                index3 = self._offset
+                index4, elements2, address4 = self._offset, [], None
+                while True:
+                    chunk1, max1 = None, self._offset + 1
+                    if max1 <= self._input_size:
+                        chunk1 = self._input[self._offset:max1]
+                    if chunk1 is not None and Grammar.REGEX_2.search(chunk1):
+                        address4 = TreeNode(self._input[self._offset:self._offset + 1], self._offset, [])
+                        self._offset = self._offset + 1
+                    else:
+                        address4 = FAILURE
+                        if self._offset > self._failure:
+                            self._failure = self._offset
+                            self._expected = []
+                        if self._offset == self._failure:
+                            self._expected.append(('C_CALL::variable', '[a-zA-Z0-9_]'))
+                    if address4 is not FAILURE:
+                        elements2.append(address4)
+                    else:
+                        break
+                if len(elements2) >= 0:
+                    address3 = TreeNode(self._input[index4:self._offset], index4, elements2)
+                    self._offset = self._offset
+                else:
+                    address3 = FAILURE
+                if address3 is FAILURE:
+                    address3 = TreeNode(self._input[index3:index3], index3, [])
+                    self._offset = index3
+                if address3 is not FAILURE:
+                    elements0.append(address3)
+                else:
+                    elements0 = None
+                    self._offset = index1
+            else:
+                elements0 = None
+                self._offset = index1
+            if elements0 is None:
+                address0 = FAILURE
+            else:
+                address0 = TreeNode(self._input[index1:self._offset], index1, elements0)
+                self._offset = self._offset
+            self._cache['variable'][index0] = (address0, self._offset)
+            return address0
 
 
 
 
+class C_Clear:
+
+    class TreeNode1(TreeNode):
+        def __init__(self, text, offset, elements):
+            super(C_Clear.TreeNode1, self).__init__(text, offset, elements)
+            self.indent = elements[0]
+            self.s = elements[0]
+
+
+
+
+    class Grammar(object):
+        def _read_c_clear(self):
+            address0, index0 = FAILURE, self._offset
+            cached = self._cache['c_clear'].get(index0)
+            if cached:
+                self._offset = cached[1]
+                return cached[0]
+            index1 = self._offset
+            index2, elements0 = self._offset, []
+            address1 = FAILURE
+            address1 = self._read_s()
+            if address1 is not FAILURE:
+                elements0.append(address1)
+                address2 = FAILURE
+                chunk0, max0 = None, self._offset + 1
+                if max0 <= self._input_size:
+                    chunk0 = self._input[self._offset:max0]
+                if chunk0 == '$':
+                    address2 = TreeNode(self._input[self._offset:self._offset + 1], self._offset, [])
+                    self._offset = self._offset + 1
+                else:
+                    address2 = FAILURE
+                    if self._offset > self._failure:
+                        self._failure = self._offset
+                        self._expected = []
+                    if self._offset == self._failure:
+                        self._expected.append(('C_CLEAR::c_clear', '"$"'))
+                if address2 is not FAILURE:
+                    elements0.append(address2)
+                    address3 = FAILURE
+                    chunk1, max1 = None, self._offset + 5
+                    if max1 <= self._input_size:
+                        chunk1 = self._input[self._offset:max1]
+                    if chunk1 == 'clear':
+                        address3 = TreeNode(self._input[self._offset:self._offset + 5], self._offset, [])
+                        self._offset = self._offset + 5
+                    else:
+                        address3 = FAILURE
+                        if self._offset > self._failure:
+                            self._failure = self._offset
+                            self._expected = []
+                        if self._offset == self._failure:
+                            self._expected.append(('C_CLEAR::c_clear', '"clear"'))
+                    if address3 is not FAILURE:
+                        elements0.append(address3)
+                    else:
+                        elements0 = None
+                        self._offset = index2
+                else:
+                    elements0 = None
+                    self._offset = index2
+            else:
+                elements0 = None
+                self._offset = index2
+            if elements0 is None:
+                address0 = FAILURE
+            else:
+                address0 = C_Clear.TreeNode1(self._input[index2:self._offset], index2, elements0)
+                self._offset = self._offset
+            if address0 is FAILURE:
+                self._offset = index1
+                chunk2, max2 = None, self._offset + 3
+                if max2 <= self._input_size:
+                    chunk2 = self._input[self._offset:max2]
+                if chunk2 == 'cls':
+                    address0 = TreeNode(self._input[self._offset:self._offset + 3], self._offset, [])
+                    self._offset = self._offset + 3
+                else:
+                    address0 = FAILURE
+                    if self._offset > self._failure:
+                        self._failure = self._offset
+                        self._expected = []
+                    if self._offset == self._failure:
+                        self._expected.append(('C_CLEAR::c_clear', '"cls"'))
+                if address0 is FAILURE:
+                    self._offset = index1
+            self._cache['c_clear'][index0] = (address0, self._offset)
+            return address0
+
+        def _read_s(self):
+            address0, index0 = FAILURE, self._offset
+            cached = self._cache['s'].get(index0)
+            if cached:
+                self._offset = cached[1]
+                return cached[0]
+            index1, elements0, address1 = self._offset, [], None
+            while True:
+                chunk0, max0 = None, self._offset + 1
+                if max0 <= self._input_size:
+                    chunk0 = self._input[self._offset:max0]
+                if chunk0 == ' ':
+                    address1 = TreeNode(self._input[self._offset:self._offset + 1], self._offset, [])
+                    self._offset = self._offset + 1
+                else:
+                    address1 = FAILURE
+                    if self._offset > self._failure:
+                        self._failure = self._offset
+                        self._expected = []
+                    if self._offset == self._failure:
+                        self._expected.append(('C_CLEAR::s', '" "'))
+                if address1 is not FAILURE:
+                    elements0.append(address1)
+                else:
+                    break
+            if len(elements0) >= 0:
+                address0 = TreeNode(self._input[index1:self._offset], index1, elements0)
+                self._offset = self._offset
+            else:
+                address0 = FAILURE
+            self._cache['s'][index0] = (address0, self._offset)
+            return address0
 
 
 
