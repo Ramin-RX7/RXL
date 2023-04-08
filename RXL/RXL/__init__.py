@@ -1,9 +1,407 @@
-import array as _array
 import typing as _typing
+import os
+import sys
+import time
+import shutil
+import tokenize
 
-
+from colored import  fg,bg,attr
 _auto = -1
 
+
+
+
+
+class rx:
+    @staticmethod
+    def cls():
+        os.system('cls')
+
+
+    class record:
+        def __init__(self):
+            self.__start= time.time()
+            self.laps=[]
+        def lap(self,save=True, Round=15):
+            lp= round(time.time()-self.__start,Round)
+            if save: self.laps.append(lp)
+            return lp
+        def reset(self,reset_start= False):
+            self.laps= []
+            if reset_start: self.__start= time.time()
+        def last_lap(self, save=True):
+            if save: self.laps.append(self.lap())
+            return (self.lap(False)-self.laps[-1]) if self.laps else self.lap(False)
+    Record = record
+
+
+    class Terminal:
+        run = os.system
+        getoutput = __import__('subprocess').getoutput
+        set_title = __import__('win32api').SetConsoleTitle
+        get_title = __import__('win32api').GetConsoleTitle
+    terminal = Terminal
+
+
+    class style:
+        def __init__(self,text,color='default',BG='black'):
+            try:
+                color= color.lower()
+                BG=BG.lower()
+                #style=style.lower()
+            except:
+                pass
+            if color=='default':
+                color=7 #188
+            self.text= text
+            self.content= fg(color)+bg(BG)+text+attr(0)
+        def __str__(self):
+            return self.content
+        def __repr__(self):
+            return self.content
+        def __add__(self,other):
+            if type(other)!=rx.style:
+                return self.content+other
+            else:
+                return self.content+other.content
+
+        @staticmethod
+        def print(text='', color='default', BG='default', style=0, end='\n'):
+
+            if color=='default' and BG!='default':  # bg & !clr
+                sys.stdout.write(f'{attr(style)}{bg(BG)}{text}{attr(0)}{end}')
+
+            elif color!='default' and BG=='default':  # !bg & clr
+                sys.stdout.write(f'{attr(style)}{fg(color)}{text}{attr(0)}{end}')
+
+            elif color=='default' and BG=='default':  # !bg & !clr
+                sys.stdout.write(f'{attr(style)}{text}{attr(0)}{end}')
+
+            elif color!='default' and BG!='default':  # bg & clr
+                sys.stdout.write(f'{attr(style)}{bg(BG)}{fg(color)}{text}{attr(0)}{end}')
+
+        @staticmethod
+        def switch(color='default', BG='black', style=0):
+            if color == 'default':
+                color = 7
+            print(f'{attr(style)}{bg(BG)}{fg(color)}', end='')
+
+        @staticmethod
+        def switch_default():
+            print(attr(0), end='')
+        reset = switch_default
+
+        def _get_now():
+            return time.strftime('%H:%M:%S',time.localtime())
+        def _log(pre, text, color='', BG='default', style=None, add_time=True):
+            #globals()['style'].print(text, color, BG, style=style)
+            if add_time:
+                NOW = f"[{rx.Style._get_now()}]  "
+            else:
+                NOW = ""
+            rx.Style.print(f"{NOW}{text}", color=color, BG=BG, style=style)
+        @staticmethod
+        def log_error(text, color='red', BG='default', style=0, add_time=True):
+            rx.Style._log("[!]",text,color,BG,style,add_time)
+    Style = style
+
+
+    class files:
+        rename  =  os.rename
+        abspath =  os.path.abspath
+        exists  =  os.path.exists
+        mdftime =  os.path.getmtime
+        move    =  shutil.move
+        isfile  =  os.path.isfile
+        isdir   =  os.path.isdir
+        dirname =  os.path.dirname
+        @staticmethod
+        def copy(src,dest,preserve_metadata= True):
+            if rx.files.isdir(src):
+                shutil.copytree(src,dest)
+            else:
+                if preserve_metadata: shutil.copy2(src,dest)
+                else: shutil.copy(src,dest)
+        @staticmethod
+        def remove(path,force=False):
+            if os.path.isfile(path):
+                os.remove(path)
+            else:
+                if force:
+                    import shutil
+                    shutil.rmtree(path)
+                else:
+                    try:
+                        os.rmdir(path)
+                    except OSError:
+                        raise OSError(
+                            f"[WinError 145] The directory is not empty: '{path}'" + '\n' + ' '*23 +
+                            '(Use force=True as an argument of remove function to' +
+                            ' remove non-empty directories.)')
+        @staticmethod
+        def hide(path, mode:bool =True):
+            import win32api, win32con
+            if mode:
+                win32api.SetFileAttributes(path,win32con.FILE_ATTRIBUTE_HIDDEN)
+            else:
+                win32api.SetFileAttributes(path,win32con.FILE_ATTRIBUTE_NORMAL)
+        @staticmethod
+        def read(path):
+            with open(path) as f:
+                FileR = f.read()
+            return FileR
+        @staticmethod
+        def write(file, text='',mode='w'):
+            with open(file, mode=mode) as f:
+                f.write(text)
+
+        @staticmethod
+        def mkdir(path):
+            try: os.mkdir(path)
+            except FileExistsError: pass
+    Files = files
+    read  = files.read
+    write = files.write
+
+
+    class system:
+        chdir = os.chdir
+        accname = os.getlogin
+        device_name = __import__('platform').node
+        cwd = os.getcwd
+    System = system
+
+
+    class io:
+        @staticmethod
+        def wait_for_input(prompt):
+            answer= ''
+            while not answer:
+                    answer = input(prompt)
+            return answer
+
+        @staticmethod
+        def selective_input(prompt,choices,default=None,ignore_case=False,error=True,invalid='Invalid input'):
+            if type(choices) == dict: Choices = list(choices.keys())+list(choices.values())
+            else: Choices = choices
+
+            if ignore_case: Choices = [item.lower() for item in Choices]
+
+            while True:
+                inp = input(prompt)
+                inp = inp.lower() if ignore_case else inp
+                if (not inp)  or  (inp not in Choices):
+                    if error:
+                        print(invalid, 'red')
+                    else:
+                        if default:
+                            inp = default
+                            break
+                else:
+                    break
+            if type(choices) == dict:
+                try:
+                    inp = choices[inp]
+                except KeyError:
+                    pass
+            return inp
+
+        @staticmethod
+        def yesno_input(prompt,default=None):
+            return rx.io.selective_input(prompt,['y','yes','n','no'],default,not bool(default))
+
+        @staticmethod
+        def get_files(prompt='Enter File Name:  ', check_if_exists=True, sort= False, times=100):
+            List = set()
+            i = 1
+            while i <= times:
+                filename = rx.io.wait_for_input(prompt)
+                if filename == 'end':
+                    break
+                pass
+                if check_if_exists:
+                    if rx.files.exists(filename):
+                        List.add(filename)
+                        i+=1
+                    else:
+                        rx.style.print('File Does Not Exist.')
+                else:
+                    i+=1
+                    List.add(filename)
+            if sort:
+                return sorted(list(List))
+            return list(List)
+
+        @staticmethod
+        def getpass(prompt):
+            import getpass as Getpass
+            return Getpass.getpass(prompt=prompt)
+    SF = AF = NF = io
+
+
+
+class IndentCheck:
+    """
+    This Class is a copy of tabnanny module in standard library
+    About half of the methods that are not used are deleted from the code
+    SOURCE: https://github.com/python/cpython/blob/3.10/Lib/tabnanny.py
+    """
+    class NannyNag(Exception):
+        def __init__(self, lineno, msg, line):
+            self.lineno, self.msg, self.line = lineno, msg, line
+        def get_lineno(self):
+            return self.lineno
+        def get_msg(self):
+            return self.msg
+        def get_line(self):
+            return self.line
+
+    @staticmethod
+    def check(file):
+
+        try:
+            f = tokenize.open(file)
+        except OSError as msg:
+            return (False,f"I/O Error: {msg}")
+
+        try:
+            IndentCheck.process_tokens(tokenize.generate_tokens(f.readline))
+
+        except tokenize.TokenError as msg:
+            return (False,f"Token Error: {msg}")
+
+        except IndentationError as msg:
+            return (False,f"Indentation Error: {msg}")
+
+        except IndentCheck.NannyNag as nag:
+            badline = nag.get_lineno()
+            line = nag.get_line()
+            if ' ' in file: file = '"' + file + '"'
+            else: print(file, badline, repr(line))
+            return (False,)
+
+        finally:
+            f.close()
+
+        return (True,True)
+
+
+    class Whitespace:
+        S, T = ' ','\t'
+
+        def __init__(self, ws):
+            self.raw  = ws
+            S, T = IndentCheck.Whitespace.S, IndentCheck.Whitespace.T
+            count = []
+            b = n = nt = 0
+            for ch in self.raw:
+                if ch == S:
+                    n = n + 1
+                    b = b + 1
+                elif ch == T:
+                    n = n + 1
+                    nt = nt + 1
+                    if b >= len(count):
+                        count = count + [0] * (b - len(count) + 1)
+                    count[b] = count[b] + 1
+                    b = 0
+                else:
+                    break
+            self.n    = n
+            self.nt   = nt
+            self.norm = tuple(count), b
+            self.is_simple = len(count) <= 1
+
+        def longest_run_of_spaces(self):
+            count, trailing = self.norm
+            return max(len(count)-1, trailing)
+
+        def indent_level(self, tabsize):
+            count, trailing = self.norm
+            il = 0
+            for i in range(tabsize, len(count)):
+                il = il + i//tabsize * count[i]
+            return trailing + tabsize * (il + self.nt)
+
+        def equal(self, other):
+            return self.norm == other.norm
+
+        def not_equal_witness(self, other):
+            n = max(self.longest_run_of_spaces(),
+                    other.longest_run_of_spaces()) + 1
+            a = []
+            for ts in range(1, n+1):
+                if self.indent_level(ts) != other.indent_level(ts):
+                    a.append( (ts,
+                            self.indent_level(ts),
+                            other.indent_level(ts)) )
+            return a
+
+        def less(self, other):
+            if self.n >= other.n:
+                return False
+            if self.is_simple and other.is_simple:
+                return self.nt <= other.nt
+            n = max(self.longest_run_of_spaces(),
+                    other.longest_run_of_spaces()) + 1
+            for ts in range(2, n+1):
+                if self.indent_level(ts) >= other.indent_level(ts):
+                    return False
+            return True
+
+        def not_less_witness(self, other):
+            n = max(self.longest_run_of_spaces(),
+                    other.longest_run_of_spaces()) + 1
+            a = []
+            for ts in range(1, n+1):
+                if self.indent_level(ts) >= other.indent_level(ts):
+                    a.append( (ts,
+                            self.indent_level(ts),
+                            other.indent_level(ts)) )
+            return a
+
+    @staticmethod
+    def format_witnesses(w):
+        firsts = (str(tup[0]) for tup in w)
+        prefix = "at tab size"
+        if len(w) > 1:
+            prefix = prefix + "s"
+        return prefix + " " + ', '.join(firsts)
+
+    @staticmethod
+    def process_tokens(tokens):
+        INDENT = tokenize.INDENT
+        DEDENT = tokenize.DEDENT
+        NEWLINE = tokenize.NEWLINE
+        JUNK = tokenize.COMMENT, tokenize.NL
+        indents = [IndentCheck.Whitespace("")]
+        check_equal = 0
+
+        for (type, token, start, end, line) in tokens:
+            if type == NEWLINE:
+                check_equal = 1
+
+            elif type == INDENT:
+                check_equal = 0
+                thisguy = IndentCheck.Whitespace(token)
+                if not indents[-1].less(thisguy):
+                    witness = indents[-1].not_less_witness(thisguy)
+                    msg = "indent not greater e.g. " + IndentCheck.format_witnesses(witness)
+                    raise IndentCheck.NannyNag(start[0], msg, line)
+                indents.append(thisguy)
+
+            elif type == DEDENT:
+                check_equal = 1
+
+                del indents[-1]
+
+            elif check_equal and type not in JUNK:
+                check_equal = 0
+                thisguy = IndentCheck.Whitespace(line)
+                if not indents[-1].equal(thisguy):
+                    witness = indents[-1].not_equal_witness(thisguy)
+                    msg = "indent not equal e.g. " + IndentCheck.format_witnesses(witness)
+                    raise IndentCheck.NannyNag(start[0], msg, line)
 
 
 
@@ -52,9 +450,6 @@ class array(list):
 
 
 
-
-
-_Auto = 0
 class _Lang:
 
     class Constant:
@@ -111,69 +506,6 @@ class _Lang:
             ret.remove('_dict_getter')
             return ret
     const = Const = constant = Constant
-
-
-    class Array:
-
-        # Sized Array
-
-        __Type_Error = "Array of type '{}' does not accept object with type '{}'"
-
-        def __init__(self,*args,type_=_Auto,size=_Auto):
-            self.__members = []
-            if type_:
-                self.__TYPE = type_
-            else:
-                self.__TYPE = type(args[0])
-            self.__TYPE_NAME  = self.__TYPE.__name__
-            if size:
-                self.__SIZE = size
-            else:
-                self.__SIZE = len(args)
-
-            for obj in args:
-                if type(obj) == self.__TYPE:
-                    self.__members.append(obj)
-                else:
-                    raise ValueError(_Lang.Array.__Type_Error.format(self.__TYPE_NAME,type(obj).__name__))
-        def __str__(self):
-            return '{'+str(self.__members)[1:-1]+'}'  #‹›
-        def __repr__(self):
-            return '{'+str(self.__members)[1:-1]+'}'
-
-
-        def __getitem__(self,index):
-            return self.__members[index]
-
-        def __contains__(self,obj):
-            return obj in self.__members
-        def __bool__(self):
-            return bool(len(self.__members))
-
-        def __len__(self):
-            return len(self.__members)
-
-        def __setitem__(self,index,obj):
-            if type(obj) == self.__TYPE:
-                self.__members.insert(index,obj)
-                return
-            raise ValueError(_Lang.Array.__Type_Error.format(self.__TYPE_NAME,type(obj).__name__))
-        def insert(self,index,obj):
-            if type(obj) == self.__TYPE:
-                self.__members.insert(index,obj)
-                return
-            raise ValueError(_Lang.Array.__Type_Error.format(self.__TYPE_NAME,type(obj).__name__))
-        def append(self,obj):
-            if type(obj) == self.__TYPE:
-                self.__members.append(obj)
-                return
-            raise ValueError(_Lang.Array.__Type_Error.format(self.__TYPE_NAME,type(obj).__name__))
-        add = append
-        def remove(self,obj):
-            self.__members.remove(obj)
-        def pop(self,index=-1):
-            self.__members.pop(index)
-    array = Array
 
 
     class Types:
