@@ -425,7 +425,7 @@ def Setup_Env():     #]  0.000 (with .hide():0.003)
     if not rx.files.exists("__RX_LC__"):
         rx.files.mkdir('__RX_LC__')
         #rx.write('__RX_LC__/__init__.py')
-        rx.files.hide('__RX_LC__')
+        # rx.files.hide('__RX_LC__')
         return False
     return True
 
@@ -578,7 +578,7 @@ def Get_Args():
     #print(os.getcwd(),'green')
 
     if len(sys.argv) == 1:
-        Menu.Terminal()
+        Menu.Console()
         return False
 
     parser = argparse.ArgumentParser(
@@ -663,11 +663,12 @@ def Get_Args():
 
     elif args.compile:
         Menu.Compile(args.FILE)
+        return False
 
     if args.debug:
         args.d = True
 
-
+    # FILE, ADD_VERBOSE, D, DEBUG, MT, T2P, PROG_ARGS, CACHE
     #print('ARGS:  '+str(args))
     return (args.FILE, args.info, args.d, args.debug,
            args.MT   , args.T2P , args.PROG_ARGS    ,
@@ -718,82 +719,6 @@ class Menu:
             if re.match(r'print\s*\(', rx.read(f'{CWD}/_Console_.py').splitlines()[-1].strip()):
                 rx.write(f'{CWD}/_Console_.py', '\n'.join(rx.read(f'{CWD}/_Console_.py').splitlines()[:-1])+'\n')
 
-    @staticmethod
-    def Terminal():
-        rx.cls()
-        rx.terminal.set_title(f'RX:Terminal  |  {rx.system.device_name()}:{rx.system.accname()}')
-        NOW = str(__import__('datetime').datetime.now())
-        Menu_Dict = {
-           #'Terminal'   : Menu.Terminal ,
-            'Console'    : Menu.Console  ,
-           #'System Info': Menu.SysInfo  ,
-            'Compile'    : Menu.Compile  ,
-            'Create Module Lite' : Menu.Create_SLModule
-        }
-        Linux_Dict = {
-            'sudo -s':  '',
-            'sudo'   :  '',
-            'passwd' :  '',
-            'bash'   :  'cwd',
-            'ls'     :  '',
-            'info'   :  '',
-            'hash'   :  '',
-            'touch'  :  '',
-            'rm'     :  '',
-            'cat'    :  '',
-            'grep'   :  '',
-            '!locate':  '',
-        }
-        print(f"RX v{__version__} Running on {rx.system.device_name()}::{rx.system.accname()} ({NOW[:NOW.rfind('.')]})")
-        while True:
-           #print("{}RX:Terminal{}@{}{}{}".format(fg('green'),attr(0),fg('dodger_blue_1'),os.getcwd(),attr(0)),end='')
-            print(f"{fg('green')}RX:Terminal{attr(0)}@{fg('dodger_blue_1')}{os.getcwd()}{attr(0)}",end='')
-            try:
-                inp = input('> ')#.strip()
-
-                if inp.title() in Menu_Dict.keys():
-                    Menu_Dict[inp.title()]()
-                elif inp.startswith(tuple(Linux_Dict.keys())):
-                    print('Linux Commands are not supported yet','red')
-                elif inp in ('commands'):
-                    # print('Beside all CMD commands, we also support these commands:')
-                    print("Supported Commands are listed below:")
-                    print('  - Console')
-                    print('  - System Info')
-                    print('  - Compile')
-                    print('  - Create Module Lite')
-                    print()
-                    print("  - cd")
-                    print("  - python")
-                    print("  - cls/clear")
-                    print("  - (basically most terminal commands)")
-                elif inp in ('exit','quit'):
-                    Clean_Up()
-                    sys.exit()
-                elif Regex:=re.match(r'cd (?P<path>.+)',inp):
-                    try:
-                        rx.system.chdir(Regex.group('path'))
-                    except (FileNotFoundError,NotADirectoryError):
-                        print('Invalid path','red')
-                elif inp == 'python':
-                    rx.terminal.run('python')
-                elif inp == 'cmd':
-                    rx.terminal.run('cmd')
-                elif inp in ('cls','clear'):
-                    rx.terminal.run('cls')
-                else:
-                    output = rx.terminal.getoutput(inp)
-                    app = inp.split(' ')[0]
-                    output_list = output.splitlines()
-                    if output:
-                        if (f"{app} : The term '{app}' is n" in output_list[0])  or  (
-                            f"'{app}' is not recognized as" in output_list[0]):
-                            print('App/Command not found', 'red')
-                        else:
-                            print(output)
-            except (EOFError,KeyboardInterrupt):
-                print('\nExiting...','red')
-                return
 
     @staticmethod
     def Create_SLModule():
@@ -893,6 +818,21 @@ def Read_File(filepath):
 
 #< Method,Module_Name,Print,Indent,Const >#
 def Define_Structure(SOURCE, FILE, DEBUG):
+    """
+    BASE OPTIONS:
+      OPTION NAME       DEFAULT VALUE       DESCRYPTION"
+      Module-Name       sc                  Shortcut for RX Tools and functions (also "Modulename")'
+      Method            normal              Method of loading tools.'
+                                              Valid Choices: [normal,[lite,fast]] (also "Package-Version)"'
+      Print             stylized            Print function to use. Valid Choices: [normal,stylized]'
+    OPTIONS:'
+      OPTION NAME       DEFAULT VALUE       DESCRYPTION"
+      Func_Type_Checker True                Check if arguments of a function are in wrong type'
+                                              (REGEX:  (func|function)-?(type|arg|param)-?(scanner|checker) )'
+      Exit              True                Exit after executing the code or not'
+
+    "OPTIONS" SHOULD BE DEFINED AFTER "BASE OPTIONS"'
+    """
     #] Checking Indentation
      # {???}autopep8 -i script.py
      # import IndentCheck
@@ -1735,7 +1675,7 @@ if __name__ == "__main__":
         print('Traceback (most recent call last):')
         print('  Error occured when making environment ready to run')
         print('SystemError: '+str(E), 'red', style='bold')
-        print('Please report this to the RX maintainer, along with the traceback and version')
+        print('Please report this in https://github.com/Ramin-RX7/RX-Language/issues, along with the traceback and version')
 
 
     finally:

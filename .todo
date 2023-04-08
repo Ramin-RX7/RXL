@@ -1,6 +1,7 @@
 [MAIN]
-    ☐ Be [more] based on OOP
-    ✔ @high @norm @RXL-Lib better `array` implementation
+    ☐ Switch to `nuitka` from `pyinstaller` and `cxfreeze`
+    ☐ @med Check syntax erros with fuzzy string matching
+    ☐ @med Be [more] based on OOP
     ☐ @high @norm better `const` implementation
     ☐ @low @easy apply the own type of iterable after using apply()
     ☐ @low @easy Define Ready_Objs from std
@@ -14,19 +15,22 @@
     ☐ @med @hard Add/Remove/Change some built-in objects methods
           like:   map (-> apply)
           ('forbiddenfruit' only works on linux)
+    ?  Better terminal argument parser implementation (maybe even using 3rd party modules)
+    ?  Cache use `hash` of file instead of `mdftime`
     ?  @easy Check for cache in local directory of RX.py (not relative to running file)
     ?  @easy Using __pycache__ dir for as cache dir
     ?  @easy Blank line before all errors
     ?  @easy Combine sys.exit & cleanup
-    ?✘  No Break if there is python code in Base Lines
     ?  Ignore module loading output error
     ?  &&  ---  ||
-    ?  CONST at the beginning
     ?  Stop Imports
     ?  Generate:yield(:None)
     ☐ exe doesn't accept args
     ?  A file to repair files (save all files in a zipfile)
     ☐ Annotations and Documentation (Docstring/Help)
+    ?✘  No Break if there is python code in Base Lines
+    ✘ CONST at the beginning
+    ✔ @high @norm @RXL-Lib better `array` implementation
 
     Load Modules:
         ☐ @med What happens if we use cache and loaded module has changed

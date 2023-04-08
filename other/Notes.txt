@@ -14,8 +14,8 @@ parsimonious |    -     |     0       |    0     |  +  001  | -  030 |      PEGL
 PyLery       |    -     |     -       |    0     |  +  001  | 0  012 | Re++               Tree+  |
 
 parse        |    +     |     +       |    -     |  +  002  | +  005 |           Actions+,Format |
-funcparserlib|    +     |     -       |    0     |  0  018  | +  002 |      OWN ,Actions ,Tree   |
 parsy        |    +     |     +       |    -     |  +  003  | +  002 | Re+       Actions         |
+funcparserlib|    +     |     -       |    0     |  0  018  | +  002 |      OWN ,Actions ,Tree   |
 
 
 
