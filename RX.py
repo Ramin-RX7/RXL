@@ -3,9 +3,11 @@ import time
 import shutil
 import sys
 import re
-import argparse
 import tokenize
+from typing import Literal
 
+from addict import Addict
+from tap import Tap
 from colored import  fg,bg,attr
 
 
@@ -88,9 +90,18 @@ class rx:
             print(attr(0), end='')
         reset = switch_default
 
+        def _get_now():
+            return time.strftime('%H:%M:%S',time.localtime())
+        def _log(pre, text, color='', BG='default', style=None, add_time=True):
+            #globals()['style'].print(text, color, BG, style=style)
+            if add_time:
+                NOW = f"[{rx.Style._get_now()}]  "
+            else:
+                NOW = ""
+            rx.Style.print(f"{NOW}{text}", color=color, BG=BG, style=style)
         @staticmethod
-        def log_error(text, color='red', BG='default', style='bold'):
-            rx.style.print(text, color, BG, style=style)
+        def log_error(text, color='red', BG='default', style=0, add_time=True):
+            rx.Style._log("[!]",text,color,BG,style,add_time)
     Style = style
 
 
@@ -416,15 +427,14 @@ CLASSES = (
 LOADED_PACKAGES = []
 Lines_Added = 0
 TIMES = {}
-
+CACHE_DIR = "__RX_LC__"
 
 
 
 #< Make Things Ready For Running >#
 def Setup_Env():     #]  0.000 (with .hide():0.003)
-    if not rx.files.exists("__RX_LC__"):
-        rx.files.mkdir('__RX_LC__')
-        #rx.write('__RX_LC__/__init__.py')
+    if not rx.files.exists(CACHE_DIR):
+        rx.files.mkdir(CACHE_DIR)
         # rx.files.hide('__RX_LC__')
         return False
     return True
@@ -572,107 +582,101 @@ class REGEX:
 
 
 #< Get Arguments >#
-def Get_Args():
+class ArgumentParser:
+    """
+    All the methods related to parsing arguments of terminal should be implemented here
+    """
+    class Parser(Tap):
+        """
+        Base class for terminal argument parser
 
-    #print('ARGS:  '+str(sys.argv), 'green')
-    #print(os.getcwd(),'green')
-
-    if len(sys.argv) == 1:
-        Menu.Console()
-        return False
-
-    parser = argparse.ArgumentParser(
-        'RX', allow_abbrev=True,
-        description='"RX Language Executer"',
-    )
-    parser.add_argument(
-        '-i', '--info',
-        action='store_true',
-        help='Show information about running file (Verbose option in other apps)'
-    )
-    parser.add_argument(
-        'FILE',
-        metavar='FILE', type=str, nargs='?',
-        help='File to execute with RX language'
-    )
-    parser.add_argument(
-        '-o','--options',
-        action='store_true',
-        help='Show Options to Customize File-Run and Exit'
-    )
-    parser.add_argument(
-        '-d',
-        action='store_true',
-        help='Debug file/code/syntax Before running it and print Mistakes in Red color'
-    )
-    parser.add_argument(
-        '--debug',
-        action='store_true',
-        help='Debug-Only mode. This will not run file. It just Debugs it'
-    )
-    parser.add_argument(
-        '-MT',
-        action='store_true',
-        help='Module Test. Not Very Usefull For Beginers'
-    )
-    parser.add_argument(
-        '-T2P',
-        action='store_true',
-        help='Translate To Python'
-    )
-    parser.add_argument(
-        '-nc','--no-cache',
-        action='store_false',
-        help='Translate To Python'
-    )
-    parser.add_argument(
-        'PROG_ARGS',
-        action='store',
-        nargs=argparse.REMAINDER)
-
-    parser.add_argument(
-        "--compile",
-        action="store_true",
-        help = "Directly Goes to Compile menu"
-    )
-
-    args = parser.parse_args()
-    #print(args.PROG_ARGS,'red')
+        All arguments and options are defined here
+        """
+        file    : str  =  None      # path to `RX` file to run
+        cache   : bool =  True      # whether to use cache or not (using this will prevent using cache)
+        verbose : bool =  False     # Verbose (Prints information when running RXL)
+        debug   : bool =  False     # Debug file/code/syntax Before running it and print Mistakes in Red color
+        compile : bool =  False     # Goes to `compile` menu
+        translate_only: bool = False    # Translate file to python (without running it)
+        #create_lite
+        _module_test  : bool = False    # Module test (Internal use only)
+        # file_args : list[str]         # arguments to pass to given file
+            # instead we use `self.extra_args`
 
 
-    if args.options:
-        print('BASE OPTIONS:'                                                                                                , style='bold')
-        print("  OPTION NAME       DEFAULT VALUE       DESCRYPTION"                                                          , style='bold')
-        print('  Module-Name       sc                  Shortcut for RX Tools and functions (also "Modulename")'                            )
-        print('  Method            normal              Method of loading tools.'                                                           )
-        print('                                          Valid Choices: [normal,[lite,fast]] (also "Package-Version)"'                     )
-        print('  Print             stylized            Print function to use. Valid Choices: [normal,stylized]'                            )
-       #print('OPTIONS:'                                                                                                     , style='bold')
-       #print("  OPTION NAME       DEFAULT VALUE       DESCRYPTION"                                                                        )
-        print('  Func_Type_Checker True                Check if arguments of a function are in wrong type'                                 )
-       #print('                                          (REGEX:  (func|function)-?(type|arg|param)-?(scanner|checker) )'                  )
-        print('  Exit              True                Exit after executing the code or not'                                               )
-        print(                                                                                                                             )
-       #print('"OPTIONS" SHOULD BE DEFINED AFTER "BASE OPTIONS"'                                                             , style='bold')
-        return False
+        def configure(self):
+            self.add_argument("file", nargs="?")
+            self.add_argument("-c", "--cache")
+            self.add_argument("-v", "--verbose")
+            self.add_argument("-d", "--debug")
+            self.add_argument("-t", "--translate-only")
+            # self.add_argument('file_args',nargs=argparse.REMAINDER)
 
-    elif not args.FILE:
-        Menu.Console()
-        #Menu()
-        return False
+        def process_args(self):
+            if self.file and  not rx.files.exists(self.file):
+                Error(f"can't open file '{rx.files.abspath(self.file)}':  No such file or directory",
+                      add_time=False)
+                exit()
+            if not self.file and (self.translate_only or self.compile):
+                Error(f"`file` should be specified when `--translate-only` or `--compile` arguments are given",
+                      add_time=False)
+                exit()
+            if self.compile:
+                raise NotImplementedError
+                try:
+                    import pyinstaller
+                except ModuleNotFoundError:
+                    Error("")
 
-    elif args.compile:
-        Menu.Compile(args.FILE)
-        return False
 
-    if args.debug:
-        args.d = True
+    @staticmethod
+    def parse_args() -> dict:
+        """Returns parsed arguments of terminal"""
+        parser = ArgumentParser.Parser(
+                    prog = "RXL",
+                    description='"RX Language complete app"',
+                    underscores_to_dashes=True,
+                    # allow_abbrev=True,
+                ).parse_args(
+                    known_only=True
+        )
+        return parser.as_dict()
 
-    # FILE, ADD_VERBOSE, D, DEBUG, MT, T2P, PROG_ARGS, CACHE
-    #print('ARGS:  '+str(args))
-    return (args.FILE, args.info, args.d, args.debug,
-           args.MT   , args.T2P , args.PROG_ARGS    ,
-           args.no_cache)
+
+    @staticmethod
+    def empty_asdict():
+        # return {'module_test': False, 'debug': False, 'cache': True, 'verbose': False, 'file': None, 'compile': False, 'translate_only': False}
+        return ArgumentParser.Parser(underscores_to_dashes=True).parse_args({})
+
+
+    @staticmethod
+    def detect_task(args:Addict):
+        """Returns what task should be done. also returns needed arguments"""
+        if len(sys.argv) == 1:
+            task = "console"
+            task_args = []
+        elif args.translate_only:
+            task = "translate"
+            task_args = [args.file, args.compile, args.debug]
+        elif args.compile:
+            task = "compile"
+            task_args = [args.file]
+        else:
+            task = "runfile"
+            task_args = [args.cache, args.debug, args.verbose]
+
+        return (task,task_args)
+
+    @staticmethod
+    def run_task(task:str,args:list):
+        """Runs the given task from function with giving the required arguments"""
+        tasks_dict = {
+            "console"  :  Menu.Console,
+            "translate":  NotImplemented,
+            "compile"  :  NotImplemented,
+            "runfile"  :  NotImplemented,
+        }
+        return tasks_dict[task](*args)
 
 
 
@@ -1629,40 +1633,11 @@ if __name__ == "__main__":
         cache_dir_existed = Setup_Env()
         TIMES['SetEnv'] = time.time()-START_TIME
 
-        # {0:FILE , 1:info , 2:d , 3:debug, 4:MT, 5:T2P, 6:PROG_ARGS, 7:No_CACHE}
-        ARGS = Get_Args()
-        if not ARGS:
-            Clean_Up;sys.exit()
-        FILE, ADD_VERBOSE, D, DEBUG, MT, T2P, PROG_ARGS, CACHE  =  ARGS
-        CACHE = CACHE if cache_dir_existed  else False
+        ARGS  = ArgumentParser.parse_args()
+        TASK,TASK_ARGS = ArgumentParser.detect_task(Addict(ARGS))
         TIMES['ARGS  '] = time.time()-START_TIME
 
-        READY_FILE_NAME = '_'+os.path.basename(FILE)+'_' #'‎'+FILE+'‎' THERE IS INVISIBLE CHAR IN QUOTES
-        PATH = rx.files.abspath(FILE)
-        DIR  = rx.files.dirname(PATH)
-        BACKUP_EXIST      =  bool(rx.files.exists(f"./__RX_LC__/_{FILE}_")) if CACHE   else False
-        if BACKUP_EXIST:
-            try:    BACKUP_MDF_TIME   = int(rx.files.read(f'./__RX_LC__/_{FILE}_').split("\n")[0][-10:])
-            except ValueError: BACKUP_EXIST=False
-
-        if CACHE and BACKUP_EXIST and (BACKUP_MDF_TIME==int(rx.files.mdftime(FILE))): #"(not ADD_VERBOSE)" ?!
-            try:     SOURCE = Cache_Check()
-            except:  raise#Prepare_Files()
-            THREADS = []
-            # RUN(READY_FILE_NAME)
-        else:
-            #rx.cls()
-            SOURCE,THREADS,INFO = Prepare_Files()
-
-        title = rx.terminal.get_title()
-        if T2P:
-            rx.write(f'{FILE.split(".")[0]}.py', '\n'.join(SOURCE))
-        if MT:
-            #Setup_Env()
-            rx.write(f'./__RX_LC__/{FILE.split(".")[0]}', '\n'.join(SOURCE))
-            #print(f'{FILE.split(".")[0]} file created','red')
-        if (not DEBUG) and (not MT) and (not T2P):
-            Start_Lang()
+        ArgumentParser.run_task(TASK,TASK_ARGS)
 
 
     except KeyboardInterrupt:
@@ -1684,4 +1659,4 @@ if __name__ == "__main__":
                 Clean_Up(FILE)
         except:
             pass
-        rx.terminal.set_title(title)
+        # rx.terminal.set_title(title)
