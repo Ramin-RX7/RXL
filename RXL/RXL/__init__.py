@@ -174,72 +174,89 @@ class rx:
     System = system
 
 
-    class io:
+    class IO:
         @staticmethod
         def wait_for_input(prompt):
             answer= ''
             while not answer:
-                    answer = input(prompt)
+                answer = input(prompt).strip()
             return answer
 
         @staticmethod
-        def selective_input(prompt,choices,default=None,ignore_case=False,error=True,invalid='Invalid input'):
-            if type(choices) == dict: Choices = list(choices.keys())+list(choices.values())
-            else: Choices = choices
+        def selective_input(prompt, choices, default=None,
+                            ignore_case:bool=False, invalid_message='Invalid input',
+                            action=None):
 
-            if ignore_case: Choices = [item.lower() for item in Choices]
+            assert (callable(action) or action==None)
+
+            if not callable(choices):
+                Choices = choices
+                if type(choices) == dict:
+                    Choices = list(choices.keys())+list(choices.values())
+                if ignore_case:
+                    Choices = [item.lower() for item in Choices if isinstance(item,str)]
 
             while True:
                 inp = input(prompt)
                 inp = inp.lower() if ignore_case else inp
-                if (not inp)  or  (inp not in Choices):
-                    if error:
-                        print(invalid, 'red')
+                if callable(choices):
+                    if choices(inp):
+                        break
+                    elif invalid_message:
+                        rx.style.print(invalid_message, color='red')
+                elif not inp:
+                    if default:
+                        inp = default
+                        break
                     else:
-                        if default:
-                            inp = default
-                            break
-                else:
+                        if invalid_message:
+                            rx.style.print(invalid_message, color='red')
+                elif inp in Choices:
                     break
+                else:
+                    if invalid_message:
+                        rx.style.print(invalid_message, color='red')
+
             if type(choices) == dict:
                 try:
                     inp = choices[inp]
                 except KeyError:
                     pass
+
+            if action:
+                inp = action(inp)
+
             return inp
 
         @staticmethod
         def yesno_input(prompt,default=None):
-            return rx.io.selective_input(prompt,['y','yes','n','no'],default,not bool(default))
+            error= "Invalid Input" if bool(default) else ""
+            def action(inp):
+                if inp.lower() in ("yes","y"):
+                    return True
+                elif inp.lower() in ("no","n"):
+                    return False
+            return IO.selective_input(prompt,['y','yes','n','no'],default,True,error,action)
 
         @staticmethod
-        def get_files(prompt='Enter File Name:  ', check_if_exists=True, sort= False, times=100):
-            List = set()
-            i = 1
-            while i <= times:
-                filename = rx.io.wait_for_input(prompt)
-                if filename == 'end':
-                    break
-                pass
-                if check_if_exists:
-                    if rx.files.exists(filename):
-                        List.add(filename)
-                        i+=1
-                    else:
-                        rx.style.print('File Does Not Exist.')
-                else:
-                    i+=1
-                    List.add(filename)
-            if sort:
-                return sorted(list(List))
-            return list(List)
+        def Input(prompt:str ='', default_value:str =''):
+            import win32console
+            _stdin = win32console.GetStdHandle(win32console.STD_INPUT_HANDLE)
+            keys = []
+            for c in str(default_value):
+                evt = win32console.PyINPUT_RECORDType(win32console.KEY_EVENT)
+                evt.Char = c
+                evt.RepeatCount = 1
+                evt.KeyDown = True
+                keys.append(evt)
+            _stdin.WriteConsoleInput(keys)
+            return input(str(prompt))
 
         @staticmethod
         def getpass(prompt):
             import getpass as Getpass
             return Getpass.getpass(prompt=prompt)
-    SF = AF = NF = io
-
+    io = IO
 
 
 class IndentCheck:
@@ -449,6 +466,10 @@ class array(list):
         if len(self) >= self._max_length:
             raise MemoryError("Maximum size of the array is reached")
         super().append(__v)
+
+
+
+
 
 
 

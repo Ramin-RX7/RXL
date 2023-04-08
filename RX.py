@@ -67,7 +67,7 @@ class ERRORS:
             ERRORS.RaiseError(
                 'BaseDefinedError',
                 f"BaseDefinedError: '{attribute}' can not be defined after setting module [OPTIONS]",
-                line_text,line_nom,FILE
+                line_text,line_nom,File
             )
 
     class ValueError(Exception):
@@ -77,7 +77,7 @@ class ERRORS:
             MSG = msg if msg else f"'{attribute}' can not be '{value}'. Valid Choices: {correct_list}"
             raise ERRORS.RaiseError(
                   'ValueError', MSG,
-                  Line_Text,Line_Nom,FILE
+                  Line_Text,Line_Nom,File
                   )
 
     class ConstantError(Exception):
@@ -87,7 +87,7 @@ class ERRORS:
             MSG = msg if msg else f"Redefinition of '{Attribute}' (Already Defined At Line {Line_Def})"
             raise ERRORS.RaiseError(
                   'ConstantError', MSG,
-                  Line_Text,Line_Nom,FILE
+                  Line_Text,Line_Nom,File
                   )
 
     class IndentationError(Exception):
@@ -95,7 +95,7 @@ class ERRORS:
           Line_Nom=0, Line_Text='', File=''):
             raise ERRORS.RaiseError(
                   'IndentationError', 'expected an indented block',
-                  Line_Text,Line_Nom,FILE
+                  Line_Text,Line_Nom,File
                   )
 
     class UndefinedError(Exception):
@@ -116,14 +116,14 @@ class ERRORS:
         def __init__(self, File, Name=None, Line_Text='', Line_Nom=0):
             raise ERRORS.RaiseError(
                   'ModuleNotFoundError', f"No module named '{Name}'",
-                  Line_Text,Line_Nom,FILE
+                  Line_Text,Line_Nom,File
                   )
 
     class AttributeError(Exception):
         def __init__(self,File, Line_Nom, Line_Text, Module_Version, Attribute, Type='module'):
             raise ERRORS.RaiseError(
                   'AttributeError', f"{Type} '{Module_Version}' has no attribute '{Attribute}'",
-                  Line_Text,Line_Nom,FILE
+                  Line_Text,Line_Nom,File
                   )
 
     class LoadError(Exception):
@@ -142,7 +142,7 @@ class ERRORS:
         def __init__(self,File, Line_Nom, Line_Text, msg):
             raise ERRORS.RaiseError(
                   'SyntaxError', msg,
-                  Line_Text,Line_Nom,FILE
+                  Line_Text,Line_Nom,File
                   )
 
 
@@ -267,7 +267,7 @@ class ArgumentParser:
             task_args = []
         elif args.translate_only:
             task = "translate"
-            task_args = [args.file, args.cache, args.compile, args.debug]
+            task_args = [args.file, args.cache, args.debug, args.verbose, args.compile]
         elif args.compile:
             task = "compile"
             task_args = [args.file]
@@ -281,8 +281,8 @@ class ArgumentParser:
     def run_task(task:str,args:list):
         """Runs the given task from function with giving the required arguments"""
         tasks_dict = {
-            "console"  :  Menu.Console,
-            "translate":  translate,
+            "console"  :  Tasks.Console,
+            "translate":  Tasks.translate_only,
             "compile"  :  NotImplemented,
             "runfile"  :  NotImplemented,
         }
@@ -291,7 +291,7 @@ class ArgumentParser:
 
 
 #< Menu >#
-class Menu:
+class Tasks:
 
     #< Interactive RX Shell >#
     @staticmethod
@@ -336,6 +336,7 @@ class Menu:
 
     @staticmethod
     def Create_SLModule():
+        raise NotImplementedError
         import inspect
         import rx7 as STD  #lite
         File = rx.io.get_files('Enter listed functions file name:  ',times=1)[0]
@@ -380,8 +381,10 @@ class Menu:
         rx.write(output,Main)
         print(f'Module has been created successfully', 'green')
 
+
     @staticmethod
-    def Compile(FILE=None):
+    def compile(FILE=None):
+        raise NotImplementedError
         File = FILE if FILE else rx.io.get_files('Enter File Path:  ',times=1)[0]
         File = rx.files.abspath(File)
         #print(File)
@@ -415,6 +418,26 @@ class Menu:
         print("Press Enter to Continue")
         rx.io.getpass("")
         print()
+
+
+    @staticmethod
+    def translate_only(path:str, cache, debug, verbose, compile):
+        source = translate(path, cache, debug, verbose)
+        py_file_path = path.removesuffix(".rx")+".py"
+        if rx.files.exists(py_file_path):
+            print(f"{py_file_path} Already exists...")
+            if replace:=rx.io.yesno_input("Replace it? "):
+                rx.write(py_file_path, source)
+        else:
+            rx.write(py_file_path, source)
+
+        if compile:
+            raise NotImplementedError
+
+
+    @staticmethod
+    def runfile():
+        raise NotImplementedError
 
 
 
@@ -1166,7 +1189,7 @@ def Cache_Check(cache:bool, path:str, debug:bool, verbose:bool):
         source = rx.files.read(full_ready_path).split("\n")
         cache_id = int(source.pop(0))
         if cache_id == int(rx.files.mdftime(path)):
-            return source
+            return "\n".join(source)
         else:
             print("[*] Cache does not match with latest version of file")
     else:
@@ -1177,33 +1200,32 @@ def Cache_Check(cache:bool, path:str, debug:bool, verbose:bool):
 
 
 #< Translate Source (and write cache) >#
-def Convert_Source(path:str, source:list, cache:bool, debug:bool, verbose:bool):
+def Convert_Source(source:list, path:str, cache:bool, debug:bool, verbose:bool):
     # global TIMES, Lines_Added
-
     source, module_version, module_shortcut, \
         type_scanner, info = Define_Structure(source, path, debug)
-    #-> SOURCE,MODULE_VERSION, MODULE_SHORTCUT,TYPE_SCANNER, INFO
     TIMES['DefStr'] = time.time()-START_TIME
 
     source, threads = Syntax(source, module_version, module_shortcut,
                              type_scanner, path, debug)
-
-    ready_file_name = convert_file_name(path)
-
-    rx.write('translated', '\n'.join(source))
+    TIMES['DefStr'] = time.time()-START_TIME
 
     if cache:
         if debug:
             print("[*] Creating Cache")
         cached_source = [str(int(rx.files.mdftime()))] + source
-        full_ready_path = f"./{CACHE_DIR}/{ready_file_name}"
+        full_ready_path = f"./{CACHE_DIR}/{convert_file_name(path)}"
         try:
             rx.write(full_ready_path, '\n'.join(cached_source))
         except PermissionError:
             rx.files.remove(full_ready_path)
             rx.write(full_ready_path, '\n'.join(cached_source))
 
+    source = '\n'.join(source)
+    rx.write('translated', source)
+
     return source,threads,info
+
 
 
 #< Starting Code >#
@@ -1223,14 +1245,19 @@ def Start_Lang():
         #print(EXECUTION_TIME_TEXT)
 
 
+
 #< Translate >#
 def translate(path, cache, debug, verbose):
     source = Cache_Check(cache, path, debug, verbose)
     threads = []
-    if source:
-        pass
-    else:
-        source,threads,info = Convert_Source(path, source, cache, debug, verbose)
+    info = {}
+    if not source:
+        source = rx.read(path).split("\n")
+        source,threads,info = Convert_Source(source, path, cache, debug, verbose)
+    for thread in threads:
+        thread.join()
+
+    return source
 
 
 
