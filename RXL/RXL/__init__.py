@@ -9,7 +9,9 @@ from colored import  fg,bg,attr
 _auto = -1
 
 
-
+def convert_file_name(file):
+    return '_'+os.path.basename(file)+'_'
+    #'‎'+FILE+'‎' THERE IS INVISIBLE CHAR IN QUOTES
 
 
 class rx:

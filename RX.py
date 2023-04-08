@@ -267,13 +267,13 @@ class ArgumentParser:
             task_args = []
         elif args.translate_only:
             task = "translate"
-            task_args = [args.file, args.compile, args.debug]
+            task_args = [args.file, args.cache, args.compile, args.debug]
         elif args.compile:
             task = "compile"
             task_args = [args.file]
         else:
             task = "runfile"
-            task_args = [args.cache, args.debug, args.verbose]
+            task_args = [args.file, args.cache, args.debug, args.verbose]
 
         return (task,task_args)
 
@@ -1168,23 +1168,27 @@ def RUN(READY_FILE_NAME,THREADS=[]):
 
 
 #< Check Cache Suitability >#
-def Cache_Check(file:str,debug,verbose):
-    #print(f"MDFTIME REAL :: {rx.files.mdftime(FILE)}")
-    #print(f"MDFTIME CACH :: {float(rx.files.read(f'./__RX_LC__/_{FILE}_info_'))}")
+def Cache_Check(cache:bool, path:str, debug:bool, verbose:bool):
+    if not cache:
+        return False
 
-    if debug or verbose:
-        print('[*] Using Cache', 'dodger_blue_1')
-    try:
-        rx.files.copy(f'./{CACHE_DIR}/_{file}_',READY_FILE_NAME)
-    except PermissionError:
-        rx.files.remove(READY_FILE_NAME)
-        rx.files.copy(f'./__RX_LC__/_{FILE}_',READY_FILE_NAME)
+    ready_file_name = convert_file_name(path)
+    full_ready_path = f"./{CACHE_DIR}/{ready_file_name}"
 
-    SOURCE = rx.read(READY_FILE_NAME).split('\n')
-    if Regex:=re.match(r'ProgramStartTime\s*= \s*\w+(\.?\w*)',SOURCE[0]):
-        print('YES','green')
-        SOURCE[0] = 'ProgramStartTime= '+str(START_TIME)
-    return SOURCE
+    cache_file =  bool(rx.files.exists(full_ready_path))
+    if cache_file:
+        if debug or verbose:
+            print("[*] Found Cache")
+        source = rx.files.read(full_ready_path).split("\n")
+        cache_id = int(source.pop(0))
+        if cache_id == int(rx.files.mdftime(path)):
+            return source
+        else:
+            print("[*] Cache does not match with latest version of file")
+    else:
+        if debug:
+            print("[*] No Cache were found")
+    return False
 
 
 
@@ -1233,8 +1237,15 @@ def Start_Lang():
 
 
 #< Translate >#
-def translate(file):
-    pass
+def translate(path, cache, debug, verbose):
+    source = Cache_Check(cache, path, debug, verbose)
+    threads = []
+    if source:
+        pass
+    else:
+        pass
+        # convert_source(source, debug, verbose)
+
 
 
 
@@ -1250,8 +1261,8 @@ if __name__ == "__main__":
         ARGS  = ArgumentParser.parse_args()
         TASK,TASK_ARGS = ArgumentParser.detect_task(Addict(ARGS))
         TIMES['ARGS  '] = time.time()-START_TIME
-        print(TIMES)
-        #ArgumentParser.run_task(TASK,TASK_ARGS)
+        # print(TIMES)
+        ArgumentParser.run_task(TASK,TASK_ARGS)
 
 
     except KeyboardInterrupt:
