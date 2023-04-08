@@ -432,6 +432,7 @@ def Read_File(filepath):
 
 #< Method,Module_Name,Print,Indent,Const >#
 def Define_Structure(SOURCE, FILE, DEBUG):
+    """"""
     """
     BASE OPTIONS:
       OPTION NAME       DEFAULT VALUE       DESCRYPTION"
@@ -1108,23 +1109,6 @@ def Syntax(SOURCE,
 
 
 
-#< Verbose >#
-def Add_Verbose(SOURCE, INFO):
-    NOW = str(__import__('datetime').datetime.now())
-    print(f'''Start  RX Language  at  "{NOW[:NOW.rindex('.')+5]}"''')
-    print(f'Running  "{INFO["Title"]}" v{INFO["Version"]}  by "{INFO["Author"]}"')
-    print('\n')
-
-    #SOURCE.insert(0, f'ProgramStartTime= {START_TIME}')
-    #EXECUTION_TIME_TEXT = 'round(__import__("time").time()-ProgramStartTime,3)'
-    #SOURCE.insert(-1, 'EXECUTION_TIME_TEXT='+EXECUTION_TIME_TEXT) #{EXECUTION_TIME_TEXT-.35}/
-    #SOURCE.insert(-1, r'''print(f'\n\nExecution Time:  {EXECUTION_TIME_TEXT}\n')''')
-    #print(SOURCE[-3])
-
-    return SOURCE
-
-
-
 #< Clean Everything Which is Not Needed >#
 def Clean_Up(File='',Lib=True):   #] 0.03
     #return
@@ -1167,7 +1151,7 @@ def RUN(READY_FILE_NAME,THREADS=[]):
 
 
 
-#< Check Cache Suitability >#
+#< Check cache availablity >#
 def Cache_Check(cache:bool, path:str, debug:bool, verbose:bool):
     if not cache:
         return False
@@ -1192,31 +1176,34 @@ def Cache_Check(cache:bool, path:str, debug:bool, verbose:bool):
 
 
 
-#< Make Neccassary Files for "RUN" >#
-def Prepare_Files():
-    global TIMES, Lines_Added
-    SOURCE = Read_File(FILE)
-    SOURCE = Define_Structure(SOURCE, FILE, D)
-    INFO = SOURCE[4]
+#< Translate Source (and write cache) >#
+def Convert_Source(path:str, source:list, cache:bool, debug:bool, verbose:bool):
+    # global TIMES, Lines_Added
+
+    source, module_version, module_shortcut, \
+        type_scanner, info = Define_Structure(source, path, debug)
+    #-> SOURCE,MODULE_VERSION, MODULE_SHORTCUT,TYPE_SCANNER, INFO
     TIMES['DefStr'] = time.time()-START_TIME
-    SOURCE,THREADS = Syntax(SOURCE[0], SOURCE[1], SOURCE[2], SOURCE[3], FILE, D)
-    TIMES['Syntax'] = time.time()-START_TIME
 
-    SOURCE.insert(0,SOURCE[0]+"#"+str(int(rx.files.mdftime(FILE))))
+    source, threads = Syntax(source, module_version, module_shortcut,
+                             type_scanner, path, debug)
 
-    if (not DEBUG) and (not MT):
+    ready_file_name = convert_file_name(path)
+
+    rx.write('translated', '\n'.join(source))
+
+    if cache:
+        if debug:
+            print("[*] Creating Cache")
+        cached_source = [str(int(rx.files.mdftime()))] + source
+        full_ready_path = f"./{CACHE_DIR}/{ready_file_name}"
         try:
-            rx.write(READY_FILE_NAME, '\n'.join(SOURCE))
-            rx.write(f"./__RX_LC__/{READY_FILE_NAME}", '\n'.join(SOURCE))
+            rx.write(full_ready_path, '\n'.join(cached_source))
         except PermissionError:
-            rx.files.remove(READY_FILE_NAME)
-            rx.write(READY_FILE_NAME, '\n'.join(SOURCE))
-            rx.files.remove(f"./__RX_LC__/{READY_FILE_NAME}")
-            rx.write(f"./__RX_LC__/{READY_FILE_NAME}", '\n'.join(SOURCE))
-        rx.write('translated', '\n'.join(SOURCE))
-        # rx.files.hide(READY_FILE_NAME)
-    return SOURCE,THREADS,INFO
+            rx.files.remove(full_ready_path)
+            rx.write(full_ready_path, '\n'.join(cached_source))
 
+    return source,threads,info
 
 
 #< Starting Code >#
@@ -1243,8 +1230,7 @@ def translate(path, cache, debug, verbose):
     if source:
         pass
     else:
-        pass
-        # convert_source(source, debug, verbose)
+        source,threads,info = Convert_Source(path, source, cache, debug, verbose)
 
 
 
