@@ -110,13 +110,14 @@ class rx:
 
     class files:
         rename  =  os.rename
-        abspath =  os.path.abspath
         exists  =  os.path.exists
-        mdftime =  os.path.getmtime
-        move    =  shutil.move
+        abspath =  os.path.abspath
         isfile  =  os.path.isfile
         isdir   =  os.path.isdir
         dirname =  os.path.dirname
+        basename = os.path.basename
+        mdftime =  os.path.getmtime
+        move    =  shutil.move
         @staticmethod
         def copy(src,dest,preserve_metadata= True):
             if rx.files.isdir(src):
@@ -236,7 +237,7 @@ class rx:
                     return True
                 elif inp.lower() in ("no","n"):
                     return False
-            return IO.selective_input(prompt,['y','yes','n','no'],default,True,error,action)
+            return rx.IO.selective_input(prompt,['y','yes','n','no'],default,True,error,action)
 
         @staticmethod
         def Input(prompt:str ='', default_value:str =''):

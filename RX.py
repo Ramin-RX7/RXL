@@ -40,6 +40,8 @@ CACHE_DIR = "__pycache__"
 
 
 
+
+
 #< Make Things Ready For Running >#
 def Setup_Env():     #]  0.000 (with .hide():0.003)
     if not rx.files.exists(CACHE_DIR):
@@ -293,7 +295,7 @@ class ArgumentParser:
 #< Menu >#
 class Tasks:
 
-    #< Interactive RX Shell >#
+    #] Interactive RX Shell
     @staticmethod
     def Console():
         rx.terminal.set_title('RX - Console')
@@ -424,20 +426,55 @@ class Tasks:
     def translate_only(path:str, cache, debug, verbose, compile):
         source = translate(path, cache, debug, verbose)
         py_file_path = path.removesuffix(".rx")+".py"
-        if rx.files.exists(py_file_path):
-            print(f"{py_file_path} Already exists...")
-            if replace:=rx.io.yesno_input("Replace it? "):
-                rx.write(py_file_path, source)
-        else:
-            rx.write(py_file_path, source)
+        # if rx.files.exists(py_file_path):
+            # print(f"{py_file_path} Already exists...")
+            # if replace:=rx.io.yesno_input("Replace it? "):
+                # rx.write(py_file_path, source)
+        # else:
+        rx.write(py_file_path, source)
 
         if compile:
             raise NotImplementedError
+        TIMES["TRANSLATE_ONLY"] = time.time()-START_TIME
 
 
     @staticmethod
-    def runfile():
-        raise NotImplementedError
+    def runfile(path, cache, debug, verbose):
+        source = translate(path, cache, debug, verbose)
+        ready_file_name = convert_file_name(path)
+
+        rx.write(ready_file_name, source)
+
+        if verbose:
+            #rx.cls()
+            NOW = str(__import__('datetime').datetime.now())
+            # probably consider changing next line from "NOW" to "START_TIME"
+            print(f'''Start  RX Language  at  "{NOW[:NOW.rindex('.')+5]}"''')
+            # print(f'Running  "{INFO["Title"]}" v{INFO["Version"]}  by "{INFO["Author"]}"')
+            print('\n')
+
+        TIMES['B_Run '] = time.time()-START_TIME
+        for k,v in TIMES.items(): print(f'{k} :: {v}','green')
+
+        import runpy
+        try:
+            runpy.run_path(ready_file_name)
+        except Exception as e:
+            raise e
+            print('Traceback (most recent call last):')
+            print('  More Information in Next Updates...')
+           #print(f'  File "{FILE}" in  "UNDEFINED"')
+            Error(type(e).__name__+': '+str(e))
+            sys.exit()
+        finally:
+            pass
+            # os.remove(ready_file_name)
+
+        if verbose:
+            EXECUTION_TIME_TEXT = round(time.time()-START_TIME,3)
+            print(f'\n\nExecution Time:  {EXECUTION_TIME_TEXT}\n')
+            #print(START_TIME)
+            #print(EXECUTION_TIME_TEXT)
 
 
 
@@ -1132,48 +1169,6 @@ def Syntax(SOURCE,
 
 
 
-#< Clean Everything Which is Not Needed >#
-def Clean_Up(File='',Lib=True):   #] 0.03
-    #return
-    #if Lib:
-    #    try: rx.files.remove(f'__RX_LC__', force=True)
-    #    except: pass
-    #else: pass
-    try: os.remove('_'+File+'_')
-    except: pass
-    # try: rx.files.remove('__pycache__', force=True)
-    # except: pass
-    try: rx.files.remove('_Console_.py')
-    except: pass
-
-
-
-#< Running _FILE_ >#
-def RUN(READY_FILE_NAME,THREADS=[]):
-    # rx.terminal.set_title(f'RX - {os.path.basename(FILE)}')
-    try:
-        for thread in THREADS:
-            thread.join()
-        TIMES['B_Run '] = time.time()-START_TIME
-        if TIMES['B_Run '] >  0.5 + 0.3*len(THREADS):
-            print('Running Speed is Slow','red')
-        elif TIMES['B_Run '] < 0.01:
-            pass#print('Running Speed is Super Fast','green')
-        for k,v in TIMES.items(): print(f'{k} :: {v}','green')
-        print(f"B_Run  :: {TIMES['B_Run ']}",'green')
-        # return
-        import runpy
-        runpy.run_path(READY_FILE_NAME)
-    except Exception as e:
-        raise e
-        print('Traceback (most recent call last):')
-        print('  More Information in Next Updates...')
-       #print(f'  File "{FILE}" in  "UNDEFINED"')
-        Error(type(e).__name__+': '+str(e))
-        sys.exit()
-
-
-
 #< Check cache availablity >#
 def Cache_Check(cache:bool, path:str, debug:bool, verbose:bool):
     if not cache:
@@ -1182,7 +1177,7 @@ def Cache_Check(cache:bool, path:str, debug:bool, verbose:bool):
     ready_file_name = convert_file_name(path)
     full_ready_path = f"./{CACHE_DIR}/{ready_file_name}"
 
-    cache_file =  bool(rx.files.exists(full_ready_path))
+    cache_file =  rx.files.exists(full_ready_path)
     if cache_file:
         if debug or verbose:
             print("[*] Found Cache")
@@ -1210,39 +1205,15 @@ def Convert_Source(source:list, path:str, cache:bool, debug:bool, verbose:bool):
                              type_scanner, path, debug)
     TIMES['DefStr'] = time.time()-START_TIME
 
-    if cache:
-        if debug:
-            print("[*] Creating Cache")
-        cached_source = [str(int(rx.files.mdftime()))] + source
-        full_ready_path = f"./{CACHE_DIR}/{convert_file_name(path)}"
-        try:
-            rx.write(full_ready_path, '\n'.join(cached_source))
-        except PermissionError:
-            rx.files.remove(full_ready_path)
-            rx.write(full_ready_path, '\n'.join(cached_source))
-
     source = '\n'.join(source)
     rx.write('translated', source)
 
+    if cache:
+        if debug:
+            print("[*] Creating Cache")
+        save_cache(path, source)
+
     return source,threads,info
-
-
-
-#< Starting Code >#
-def Start_Lang():
-    if ADD_VERBOSE:
-        #rx.cls()
-        NOW = str(__import__('datetime').datetime.now())
-        # probably consider changing next line from "NOW" to "START_TIME"
-        print(f'''Start  RX Language  at  "{NOW[:NOW.rindex('.')+5]}"''')
-        print(f'Running  "{INFO["Title"]}" v{INFO["Version"]}  by "{INFO["Author"]}"')
-        print('\n')
-    RUN(READY_FILE_NAME,THREADS)
-    if ADD_VERBOSE:
-        EXECUTION_TIME_TEXT = round(__import__("time").time()-START_TIME,3)
-        print(f'\n\nExecution Time:  {EXECUTION_TIME_TEXT}\n')
-        #print(START_TIME)
-        #print(EXECUTION_TIME_TEXT)
 
 
 
@@ -1261,6 +1232,14 @@ def translate(path, cache, debug, verbose):
 
 
 
+#< Save cache of `path` >#
+def save_cache(path, source):
+    id = str(int(rx.files.mdftime(path)))
+    source = id + "\n" + source
+    rx.write(f"./{CACHE_DIR}/{convert_file_name(rx.files.basename(path))}",source)
+
+
+
 
 
 #< START OF THE CODE >#
@@ -1276,7 +1255,7 @@ if __name__ == "__main__":
         TIMES['ARGS  '] = time.time()-START_TIME
         # print(TIMES)
         ArgumentParser.run_task(TASK,TASK_ARGS)
-
+        print(TIMES)
 
     except KeyboardInterrupt:
         #Clean_Up(File)
