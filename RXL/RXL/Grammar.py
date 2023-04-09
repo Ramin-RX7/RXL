@@ -14,6 +14,57 @@ LOADED_PACKAGES = []
 Lines_Added = 0
 
 
+
+
+
+#< List of all regex patterns >#
+class REGEX:
+
+    _INCLUDE = ...
+
+    class _SwitchCase:
+        switch = re.compile(r'(?P<indent>\s*)switch\s+(?P<VARIABLE>\w+)\s*:')
+        default = re.compile(r'^default\s*:\s*')
+        case = re.compile(r'case\s+(?P<Nobreak>(nobreak)?)(?P<VALUE>.+):')
+
+    load = re.compile(r'(?P<indent>\s*)load \s*(\w+,?)?')
+
+    memory_loc = re.compile(r'[,\(\[\{\+=: ]&(?P<var>\w+)')
+
+    until = re.compile(r'(?P<Indent>\s*)until \s*(?P<Expression>.+):(?P<Rest>.*)')
+
+    unless = re.compile(r'(?P<Indent>\s*)unless \s*(?P<Expression>.+):(?P<Rest>.*)')
+
+    foreach = re.compile(r'foreach \s*(?P<Expression>.+):')
+
+    func = re.compile(r'func \s*(?P<Expression>.+)')
+
+    const = re.compile(r'(?P<Indent>\s*)const\s+(?P<VarName>\w+)\s*=\s*(?P<Value>.+)\s*')
+
+    const_array = re.compile(r'(?P<Indent>\s*)(?P<VarName>\w+)\s*=\s*<(?P<Content>.*)>')
+
+    class DoWhile:
+        do = re.compile(r'(?P<Indent>\s*)do\s*:\s*')
+        while_ = re.compile(r'while\s*\(.+\)')
+
+    array = re.compile(r'(?P<Indent>\s*)array \s*(?P<VarName>\w+)\s*\[\s*((?P<Length>\w+)?\s*(:?\s*(?P<Type>\w+))?\s*)?\]\s*=\s*{(?P<Content>.*)}\s*')
+
+    class Commands:
+
+        check = re.compile(r'(?P<Indent>\s*)\$check \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?( \s*anyway(s)? (?P<Anyway>.+))?')
+
+        checkwait = re.compile("r'(?P<Indent>\s*)\$checkwait \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?( \s*anyway(s)? (?P<Anyway>.+))?'")
+
+        cmd = re.compile(r'(?P<Indent>\s*)\$cmd \s*(?P<Command>.+)')
+
+        call = re.compile(r'(?P<Indent>\s*)\$call (?P<Function>.+) \s*in \s*(?P<Time>.+)')
+
+        _clear = NotImplemented
+
+
+
+
+
 #< Method,Module_Name,Print,Indent,Const >#
 def define_structure(SOURCE, FILE, DEBUG):
     """"""
@@ -231,6 +282,8 @@ def define_structure(SOURCE, FILE, DEBUG):
     return (SOURCE,
             MODULE_VERSION, MODULE_SHORTCUT,
             TYPE_SCANNER, INFO)
+
+
 
 
 
