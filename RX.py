@@ -149,6 +149,7 @@ class ERRORS:
 
 
 
+#< List of all regex patterns >#
 class REGEX:
 
     _INCLUDE = ...
@@ -193,7 +194,8 @@ class REGEX:
         _clear = NotImplemented
 
 
-#< Get Arguments >#
+
+#< Processing arguments and tasks >#
 class ArgumentParser:
     """
     All the methods related to parsing arguments of terminal should be implemented here
@@ -279,6 +281,7 @@ class ArgumentParser:
 
         return (task,task_args)
 
+
     @staticmethod
     def run_task(task:str,args:list):
         """Runs the given task from function with giving the required arguments"""
@@ -286,13 +289,13 @@ class ArgumentParser:
             "console"  :  Tasks.Console,
             "translate":  Tasks.translate_only,
             "compile"  :  NotImplemented,
-            "runfile"  :  NotImplemented,
+            "runfile"  :  Tasks.runfile,
         }
         return tasks_dict[task](*args)
 
 
 
-#< Menu >#
+#< Implementation of tasks >#
 class Tasks:
 
     #] Interactive RX Shell
@@ -424,7 +427,7 @@ class Tasks:
 
     @staticmethod
     def translate_only(path:str, cache, debug, verbose, compile):
-        source = translate(path, cache, debug, verbose)
+        source = convert_source(path, cache, debug, verbose)
         py_file_path = path.removesuffix(".rx")+".py"
         # if rx.files.exists(py_file_path):
             # print(f"{py_file_path} Already exists...")
@@ -440,7 +443,7 @@ class Tasks:
 
     @staticmethod
     def runfile(path, cache, debug, verbose):
-        source = translate(path, cache, debug, verbose)
+        source = convert_source(path, cache, debug, verbose)
         ready_file_name = convert_file_name(path)
 
         rx.write(ready_file_name, source)
@@ -478,20 +481,8 @@ class Tasks:
 
 
 
-#< Reading File >#
-def Read_File(filepath):
-    if filepath and rx.files.exists(filepath):
-        with open(filepath) as f:
-            SOURCE = f.read().split('\n')
-        return SOURCE + ['\n']
-    print(os.path.abspath(filepath), 'red')
-    print(f"RX> can't open file '{filepath}': No such file", 'red') #or directory
-    sys.exit()
-
-
-
 #< Method,Module_Name,Print,Indent,Const >#
-def Define_Structure(SOURCE, FILE, DEBUG):
+def define_structure(SOURCE, FILE, DEBUG):
     """"""
     """
     BASE OPTIONS:
@@ -711,7 +702,7 @@ def Define_Structure(SOURCE, FILE, DEBUG):
 
 
 #< Syntax >#
-def Syntax(SOURCE,
+def syntax(SOURCE,
            MODULE_VERSION ,  MODULE_SHORTCUT,
            TYPE_SCANNER   ,
            FILE           ,  DEBUG):
@@ -1170,7 +1161,7 @@ def Syntax(SOURCE,
 
 
 #< Check cache availablity >#
-def Cache_Check(cache:bool, path:str, debug:bool, verbose:bool):
+def get_cache(cache:bool, path:str, debug:bool, verbose:bool):
     if not cache:
         return False
 
@@ -1195,36 +1186,35 @@ def Cache_Check(cache:bool, path:str, debug:bool, verbose:bool):
 
 
 #< Translate Source (and write cache) >#
-def Convert_Source(source:list, path:str, cache:bool, debug:bool, verbose:bool):
+def translate(source:list, path:str, cache:bool, debug:bool, verbose:bool):
     # global TIMES, Lines_Added
     source, module_version, module_shortcut, \
-        type_scanner, info = Define_Structure(source, path, debug)
+        type_scanner, info = define_structure(source, path, debug)
     TIMES['DefStr'] = time.time()-START_TIME
 
-    source, threads = Syntax(source, module_version, module_shortcut,
+    source, threads = syntax(source, module_version, module_shortcut,
                              type_scanner, path, debug)
     TIMES['DefStr'] = time.time()-START_TIME
 
     source = '\n'.join(source)
     rx.write('translated', source)
 
-    if cache:
-        if debug:
-            print("[*] Creating Cache")
-        save_cache(path, source)
-
     return source,threads,info
 
 
 
 #< Translate >#
-def translate(path, cache, debug, verbose):
-    source = Cache_Check(cache, path, debug, verbose)
+def convert_source(path, cache, debug, verbose):
+    source = get_cache(cache, path, debug, verbose)
     threads = []
     info = {}
     if not source:
         source = rx.read(path).split("\n")
-        source,threads,info = Convert_Source(source, path, cache, debug, verbose)
+        source,threads,info = translate(source, path, cache, debug, verbose)
+        if cache:
+            if debug:
+                print("[*] Creating Cache")
+            save_cache(path, source)
     for thread in threads:
         thread.join()
 

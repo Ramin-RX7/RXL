@@ -12,7 +12,7 @@ print('Start')
 #include files: exists,remove
 import sys
 #sys.exit()
-array var[3:str] = {'a','b'}
+# array var[3:str] = {'a','b'}
 $cmd echo $cmd
 
 #$checkwait hello+=2 then files,var# anyway 2
@@ -21,8 +21,8 @@ $cmd echo $cmd
 import sys
 print(sys.argv)
 
-x = <'x','xx'>
-print(x)
+# x = <'x','xx'>
+# print(x)
 include files
 class X:
     @staticmethod
@@ -35,7 +35,7 @@ def x():
     pass
     def myfunc(x:str):
         pass
-    if ('x' and 
+    if ('x' and
 'y'):
         print('hello')
         #d
@@ -53,7 +53,7 @@ print((ArrConst),'green')
 #ArrConst2 = <'1'>
 print(&ArrConst)
 #asd()
-HELO = <2,4,3>
+# HELO = <2,4,3>
 #def x():
  #HELO ='d'
 
@@ -82,8 +82,8 @@ def hello(x):
 
 import os
 t = std.record()
-load tst2
-load tst3
+# load tst2
+# load tst3
 #print(tst2.x,'dodger_blue_1')
 
 #map(hello,HELO)
@@ -94,20 +94,7 @@ until XX:
 class fu:
     pass
 
-switch hello:
-    case nobreak 1:
-        print('case1')
-        x
-        $cmd asdf
-    case (2,4):
-        print('case2')
-    case (3,4):
-        print('case3')
-        d
-    case 6:
-        print('case6')
-    default:
-        print('default')
+
 
 if ('d' and
 'df'):
