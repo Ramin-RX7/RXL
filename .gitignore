@@ -1,18 +1,14 @@
 # Custom
 .vscode/
 .vscode-test/
-__RX_LC__/
-Programs/
-*.exe
 _Console_.py
 translated
 Sec.SQ
-# MODULE.py
-# tst*.*
-output/
-Parsing-Test/PEGs/tst.py
+Parsing-Test/PEGs/test.py
 Eso_BluePrint.txt
 RegexDoc.py
+# tst*.*
+# __RX_LC__/
 
 
 
