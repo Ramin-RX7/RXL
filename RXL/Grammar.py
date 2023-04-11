@@ -257,7 +257,8 @@ def define_structure(SOURCE, FILE, DEBUG):
     STRING.append(f"Check_Type = {MODULE_SHORTCUT}.Check_Type")
     #] Other ones
     if not map_defd:
-        STRING.append("apply = __builtins__['map'] ; map = None")
+        # STRING.append("apply = __builtins__['map'] ; map = None")
+        STRING.append("apply = map ; map = None")
     for key,value in INFO.items():
         STRING.append(f"setattr(std,'{key}','{value}')")
 

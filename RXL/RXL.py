@@ -1,15 +1,12 @@
 import os
 import time
 import sys
-import re
-from typing import Literal
 
 from addict import Addict
 from tap import Tap
 
 from .lib import *
 from . import Grammar
-from . import Errors
 
 
 
@@ -22,7 +19,7 @@ START_TIME = time.time()
 print = rx.style.print
 Error = rx.style.log_error
 
-RX_PATH = os.path.abspath(__file__)[:-6]
+RX_PATH = os.path.abspath(__file__)[:-7]
 
 
 Lines_Added = 0
@@ -195,9 +192,10 @@ class Tasks:
         TIMES['B_Run '] = time.time()-START_TIME
         for k,v in TIMES.items(): print(f'{k} :: {v}','green')
 
-        import runpy
         try:
-            runpy.run_path(ready_file_name)
+            import runpy
+            # runpy.run_path(ready_file_name)
+            rx.terminal.run(f"python {ready_file_name}")
         except Exception as e:
             raise e
             print('Traceback (most recent call last):')

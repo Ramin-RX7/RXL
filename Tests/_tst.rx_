@@ -1,5 +1,0 @@
-import rx7 as std;std = rx = std;std.RXL = __import__('RXL');print = std.style.print;input = std.Input;Check_Type = std.Check_Type;apply = __builtins__['map'] ; map = None;setattr(std,'Version','1.0.0');setattr(std,'Author','rawmi');setattr(std,'Title','tst')
-i = 0
-while not (i<5):
-    print(i)
-    i += 1
