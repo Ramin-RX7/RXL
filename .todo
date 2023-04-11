@@ -1,5 +1,7 @@
 [MAIN]
-    ☐ Switch to `nuitka` from `pyinstaller` and `cxfreeze`
+    ☐ @med @hard add a README
+    ☐ @high @norm Better `test` implementation
+    ☐ @med @norm Switch to `nuitka` from `pyinstaller` and `cxfreeze`
     ☐ @med Check syntax erros with fuzzy string matching
     ☐ @med Be [more] based on OOP
     ☐ @low @easy apply the own type of iterable after using apply()
@@ -48,10 +50,12 @@
         ☐ @med Const Func: Accepts args only with the name and type that is specified
         !  @med After NameError rest of code will be ignored
 
-    Install.py:
-      ☐ @easy Check for python path
-      ☐ @easy Check to see if python path and python/scripts/ are in PATH
-      ☐ @easy Copy Files to python/scripts/
+    Installation:
+      1. Script method
+        ☐ scripts/RXL.exe
+        ☐ All the `RXL` modules should be in the package dir (lib/site-packages/RXL/)
+      2. Stand-alone method
+        ☐ Add directory to the path
 
 
 

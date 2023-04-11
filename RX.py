@@ -6,11 +6,7 @@ from typing import Literal
 
 from addict import Addict
 from tap import Tap
-
 from RXL import *
-
-
-
 
 
 __version__ = '0.0.1'
@@ -52,7 +48,6 @@ class ArgumentParser:
         _module_test  : bool = False    # Module test (Internal use only)
         # file_args : list[str]         # arguments to pass to given file
             # instead we use `self.extra_args`
-
 
         def configure(self):
             self.add_argument("file", nargs="?")
@@ -105,15 +100,21 @@ class ArgumentParser:
         if len(sys.argv) == 1:
             task = "console"
             task_args = []
-        elif args.translate_only:
-            task = "translate"
-            task_args = [args.file, args.cache, args.debug, args.verbose, args.compile]
-        elif args.compile:
-            task = "compile"
-            task_args = [args.file]
+
+        if args.file:
+            if args.translate_only:
+                task = "translate"
+                task_args = [args.file, args.cache, args.debug, args.verbose, args.compile]
+            elif args.compile:
+                task = "compile"
+                task_args = [args.file]
+            else:
+                task = "runfile"
+                task_args = [args.file, args.cache, args.debug, args.verbose]
+
         else:
-            task = "runfile"
-            task_args = [args.file, args.cache, args.debug, args.verbose]
+            task = "console"
+            task_args = []
 
         return (task,task_args)
 
@@ -141,13 +142,12 @@ class Tasks:
 
         from importlib import reload
 
-        #rx.system.chdir(RX_PATH)
         CWD = rx.system.cwd()
 
         PRE= ['import rx7 as rx','std=rx','print = std.style.print']
         rx.write(f'{CWD}/_Console_.py', '\n'.join(PRE)+'\n')
-        import _Console_
-        # _Console_ = __import__("_Console_") importlib.import_module("_Console_")
+        # import _Console_   importlib.import_module("_Console_")
+        _Console_ = __import__("_Console_")
         while True:
             try:
                 new = rx.io.wait_for_input('RX:Console> ')
@@ -410,9 +410,9 @@ if __name__ == "__main__":
         TIMES['SetEnv'] = time.time()-START_TIME
 
         ARGS  = ArgumentParser.parse_args()
+        # print(ARGS)
         TASK,TASK_ARGS = ArgumentParser.detect_task(Addict(ARGS))
         TIMES['ARGS  '] = time.time()-START_TIME
-        # print(TIMES)
         ArgumentParser.run_task(TASK,TASK_ARGS)
         print(TIMES)
 
