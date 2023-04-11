@@ -7,6 +7,7 @@ Sec.SQ
 Parsing-Test/PEGs/test.py
 Eso_BluePrint.txt
 RegexDoc.py
+node_modules/
 # tst*.*
 # __RX_LC__/
 
