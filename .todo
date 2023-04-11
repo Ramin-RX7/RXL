@@ -1,7 +1,8 @@
 [MAIN]
     ☐ @med @hard add a README
     ☐ @high @norm Better `test` implementation
-    ☐ @med @norm Switch to `nuitka` from `pyinstaller` and `cxfreeze`
+    ☐ Compile implementation
+        ☐ @med @norm Switch to `nuitka` from `pyinstaller` and `cxfreeze`
     ☐ @med Check syntax erros with fuzzy string matching
     ☐ @med Be [more] based on OOP
     ☐ @low @easy apply the own type of iterable after using apply()

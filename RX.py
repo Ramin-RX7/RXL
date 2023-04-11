@@ -22,6 +22,7 @@ RX_PATH = os.path.abspath(__file__)[:-6]
 Lines_Added = 0
 TIMES = {}
 CACHE_DIR = "__pycache__"
+CONSOLE_FILE = "_console_.py"
 
 
 
@@ -44,7 +45,7 @@ class ArgumentParser:
         debug   : bool =  False     # Debug file/code/syntax Before running it and print Mistakes in Red color
         compile : bool =  False     # Goes to `compile` menu
         translate_only: bool = False    # Translate file to python (without running it)
-        #create_lite
+        #create_mini_std
         _module_test  : bool = False    # Module test (Internal use only)
         # file_args : list[str]         # arguments to pass to given file
             # instead we use `self.extra_args`
@@ -97,10 +98,9 @@ class ArgumentParser:
     @staticmethod
     def detect_task(args:Addict):
         """Returns what task should be done. also returns needed arguments"""
-        if len(sys.argv) == 1:
-            task = "console"
-            task_args = []
-
+        # if len(sys.argv) == 1:
+            # task = "console"
+            # task_args = []
         if args.file:
             if args.translate_only:
                 task = "translate"
@@ -138,129 +138,22 @@ class Tasks:
     #] Interactive RX Shell
     @staticmethod
     def Console():
-        rx.terminal.set_title('RX - Console')
-
-        from importlib import reload
-
-        CWD = rx.system.cwd()
-
-        PRE= ['import rx7 as rx','std=rx','print = std.style.print']
-        rx.write(f'{CWD}/_Console_.py', '\n'.join(PRE)+'\n')
-        # import _Console_   importlib.import_module("_Console_")
-        _Console_ = __import__("_Console_")
-        while True:
-            try:
-                new = rx.io.wait_for_input('RX:Console> ')
-                if new.lower() in ('exit','quit','end'):
-                    rx.files.remove(f'{CWD}/_Console_.py')
-                    return
-            except (KeyboardInterrupt,EOFError):
-                rx.files.remove(f'{CWD}/_Console_.py')
-                return
-
-            rx.write(f'{CWD}/_Console_.py', new+'\n', 'a')
-
-            try:
-                reload(_Console_)
-            except (EOFError,KeyboardInterrupt):
-                return
-            except Exception as e:
-                ERROR = str(e)
-                if '(_Console_.py,' in ERROR:
-                    ERROR = ERROR[:ERROR.index('(_Console_.py,')]
-                print(str(type(e))[8:-2]+':  ' + ERROR, 'red')
-                rx.write(f'{CWD}/_Console_.py', '\n'.join(rx.read(f'{CWD}/_Console_.py').splitlines()[:-1])+'\n')
-
-            if re.match(r'print\s*\(', rx.read(f'{CWD}/_Console_.py').splitlines()[-1].strip()):
-                rx.write(f'{CWD}/_Console_.py', '\n'.join(rx.read(f'{CWD}/_Console_.py').splitlines()[:-1])+'\n')
-
-
-    @staticmethod
-    def Create_SLModule():
         raise NotImplementedError
-        import inspect
-        import rx7 as STD  #lite
-        File = rx.io.get_files('Enter listed functions file name:  ',times=1)[0]
-        output = 'RXSL.py'
-
-        Main = 'import os,time,sys,subprocess,random,shutil\n\n'
-
-        Files      = 'class Files:'
-        Terminal   = 'class Terminal:'
-        Record     = 'class Record:'
-        Random     = 'class Random:'
-        IO         = 'class IO:'
-        Style      = 'class Style:'
-        Decorator  = 'class Decorator:'
-        System     = 'class System:'
-        # files.isdir
-        classes = {'files':Files,'terminal':Terminal,'record':Record,
-                'random':Random, 'io':IO,'style':Style,
-                'decorator':Decorator,'system':System
-                }
-        classes_names = list(classes.keys())
-
-        for line in rx.read(File).split('\n'):
-            if line:
-                for cls in classes_names:
-                    if line.startswith(cls):
-                        try:
-                            classes[cls] += '\n'+inspect.getsource(eval('STD.'+line))
-                        except AttributeError:
-                            print(f"Warning:  '{line[line.index('.')+1:]}' not found in STD.{cls}",'red')
-                        break
-                else:
-                    try:
-                        Main += inspect.getsource(eval('STD.'+line))+'\n'
-                    except (NameError):
-                        print(f"Warning:  '{line}' not found in STD.",'red')
-
-        for name,cls in classes.items():
-            if not len(cls.split('\n'))==1:
-                Main += '\n\n'+cls+'\n'+f'{name} = {name.capitalize()}'+'\n'
-
-        rx.write(output,Main)
-        print(f'Module has been created successfully', 'green')
 
 
+    #] Create a module with custom std files
+    @staticmethod
+    def Create_Mini_Std():
+        raise NotImplementedError
+
+
+    #] Compiling .rx given file to bytecode
     @staticmethod
     def compile(FILE=None):
         raise NotImplementedError
-        File = FILE if FILE else rx.io.get_files('Enter File Path:  ',times=1)[0]
-        File = rx.files.abspath(File)
-        #print(File)
-        rx.terminal.run(f'python rx.py -T2P {File}')
-        File = File[:File.rindex('.')]+'.py'
-
-        Compiler = rx.io.selective_input('Compiler? [1-cx_freeze,2-pyinstaller]  ',
-                                         choices={'1':'cxfreeze','2':'pyinstaller'},error=True)
-        Icon = input('Icon Path:  ')
-        Path = input('Path to save file:  ')
-
-        if Compiler == 'cxfreeze':
-            Icon = '--icon '+Icon if Icon else ''
-            Path = '--target-dir '+Path if Path else ''
-            Default_Args = '-s'
-            Onefile  = ''
-            Windowed = ''
-        if Compiler == 'pyinstaller':
-            Icon = '-i '+Icon if Icon else ''
-            Path = '--specpath '+Path if Path else ''
-            Onefile  = rx.io.selective_input('Onefile? [1-One File, 2-One Directory]  ',
-                                             choices=['1','2'],error=True)
-            Onefile  = '--onefile' if Onefile=='1' else '--onedir'
-            Windowed = rx.io.selective_input('Window? [1-Console,2-Hide Console]  ',
-                                             choices=['1','2'],error=True)
-            Windowed = '--console' if Windowed=='1' else '--windowed'
-            Default_Args = '-y'
-        Args = input('Enter other arguments:  ')
-        rx.terminal.run(f"{Compiler} {File} {Path} {Icon} {Default_Args} {Onefile} {Windowed} {Args}")
-        print("\n\n[*] Done")
-        print("Press Enter to Continue")
-        rx.io.getpass("")
-        print()
 
 
+    #] only translating file to python code (if compile==True also compiles it)
     @staticmethod
     def translate_only(path:str, cache, debug, verbose, compile):
         source = convert_source(path, cache, debug, verbose)
@@ -277,6 +170,7 @@ class Tasks:
         TIMES["TRANSLATE_ONLY"] = time.time()-START_TIME
 
 
+    #] running the file given as terminal argument
     @staticmethod
     def runfile(path, cache, debug, verbose):
         source = convert_source(path, cache, debug, verbose)
@@ -330,12 +224,12 @@ def Setup_Env():     #]  0.000 (with .hide():0.003)
 
 
 #< Check cache availablity >#
-def get_cache(cache:bool, path:str, debug:bool, verbose:bool):
-    if not cache:
+def get_cache(cache:str|False, path:str, debug:bool, verbose:bool):
+    if cache is False:
         return False
 
     ready_file_name = convert_file_name(path)
-    full_ready_path = f"./{CACHE_DIR}/{ready_file_name}"
+    full_ready_path = f"./{cache}/{ready_file_name}"
 
     cache_file =  rx.files.exists(full_ready_path)
     if cache_file:
@@ -354,10 +248,10 @@ def get_cache(cache:bool, path:str, debug:bool, verbose:bool):
 
 
 #< Save cache of `path` >#
-def save_cache(path, source):
+def save_cache(path, source, cache_dir):
     id = str(int(rx.files.mdftime(path)))
     source = id + "\n" + source
-    rx.write(f"./{CACHE_DIR}/{convert_file_name(rx.files.basename(path))}",source)
+    rx.write(f"./{cache_dir}/{convert_file_name(rx.files.basename(path))}",source)
 
 
 
@@ -381,6 +275,8 @@ def translate(source:list, path:str, cache:bool, debug:bool, verbose:bool):
 
 #< Translate >#
 def convert_source(path, cache, debug, verbose):
+    if cache:
+        cahce = CACHE_DIR
     source = get_cache(cache, path, debug, verbose)
     threads = []
     info = {}
@@ -390,7 +286,7 @@ def convert_source(path, cache, debug, verbose):
         if cache:
             if debug:
                 print("[*] Creating Cache")
-            save_cache(path, source)
+            save_cache(path, source, cache)
     for thread in threads:
         thread.join()
 
