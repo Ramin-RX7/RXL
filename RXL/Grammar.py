@@ -1,5 +1,5 @@
 import re
-from . import *
+from .lib import *
 from . import Errors as ERRORS
 
 CLASSES = (

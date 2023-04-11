@@ -6,7 +6,13 @@ from typing import Literal
 
 from addict import Addict
 from tap import Tap
-from RXL import *
+
+from .lib import *
+from . import Grammar
+from . import Errors
+
+
+
 
 
 __version__ = '0.0.1'
@@ -224,7 +230,7 @@ def Setup_Env():     #]  0.000 (with .hide():0.003)
 
 
 #< Check cache availablity >#
-def get_cache(cache:str|False, path:str, debug:bool, verbose:bool):
+def get_cache(cache:str, path:str, debug:bool, verbose:bool):
     if cache is False:
         return False
 
@@ -276,7 +282,7 @@ def translate(source:list, path:str, cache:bool, debug:bool, verbose:bool):
 #< Translate >#
 def convert_source(path, cache, debug, verbose):
     if cache:
-        cahce = CACHE_DIR
+        cache = CACHE_DIR
     source = get_cache(cache, path, debug, verbose)
     threads = []
     info = {}
@@ -297,8 +303,8 @@ def convert_source(path, cache, debug, verbose):
 
 
 #< START OF THE CODE >#
-if __name__ == "__main__":
-
+# if __name__ == "__main__":
+def main():
     try:
         TIMES['Start '] = time.time()-START_TIME
 

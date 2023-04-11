@@ -1,5 +1,5 @@
 import sys
-from . import *
+from .lib import *
 
 Error = rx.style.log_error
 

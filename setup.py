@@ -5,18 +5,27 @@ with open("README.md", "r") as fh:
 
 s = setup(
     name = "RXL",
+    description = "RXL Features",
     version = "0.0.2",
     license = "LGPL",
-    description = "RXL Features",
-    url = "https://github.com/Ramin-RX7/RX-Language/tree/master/RXL/",
+    url = "https://github.com/Ramin-RX7/RX-Language/",
+    author = "Ramin RX7",
+    author_email = "rawmin.rx@gmail.com",
+
     packages = find_packages(),
     install_requires = [],
     python_requires = ">= 3.8",
-    author = "Ramin RX7",
-    author_email = "rawmin.rx@gmail.com",
+
     classifiers = [
         'Programming Language :: Python :: 3',
     ],
+
     long_description = long_descriptions,
     long_description_content_type = "text/markdown",
-    )
+
+    entry_points={
+        'console_scripts': [
+            'RXL = RXL.RXL:main',
+        ],
+    },
+)

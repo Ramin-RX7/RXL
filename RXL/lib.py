@@ -14,6 +14,7 @@ def convert_file_name(file):
     #'‎'+FILE+'‎' THERE IS INVISIBLE CHAR IN QUOTES
 
 
+
 class rx:
     @staticmethod
     def cls():
@@ -40,8 +41,8 @@ class rx:
     class Terminal:
         run = os.system
         getoutput = __import__('subprocess').getoutput
-        set_title = __import__('win32api').SetConsoleTitle
-        get_title = __import__('win32api').GetConsoleTitle
+        # set_title = __import__('win32api').SetConsoleTitle
+        # get_title = __import__('win32api').GetConsoleTitle
     terminal = Terminal
 
 
