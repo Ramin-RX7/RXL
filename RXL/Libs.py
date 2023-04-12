@@ -315,61 +315,7 @@ class array(list):
 
 class _Lang:
 
-    class Constant:
-        def __new__(cls,*args,array=True):
-            cls._init = False
-            return super(_Lang.Constant, cls).__new__(cls)
-        def __init__(self,*args,array=True):
-            '''
-            if array:
-                self.__members =  args
-            else:
-                if len(args) > 1:
-                    raise ValueError
-                self.__members = args[0]
-            '''
-            self.__members = args
-            self._init = True
-
-        def __str__(self):
-            #if len(self.__members) > 1:
-                return '<'+str(self.__members)[1:-1]+'>'  #‹›
-            #return self.__members
-        def __repr__(self):
-            return '<'+str(self.__members)[1:-1]+'>'
-
-        def __setattr__(self,_attr,value):
-            if self._init:
-                raise AttributeError(f"'Constant' object does not support item assignment")
-            else:
-                super(_Lang.Constant,self).__setattr__(_attr,value)
-
-        def __getitem__(self,index):
-            return self.__members[index]
-        def __contains__(self,obj):
-            return obj in self.__members
-        def __bool__(self):
-            return bool(len(self.__members))
-        #'''
-        def __hash__(self):
-            return hash(tuple(['Constant',len(self)]+list(self.__members)))
-        #'''
-        def __len__(self):
-            #if type(self.__members) == tuple:
-                return len(self.__members)
-
-        def _dict_getter(self):
-            raise AttributeError("Conatant object has no attribute '__dict__'")
-            #return {}
-        __dict__ = property(_dict_getter)
-
-        def __dir__(self):
-            ret = list(super().__dir__())#[:-2]
-            ret.remove('_init')
-            ret.remove('_dict_getter')
-            return ret
-    const = Const = constant = Constant
-
+    apply = lambda f,iterable: type(iterable)(__import__("builtins").map(f,iterable))
 
     class Types:
         Str         =  str
@@ -410,5 +356,3 @@ class _Lang:
         #Union  = _typing.Union
         #_types.AsyncGeneratorType
     types = Types
-#setattr(_Lang,'Const',type(_Lang.Constant(1)))
-#setattr(_Lang,'Array',type(_Lang.Array(1,1)))

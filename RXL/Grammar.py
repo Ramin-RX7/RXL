@@ -1,5 +1,5 @@
 import re
-from .Lib import *
+from .Libs import *
 from . import Errors as ERRORS
 
 
@@ -75,12 +75,11 @@ def define_structure(SOURCE, FILE, DEBUG):
     """"""
     """
     BASE OPTIONS:
-      OPTION NAME       DEFAULT VALUE       DESCRYPTION"
-      Module-Name       sc                  Shortcut for RX Tools and functions (also "Modulename")'
-      Print             stylized            Print function to use. Valid Choices: [normal,stylized]'
-      Func_Type_Checker True                Check if arguments of a function are in wrong type'
-                                              (REGEX:  (func|function)-?(type|arg|param)-?(scanner|checker) )'
-      Exit              True                Exit after executing the code or not'
+      OPTION NAME        DEFAULT VALUE       DESCRYPTION"
+      Lib-Name           sc                  Shortcut for RXL Tools and functions (also "Modulename")'
+      Print              stylized            Print function to use. Valid Choices: [normal,stylized]'
+      func-type-checker  True                Check if arguments of a function are in wrong type'
+      End-Exit           True                Exit after executing the code or not'
       #Method            normal              Method of loading tools.'
       #                                        Valid Choices: [normal,[lite,fast]] (also "Package-Version)"'
 
@@ -88,6 +87,7 @@ def define_structure(SOURCE, FILE, DEBUG):
     """
 
     IndentCheck.check(FILE)
+
 
     #< OPTIONS >#
     LIB_VERSION  = 'rx7'
@@ -140,11 +140,11 @@ def define_structure(SOURCE, FILE, DEBUG):
                              rstrip, re.IGNORECASE):
             LIB_SHORTCUT = regex.group("name")
             if not re.match(r'\w+', LIB_SHORTCUT):
-                raise ERRORS.ValueError(msg='Invalid Value For  modulename/module_name',
+                raise ERRORS.ValueError(msg='Invalid Value For `Lib-Name`',
                                         File=FILE)
 
         #] Print Function Method
-        elif regex:=re.match(r'Print\s*:\s*(?P<type>.+)',
+        elif regex:=re.match(r'(P|p)rint\s*:\s*(?P<type>.+)',
                              rstrip, re.IGNORECASE):
             PRINT_TYPE = regex.group("type").lower()
             if not (PRINT_TYPE in ("normal","stylized")):
@@ -227,6 +227,7 @@ def define_structure(SOURCE, FILE, DEBUG):
 
         Changeable.append(nom)
         SOURCE[nom] = ''
+
 
     #] Bases
     STRING = []
@@ -387,6 +388,7 @@ def syntax(SOURCE,
 
         #] Load User-Defined Modules        # TODO: Better regex to get packages
         elif Stripped.startswith('load ')  or  Stripped=='load':
+            raise NotImplementedError
             #elif Regex:=re.match(r'(?P<indent>\s*)load \s*(\w+,?)?', Text):
             Regex = re.match(r'(?P<indent>\s*)load \s*(\w+,?)?', Text)
             if not Regex:

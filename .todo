@@ -1,11 +1,11 @@
 [MAIN]
-    ☐ @high @easy Change names from `RX` to `RXL`
     ☐ @easy @alpha Update RXL_CSG
     ☐ @hard @alpha add a README
     ☐ @high @norm @alpha Make a detailed documentation
         (even about smallest things)
     ☐ create_MiniStd implementation
     ☐ @low @easy apply the own type of iterable after using apply()
+        apply = lambda f,iterable: type(iterable)(map(f,iterable))
     ☐ @med @easy END OF LINES ERROR IN RED (EOL)
     ☐ @low @easy Run file with double clicking
     ☐ @high @hard Improve Exception Catching when runing file
@@ -19,6 +19,7 @@
     ✘?  Stop Imports
     ✘  No Break if there is python code in Base Lines
     ✘ CONST at the beginning
+    ✔ @high @easy Change names from `RX` to `RXL`
     ✔ @high @norm Better `test` implementation
     ✔ Better terminal argument parser implementation (maybe even using 3rd party modules)
     ✔ @easy Using __pycache__ dir for as cache dir
@@ -27,7 +28,7 @@
     Compile implementation:
         ☐ @med @norm Switch to `nuitka` from `pyinstaller` and `cxfreeze`
         ☐ exe doesn't accept args in `pyinstaller`
-        ☐ @med @easy "apply" instead of "map" --> Does not work when compiling with "pyinstaller"
+        ☐ @low @easy "apply" instead of "map" --> Does not work when compiling with "pyinstaller"
 
     Load Modules:
         ☐ @med What happens if we use cache and loaded module has changed
@@ -44,13 +45,6 @@
         ☐ @med Constants Check for Error
         ☐ @med Const Func: Accepts args only with the name and type that is specified
         !  @med After NameError rest of code will be ignored
-
-    Installation:
-      1. Script method
-        ☐ scripts/RXL.exe
-        ☐ All the `RXL` modules should be in the package dir (lib/site-packages/RXL/)
-      2. Stand-alone method
-        ☐ Add directory to the path
 
 
 

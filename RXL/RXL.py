@@ -5,7 +5,7 @@ import sys
 from addict import Addict
 from tap import Tap
 
-from .Lib import *
+from .Libs import *
 from . import Grammar
 
 
@@ -42,7 +42,7 @@ class ArgumentParser:
 
         All arguments and options are defined here
         """
-        file    : str  =  None      # path to `RX` file to run
+        file    : str  =  None      # path to `RXL` file to run
         cache   : bool =  True      # whether to use cache or not (using this will prevent using cache)
         verbose : bool =  False     # Verbose (Prints information when running RXL)
         debug   : bool =  False     # Debug file/code/syntax Before running it and print Mistakes in Red color
@@ -83,7 +83,7 @@ class ArgumentParser:
         """Returns parsed arguments of terminal"""
         parser = ArgumentParser.Parser(
                     prog = "RXL",
-                    description='"RX Language complete app"',
+                    description='"RX Language app"',
                     underscores_to_dashes=True,
                     # allow_abbrev=True,
                 ).parse_args(
@@ -138,7 +138,7 @@ class ArgumentParser:
 #< Implementation of tasks >#
 class Tasks:
 
-    #] Interactive RX Shell
+    #] Interactive RXL Shell
     @staticmethod
     def Console():
         raise NotImplementedError
@@ -185,7 +185,7 @@ class Tasks:
             #rx.cls()
             NOW = str(__import__('datetime').datetime.now())
             # probably consider changing next line from "NOW" to "START_TIME"
-            print(f'''Start  RX Language  at  "{NOW[:NOW.rindex('.')+5]}"''')
+            print(f'''Start `RXL` at "{NOW[:NOW.rindex('.')+5]}"''')
             # print(f'Running  "{INFO["Title"]}" v{INFO["Version"]}  by "{INFO["Author"]}"')
             print('\n')
 

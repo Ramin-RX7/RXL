@@ -33,7 +33,7 @@ RX-Language  Coding Style Guide
   # Wrong:
   if greeting == True: pass
   if greeting is True: pass
-+ Type Checking is ignored in RX like Python but
++ Type Checking is ignored in RXL like Python but
   there is an option named Func_Type_Scanner which you can check
   wether function arguments are passed with correct type or not
 + Variable Annotations:
@@ -363,7 +363,7 @@ RX-Language  Coding Style Guide
       (Remember that it's not Private)
 
     + single_trailing_underscore_ is for when variables/arguments have
-      the same name of RX/Python keyword names
+      the same name of RXL/Python keyword names
       # Correct
       def func(class_): pass
       switch_ = 1
