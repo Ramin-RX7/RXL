@@ -2,13 +2,16 @@ Title  :  AppTitle> Short description of app
 Version:  0.1.2
 Author :  Ramin-RX7
 
-Module-Name : ms
+Module-Name : sc
 Print : Stylized
 Func-Type-Checker: True
 End-Exit : True
 
 
-print('Start')
+print('START\n')
+
+# Module-Name and Print-Style
+print(sc.system.cwd(), style="bold")
 
 #] Include
 ...
@@ -65,9 +68,9 @@ $cmd echo $cmd hello
 #] $call
 def f(x="!"):
     print("$call", x)
-$call f in 2
+$call f in 1
 
 #] $cls
 # $clear
 
-print('End')
+print('\nEND')

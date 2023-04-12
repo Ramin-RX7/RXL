@@ -2,6 +2,11 @@ import re
 from .Lib import *
 from . import Errors as ERRORS
 
+
+
+print = rx.style.print
+Error = rx.style.log_error
+
 CLASSES = (
            ['Files'   , 'System', 'Random'    , 'Record', 'Style'   ,
             'Terminal', 'Tuple' , 'Decorator' , 'IO'    , 'Internet',
@@ -72,76 +77,25 @@ def define_structure(SOURCE, FILE, DEBUG):
     BASE OPTIONS:
       OPTION NAME       DEFAULT VALUE       DESCRYPTION"
       Module-Name       sc                  Shortcut for RX Tools and functions (also "Modulename")'
-      Method            normal              Method of loading tools.'
-                                              Valid Choices: [normal,[lite,fast]] (also "Package-Version)"'
       Print             stylized            Print function to use. Valid Choices: [normal,stylized]'
-    OPTIONS:'
-      OPTION NAME       DEFAULT VALUE       DESCRYPTION"
       Func_Type_Checker True                Check if arguments of a function are in wrong type'
                                               (REGEX:  (func|function)-?(type|arg|param)-?(scanner|checker) )'
       Exit              True                Exit after executing the code or not'
+      #Method            normal              Method of loading tools.'
+      #                                        Valid Choices: [normal,[lite,fast]] (also "Package-Version)"'
 
     "OPTIONS" SHOULD BE DEFINED AFTER "BASE OPTIONS"'
     """
-    #] Checking Indentation
-     # {???}autopep8 -i script.py
-     # import IndentCheck
+
     IndentCheck.check(FILE)
-    Skip = 0
-    for Line_Nom,Text in enumerate(SOURCE, 1):
-        #] When Adding An Extra Line Like Decorators
-        if Skip:
-            Skip = Skip-1
-            continue
-
-        Stripped = Text.strip()
-
-        # Ignore Docstrings and Comments
-        if Stripped.startswith('#'):
-            continue
-        elif '"""' in Text  and  not ("'''" in Text and Text.index('"""')>Text.index("'''")):
-            if not '"""' in Text[Text.index('"""')+3:]:
-                for line_in_str,text_in_str in enumerate(SOURCE[Line_Nom:],1):
-                    if '"""' in text_in_str:
-                        Skip = line_in_str
-                        #print(Skip)
-                        continue
-        elif "'''" in Text:
-            if not "'''" in Text[Text.index("'''")+3:]:
-                for line_in_str,text_in_str in enumerate(SOURCE[Line_Nom:],1):
-                    if "'''" in text_in_str:
-                        Skip = line_in_str
-                        #print(Skip)
-                        continue
-
-        #] Indent
-        if Stripped.endswith(':'):#.startswith(Keywords):
-            BREAK = False
-            LINE = int(Line_Nom)
-            while not BREAK:
-                if SOURCE[LINE-1].strip().endswith(':'):
-                    BREAK = True
-                else:
-                    LINE += 1
-
-            INDENT = len(re.match(r'(?P<indent>\s*).*', Text).group('indent'))
-            INDENT_START = len(re.match(r'(?P<indent>\s*).*', SOURCE[LINE]).group('indent'))
-            if INDENT_START <= INDENT:
-                #print('RX_Err','red')
-                raise ERRORS.IndentationError(Line_Nom+1, SOURCE[Line_Nom], FILE)
-
-        pass
-        if re.search(r'^(def)|(class)\s+map\s*\(',Stripped)  or  re.search(r'map\s*=\s*lambda\s+.+:',Stripped):
-            map_defd = True
-        else:
-            map_defd = False
 
     #< OPTIONS >#
     MODULE_VERSION  = 'rx7'
-    MODULE_SHORTCUT = 'std'#'sc'
+    MODULE_SHORTCUT = 'std'
     PRINT_TYPE = 'stylized'
     TYPE_SCANNER = False
     Allow_Reload = False
+    map_defd = False
     Changeable = []
     INFO = {
         'Version':'1.0.0',
@@ -151,24 +105,10 @@ def define_structure(SOURCE, FILE, DEBUG):
 
     for nom,line in enumerate(SOURCE[:10]):
 
-        r''' Normal|Lite
-            #] Get Version (Method) of Tools
-            elif re.match(r'(Method|Package(-|_)Version)\s*:\s*\w+', line):
-                #if BASED:
-                #    raise ERRORS.BaseDefinedError('Method/Version', line, SOURCE[:5].index(line), FILE)
-                StripLow = line.strip().lower()
-                if StripLow.endswith('lite') or StripLow.endswith('fast'):
-                    MODULE_VERSION = 'rx7.lite'
-                elif not StripLow.endswith('normal'):
-                    stripped = line[line.index(':')+1:].strip()
-                    raise ERRORS.ValueError(FILE, 'Method', stripped, line,
-                                        SOURCE[:5].index(line), ['lite','normal'])
-                SOURCE[nom] = ''
-                Changeable.append(nom)
-        '''
         rstrip = line.rstrip()
+        Stripped = line.strip()
 
-        if not line.strip() or line.strip().startswith('#'):
+        if (not Stripped)  or  Stripped.startswith('#'):
             pass
 
         #] Get Shortcut Name
@@ -227,6 +167,21 @@ def define_structure(SOURCE, FILE, DEBUG):
                 raise ERRORS.ValueError(FILE, 'Allow-Reload', flag, line,
                                         SOURCE.index(line)  , "[True,False]")
 
+        #] Get Version (Method) of Tools
+        elif regex:=re.match(r'(Method|Package(-|_)Version)\s*:\s*\w+', line):
+            raise NotImplementedError
+            #if BASED:
+            #    raise ERRORS.BaseDefinedError('Method/Version', line, SOURCE[:5].index(line), FILE)
+            StripLow = line.strip().lower()
+            if StripLow.endswith('lite') or StripLow.endswith('fast'):
+                MODULE_VERSION = 'rx7.lite'
+            elif not StripLow.endswith('normal'):
+                stripped = line[line.index(':')+1:].strip()
+                raise ERRORS.ValueError(FILE, 'Method', stripped, line,
+                                    SOURCE[:5].index(line), ['lite','normal'])
+            SOURCE[nom] = ''
+            Changeable.append(nom)
+
         #] Version
         elif Regex:=re.match(r'Version\s*:\s*(?P<Version>[0-9]+(\.[0-9]+)?(\.[0-9]+)?)',
                              rstrip, re.IGNORECASE):
@@ -239,6 +194,9 @@ def define_structure(SOURCE, FILE, DEBUG):
         elif Regex:=re.match(r'Author\s*:\s*(?P<Author>.+)',
                              rstrip, re.IGNORECASE):
             INFO['Author'] = Regex.group('Author')
+
+        elif re.search(r'^(def)|(class)\s+map\s*\(',Stripped)  or  re.search(r'^map\s*=',Stripped):
+            map_defd = True
 
         else:
             break
@@ -254,12 +212,12 @@ def define_structure(SOURCE, FILE, DEBUG):
     STRING.append(f"std = rx = {MODULE_SHORTCUT};std.RXL = __import__('RXL')")
     STRING.append(f"print = {MODULE_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}")
     #] Direct Attributes
-    STRING.append(F"input = {MODULE_SHORTCUT}.Input")
+    STRING.append(F"input = {MODULE_SHORTCUT}.selective_input")
     STRING.append(f"Check_Type = {MODULE_SHORTCUT}.Check_Type")
-    #] Other ones
+    #]
     if not map_defd:
-        # STRING.append("apply = __builtins__['map'] ; map = None")
         STRING.append("apply = map ; map = None")
+    #] App Info
     for key,value in INFO.items():
         STRING.append(f"setattr(std,'{key}','{value}')")
 
@@ -276,11 +234,8 @@ def define_structure(SOURCE, FILE, DEBUG):
         SOURCE.insert(0, ';'.join(STRING))
 
     if DEBUG and not len(Changeable):
-        print(f'{FILE}> No (Enough) Base-Option/Empty-lines at begining of file', 'red')
+        Error(f'{FILE}> No (Enough) Base-Option/Empty-lines at begining of file',add_time=False)
 
-    # rx.files.write(f'./__RX_LC__/_{os.path.basename(FILE)}_info_',str(rx.files.mdftime(FILE)))
-
-    #print(CONSTS)
     return (SOURCE,
             MODULE_VERSION, MODULE_SHORTCUT,
             TYPE_SCANNER, INFO)
@@ -395,12 +350,16 @@ def syntax(SOURCE,
             # continue  # do it to all?
 
         #] Func Type checker
-        elif Stripped.startswith('def ')   and  TYPE_SCANNER:  # Make it regex?
+        elif (Stripped.startswith('def ') or Stripped.startswith('func '))  and  TYPE_SCANNER:  # Make it regex?
+            if Stripped.startswith("func "):
+                SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('func', 'def', 1)
+                indent = Text.index("func ")
+            else:
+                indent = Text.index('def ')
             if SOURCE[Line_Nom-2].strip().endswith('Check_Type'):
                SOURCE[Line_Nom-2]= re.search(r'(\s*)',Text).group(1)+f'@std.Check_Type'
             if SOURCE[Line_Nom-2].strip().startswith('@'):
                 continue
-            indent = Text.index('def ')
             SOURCE.insert(Line_Nom-1, f'{" "*indent}@{MODULE_SHORTCUT}.Check_Type')
             Skip = 1
             Lines_Added += 1
@@ -738,3 +697,170 @@ def syntax(SOURCE,
 
         #print(f"{Line_Nom} :: {time.time()-t} {Striped[:5]}",'red')
     return SOURCE,THREADS
+
+
+
+
+
+class IndentCheck:
+    """
+    This Class is a copy of tabnanny module in standard library
+    About half of the methods that are not used are deleted from the code
+    SOURCE: https://github.com/python/cpython/blob/3.10/Lib/tabnanny.py
+    """
+    class NannyNag(Exception):
+        def __init__(self, lineno, msg, line):
+            self.lineno, self.msg, self.line = lineno, msg, line
+        def get_lineno(self):
+            return self.lineno
+        def get_msg(self):
+            return self.msg
+        def get_line(self):
+            return self.line
+
+    @staticmethod
+    def check(file):
+
+        try:
+            f = tokenize.open(file)
+        except OSError as msg:
+            return (False,f"I/O Error: {msg}")
+
+        try:
+            IndentCheck.process_tokens(tokenize.generate_tokens(f.readline))
+
+        except tokenize.TokenError as msg:
+            return (False,f"Token Error: {msg}")
+
+        except IndentationError as msg:
+            return (False,f"Indentation Error: {msg}")
+
+        except IndentCheck.NannyNag as nag:
+            badline = nag.get_lineno()
+            line = nag.get_line()
+            if ' ' in file: file = '"' + file + '"'
+            else: print(file, badline, repr(line))
+            return (False,)
+
+        finally:
+            f.close()
+
+        return (True,True)
+
+
+    class Whitespace:
+        S, T = ' ','\t'
+
+        def __init__(self, ws):
+            self.raw  = ws
+            S, T = IndentCheck.Whitespace.S, IndentCheck.Whitespace.T
+            count = []
+            b = n = nt = 0
+            for ch in self.raw:
+                if ch == S:
+                    n = n + 1
+                    b = b + 1
+                elif ch == T:
+                    n = n + 1
+                    nt = nt + 1
+                    if b >= len(count):
+                        count = count + [0] * (b - len(count) + 1)
+                    count[b] = count[b] + 1
+                    b = 0
+                else:
+                    break
+            self.n    = n
+            self.nt   = nt
+            self.norm = tuple(count), b
+            self.is_simple = len(count) <= 1
+
+        def longest_run_of_spaces(self):
+            count, trailing = self.norm
+            return max(len(count)-1, trailing)
+
+        def indent_level(self, tabsize):
+            count, trailing = self.norm
+            il = 0
+            for i in range(tabsize, len(count)):
+                il = il + i//tabsize * count[i]
+            return trailing + tabsize * (il + self.nt)
+
+        def equal(self, other):
+            return self.norm == other.norm
+
+        def not_equal_witness(self, other):
+            n = max(self.longest_run_of_spaces(),
+                    other.longest_run_of_spaces()) + 1
+            a = []
+            for ts in range(1, n+1):
+                if self.indent_level(ts) != other.indent_level(ts):
+                    a.append( (ts,
+                            self.indent_level(ts),
+                            other.indent_level(ts)) )
+            return a
+
+        def less(self, other):
+            if self.n >= other.n:
+                return False
+            if self.is_simple and other.is_simple:
+                return self.nt <= other.nt
+            n = max(self.longest_run_of_spaces(),
+                    other.longest_run_of_spaces()) + 1
+            for ts in range(2, n+1):
+                if self.indent_level(ts) >= other.indent_level(ts):
+                    return False
+            return True
+
+        def not_less_witness(self, other):
+            n = max(self.longest_run_of_spaces(),
+                    other.longest_run_of_spaces()) + 1
+            a = []
+            for ts in range(1, n+1):
+                if self.indent_level(ts) >= other.indent_level(ts):
+                    a.append( (ts,
+                            self.indent_level(ts),
+                            other.indent_level(ts)) )
+            return a
+
+    @staticmethod
+    def format_witnesses(w):
+        firsts = (str(tup[0]) for tup in w)
+        prefix = "at tab size"
+        if len(w) > 1:
+            prefix = prefix + "s"
+        return prefix + " " + ', '.join(firsts)
+
+    @staticmethod
+    def process_tokens(tokens):
+        INDENT = tokenize.INDENT
+        DEDENT = tokenize.DEDENT
+        NEWLINE = tokenize.NEWLINE
+        JUNK = tokenize.COMMENT, tokenize.NL
+        indents = [IndentCheck.Whitespace("")]
+        check_equal = 0
+
+        for (type, token, start, end, line) in tokens:
+            if type == NEWLINE:
+                check_equal = 1
+
+            elif type == INDENT:
+                check_equal = 0
+                thisguy = IndentCheck.Whitespace(token)
+                if not indents[-1].less(thisguy):
+                    witness = indents[-1].not_less_witness(thisguy)
+                    msg = "indent not greater e.g. " + IndentCheck.format_witnesses(witness)
+                    raise IndentCheck.NannyNag(start[0], msg, line)
+                indents.append(thisguy)
+
+            elif type == DEDENT:
+                check_equal = 1
+
+                del indents[-1]
+
+            elif check_equal and type not in JUNK:
+                check_equal = 0
+                thisguy = IndentCheck.Whitespace(line)
+                if not indents[-1].equal(thisguy):
+                    witness = indents[-1].not_equal_witness(thisguy)
+                    msg = "indent not equal e.g. " + IndentCheck.format_witnesses(witness)
+                    raise IndentCheck.NannyNag(start[0], msg, line)

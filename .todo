@@ -1,10 +1,9 @@
 [MAIN]
     ☐ @high @easy Change names from `RX` to `RXL`
-    ☐ @med @easy Update RXL_CSG
-    ☐ @med @hard add a README
+    ☐ @med @easy @alpha Update RXL_CSG
+    ☐ @med @hard @alpha add a README
     ☐ create_MiniStd implementation
     ☐ @high @norm Better `test` implementation
-    ☐ @med Be [more] based on OOP
     ☐ @low @easy apply the own type of iterable after using apply()
     ☐ @med @easy END OF LINES ERROR IN RED (EOL)
     ☐ @low @easy Run file with double clicking
@@ -16,10 +15,10 @@
     ☐ @med @easy Ignore module loading output error
     ☐ @high @easy Annotations and Documentation (Docstring/Help)
     ?  @easy Cache use `hash` of file instead of `mdftime`
-    ?  @easy Check for cache in local directory of RX.py (not relative to running file)
+    ?  @easy Check for cache in local directory of RXL (not relative to running file)
     ?  @easy Blank line before all errors
     ?  &&  ---  ||
-    ?  A file to repair files (save all files in a zipfile)
+    ✘?  A file to repair files (save all files in a zipfile)
     ✘?  Stop Imports
     ✘  No Break if there is python code in Base Lines
     ✘ CONST at the beginning

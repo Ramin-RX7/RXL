@@ -313,7 +313,7 @@ def main():
         TASK,TASK_ARGS = ArgumentParser.detect_task(Addict(ARGS))
         TIMES['ARGS  '] = time.time()-START_TIME
         ArgumentParser.run_task(TASK,TASK_ARGS)
-        print(TIMES)
+        # print(TIMES)
 
 
     except KeyboardInterrupt:
