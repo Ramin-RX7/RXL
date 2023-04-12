@@ -94,6 +94,8 @@
 
 
 [Definde-Structure]
+    ☐ Allow reload implementation
+    ? set default cache flag
     ?✘ make a module out of defined structures and add `from module import *`
         (so only one line would be added to the file)
     ✔ improve regex
