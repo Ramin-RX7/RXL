@@ -90,32 +90,56 @@ def define_structure(SOURCE, FILE, DEBUG):
     IndentCheck.check(FILE)
 
     #< OPTIONS >#
-    MODULE_VERSION  = 'rx7'
-    MODULE_SHORTCUT = 'std'
+    LIB_VERSION  = 'rx7'
+    LIB_SHORTCUT = 'std'
     PRINT_TYPE = 'stylized'
     TYPE_SCANNER = False
-    Allow_Reload = False
+    # Allow_Reload = False
     map_defd = False
     Changeable = []
     INFO = {
-        'Version':'1.0.0',
-        'Author':rx.system.accname(),
-        'Title': FILE.split('/')[-1].split('.')[0]}
+        'Version':  '1.0.0',
+        'Author' :  rx.system.accname(),
+        'Title'  :  rx.files.basename().split(".")[0]}
     Skip = 0
+    end = False
 
     for nom,line in enumerate(SOURCE[:10]):
 
         rstrip = line.rstrip()
         Stripped = line.strip()
 
+        #] When Adding An Extra Line Like Decorators
+        if end:
+            break
+        if Skip:
+            Skip = Skip-1
+            continue
+        # Ignore Docstrings and Comments
         if (not Stripped)  or  Stripped.startswith('#'):
-            pass
+            continue
+        elif '"""' in line  and  not ("'''" in line and line.index('"""')>line.index("'''")):
+            if not '"""' in line[line.index('"""')+3:]:
+                for line_in_str,line_in_str in enumerate(SOURCE[nom:],1):
+                    if '"""' in line_in_str:
+                        Skip = line_in_str
+                if Skip > (10-nom):
+                    end = True
+                continue
+        elif "'''" in line:
+            if not "'''" in line[line.index("'''")+3:]:
+                for line_in_str,text_in_str in enumerate(SOURCE[nom:10],1):
+                    if "'''" in text_in_str:
+                        Skip = line_in_str
+                if Skip > (10-nom):
+                    end = True
+                continue
 
         #] Get Shortcut Name
-        elif regex:=re.match(r'Module-?Name\s*:\s*(?P<name>.+)',
+        elif regex:=re.match(r'Lib-?Name\s*:\s*(?P<name>.+)',
                              rstrip, re.IGNORECASE):
-            MODULE_SHORTCUT = regex.group("name")
-            if not re.match(r'\w+', MODULE_SHORTCUT):
+            LIB_SHORTCUT = regex.group("name")
+            if not re.match(r'\w+', LIB_SHORTCUT):
                 raise ERRORS.ValueError(msg='Invalid Value For  modulename/module_name',
                                         File=FILE)
 
@@ -146,7 +170,7 @@ def define_structure(SOURCE, FILE, DEBUG):
                 raise ERRORS.ValueError(FILE, 'Exit', flag, line,
                                        SOURCE.index(line), "[True,False]")
 
-        #] Exit at the end
+        #] Save Cache
         elif regex:=re.match(r'Save-?Cache\s*:\s*(?P<flag>.+)', rstrip, re.IGNORECASE):
             raise NotImplementedError
             flag = regex.group("flag").capitalize()
@@ -174,7 +198,7 @@ def define_structure(SOURCE, FILE, DEBUG):
             #    raise ERRORS.BaseDefinedError('Method/Version', line, SOURCE[:5].index(line), FILE)
             StripLow = line.strip().lower()
             if StripLow.endswith('lite') or StripLow.endswith('fast'):
-                MODULE_VERSION = 'rx7.lite'
+                LIB_VERSION = 'rx7.lite'
             elif not StripLow.endswith('normal'):
                 stripped = line[line.index(':')+1:].strip()
                 raise ERRORS.ValueError(FILE, 'Method', stripped, line,
@@ -204,16 +228,14 @@ def define_structure(SOURCE, FILE, DEBUG):
         Changeable.append(nom)
         SOURCE[nom] = ''
 
-    #print(INFO)
-
     #] Bases
     STRING = []
-    STRING.append(f"import {MODULE_VERSION} as {MODULE_SHORTCUT}")
-    STRING.append(f"std = rx = {MODULE_SHORTCUT};std.RXL = __import__('RXL')")
-    STRING.append(f"print = {MODULE_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}")
+    STRING.append(f"import {LIB_VERSION} as {LIB_SHORTCUT}")
+    STRING.append(f"std = rx = {LIB_SHORTCUT};std.RXL = __import__('RXL')")
+    STRING.append(f"print = {LIB_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}")
     #] Direct Attributes
-    STRING.append(F"input = {MODULE_SHORTCUT}.selective_input")
-    STRING.append(f"Check_Type = {MODULE_SHORTCUT}.Check_Type")
+    STRING.append(F"input = {LIB_SHORTCUT}.IO.selective_input")
+    STRING.append(f"Check_Type = {LIB_SHORTCUT}.Check_Type")
     #]
     if not map_defd:
         STRING.append("apply = map ; map = None")
@@ -231,13 +253,12 @@ def define_structure(SOURCE, FILE, DEBUG):
                 except IndexError:
                     break
     else:
+        if DEBUG:
+            Error(f'{FILE}> No (Enough) Base-Option/Empty-lines at begining of file',add_time=False)
         SOURCE.insert(0, ';'.join(STRING))
 
-    if DEBUG and not len(Changeable):
-        Error(f'{FILE}> No (Enough) Base-Option/Empty-lines at begining of file',add_time=False)
-
     return (SOURCE,
-            MODULE_VERSION, MODULE_SHORTCUT,
+            LIB_VERSION, LIB_SHORTCUT,
             TYPE_SCANNER, INFO)
 
 

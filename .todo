@@ -1,17 +1,14 @@
 [MAIN]
     ☐ @high @easy Change names from `RX` to `RXL`
-    ☐ @med @easy @alpha Update RXL_CSG
-    ☐ @med @hard @alpha add a README
+    ☐ @easy @alpha Update RXL_CSG
+    ☐ @hard @alpha add a README
+    ☐ @high @norm @alpha Make a detailed documentation
+        (even about smallest things)
     ☐ create_MiniStd implementation
-    ☐ @high @norm Better `test` implementation
     ☐ @low @easy apply the own type of iterable after using apply()
     ☐ @med @easy END OF LINES ERROR IN RED (EOL)
     ☐ @low @easy Run file with double clicking
     ☐ @high @hard Improve Exception Catching when runing file
-    ☐ @med @hard Add/Remove/Change some built-in objects methods
-          like:   map (-> apply)
-                  generate:yield(:None)
-          ('forbiddenfruit' only works on linux)
     ☐ @med @easy Ignore module loading output error
     ☐ @high @easy Annotations and Documentation (Docstring/Help)
     ?  @easy Cache use `hash` of file instead of `mdftime`
@@ -22,6 +19,7 @@
     ✘?  Stop Imports
     ✘  No Break if there is python code in Base Lines
     ✘ CONST at the beginning
+    ✔ @high @norm Better `test` implementation
     ✔ Better terminal argument parser implementation (maybe even using 3rd party modules)
     ✔ @easy Using __pycache__ dir for as cache dir
     ✔ @high @norm @RXL-Lib better `array` implementation
@@ -96,7 +94,7 @@
 
 
 [Definde-Structure]
-    ☐ Allow reload implementation
+    ☐ allow_reload implementation
     ? set default cache flag
     ?✘ make a module out of defined structures and add `from module import *`
         (so only one line would be added to the file)
@@ -120,6 +118,11 @@
 
 
 [New Features]
+    ☐ @med @hard Add/Remove/Change some built-in objects methods ('forbiddenfruit')
+        ☐ generate:yield(:None)
+        ☐ dotted-dict
+        ☐ lock and unlock iterables
+        ✔ map (-> apply)
     ☐ @med @norm Static-Class
     ☐ @med @norm Enums
     ☐ @med @norm @RXL-Lib Dataclasses

@@ -260,12 +260,11 @@ def save_cache(path, source, cache_dir):
 
 #< Translate Source (and write cache) >#
 def translate(source:list, path:str, cache:bool, debug:bool, verbose:bool):
-    # global TIMES, Lines_Added
-    source, module_version, module_shortcut, \
+    source, lib_version, lib_shortcut, \
         type_scanner, info = Grammar.define_structure(source, path, debug)
     TIMES['DefStr'] = time.time()-START_TIME
 
-    source, threads = Grammar.syntax(source, module_version, module_shortcut,
+    source, threads = Grammar.syntax(source, lib_version, lib_shortcut,
                              type_scanner, path, debug)
     TIMES['DefStr'] = time.time()-START_TIME
 

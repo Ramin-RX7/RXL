@@ -2,7 +2,7 @@ Title  :  AppTitle> Short description of app
 Version:  0.1.2
 Author :  Ramin-RX7
 
-Module-Name : sc
+Lib-Name : sc
 Print : Stylized
 Func-Type-Checker: True
 End-Exit : True
@@ -10,8 +10,10 @@ End-Exit : True
 
 print('START\n')
 
-# Module-Name and Print-Style
+#] Lib-Name and Print-Style
 print(sc.system.cwd(), style="bold")
+#] Info
+print(std.Title, std.Version, std.Author)
 
 #] Include
 ...
