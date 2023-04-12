@@ -5,7 +5,7 @@ import sys
 from addict import Addict
 from tap import Tap
 
-from .Libs import *
+from .Lib import *
 from . import Grammar
 
 

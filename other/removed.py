@@ -224,3 +224,15 @@
     const = Const = constant = Constant
 
 """
+"""
+        #] Save Cache
+        elif regex:=re.match(r'Save-?Cache\s*:\s*(?P<flag>.+)', rstrip, re.IGNORECASE):
+            raise NotImplementedError
+            flag = regex.group("flag").capitalize()
+            if flag in ("True","False")  and  flag=='False':
+                ABSPATH = os.path.dirname(rx.files.abspath(FILE))
+                SOURCE.insert(-1,f'std.files.remove("{ABSPATH}/__RX_LC__",force=True)')
+            else:
+                raise ERRORS.ValueError(FILE, 'SaveCache', flag, line,
+                                       SOURCE.index(line), "[True,False]")
+"""

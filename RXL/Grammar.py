@@ -1,5 +1,7 @@
 import re
-from .Libs import *
+import tokenize
+
+from .Lib import *
 from . import Errors as ERRORS
 
 
@@ -109,10 +111,9 @@ def define_structure(SOURCE, FILE, DEBUG):
         rstrip = line.rstrip()
         Stripped = line.strip()
 
-        #] When Adding An Extra Line Like Decorators
-        if end:
+        if end:   # When all remaining lines are docstring
             break
-        if Skip:
+        if Skip:  # When Adding An Extra Line Like Decorators
             Skip = Skip-1
             continue
         # Ignore Docstrings and Comments
@@ -170,17 +171,6 @@ def define_structure(SOURCE, FILE, DEBUG):
                 raise ERRORS.ValueError(FILE, 'Exit', flag, line,
                                        SOURCE.index(line), "[True,False]")
 
-        #] Save Cache
-        elif regex:=re.match(r'Save-?Cache\s*:\s*(?P<flag>.+)', rstrip, re.IGNORECASE):
-            raise NotImplementedError
-            flag = regex.group("flag").capitalize()
-            if flag in ("True","False")  and  flag=='False':
-                ABSPATH = os.path.dirname(rx.files.abspath(FILE))
-                SOURCE.insert(-1,f'std.files.remove("{ABSPATH}/__RX_LC__",force=True)')
-            else:
-                raise ERRORS.ValueError(FILE, 'SaveCache', flag, line,
-                                       SOURCE.index(line), "[True,False]")
-
         #] Reload Module
         elif regex:=re.match(r'Allow-?Reload\s*:(?P<flag>.+)', rstrip, re.IGNORECASE):
             raise NotImplementedError
@@ -192,7 +182,7 @@ def define_structure(SOURCE, FILE, DEBUG):
                                         SOURCE.index(line)  , "[True,False]")
 
         #] Get Version (Method) of Tools
-        elif regex:=re.match(r'(Method|Package(-|_)Version)\s*:\s*\w+', line):
+        elif regex:=re.match(r'Lib-?Version\s*:\s*\w+', line):
             raise NotImplementedError
             #if BASED:
             #    raise ERRORS.BaseDefinedError('Method/Version', line, SOURCE[:5].index(line), FILE)
@@ -239,7 +229,7 @@ def define_structure(SOURCE, FILE, DEBUG):
     STRING.append(f"Check_Type = {LIB_SHORTCUT}.Check_Type")
     #]
     if not map_defd:
-        STRING.append("apply = map ; map = None")
+        STRING.append("apply = lambda f,iterable: type(iterable)(__import__('builtins').map(f,iterable)) ; map = None")
     #] App Info
     for key,value in INFO.items():
         STRING.append(f"setattr(std,'{key}','{value}')")

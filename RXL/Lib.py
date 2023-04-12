@@ -3,7 +3,6 @@ import os
 import sys
 import time
 import shutil
-import tokenize
 
 from colored import  fg,bg,attr
 _auto = -1
@@ -316,6 +315,7 @@ class array(list):
 class _Lang:
 
     apply = lambda f,iterable: type(iterable)(__import__("builtins").map(f,iterable))
+
 
     class Types:
         Str         =  str
