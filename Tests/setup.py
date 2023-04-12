@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 s = setup(
     name = "RXL",
     description = "RXL Features",
-    version = "0.0.2",
+    version = "0.0.3",
     license = "LGPL",
     url = "https://github.com/Ramin-RX7/RX-Language/",
     author = "Ramin RX7",

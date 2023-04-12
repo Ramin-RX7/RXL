@@ -5,7 +5,7 @@ import sys
 from addict import Addict
 from tap import Tap
 
-from .lib import *
+from .Lib import *
 from . import Grammar
 
 
@@ -152,7 +152,7 @@ class Tasks:
 
     #] Compiling .rx given file to bytecode
     @staticmethod
-    def compile(FILE=None):
+    def compile(file=None):
         raise NotImplementedError
 
 

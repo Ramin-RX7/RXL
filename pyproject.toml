@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "RXL"
+version = "0.0.3"
+description = "RX Prgoramming Language"
+license = {file = "LICENSE"}
+readme = "README.md"
+requires-python = ">= 3.11"
+dependencies = [
+  "rx7",
+  "addict",
+  "typed-argument-parser",
+]
+classifiers = [
+    'Programming Language :: Python :: 3',
+    "Development Status :: 2 - Pre-Alpha"
+]
+authors = [
+    { name = "Ramin RX7",  email = "rawmin.rx@gmail.com"},
+]
+keywords = ["programming-language","RX"]
+
+
+[project.urls]
+"Homepage" = "https://github.com/Ramin-RX7/RX-Language"
+"Bug Tracker" = "https://github.com/Ramin-RX7/RX-Language/issues"
+documentation = "https://github.com/Ramin-RX7/RX-Language/wiki"
+repository = "https://github.com/Ramin-RX7/RX-Language"
+changelog = "https://github.com/Ramin-RX7/RX-Language/blob/master/CHANGELOG.md"
+
+
+[project.scripts]
+RXL = "RXL.RXL:main"
+
+
+[tool.setuptools]
+packages = ["RXL"]
