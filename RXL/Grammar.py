@@ -185,19 +185,18 @@ def define_structure(SOURCE, FILE, DEBUG):
             PRINT_TYPE = regex.group("type").lower()
             if not (PRINT_TYPE in ("normal","stylized")):
                 raise ERRORS.ValueError(FILE, 'print', PRINT_TYPE, line,
-                                       SOURCE.index(line), ['lite','normal'])
+                                       SOURCE.index(line), ['stylized','normal'])
 
         #] Function Type Scanner
         elif regex:=re.match(r'func(tion)?-?type-?checker\s*:\s*(?P<flag>.+)',
                              rstrip,re.IGNORECASE):
-            #r'(Func(tion)?)(-|_)?(Type|Arg|Param)(-|_)?(Scanner|Checker)\s*:\s*\w+\s*'
             TYPE_SCANNER = regex.group("flag").capitalize()
             if TYPE_SCANNER not in ("True","False"):
                 raise ERRORS.ValueError(FILE, 'func_type_checker', TYPE_SCANNER, line,
                                        SOURCE.index(line), "[True,False]")
 
         #] Exit at the end
-        elif regex:=re.match(r'End-?(Exit|Quit)\s*:\s*(?P<flag>.+)',
+        elif regex:=re.match(r'End-?Exit\s*:\s*(?P<flag>.+)',
                       rstrip, re.IGNORECASE):
             flag = regex.group("flag").capitalize()
             if flag in ("True","False"):
@@ -209,6 +208,7 @@ def define_structure(SOURCE, FILE, DEBUG):
 
         #] Exit at the end
         elif regex:=re.match(r'Save-?Cache\s*:\s*(?P<flag>.+)', rstrip, re.IGNORECASE):
+            raise NotImplementedError
             flag = regex.group("flag").capitalize()
             if flag in ("True","False")  and  flag=='False':
                 ABSPATH = os.path.dirname(rx.files.abspath(FILE))
@@ -219,6 +219,7 @@ def define_structure(SOURCE, FILE, DEBUG):
 
         #] Reload Module
         elif regex:=re.match(r'Allow-?Reload\s*:(?P<flag>.+)', rstrip, re.IGNORECASE):
+            raise NotImplementedError
             flag = regex.group("flag").capitalize()
             if flag in ("False","True")  and  flag=="True":
                 Allow_Reload = True
@@ -312,16 +313,6 @@ def syntax(SOURCE,
 
         Stripped = Text.strip()
 
-        #] && --- ||
-        '''
-         nnoo = False
-         while not nnoo:
-             if '&&' in Text  and  Text[:Text.index('&&')].count("'")%2==0:
-                 Text.replace('&&','and',1)
-             else:
-                 nnoo = True
-        '''
-
         #] When Adding An Extra Line Like Decorators
         if Skip:
             Skip = Skip-1
@@ -352,7 +343,8 @@ def syntax(SOURCE,
                 if not Stripped.startswith('def ')  and  not Stripped.startswith('#'):
                     raise ERRORS.ConstantError(Line_Nom, item[1], Stripped, item[0], FILE)
 
-        if False: pass  #Just to make rest of the conditions look similar
+
+        if False: pass   # Just to make rest of the conditions look similar
 
         #] Include
         elif Stripped.startswith('include ')  or  Stripped=='include':
@@ -576,7 +568,7 @@ def syntax(SOURCE,
             Regex=re.search(r'''[^a-zA-Z0-9_]array \s*
                                \s*\[\s*(?P<Type>.+)?\s*:\s*(?P<Length>.+)?\s*\]\s*<(?P<Content>.*)>''',
                            Text,re.VERBOSE)
-            continue
+            raise NotImplementedError
             if not Regex:
                 raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'array'")
             Indent  = Regex.group('Indent')
@@ -592,6 +584,8 @@ def syntax(SOURCE,
             # SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Array({Content},{Type},{Length})'
             SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}.RXL.array({Content}{Type}{Length})'
 
+
+        #] $Commands
 
         #] $check
         elif Stripped.startswith('$check ')  or  Stripped=='$check':

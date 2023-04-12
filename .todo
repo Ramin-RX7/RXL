@@ -1,18 +1,17 @@
 [MAIN]
+    ☐ @high @easy Change names from `RX` to `RXL`
+    ☐ @med @easy Update RXL_CSG
     ☐ @med @hard add a README
-    ☐ @high @norm Better `test` implementation
-    ☐ Compile implementation
-        ☐ @med @norm Switch to `nuitka` from `pyinstaller` and `cxfreeze`
-        ☐ exe doesn't accept args in `pyinstaller`
     ☐ create_MiniStd implementation
+    ☐ @high @norm Better `test` implementation
     ☐ @med Be [more] based on OOP
     ☐ @low @easy apply the own type of iterable after using apply()
-    ☐ @med @easy "apply" instead of "map" --> Does not work when compiling with "pyinstaller"
     ☐ @med @easy END OF LINES ERROR IN RED (EOL)
     ☐ @low @easy Run file with double clicking
     ☐ @high @hard Improve Exception Catching when runing file
     ☐ @med @hard Add/Remove/Change some built-in objects methods
           like:   map (-> apply)
+                  generate:yield(:None)
           ('forbiddenfruit' only works on linux)
     ☐ @med @easy Ignore module loading output error
     ☐ @high @easy Annotations and Documentation (Docstring/Help)
@@ -20,7 +19,6 @@
     ?  @easy Check for cache in local directory of RX.py (not relative to running file)
     ?  @easy Blank line before all errors
     ?  &&  ---  ||
-    ?  Generate:yield(:None)
     ?  A file to repair files (save all files in a zipfile)
     ✘?  Stop Imports
     ✘  No Break if there is python code in Base Lines
@@ -28,6 +26,11 @@
     ✔ Better terminal argument parser implementation (maybe even using 3rd party modules)
     ✔ @easy Using __pycache__ dir for as cache dir
     ✔ @high @norm @RXL-Lib better `array` implementation
+
+    Compile implementation:
+        ☐ @med @norm Switch to `nuitka` from `pyinstaller` and `cxfreeze`
+        ☐ exe doesn't accept args in `pyinstaller`
+        ☐ @med @easy "apply" instead of "map" --> Does not work when compiling with "pyinstaller"
 
     Load Modules:
         ☐ @med What happens if we use cache and loaded module has changed

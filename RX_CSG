@@ -11,7 +11,7 @@ RX-Language  Coding Style Guide
 + Not using "\" to connect lines
 + Use commas at the end instead of begining of the line
 + Use Spaces after commas anywhere (except in "from module import")
-+ Using 'foreach' when looping over Iterable 
++ Using 'foreach' when looping over Iterable
   and Using 'for' when looping over Generators
 + Use .startswith()/.endswith() methods instead of slicing
 + Use real object instead of its length to
@@ -96,12 +96,12 @@ RX-Language  Coding Style Guide
 
       '''def test():
            print('this is a test')'''
-      
+
       '''
       def test():
            print('this is a test')
       '''
-      
+
       # Correct
       '''
         def test():
@@ -168,8 +168,8 @@ RX-Language  Coding Style Guide
       (But its ok to use this:
        from package import  func1,func2,Class1
       )
-    
-    + there should be extra white space before importing objects 
+
+    + there should be extra white space before importing objects
       from a module if they are more then one
         # Correct
         from package import  func1,func2,Class1
@@ -191,7 +191,7 @@ RX-Language  Coding Style Guide
 
 
 - White Spaces:
-    
+
     + Its better to not add any white spaces from end of the lines
 
     + Immediately inside parentheses, brackets or braces
@@ -261,7 +261,7 @@ RX-Language  Coding Style Guide
         # Correct:
         def func(arg1=1, arg2=2, arg3=3): pass
         def func(arg1:int=1, arg2:float=2.0, arg3:Any=3): pass
-        
+
     + Function return type annotation shoud use space on each side
       if function has argument(s) and shouldn't use spaces if there is
       no argument (like most of methods)
@@ -350,19 +350,19 @@ RX-Language  Coding Style Guide
 
 
 - Naming Conventions
-    
+
     + Using a short unique prefix to group related names together.
-    
+
     + Not Using miXedCaSe & pascalCase (& Capitalized_Words_With_Underscores for variables)
-      Note: When using acronyms in CapWords, capitalize all the letters of the acronym. 
+      Note: When using acronyms in CapWords, capitalize all the letters of the acronym.
             (Thus HTTPServerError is better than HttpServerError.)
-    
+
     + _single_leading_underscore is for internal uses.
       It can be in classes or even Main body
       (In functions this is not nessesery as nobody can have access on them)
       (Remember that it's not Private)
-    
-    + single_trailing_underscore_ is for when variables/arguments have 
+
+    + single_trailing_underscore_ is for when variables/arguments have
       the same name of RX/Python keyword names
       # Correct
       def func(class_): pass
@@ -372,17 +372,17 @@ RX-Language  Coding Style Guide
       def func(clss): pass
       switch = 1
 
-    + __double_leading_underscore are for when naming a class attribute, 
-      invokes name mangling 
+    + __double_leading_underscore are for when naming a class attribute,
+      invokes name mangling
       (inside class FooBar, __boo becomes _FooBar__boo; see below).
 
     + __double_leading_and_trailing_underscore__ are named "magic" objects or
-      attributes that live in user-controlled namespaces. 
-      (E.g. __init__, __import__ or __file__. 
+      attributes that live in user-controlled namespaces.
+      (E.g. __init__, __import__ or __file__.
        Never invent such names; only use them as documented.
       )
 
-    + Never use the characters 'l' (lowercase letter el), 'O' (uppercase letter oh), 
+    + Never use the characters 'l' (lowercase letter el), 'O' (uppercase letter oh),
       or 'I' (uppercase letter eye) as single character variable names.
 
 
@@ -405,6 +405,6 @@ RX-Language  Coding Style Guide
       Always use cls for the first argument to class methods.
       Always use @staticmethod if function is static method
 
-    + Constants are usually defined on a module level and 
-      written in all capital letters with underscores separating words. 
+    + Constants are usually defined on a module level and
+      written in all capital letters with underscores separating words.
       (Examples include MAX_OVERFLOW and TOTAL)

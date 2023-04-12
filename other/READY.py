@@ -34,13 +34,13 @@ from functools import reduce, partial, singledispatch
 
 # Make function for different argument type inputs
 @singledispatch
-def fun(s): 
+def fun(s):
     print(str(s))
 @fun.register(str)
-def fun_str(s): 
-    print('its str:  '  +  s * 2) 
-fun('Hello') 
-fun(10) 
+def fun_str(s):
+    print('its str:  '  +  s * 2)
+fun('Hello')
+fun(10)
 fun(False)
 
 # Change argumnets of a function and return the new one
@@ -87,7 +87,7 @@ print('\n')
 class Collection:
     def __init__(self,*args):
         self.args = args
-        
+
     def __str__(self):
         return f'Collection{self.args}'
 
@@ -96,5 +96,13 @@ print(x)
 print(type(x))
 '''
 
-
+#] && --- ||
+"""
+nnoo = False
+while not nnoo:
+    if '&&' in Text  and  Text[:Text.index('&&')].count("'")%2==0:
+        Text.replace('&&','and',1)
+    else:
+        nnoo = True
+"""
 

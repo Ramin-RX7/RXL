@@ -204,8 +204,7 @@ class Tasks:
             Error(type(e).__name__+': '+str(e))
             sys.exit()
         finally:
-            pass
-            # os.remove(ready_file_name)
+            os.remove(ready_file_name)
 
         if verbose:
             EXECUTION_TIME_TEXT = round(time.time()-START_TIME,3)
