@@ -93,14 +93,24 @@ class ArgumentParser:
 
 
     @staticmethod
-    def empty_asdict():
+    def empty_asdict() -> dict:
+        """
+        Returns a dictionary of how argument shoud be when no arguments are given from terminal
+        """
         # return {'module_test': False, 'debug': False, 'cache': True, 'verbose': False, 'file': None, 'compile': False, 'translate_only': False}
-        return ArgumentParser.Parser(underscores_to_dashes=True).parse_args({})
+        return ArgumentParser.Parser(underscores_to_dashes=True).parse_args({}).as_dict()
 
 
     @staticmethod
     def detect_task(args:Addict):
-        """Returns what task should be done. also returns needed arguments"""
+        """detects what task shoud be run from given arguments
+
+        Args:
+            args (Addict): dotted-dictionary of parsed arguments of terminal
+
+        Returns:
+            tuple: task:str, task_args:list of args that needs to be passed to task function
+        """
         # if len(sys.argv) == 1:
             # task = "console"
             # task_args = []
@@ -123,8 +133,16 @@ class ArgumentParser:
 
 
     @staticmethod
-    def run_task(task:str,args:list):
-        """Runs the given task from function with giving the required arguments"""
+    def run_task(task:str,args:list) -> bool:
+        """calls the given task function with passing *args to it
+
+        Args:
+            task (str): name of the task
+            args (list): list of arguments that are needed for the task's function
+
+        Returns:
+            bool: whether the task ran successfully or not
+        """
         tasks_dict = {
             "console"  :  Tasks.Console,
             "translate":  Tasks.translate_only,
@@ -158,7 +176,19 @@ class Tasks:
 
     #] only translating file to python code (if compile==True also compiles it)
     @staticmethod
-    def translate_only(path:str, cache, debug, verbose, compile):
+    def translate_only(path:str, cache:bool, debug:bool, verbose:bool, compile:bool) -> bool:
+        """only translates the script (does not run it), also compiles it if compile is true
+
+        Args:
+            path (str): path to the file
+            cache (bool): wether should use cache or not
+            debug (bool): debug flag
+            verbose (bool): verbose flag
+            compile (bool): compile flag
+
+        Returns:
+            bool: true if it runs successfully
+        """
         source = convert_source(path, cache, debug, verbose)
         py_file_path = path.removesuffix(".rx")+".py"
         # if rx.files.exists(py_file_path):
@@ -169,13 +199,28 @@ class Tasks:
         rx.write(py_file_path, source)
 
         if compile:
-            raise NotImplementedError
-        TIMES["TRANSLATE_ONLY"] = time.time()-START_TIME
+            Tasks.compile()
 
+        TIMES["TRANSLATE_ONLY"] = time.time()-START_TIME
+        return True
 
     #] running the file given as terminal argument
     @staticmethod
-    def runfile(path, cache, debug, verbose):
+    def runfile(path:str, cache:bool, debug:bool, verbose:bool) -> bool:
+        """runs the given file (path)
+
+        Args:
+            path (str): path to file that should be run
+            cache (bool): cache flag
+            debug (bool): debug flag
+            verbose (bool): verbose flag
+
+        Raises:
+            e: the exception that will be raised when running python on file
+
+        Returns:
+            bool: true if it runs successfully
+        """
         source = convert_source(path, cache, debug, verbose)
         ready_file_name = convert_file_name(path)
 
@@ -212,12 +257,17 @@ class Tasks:
             #print(START_TIME)
             #print(EXECUTION_TIME_TEXT)
 
-
+        return True
 
 
 
 #< Make Things Ready For Running >#
-def Setup_Env():     #]  0.000 (with .hide():0.003)
+def Setup_Env() -> bool:     #]  0.000 (with .hide():0.003)
+    """Setups the environment for RXL to run.
+
+    Returns:
+        bool: false if `CACHE_DIR` exists else false
+    """
     if not rx.files.exists(CACHE_DIR):
         rx.files.mkdir(CACHE_DIR)
         # rx.files.hide(CACHE_DIR)
@@ -227,12 +277,24 @@ def Setup_Env():     #]  0.000 (with .hide():0.003)
 
 
 #< Check cache availablity >#
-def get_cache(cache:str, path:str, debug:bool, verbose:bool):
+def get_cache(cache:str, path:str, debug:bool, verbose:bool) -> str|None:
+    """check to see if suitable cache can be found for `path` to use
+
+    Args:
+        cache (bool): cache flag from terminal
+        path (str): path to the file to check for cache
+        debug (bool): debug flag from terminal
+        verbose (bool): verbose flag from terminal
+
+    Returns:
+        str|None: if cache is true and a suitable cache exists returns source for path else None
+    """
     if cache is False:
-        return False
+        return None
+
 
     ready_file_name = convert_file_name(path)
-    full_ready_path = f"./{cache}/{ready_file_name}"
+    full_ready_path = f"./{CACHE_DIR}/{ready_file_name}"
 
     cache_file =  rx.files.exists(full_ready_path)
     if cache_file:
@@ -247,11 +309,18 @@ def get_cache(cache:str, path:str, debug:bool, verbose:bool):
     else:
         if debug:
             print("[*] No Cache were found")
-    return False
+    return None
 
 
 #< Save cache of `path` >#
-def save_cache(path, source, cache_dir):
+def save_cache(path:str, source:str, cache_dir:str=CACHE_DIR) -> None:
+    """Save cache for given path with given source in cache_dir
+
+    Args:
+        path (str): path to file that requests to be cached
+        source (str): source of the file (translated)
+        cache_dir (str, optional): relative dir to path to save cache file. Defaults to CACHE_DIR.
+    """
     id = str(int(rx.files.mdftime(path)))
     source = id + "\n" + source
     rx.write(f"./{cache_dir}/{convert_file_name(rx.files.basename(path))}",source)
@@ -259,7 +328,19 @@ def save_cache(path, source, cache_dir):
 
 
 #< Translate Source (and write cache) >#
-def translate(source:list, path:str, cache:bool, debug:bool, verbose:bool):
+def translate(source:list, path:str, cache:bool, debug:bool, verbose:bool) -> tuple:
+    """transalte given source (that comes from path)
+
+    Args:
+        source (list): list of lines of the given path
+        path (str): path to the file that source comes from
+        cache (bool): cache flag from terminal
+        debug (bool): debug flag from terminal
+        verbose (bool): verbose flag from terminal
+
+    Returns:
+        tuple: translated source, list of threads created during translation, info of app
+    """
     source, lib_version, lib_shortcut, \
         type_scanner, info = Grammar.define_structure(source, path, debug)
     TIMES['DefStr'] = time.time()-START_TIME
@@ -276,9 +357,18 @@ def translate(source:list, path:str, cache:bool, debug:bool, verbose:bool):
 
 
 #< Translate >#
-def convert_source(path, cache, debug, verbose):
-    if cache:
-        cache = CACHE_DIR
+def convert_source(path:str, cache:bool, debug:bool, verbose:bool) -> str:
+    """gets the translated source for path. waits for all threads to join
+
+    Args:
+        path (str): path to the file to convert the source
+        cache (bool): cache flag from terminal
+        debug (bool): debug flag from terminal
+        verbose (bool): verbose flag from terminal
+
+    Returns:
+        str: translated source for path
+    """
     source = get_cache(cache, path, debug, verbose)
     threads = []
     info = {}
@@ -288,7 +378,7 @@ def convert_source(path, cache, debug, verbose):
         if cache:
             if debug:
                 print("[*] Creating Cache")
-            save_cache(path, source, cache)
+            save_cache(path, source)
     for thread in threads:
         thread.join()
 
@@ -301,6 +391,11 @@ def convert_source(path, cache, debug, verbose):
 #< START OF THE CODE >#
 # if __name__ == "__main__":
 def main():
+    """Main function of the module that will be run from script of the package
+
+    Raises:
+        All errors will be raised right now as RXL is still in alpha stages
+    """
     try:
         TIMES['Start '] = time.time()-START_TIME
 
