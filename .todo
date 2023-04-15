@@ -1,4 +1,5 @@
 [MAIN]
+    ☐ @med @easy Array should have rest of the members as None if not all is given
     ☐ @high @easy Convert relative file paths to absolute
     ☐ create_MiniStd implementation
     ☐ @high @easy Annotations and Documentation (Docstring/Help)

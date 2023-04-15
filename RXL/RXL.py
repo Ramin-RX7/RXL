@@ -276,15 +276,10 @@ def Setup_Env() -> None:     #]  0.000 (with .hide():0.003)
     return True
 
 
-def set_working_path(path):
+def set_working_path(path) -> None:
+    """Set `WORKING_PATH` to path"""
     global WORKING_PATH
     WORKING_PATH = path
-
-
-def convert_file_name(file):
-    basename = '_'+os.path.basename(file)+'_'
-    return os.path.join(os.path.dirname(file), basename)
-    #'‎'+FILE+'‎' THERE IS INVISIBLE CHAR IN QUOTES
 
 
 
