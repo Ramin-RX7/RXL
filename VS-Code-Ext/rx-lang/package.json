@@ -56,28 +56,28 @@
 		},
 		"languages": [
 			{
-				"id": "rx",
+				"id": "rxl",
 				"aliases": [
-					"RX",
-					"rx"
+					"RXL",
+					"rxl"
 				],
 				"extensions": [
 					".rx",
-					".rx7"
+					".rxl"
 				],
 				"configuration": "./language-configuration.json"
 			}
 		],
 		"grammars": [
 			{
-				"language": "rx",
-				"scopeName": "source.rx7",
+				"language": "rxl",
+				"scopeName": "source.rxl",
 				"path": "./syntaxes/rx.tmLanguage.json"
 			}
-		],
+		  ],
 		"snippets": [
 			{
-				"language": "rx",
+				"language": "rxl",
 				"path": "./snippets/snippets.json"
 			}
 		]
@@ -95,12 +95,6 @@
 		"eslint": "^7.9.0",
 		"glob": "^7.1.6",
 		"mocha": "^8.1.3",
-		"typescript": "^4.0.2",
-		"vscode-test": "^1.4.0"
-	},
-	"__metadata": {
-		"id": "e7b9123a-7151-4d09-94cc-541579ac5d78",
-		"publisherId": "e9008b5c-cc92-47e4-9d71-30ce11beab77",
-		"publisherDisplayName": "Ramin-RX"
+		"typescript": "^4.0.2"
 	}
 }

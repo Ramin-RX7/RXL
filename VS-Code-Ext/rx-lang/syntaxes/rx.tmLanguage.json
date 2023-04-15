@@ -1,4 +1,4 @@
- 
+
 {
 	"information_for_contributors": [
 	  "This file has been converted from https://github.com/MagicStack/MagicPython/blob/master/grammars/MagicPython.tmLanguage",
@@ -6,7 +6,7 @@
 	  "Once accepted there, we are happy to receive an update request."
 	],
 	"name": "MagicRX",
-	"scopeName": "source.rx7",
+	"scopeName": "source.rxl",
 	"patterns": [
 	  {
 		"include": "#statement"
@@ -28,30 +28,6 @@
 		  {
 			"include": "#class-declaration"
 		  },
-  
-  
-  
-  
-  
-  
-  
-  
-		  {
-			  "include": "#class-declarations"
-		  },
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-		  
-  
-  
 		  {
 			"include": "#function-declaration"
 		  },
@@ -375,62 +351,62 @@
 		  {
 			"include": "#line-continuation"
 		  },
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
 		  {"include": "#rx-class-funcs"},
 		  {"include": "#rx-class-name"},
 		  {"include": "#rx-rxnsc"},
 		  {"include": "#rx-options-correct"},
 		  {"include": "#rx-options-wrong"},
 		  {"include": "#rx-dollar-class"}
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		]
 	  },
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	"rx-rxnsc": {
 		"patterns": [
 			{
@@ -439,7 +415,7 @@
 			}
 		]
 	},
-  
+
 	"rx-class-name": {
 		"patterns": [
 			{
@@ -448,7 +424,7 @@
 			}
 		]
 	},
-  
+
 	"rx-func-name": {
 		"patterns": [
 			{
@@ -473,24 +449,24 @@
 			}
 		]
 	},
-  
+
 	"rx-class-funcs": {
 		"patterns": [
 			{
 				"name": "support.type.exception.python",
 				"match": "(?x)\n  \\b(?<!\\.)((rx|std)\\.)?(F|f)iles\\.(\n    size | delete | rename | abspath | exists | mdftime | acstime | move | copy | hide | read_only | read | write | isdir | isfile | is_hidden | is_readonly | search_file | search_content | mkdir | generate_tree | remove\n  )\\b\n"
 			},
-  
+
 			{
 				"name": "support.type.exception.python",
 				"match": "(?x)\n  \\b(?<!\\.)((rx|std)\\.)?(S|s)ystem\\.(\n    accname | pid | chdir | SHUT_DOWN | RESTART | terminal_size | cwd | ip_global | ip_local | ram_total | ram_used | ram_free | boot_time | device_name | ip_website | win10_notification | cpu_count | pyshell_execute_bit | pids\n  )\\b\n"
 			},
-  
+
 			{
 				"name": "support.type.exception.python",
 				"match": "(?x)\n  \\b(?<!\\.)((rx|std)\\.)?(R|r)andom\\.(\n    integer | O1 | number | shuffle | choose\n  )\\b\n"
 			},
-  
+
 			{
 				"name": "support.type.exception.python",
 				"match": "(?x)\n  \\b(?<!\\.)((rx|std)\\.)?(S|s)tyle\\.(\n    print | switch | switch_default\n  )\\b\n"
@@ -505,7 +481,7 @@
 			}
 		]
 	},
-  
+
 	"rx-info": {
 		"patterns": [
 			{
@@ -518,8 +494,8 @@
 			}
 		]
 	},
-  
-  
+
+
 	"rx-options-wrong":{
 		"patterns": [
 			{
@@ -536,7 +512,7 @@
 			}
 		]
 	},
-  
+
 	"rx-options-correct":{
 		"patterns": [
 			{
@@ -561,8 +537,8 @@
 			}
 		]
 	},
-  
-  
+
+
 	"rx-dollar-class": {
 		"patterns": [
 			{
@@ -571,36 +547,36 @@
 			}
 		]
 	},
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	  "expression-base": {
 		"comment": "valid Python expressions with comments and line continuation",
 		"patterns": [
@@ -1260,15 +1236,15 @@
 		  }
 		]
 	  },
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
 	"class-declarations": {
 	  "patterns": [
 		{
@@ -1296,20 +1272,20 @@
 		}
 	  ]
 	},
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	  "class-name": {
 		"patterns": [
 		  {
@@ -1992,42 +1968,42 @@
 		  }
 		]
 	  },
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	  "builtin-exceptions": {
 		"name": "support.type.exception.python",
 		"match": "(?x)\n  (?<!\\.) \\b(\n    [A-Za-z0-9]+*Error\n  )\\b\n"
 	  },
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-	  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	  "builtin-functions": {
 		"patterns": [
 		  {
@@ -2040,44 +2016,44 @@
 		  }
 		]
 	  },
-  
-	  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	  "builtin-types": {
 		"name": "support.type.python",
 		"match": "(?x)\n  (?<!\\.) \\b(\n  array | const | Check_Type | Tuple | bool | bytearray | bytes | classmethod | complex | dict\n    | float | frozenset | int | list | object | property\n    | set | slice | staticmethod | str | tuple | type\n\n    (?# Although 'super' is not a type, it's related to types,\n        and is special enough to be highlighted differently from\n        other built-ins)\n    | super\n  )\\b\n"
 	},
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	  "magic-function-names": {
 		"comment": "these methods have magic interpretation by python and are generally called\nindirectly through syntactic constructs\n",
 		"match": "(?x)\n  \\b(\n    __(?:\n      abs | add | aenter | aexit | aiter | and | anext | await\n      | bool | call | ceil | cmp | coerce | complex | contains\n      | copy | deepcopy | del | delattr | delete | delitem\n      | delslice | dir | div | divmod | enter | eq | exit | float\n      | floor | floordiv | format | ge | get | getattr\n      | getattribute | getinitargs | getitem | getnewargs\n      | getslice | getstate | gt | hash | hex | iadd | iand | idiv\n      | ifloordiv | ilshift | imod | imul | index | init\n      | instancecheck | int | invert | ior | ipow | irshift | isub\n      | iter | itruediv | ixor | le | len | long | lshift | lt\n      | missing | mod | mul | ne | neg | new | next | nonzero | oct | or\n      | pos | pow | radd | rand | rdiv | rdivmod | reduce\n      | reduce_ex | repr | reversed | rfloordiv | rlshift | rmod\n      | rmul | ror | round | rpow | rrshift | rshift | rsub\n      | rtruediv | rxor | set | setattr | setitem | setslice\n      | setstate | sizeof | str | sub | subclasscheck | truediv\n      | trunc | unicode | xor | matmul | rmatmul | imatmul\n      | init_subclass | set_name | fspath | bytes | prepare\n    )__\n  )\\b\n",
@@ -2106,22 +2082,22 @@
 		  }
 		]
 	  },
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	  "illegal-names": {
 		"match": "(?x)\n  \\b(?:\n    (\n      then | anyway(s)? | nobreak | do | switch | case | default | include | load | foreach | until | unless\n      | and | assert | async | await | break | class | continue | def\n      | del | elif | else | except | finally | for | from | global\n      | if | in | is | (?<=\\.)lambda | lambda(?=\\s*[\\.=])\n      | nonlocal | not | or | pass | raise | return | try | while | with\n      | yield\n    ) | (\n      as | import\n    )\n  )\\b\n",
 	"captures": {
@@ -2133,22 +2109,22 @@
 		  }
 		}
 	  },
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	  "special-variables": {
 		"match": "(?x)\n  \\b (?<!\\.) (?:\n    (self) | (cls)\n  )\\b\n",
 		"captures": {
@@ -5722,4 +5698,3 @@
 	  }
 	}
   }
-  
