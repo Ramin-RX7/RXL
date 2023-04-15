@@ -98,7 +98,7 @@
 
 
 [Extension]
-    ☐ @high @hard @alpha Recreate the extension from scratch
+    ☐ @high @hard @beta Recreate the extension from scratch
         (by now it is only a copy of `python` extension with some additions)
     ?  @easy Clear the screen in extension run (? get operating system for cls/clear)
     ?  Correct color for Options in extension (and also ignore cases)

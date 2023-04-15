@@ -26,7 +26,7 @@ Lines_Added = 0
 TIMES = {}
 CACHE_DIR = "__pycache__"
 CONSOLE_FILE = "_console_.py"
-
+WORKING_PATH = ...
 
 
 
@@ -189,6 +189,9 @@ class Tasks:
         Returns:
             bool: true if it runs successfully
         """
+        path = rx.files.abspath(path)
+        set_working_path(rx.files.dirname(path))
+
         source = convert_source(path, cache, debug, verbose)
         py_file_path = path.removesuffix(".rx")+".py"
         # if rx.files.exists(py_file_path):
@@ -221,6 +224,9 @@ class Tasks:
         Returns:
             bool: true if it runs successfully
         """
+        path = rx.files.abspath(path)
+        set_working_path(rx.files.dirname(path))
+
         source = convert_source(path, cache, debug, verbose)
         ready_file_name = convert_file_name(path)
 
@@ -245,7 +251,6 @@ class Tasks:
             raise e
             print('Traceback (most recent call last):')
             print('  More Information in Next Updates...')
-           #print(f'  File "{FILE}" in  "UNDEFINED"')
             Error(type(e).__name__+': '+str(e))
             sys.exit()
         finally:
@@ -262,17 +267,24 @@ class Tasks:
 
 
 #< Make Things Ready For Running >#
-def Setup_Env() -> bool:     #]  0.000 (with .hide():0.003)
-    """Setups the environment for RXL to run.
-
-    Returns:
-        bool: false if `CACHE_DIR` exists else false
-    """
+def Setup_Env() -> None:     #]  0.000 (with .hide():0.003)
+    """Setups the environment for RXL to run."""
     if not rx.files.exists(CACHE_DIR):
         rx.files.mkdir(CACHE_DIR)
         # rx.files.hide(CACHE_DIR)
         return False
     return True
+
+
+def set_working_path(path):
+    global WORKING_PATH
+    WORKING_PATH = path
+
+
+def convert_file_name(file):
+    basename = '_'+os.path.basename(file)+'_'
+    return os.path.join(os.path.dirname(file), basename)
+    #'‎'+FILE+'‎' THERE IS INVISIBLE CHAR IN QUOTES
 
 
 
@@ -292,9 +304,8 @@ def get_cache(cache:str, path:str, debug:bool, verbose:bool) -> str|None:
     if cache is False:
         return None
 
-
     ready_file_name = convert_file_name(path)
-    full_ready_path = f"./{CACHE_DIR}/{ready_file_name}"
+    full_ready_path = f"{WORKING_PATH}/{CACHE_DIR}/{ready_file_name}"
 
     cache_file =  rx.files.exists(full_ready_path)
     if cache_file:
@@ -323,7 +334,7 @@ def save_cache(path:str, source:str, cache_dir:str=CACHE_DIR) -> None:
     """
     id = str(int(rx.files.mdftime(path)))
     source = id + "\n" + source
-    rx.write(f"./{cache_dir}/{convert_file_name(rx.files.basename(path))}",source)
+    rx.write(f"{WORKING_PATH}/{cache_dir}/{convert_file_name(rx.files.basename(path))}",source)
 
 
 
