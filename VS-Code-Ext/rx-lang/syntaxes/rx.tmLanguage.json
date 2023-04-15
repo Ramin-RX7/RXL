@@ -500,7 +500,7 @@
 		"patterns": [
 			{
 				"name": "invalid.deprecated.backtick.python",
-				"match": "(?x)\n  \\b(?<!\\.)(((Save(-|_))?(Cache))|(Func(_|-)Type(-|_)Checker)|((End(-|_))?(Exit|Quit)))\\s*:\\s*[^(True|False)]\\b\n"
+				"match": "(?x)\n  \\b(?<!\\.)((func(tion)?-?type-?checker)|(End-?Exit))\\s*:\\s*[^(True|False)]\\b\n"
 			},
 			{
 				"name": "invalid.deprecated.backtick.python",
@@ -525,15 +525,15 @@
 			},
 			{
 				"name": "variable.other.constant.ruby",
-				"match": "(?x)\n  \\b(?<!\\.)(((Save(-|_))?(Cache))|(Func(_|-)Type(-|_)Checker)|((End-)?(Exit|Quit)))\\s*:\\s*(True|False)\\b\n"
+				"match": "(?x)\n  \\b(?<!\\.)((func(tion)?-?type-?checker)|(End-?Exit))\\s*:\\s*(True|False)\\b\n"
 			},
 			{
 				"name": "variable.other.constant.ruby",
-				"match": "(?x)\n  \\b(?<!\\.)(Module)(-|_)?(Name)\\s*:\\s*([\\w]+)\\b\n"
+				"match": "(?x)\n  \\b(?<!\\.)(Lib-?Name)\\s*:\\s*([\\w]+)\\b\n"
 			},
 			{
 				"name": "variable.other.constant.ruby",
-				"match": "(?x)\n  \\b(?<!\\.)(Print)\\s*:\\s*(Normal|Stylized)\\b\n"
+				"match": "(?x)\n  \\b(?<!\\.)((P|p)rint)\\s*:\\s*(Normal|Stylized)\\b\n"
 			}
 		]
 	},
@@ -1236,56 +1236,6 @@
 		  }
 		]
 	  },
-
-
-
-
-
-
-
-
-
-	"class-declarations": {
-	  "patterns": [
-		{
-		  "name": "meta.class.python",
-		  "begin": "(?x)\n  \\s*(classx)\\s+\n    (?=\n      [[:alpha:]_]\\w* \\s* (:|\\()\n    )\n",
-		  "end": "(:)",
-		  "beginCaptures": {
-			"1": {
-			  "name": "storage.type.classx.python"
-			}
-		  },
-		  "endCaptures": {
-			"1": {
-			  "name": "punctuation.section.class.begin.python"
-			}
-		  },
-		  "patterns": [
-			{
-			  "include": "#class-name"
-			},
-			{
-			  "include": "#class-inheritance"
-			}
-		  ]
-		}
-	  ]
-	},
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	  "class-name": {
 		"patterns": [
 		  {
@@ -2099,8 +2049,8 @@
 
 
 	  "illegal-names": {
-		"match": "(?x)\n  \\b(?:\n    (\n      then | anyway(s)? | nobreak | do | switch | case | default | include | load | foreach | until | unless\n      | and | assert | async | await | break | class | continue | def\n      | del | elif | else | except | finally | for | from | global\n      | if | in | is | (?<=\\.)lambda | lambda(?=\\s*[\\.=])\n      | nonlocal | not | or | pass | raise | return | try | while | with\n      | yield\n    ) | (\n      as | import\n    )\n  )\\b\n",
-	"captures": {
+		"match": "(?x)\n  \\b(?:\n    (\n      then | anyway(s)? | nobreak | do | match | case | default | include | load | foreach | until | unless\n      | and | assert | async | await | break | class | continue | def\n      | del | elif | else | except | finally | for | from | global\n      | if | in | is | (?<=\\.)lambda | lambda(?=\\s*[\\.=])\n      | nonlocal | not | or | pass | raise | return | try | while | with\n      | yield\n    ) | (\n      as | import\n    )\n  )\\b\n",
+		"captures": {
 		  "1": {
 			"name": "keyword.control.flow.python"
 		  },
