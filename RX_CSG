@@ -1,54 +1,34 @@
 RX-Language  Coding Style Guide
 
 + Newline after Structure Definition
-+ Start atleast at line 3
-+ Not using docstrings in first 7 lines
+? Start atleast at line 3
+? Not using docstrings in first 7 lines
 + Not using Base-Options as variables
-+ Not Changing Base-Options
-+ Not using lines of   Code   with more than 100 characters
-+ Not using lines of Comments with more than 75  characters
+? Not Changing Base-Options
++ Not using lines of Code/Comments with more than 100 characters
 + Using Spaces (recommended:4) instead of tabs
 + Not using "\" to connect lines
 + Use commas at the end instead of begining of the line
 + Use Spaces after commas anywhere (except in "from module import")
 + Using 'foreach' when looping over Iterable
   and Using 'for' when looping over Generators
-+ Use .startswith()/.endswith() methods instead of slicing
-+ Use real object instead of its length to
-  check if it contains anything or not
-  (This makes them similar to integers)
-  (This only works if:
-     bool(obj) == bool(len(obj))
-   And this is what all built-in types have it.
-  )
-    # Correct:
-    if not seq:
-    if seq:
-    # Wrong:
-    if len(seq):
-    if not len(seq):
++ Use .startswith()/.endswith() methods instead of slicing when working with strings
 + Don't compare boolean values to True or False using ==/is:
   # Correct:
   if greeting: pass
   # Wrong:
   if greeting == True: pass
   if greeting is True: pass
-+ Type Checking is ignored in RXL like Python but
-  there is an option named Func_Type_Scanner which you can check
-  wether function arguments are passed with correct type or not
++ Even though type checking is not necessary but consider having type hints/annotations
 + Variable Annotations:
-
-    There shouldn't be any white spaces before colon (after variable name)
-    if there is One space  after  colon, there should be 2 spaces after type
+    if there is One space  after  colon, there should be 2 spaces after type and equal sign
+      myvar: str  =  "hello"
     if there is No  spaces before colon, there should be 1 space  after type
-    # Correct
-    x:str = 'hello'
-    x: str  = 'hello'
-
+      myvar:str = 'hello'
     # Wrong
-    x:str='hello'
-    x : str = 'hello'
-    x :str = 'hello'
+    myvar:str='hello'
+    myvar : str = 'hello'
+    myvar :str = 'hello'
 + Path to files should have slash ('/') instead of backslash ('\')
 + After parantheses there shoudn't be white spaces except when you are equalizing columns
 + Functions with short body can be defined in one line
@@ -75,7 +55,6 @@ RX-Language  Coding Style Guide
           return self.name
 + 'func' keyword is used to define functions which contains other functions in them
 + Do not use 'not' in 'until' and 'unless'
-+ 'foreach' keyword is for normal Iterables/Containers (use 'for' for generators)
 + While using ";" to seprate expressions is ok but try to avoid doing it.
 
 
@@ -83,11 +62,10 @@ RX-Language  Coding Style Guide
 
 - Comments
 
-    + Not using lines of Comments with more than 75  characters
+    + Not using lines of Comments with more than 100 characters
     + Add a white space after Line/Inline Comments
     + Inline Comments are better to start with 2 spaces before them
     + Block Comments body is better to start with new line and 1 indentation
-      (By indentation I mean eather a space,tab,4-Spaces etc.)
       (Also they can have title with 2 spaces after opening block)
       # Wrong
       '''def test():
@@ -127,23 +105,21 @@ RX-Language  Coding Style Guide
 
 
 - Blank lines:
-    + 2 Lines if Scope has more than 25 Lines
-    + 1 Line  Between Function (if there is no decorators)
-    + 2 Lines Between Classes
+    + 1 Lines if block has more than 20 Lines
+    + 2 or 3 Lines between function (if there are no decorators)
+    + 3 Lines Between Classes
     + 1 Line at the end of the file
-    + Start atleast at line 3 if you don't want to Define any Base Options
 
 
 
-- Should a Line Break Before or After a Binary Operator?
+- Using binary operators:
     # Correct:
-    # easy to match operators with operands
     income = (
             gross_wages
-            + taxable_interest
-            + (dividends - qualified_dividends)
-            - ira_deduction
-            - student_loan_interest
+          + taxable_interest
+          + (dividends - qualified_dividends)
+          - ira_deduction
+          - student_loan_interest
             )
 
     # Correct:
@@ -168,9 +144,8 @@ RX-Language  Coding Style Guide
       (But its ok to use this:
        from package import  func1,func2,Class1
       )
-
     + there should be extra white space before importing objects
-      from a module if they are more then one
+      from a module if they are more than one
         # Correct
         from package import  func1,func2,Class1
         # Wrong
@@ -184,16 +159,13 @@ RX-Language  Coding Style Guide
     Its better to use Double Quotes when string contains single Quote
     # Wrong:
     string = 'it\'s not easy to read'
-
     # Correct:
     string = "it's easier to read"
 
 
 
 - White Spaces:
-
-    + Its better to not add any white spaces from end of the lines
-
+    + Its better to not have any trailing whitespaces in files
     + Immediately inside parentheses, brackets or braces
       before the opening them ():
         # Correct:
@@ -228,12 +200,12 @@ RX-Language  Coding Style Guide
 
     + More than one space around an assignment (or other) operator to align it with another:
         # Correct:
-        x = 1
-        y = 2
+        x      =  1
+        normal =  2
         long_variable = 3
         # Wrong:
         x             = 1
-        y             = 2
+        normal        = 2
         long_variable = 3
 
     + Operators: Short names can have no white spaces but
@@ -244,8 +216,8 @@ RX-Language  Coding Style Guide
         i = i+1
         submitted += 1
         x = x*2 - 1
-        hypot2 = x*x + y*y
-        c = (a+b) * (a-b)
+        hypot2 =  x*x + y*y
+        c =  (a+b) * (a-b)
 
         # Wrong:
         x = x * 2 - 1
@@ -264,7 +236,7 @@ RX-Language  Coding Style Guide
 
     + Function return type annotation shoud use space on each side
       if function has argument(s) and shouldn't use spaces if there is
-      no argument (like most of methods)
+      no argument
         # Correct:
         def func()->str: pass
         def func(arg1,arg2) -> str: pass
@@ -280,8 +252,9 @@ RX-Language  Coding Style Guide
       # Correct
         if x: do_this()
         else: do_that()
-        try: x=int(x);y=1
-        except: x=None;y=0
+
+        try:    x=int(x); y=1
+        except: x=None  ; y=0
 
       # Wrong
         if x: do_this();do_this2();do_this3()
