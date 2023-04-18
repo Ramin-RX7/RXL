@@ -1,11 +1,10 @@
-import os
 import time
 import sys
 
 from addict import Addict
 from tap import Tap
 
-from .Lib import *
+from .Lib import rx,convert_file_name
 from . import Grammar
 
 
@@ -19,7 +18,7 @@ START_TIME = time.time()
 print = rx.style.print
 Error = rx.style.log_error
 
-RX_PATH = os.path.abspath(__file__)[:-7]
+RX_PATH = rx.files.dirname(rx.files.abspath(__file__))
 
 
 Lines_Added = 0
@@ -27,6 +26,7 @@ TIMES = {}
 CACHE_DIR = "__pycache__"
 CONSOLE_FILE = "_console_.py"
 WORKING_PATH = ...
+
 
 
 
@@ -254,7 +254,7 @@ class Tasks:
             Error(type(e).__name__+': '+str(e))
             sys.exit()
         finally:
-            os.remove(ready_file_name)
+            rx.files.remove(ready_file_name)
 
         if verbose:
             EXECUTION_TIME_TEXT = round(time.time()-START_TIME,3)
@@ -284,7 +284,7 @@ def set_working_path(path) -> None:
 
 
 #< Check cache availablity >#
-def get_cache(cache:str, path:str, debug:bool, verbose:bool) -> str|None:
+def get_cache(cache:bool, path:str, debug:bool, verbose:bool) -> str|None:
     """check to see if suitable cache can be found for `path` to use
 
     Args:
@@ -299,9 +299,7 @@ def get_cache(cache:str, path:str, debug:bool, verbose:bool) -> str|None:
     if cache is False:
         return None
 
-    ready_file_name = convert_file_name(path)
-    full_ready_path = f"{WORKING_PATH}/{CACHE_DIR}/{ready_file_name}"
-
+    full_ready_path = f"{WORKING_PATH}/{CACHE_DIR}/{convert_file_name(rx.files.basename(path))}"
     cache_file =  rx.files.exists(full_ready_path)
     if cache_file:
         if debug or verbose:
@@ -315,6 +313,7 @@ def get_cache(cache:str, path:str, debug:bool, verbose:bool) -> str|None:
     else:
         if debug:
             print("[*] No Cache were found")
+    TIMES["CACHE "] = time.time()-START_TIME
     return None
 
 
@@ -353,7 +352,7 @@ def translate(source:list, path:str, cache:bool, debug:bool, verbose:bool) -> tu
 
     source, threads = Grammar.syntax(source, lib_version, lib_shortcut,
                              type_scanner, path, debug)
-    TIMES['DefStr'] = time.time()-START_TIME
+    TIMES['Syntax'] = time.time()-START_TIME
 
     source = '\n'.join(source)
     rx.write('translated', source)

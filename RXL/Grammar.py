@@ -102,7 +102,7 @@ def define_structure(SOURCE, FILE, DEBUG):
     INFO = {
         'Version':  '1.0.0',
         'Author' :  rx.system.accname(),
-        'Title'  :  rx.files.basename().split(".")[0]}
+        'Title'  :  rx.files.basename(FILE).split(".")[0]}
     Skip = 0
     end = False
 
@@ -111,29 +111,30 @@ def define_structure(SOURCE, FILE, DEBUG):
         rstrip = line.rstrip()
         Stripped = line.strip()
 
-        if end:   # When all remaining lines are docstring
-            break
+        # if end:   # When all remaining lines are docstring
+            # break
         if Skip:  # When Adding An Extra Line Like Decorators
             Skip = Skip-1
             continue
         # Ignore Docstrings and Comments
         if (not Stripped)  or  Stripped.startswith('#'):
+            Changeable.append(nom)
             continue
         elif '"""' in line  and  not ("'''" in line and line.index('"""')>line.index("'''")):
             if not '"""' in line[line.index('"""')+3:]:
                 for line_in_str,line_in_str in enumerate(SOURCE[nom:],1):
                     if '"""' in line_in_str:
                         Skip = line_in_str
-                if Skip > (10-nom):
-                    end = True
+                # if Skip > (10-nom):
+                    # end = True
                 continue
         elif "'''" in line:
             if not "'''" in line[line.index("'''")+3:]:
                 for line_in_str,text_in_str in enumerate(SOURCE[nom:10],1):
                     if "'''" in text_in_str:
                         Skip = line_in_str
-                if Skip > (10-nom):
-                    end = True
+                # if Skip > (10-nom):
+                    # end = True
                 continue
 
         #] Get Shortcut Name

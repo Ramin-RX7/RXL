@@ -1,18 +1,18 @@
 [MAIN]
     ☐ @med @easy Array should have rest of the members as None if not all is given
-    ☐ @high @easy Convert relative file paths to absolute
     ☐ create_MiniStd implementation
-    ☐ @high @easy Annotations and Documentation (Docstring/Help)
-    ☐ @med @easy END OF LINES ERROR IN RED (EOL)
+    ☐ @med @easy EOL error in red
     ☐ @high @hard Improve Exception Catching when runing file
     ☐ @med @easy Ignore module loading output error
-    ?  @easy Cache use `hash` of file instead of `mdftime`
     ?  @easy Check for cache in local directory of RXL (not relative to running file)
     ?  @easy Blank line before all errors
+    ?✘  @easy Cache use `hash` of file instead of `mdftime` :: Takes time to import hashlib
     ✘?  A file to repair files (save all files in a zipfile)
     ✘?  Stop Imports
     ✘  No Break if there is python code in Base Lines
     ✘ CONST at the beginning
+    ✔ @high @easy Convert relative file paths to absolute
+    ✔ @high @easy Annotations and Documentation (Docstring/Help)
     ✔ @low @easy apply the own type of iterable after using apply()
     ✔ @high @easy Change names from `RX` to `RXL`
     ✔ @high @norm Better `test` implementation
@@ -109,10 +109,11 @@
 
 [New Features]
     ☐ @med @hard Add/Remove/Change some built-in objects methods ('forbiddenfruit')
-        ☐ generate:yield(:None)
-        ☐ dotted-dict
         ☐ lock and unlock iterables
-        ✔ map (-> apply)
+    ☐ dotted-dict
+        easiest way is to set `Addict` as default `dict` (still {} will be the problem)
+    ☐ generate:yield(:None)
+    ✔ map (-> apply)
     ☐ @med @norm @beta Static-Class
     ☐ @med @norm @beta @RXL-Lib Enums
     ☐ @med @norm @beta @RXL-Lib Dataclasses

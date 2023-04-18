@@ -1,5 +1,8 @@
-_auto = -1
+apply = lambda f,iterable: type(iterable)(__import__("builtins").map(f,iterable))
 
+
+
+_auto = -1
 class array(list):
     def __init__(self,__iterable=...,type_=_auto, max_length=_auto):
         if __iterable is not Ellipsis:

@@ -273,9 +273,6 @@ class rx:
 
 class _Lang:
 
-    apply = lambda f,iterable: type(iterable)(__import__("builtins").map(f,iterable))
-
-
     class Types:
         Str         =  str
         Int         =  int
