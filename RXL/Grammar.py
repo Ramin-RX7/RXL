@@ -87,6 +87,7 @@ def define_structure(SOURCE, FILE, DEBUG):
 
     "OPTIONS" SHOULD BE DEFINED AFTER "BASE OPTIONS"'
     """
+    global Lines_Added
 
     IndentCheck.check(FILE)
 
@@ -196,35 +197,45 @@ def define_structure(SOURCE, FILE, DEBUG):
         #] Consts definition
         elif regex:=re.match(r"CONSTS:", rstrip, re.IGNORECASE):
             consts = {}
-            text = ["class CONSTS(metaclass=std.RXL.Lang.Singleton):", "  __slots__ = {}"]
-            lines = [nom]
+            SOURCE[nom] = "class CONSTS(metaclass=std.RXL.Lang.Singleton):"
+            last_line = nom
             until = nom
-            # """
+
             while True:
                 until += 1
                 if (not SOURCE[until].strip()) or (SOURCE[until].lstrip().startswith("#")):
                     # print(f"Skip {until}")
+                    if not SOURCE[until].strip():
+                        last_line = until
                     continue
                 elif len(SOURCE[until].lstrip()) == len(SOURCE[until]):
                     break
 
-                if line_regex := re.match(r"\s+(?P<varname>\w+)\s*=\s*(?P<value>.+)",
+                if line_regex := re.match(r"(?P<indent>\s+)(?P<varname>\w+)\s*=\s*(?P<value>.+)",
                                           SOURCE[until]):
                     consts[line_regex.group("varname")] = line_regex.group("value")
-                    lines.append(until)
-                    # text += SOURCE[until]+"\n"
+                    SOURCE[until] = f"  {line_regex.group('varname')} = " \
+                                    f"std.RXL.Lang.constant(lambda:({line_regex.group('value')}))"
+                    last_line = until
+                    indent = line_regex.group('indent')
                 else:
-                    pass
                     # print(f"Unknown: {until}")
-            for const in consts:
-                text.append(f"  {const} = std.RXL.Lang.constant(lambda:({consts[const]}))")
+                    pass
             # text = text.encode('unicode-escape').decode().replace('\\\\', '\\')
-            for n in lines:
-                SOURCE[n] = text.pop(0)
-            if SOURCE[n+1]:
-                SOURCE.insert(n+1, "")
+            if SOURCE[last_line].strip():
+                SOURCE[last_line] = SOURCE[last_line]+ ";  __slots__ = {}"
             else:
-                SOURCE[n+1] = "CONSTS = CONSTS()"
+                if SOURCE[last_line-1]:
+                    SOURCE[last_line-1] = SOURCE[last_line-1]+";  __slots__ = {}"
+                else:
+                    SOURCE[last_line-1] = indent+"__slots__ = {}"
+
+            if SOURCE[until-1].strip():
+                SOURCE.insert(until, "CONSTS = CONSTS()")
+                Lines_Added += 1
+            else:
+                SOURCE[until-1] = "CONSTS = CONSTS()"
+
             Skip = until - nom
             continue
 
@@ -254,7 +265,9 @@ def define_structure(SOURCE, FILE, DEBUG):
     #] Bases
     STRING = []
     STRING.append(f"import {LIB_VERSION} as {LIB_SHORTCUT}")
-    STRING.append(f"std = rx = {LIB_SHORTCUT};std.RXL = __import__('RXL');std.RXL.Lang = __import__('RXL.Lang')")
+    STRING.append(f"std = rx = {LIB_SHORTCUT};import importlib;"
+                   "std.RXL = importlib.import_module('RXL');"
+                   "std.RXL.Lang = importlib.import_module('RXL.Lang');")
     STRING.append(f"print = {LIB_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}")
     #] Direct Attributes
     STRING.append(F"input = {LIB_SHORTCUT}.IO.selective_input")
