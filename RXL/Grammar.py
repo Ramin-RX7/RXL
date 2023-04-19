@@ -106,7 +106,7 @@ def define_structure(SOURCE, FILE, DEBUG):
     Skip = 0
     end = False
 
-    for nom,line in enumerate(SOURCE[:10]):
+    for nom,line in enumerate(SOURCE[:20]):
 
         rstrip = line.rstrip()
         Stripped = line.strip()
@@ -138,32 +138,28 @@ def define_structure(SOURCE, FILE, DEBUG):
                 continue
 
         #] Get Shortcut Name
-        elif regex:=re.match(r'Lib-?Name\s*:\s*(?P<name>.+)',
-                             rstrip, re.IGNORECASE):
+        elif regex:=re.match(r'Lib-?Name\s*:\s*(?P<name>.+)', rstrip, re.IGNORECASE):
             LIB_SHORTCUT = regex.group("name")
             if not re.match(r'\w+', LIB_SHORTCUT):
                 raise ERRORS.ValueError(msg='Invalid Value For `Lib-Name`',
                                         File=FILE)
 
         #] Print Function Method
-        elif regex:=re.match(r'(P|p)rint\s*:\s*(?P<type>.+)',
-                             rstrip, re.IGNORECASE):
+        elif regex:=re.match(r'(P|p)rint\s*:\s*(?P<type>.+)', rstrip, re.IGNORECASE):
             PRINT_TYPE = regex.group("type").lower()
             if not (PRINT_TYPE in ("normal","stylized")):
                 raise ERRORS.ValueError(FILE, 'print', PRINT_TYPE, line,
                                        SOURCE.index(line), ['stylized','normal'])
 
         #] Function Type Scanner
-        elif regex:=re.match(r'func(tion)?-?type-?checker\s*:\s*(?P<flag>.+)',
-                             rstrip,re.IGNORECASE):
+        elif regex:=re.match(r'func(tion)?-?type-?checker\s*:\s*(?P<flag>.+)',rstrip,re.IGNORECASE):
             TYPE_SCANNER = regex.group("flag").capitalize()
             if TYPE_SCANNER not in ("True","False"):
                 raise ERRORS.ValueError(FILE, 'func_type_checker', TYPE_SCANNER, line,
                                        SOURCE.index(line), "[True,False]")
 
         #] Exit at the end
-        elif regex:=re.match(r'End-?Exit\s*:\s*(?P<flag>.+)',
-                      rstrip, re.IGNORECASE):
+        elif regex:=re.match(r'End-?Exit\s*:\s*(?P<flag>.+)', rstrip, re.IGNORECASE):
             flag = regex.group("flag").capitalize()
             if flag in ("True","False"):
                 if flag == "False":
@@ -183,7 +179,7 @@ def define_structure(SOURCE, FILE, DEBUG):
                                         SOURCE.index(line)  , "[True,False]")
 
         #] Get Version (Method) of Tools
-        elif regex:=re.match(r'Lib-?Version\s*:\s*\w+', line):
+        elif regex:=re.match(r'Lib-?Version\s*:\s*\w+', rstrip, re.IGNORECASE):
             raise NotImplementedError
             #if BASED:
             #    raise ERRORS.BaseDefinedError('Method/Version', line, SOURCE[:5].index(line), FILE)
@@ -196,6 +192,41 @@ def define_structure(SOURCE, FILE, DEBUG):
                                     SOURCE[:5].index(line), ['lite','normal'])
             SOURCE[nom] = ''
             Changeable.append(nom)
+
+        #] Consts definition
+        elif regex:=re.match(r"CONSTS:", rstrip, re.IGNORECASE):
+            consts = {}
+            text = ["class CONSTS(metaclass=std.RXL.Lang.Singleton):", "  __slots__ = {}"]
+            lines = [nom]
+            until = nom
+            # """
+            while True:
+                until += 1
+                if (not SOURCE[until].strip()) or (SOURCE[until].lstrip().startswith("#")):
+                    # print(f"Skip {until}")
+                    continue
+                elif len(SOURCE[until].lstrip()) == len(SOURCE[until]):
+                    break
+
+                if line_regex := re.match(r"\s+(?P<varname>\w+)\s*=\s*(?P<value>.+)",
+                                          SOURCE[until]):
+                    consts[line_regex.group("varname")] = line_regex.group("value")
+                    lines.append(until)
+                    # text += SOURCE[until]+"\n"
+                else:
+                    pass
+                    # print(f"Unknown: {until}")
+            for const in consts:
+                text.append(f"  {const} = std.RXL.Lang.constant(lambda:({consts[const]}))")
+            # text = text.encode('unicode-escape').decode().replace('\\\\', '\\')
+            for n in lines:
+                SOURCE[n] = text.pop(0)
+            if SOURCE[n+1]:
+                SOURCE.insert(n+1, "")
+            else:
+                SOURCE[n+1] = "CONSTS = CONSTS()"
+            Skip = until - nom
+            continue
 
         #] Version
         elif Regex:=re.match(r'Version\s*:\s*(?P<Version>[0-9]+(\.[0-9]+)?(\.[0-9]+)?)',
@@ -223,7 +254,7 @@ def define_structure(SOURCE, FILE, DEBUG):
     #] Bases
     STRING = []
     STRING.append(f"import {LIB_VERSION} as {LIB_SHORTCUT}")
-    STRING.append(f"std = rx = {LIB_SHORTCUT};std.RXL = __import__('RXL')")
+    STRING.append(f"std = rx = {LIB_SHORTCUT};std.RXL = __import__('RXL');std.RXL.Lang = __import__('RXL.Lang')")
     STRING.append(f"print = {LIB_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}")
     #] Direct Attributes
     STRING.append(F"input = {LIB_SHORTCUT}.IO.selective_input")
@@ -362,6 +393,7 @@ def syntax(SOURCE,
             SOURCE[Line_Nom-1] = To_Add
             # continue  # do it to all?
 
+
         #] Func Type checker
         elif (Stripped.startswith('def ') or Stripped.startswith('func '))  and  TYPE_SCANNER:  # Make it regex?
             if Stripped.startswith("func "):
@@ -376,6 +408,7 @@ def syntax(SOURCE,
             SOURCE.insert(Line_Nom-1, f'{" "*indent}@{MODULE_SHORTCUT}.Check_Type')
             Skip = 1
             Lines_Added += 1
+
 
         #] Load User-Defined Modules        # TODO: Better regex to get packages
         elif Stripped.startswith('load ')  or  Stripped=='load':
@@ -419,9 +452,11 @@ def syntax(SOURCE,
             SOURCE[Line_Nom-1]=str(To_Add)
             #print(f'Load: {time.time()-t}','green')
 
+
         #] Memory Location of Object
         elif Regex:=re.search(r'[,\(\[\{\+=: ]&(?P<var>\w+)', Text): #[^a-zA-Z0-9'"]
             SOURCE[Line_Nom-1] = Text.replace("&"+Regex.group("var"),f'hex(id({Regex.group("var")}))')
+
 
         #] until & unless & foreach & func
         elif Stripped.startswith('until '  )  or  Stripped=='until':
@@ -450,27 +485,6 @@ def syntax(SOURCE,
                 raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'func'")
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('func', 'def', 1)
 
-        #] Const Var                        # TODO: Better regex
-        elif Stripped.startswith('const '  )  or  Stripped=='const':
-            #if Text.startswith(' '): raise LateDefine("'Const' Must Be Defined In The Main Scope")
-            if Regex:=re.match(r'(?P<Indent>\s*)const\s+(?P<VarName>\w+)\s*=\s*(?P<Value>.+)\s*', Text):
-                Indent  =  Regex.group('Indent' )
-                VarName =  Regex.group('VarName')
-                Value   =  Regex.group('Value'  )
-                SOURCE[Line_Nom-1] =  f'{Indent}{VarName} = {Value}'
-                if VarName != VarName.upper()  and  DEBUG:
-                    #] maybe it should be just a warning
-                    print(f"{FILE}:{Line_Nom}> Constant Variable Name ({VarName}) is not UPPERCASED",'red')
-                    '''
-                     raise ERRORS.ConstantError(Line_Nom=Line_Nom,
-                                               Line_Text=Stripped,
-                                               File=FILE,
-                                               msg='Constant Variable Name Must be UPPERCASE')
-                    '''
-                for item in CONSTS:  #] Check if Const X is already defined
-                    if VarName == item[0]:
-                        raise ERRORS.ConstantError(Line_Nom, item[1], Stripped, item[0], FILE)
-                CONSTS.add((VarName, Line_Nom))
 
         #] Const Array
         elif Regex:=re.match(r'(?P<Indent>\s*)(?P<VarName>\w+)\s*=\s*<(?P<Content>.*)>', Text):
@@ -499,6 +513,7 @@ def syntax(SOURCE,
             CONSTS.add((VarName, Line_Nom))
             Indent = Regex.group('Indent')
             SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Const({Content})'
+
 
         #] do_while
         elif Regex:=re.match(r'(?P<Indent>\s*)do\s*:\s*',Text):
@@ -534,6 +549,7 @@ def syntax(SOURCE,
 
             SOURCE[Line_Nom-1] = ''
             SOURCE[WHILE_LINE] = SOURCE[WHILE_LINE]+':'
+
 
         #] Array
         elif Stripped.startswith('array '  )  or  Stripped=='array':

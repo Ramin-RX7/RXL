@@ -106,3 +106,32 @@ while not nnoo:
         nnoo = True
 """
 
+#] Constant
+"""
+class _Const2(metaclass=Singleton):
+    def __setattr__(self, __name: str, __value) -> None:
+        if self.__dict__.get(__name):
+            raise PermissionError
+        # globals()[__name] = __value
+        super().__setattr__(__name, __value)
+"""
+
+#] Stack for paranthesis check
+"""
+def find_parens(s):
+    toret = {}
+    pstack = []
+
+    for i, c in enumerate(s):
+        if c == '(':
+            pstack.append(i)
+        elif c == ')':
+            if len(pstack) == 0:
+                raise IndexError("No matching closing parens at: " + str(i))
+            toret[pstack.pop()] = i
+
+    if len(pstack) > 0:
+        raise IndexError("No matching opening parens at: " + str(pstack.pop()))
+
+    return toret
+"""

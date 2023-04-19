@@ -45,3 +45,17 @@ class array(list):
         if len(self) >= self._max_length:
             raise MemoryError("Maximum size of the array is reached")
         super().append(__v)
+
+
+def constant(f):
+    def fset(self, value):
+        raise PermissionError
+    def fget(self):
+        return f()
+    return property(fget, fset)
+class Singleton(type):
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]

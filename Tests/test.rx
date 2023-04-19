@@ -7,6 +7,13 @@ Print : Stylized
 Func-Type-Checker: True
 End-Exit : True
 
+#] Const
+CONSTS:
+    pi = 3.14
+    username = "MyUsername"
+    # comment test
+    phone_number = "0123456789"
+
 
 print('START\n')
 
@@ -15,18 +22,23 @@ print(sc.system.cwd(), style="bold")
 #] Info
 print(std.Title, std.Version, std.Author)
 
+
 #] Include
 ...
+
 
 #] Func-Type-Checker
 def f(x:str):
     print(x)
 
+
 #] Load
 ...
 
+
 #] Memory Location
 ...
+
 
 #] Until
 i = 0
@@ -34,45 +46,52 @@ until i != 3:
     print("until: ", i)
     i += 1
 
+
 #] Unless
 i = 0
 unless i:
     print("unless", i)
 
+
 #] Foreach
 foreach i in [1,2,3]:
     print("Foreach", i)
+
 
 #] Func
 func f(x):
     return ("func", x*2)
 
-#] Const
-...
 
 #] do while
 ...
 
+
 #] Array
 ...
+
 
 
 #< $ >#
 #] $check
 ...
 
+
 #] $checkwait
 ...
 
+
 #] $cmd
 $cmd echo $cmd hello
+
 
 #] $call
 def f(x="!"):
     print("$call", x)
 $call f in 1
 
+
 #] $cls
-# $clear
+#$clear
 
 print('\nEND')

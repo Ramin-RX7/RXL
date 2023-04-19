@@ -10,7 +10,6 @@
     ✘?  A file to repair files (save all files in a zipfile)
     ✘?  Stop Imports
     ✘  No Break if there is python code in Base Lines
-    ✘ CONST at the beginning
     ✔ @high @easy Convert relative file paths to absolute
     ✔ @high @easy Annotations and Documentation (Docstring/Help)
     ✔ @low @easy apply the own type of iterable after using apply()
@@ -41,12 +40,6 @@
         ☐ @med Synchronize all DEBUGs
         ☐ @hard @beta Debug with running linters
 
-    CONSTs:
-        ☐ @high @norm better implementation
-        ☐ @med Fix Const func to accept one object
-        ☐ @med Constants Check for Error
-        ☐ @med Const Func: Accepts args only with the name and type that is specified
-        !  @med After NameError rest of code will be ignored
 
     Options:
         ☐ @low @easy Ignore Reloading LOADED_PACKAGES Option
@@ -118,8 +111,12 @@
     ☐ @med @norm @beta @RXL-Lib Enums
     ☐ @med @norm @beta @RXL-Lib Dataclasses
 
+    CONSTs:
+        ?  option to directly push Const class/func into file or load with `inspect` inside of the file?
+        ☐ @med @hard Constants can not be defined in more than one line
+
 
 
 [Canopy]
     ☐ @high Remaining Syntax:
-        Type-Scanner, foreach, func, const, do while, $checkwait
+        Type-Scanner, foreach, func, const, do_while, $checkwait
