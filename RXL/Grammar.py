@@ -46,10 +46,6 @@ class REGEX:
 
     func = re.compile(r'func \s*(?P<Expression>.+)')
 
-    const = re.compile(r'(?P<Indent>\s*)const\s+(?P<VarName>\w+)\s*=\s*(?P<Value>.+)\s*')
-
-    const_array = re.compile(r'(?P<Indent>\s*)(?P<VarName>\w+)\s*=\s*<(?P<Content>.*)>')
-
     class DoWhile:
         do = re.compile(r'(?P<Indent>\s*)do\s*:\s*')
         while_ = re.compile(r'while\s*\(.+\)')
@@ -315,7 +311,6 @@ def syntax(SOURCE,
                 'try', 'else' , 'switch' , 'class', 'case',
                 )
     '''
-    CONSTS = set()
     Skip = 0
     THREADS = []
 
@@ -348,12 +343,6 @@ def syntax(SOURCE,
                         Skip = line_in_str
                         #print(Skip)
                 continue
-
-        #] Check for Constant re-definition/change
-        for item in CONSTS:
-            if re.search(rf'( |;|^$){item[0]}\s*(\[.+\])?\s*=\s*[^=]+', Text):  # \s*.+  {?}
-                if not Stripped.startswith('def ')  and  not Stripped.startswith('#'):
-                    raise ERRORS.ConstantError(Line_Nom, item[1], Stripped, item[0], FILE)
 
 
         if False: pass   # Just to make rest of the conditions look similar
@@ -499,39 +488,9 @@ def syntax(SOURCE,
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('func', 'def', 1)
 
 
-        #] Const Array
-        elif Regex:=re.match(r'(?P<Indent>\s*)(?P<VarName>\w+)\s*=\s*<(?P<Content>.*)>', Text):
-            Content = Regex.group('Content')
-            VarName = Regex.group('VarName')
-            '''
-            TYPE_ERROR = False
-            try:
-                Content = eval(Content)
-                if type(Content) != tuple:
-                    TYPE_ERROR = True
-            except NameError:
-                pass
-            except Exception as e:
-                ERRORS.RaiseError(str(type(e).__name__),e,Text,Line_Nom,FILE)
-
-            if TYPE_ERROR:
-                #raise TypeError(f"ArrayConst can not be '{type(Content)}' type (Use 'Const' keyword)")
-                Type_Content = str(type(Content))[8:-2]
-                if DEBUG:
-                    print(f"'<>' is for Arrays, Try to use 'Const' keyword for type ",'red', end='')
-                    print(f"'{Type_Content}'  ({FILE}:{Line_Nom}:{VarName})", 'red')#, style='bold')
-            '''
-            if VarName != VarName.upper()  and  DEBUG:
-                print(f"{FILE}:{Line_Nom}> Constant Variable Name ({VarName}) is not UPPERCASED",'red')
-            CONSTS.add((VarName, Line_Nom))
-            Indent = Regex.group('Indent')
-            SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Const({Content})'
-
-
         #] do_while
-        elif Regex:=re.match(r'(?P<Indent>\s*)do\s*:\s*',Text):
-            #elif Striped.startswith('do '     )  or  Striped=='do':
-            if not Regex:
+        elif Stripped.startswith('do '     )  or  Stripped=='do':
+            if not (Regex:=re.match(r'(?P<Indent>\s*)do\s*:\s*',Text)):
                 raise SyntaxError
 
             Indent = Regex.group('Indent')

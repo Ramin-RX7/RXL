@@ -35,6 +35,7 @@
         ☐ @med What happens if we use cache and loaded module has changed
         ☐ @med Load modules with default Options
         ✘ switch-case works fine in normal run but is not translated when loading
+        ☐ @critical @med `load` is unsafe (as it will be run from terminal)
 
     Full debug:
         ☐ @med Synchronize all DEBUGs
@@ -48,11 +49,10 @@
 
 
 [Syntax]
-    ☐ @med @norm @beta Check syntax erros with fuzzy string matching
-    ☐ @critical @med `load` is unsafe (as it will be run from terminal)
+    ☐ @low @norm @beta Check syntax erros with fuzzy string matching
     ☐ @med @easy Using re.compile instead of re.match/re.search
     ☐ @med @easy Check lines for all conditions until there's nothing to translate
-    ☐ @low @easy `Syntax` Conditions Order (By Usage)
+    ☐ @med @easy `Syntax` Conditions Order (By Usage)
     ☐ @high @easy 'foreach' New Syntax:  "foreach iterable[item]:"
     ☐ @high @hard Console support RX syntax ( '\n'.join(Syntax([line])) )
     ☐ @high @hard Split line by strings, check_syntax spliteds ,connect them again
@@ -75,6 +75,7 @@
         ?  All `$commands` be in one condition (faster or not?)
 
     Include:
+        ☐ Re-implementation
         ☐ @med @easy *:*
         ☐ @med @easy class:*
         ☐ @high @norm Very Very Slow
