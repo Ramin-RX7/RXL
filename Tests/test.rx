@@ -54,7 +54,8 @@ unless i:
 
 
 #] Foreach
-foreach i in [1,2,3]:
+mylist = [1,2,3]
+foreach mylist[i]:
     print("Foreach", i)
 
 

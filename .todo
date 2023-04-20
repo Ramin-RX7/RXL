@@ -49,11 +49,11 @@
 
 
 [Syntax]
+    ☐ foreach:  `foreach i:items` or `foreach i of items`
     ☐ @low @norm @beta Check syntax erros with fuzzy string matching
     ☐ @med @easy Using re.compile instead of re.match/re.search
     ☐ @med @easy Check lines for all conditions until there's nothing to translate
     ☐ @med @easy `Syntax` Conditions Order (By Usage)
-    ☐ @high @easy 'foreach' New Syntax:  "foreach iterable[item]:"
     ☐ @high @hard Console support RX syntax ( '\n'.join(Syntax([line])) )
     ☐ @high @hard Split line by strings, check_syntax spliteds ,connect them again
             ( get ''/"" parts out, then use .replace() )
@@ -64,6 +64,7 @@
     ?  @easy "until & unless & foreach & func" replace or regex
     ?  &&  ---  ||
     ✘ @high @hard There couldnt be nested Switch-Case statements
+    ✔ @high @easy 'foreach' New Syntax:  "foreach iterable[item]:"
 
     $ family:
         ☐ @easy $check & $ $checkwait should be combined and be in the same "if" in Syntax()
@@ -92,15 +93,6 @@
 
 
 
-[Extension]
-    ☐ @high @hard @beta Recreate the extension from scratch
-        (by now it is only a copy of `python` extension with some additions)
-    ?  @easy Clear the screen in extension run (? get operating system for cls/clear)
-    ?  Correct color for Options in extension (and also ignore cases)
-    ☐ @med @easy Internet class functions
-
-
-
 [New Features]
     ☐ @med @hard Add/Remove/Change some built-in objects methods ('forbiddenfruit')
         ☐ lock and unlock iterables
@@ -115,6 +107,29 @@
     CONSTs:
         ?  option to directly push Const class/func into file or load with `inspect` inside of the file?
         ☐ @med @hard Constants can not be defined in more than one line
+
+
+
+[Config]
+    a file named `RXLconfig.toml`
+    different config types:  Default/Global/Project
+    importable with a syntax:
+        `config {type}` (where type can be global/project/default)
+    Configs list:
+        Verbose, Debug, Cache default values when not given in terminal
+        Lib-Name, Print, Func-Type-Checker, End-Exit
+        default python path (for python runs like nuitka)
+        pre-run command   (also a condition e.g: only run when `file` arg is given)
+        post-run command  (also a condition e.g: only run when `file` arg is given)
+
+
+
+[Extension]
+    ☐ @high @hard @beta Recreate the extension from scratch
+        (by now it is only a copy of `python` extension with some additions)
+    ?  @easy Clear the screen in extension run (? get operating system for cls/clear)
+    ?  Correct color for Options in extension (and also ignore cases)
+    ☐ @med @easy Internet class functions
 
 
 

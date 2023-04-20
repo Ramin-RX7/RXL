@@ -196,7 +196,7 @@ def define_structure(SOURCE, FILE, DEBUG):
             SOURCE[nom] = "class CONSTS(metaclass=std.RXL.Lang.Singleton):"
             last_line = nom
             until = nom
-
+            indent = "  "
             while True:
                 until += 1
                 if (not SOURCE[until].strip()) or (SOURCE[until].lstrip().startswith("#")):
@@ -210,10 +210,10 @@ def define_structure(SOURCE, FILE, DEBUG):
                 if line_regex := re.match(r"(?P<indent>\s+)(?P<varname>\w+)\s*=\s*(?P<value>.+)",
                                           SOURCE[until]):
                     consts[line_regex.group("varname")] = line_regex.group("value")
-                    SOURCE[until] = f"  {line_regex.group('varname')} = " \
+                    SOURCE[until] = f"{indent}{line_regex.group('varname')} = " \
                                     f"std.RXL.Lang.constant(lambda:({line_regex.group('value')}))"
                     last_line = until
-                    indent = line_regex.group('indent')
+                    # indent = line_regex.group('indent')
                 else:
                     # print(f"Unknown: {until}")
                     pass
@@ -234,6 +234,7 @@ def define_structure(SOURCE, FILE, DEBUG):
 
             Skip = until - nom
             continue
+
 
         #] Version
         elif Regex:=re.match(r'Version\s*:\s*(?P<Version>[0-9]+(\.[0-9]+)?(\.[0-9]+)?)',
@@ -474,18 +475,21 @@ def syntax(SOURCE,
             if not Regex:
                 raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'unless'")
             SOURCE[Line_Nom-1] = f"{Regex.group('Indent')}if not ({Regex.group('Expression')}):{Regex.group('Rest')}"
-        elif Stripped.startswith('foreach ')  or  Stripped=='foreach':
-            #elif Regex:=re.match(r'foreach \s*(?P<Expression>.+):', Striped):
-            Regex=re.match(r'foreach \s*(?P<Expression>.+):', Stripped)
-            if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'foreach'")
-            SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('foreach', 'for', 1)
         elif Stripped.startswith('func '   )  or  Stripped=='func':
             #elif Regex:=re.match(r'func \s*(?P<Expression>.+)'    , Striped):
             Regex=re.match(r'func \s*(?P<Expression>.+)'    , Stripped)
             if not Regex:
                 raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'func'")
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('func', 'def', 1)
+
+
+        elif Stripped.startswith('foreach ')  or  Stripped=='foreach':
+            Regex=re.match(r'(?P<indent>\s*)foreach \s*(?P<iterable>.+)\[(?P<forvar>\w+)\]:\s*', Text)
+            if not Regex:
+                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'foreach'")
+            indent, iterable, forvar = Regex.groups()
+            modified = f"{indent}for {forvar} in {iterable}:"
+            SOURCE[Line_Nom-1] = modified
 
 
         #] do_while
