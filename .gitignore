@@ -1,14 +1,10 @@
 # Custom
-.vscode/
-.vscode-test/
 _Console_.py
 translated
-Parsing-Test/PEGs/test.py
 Eso_BluePrint.txt
 RegexDoc.py
+.vscode/
 node_modules/
-# tst*.*
-# __RX_LC__/
 
 
 
