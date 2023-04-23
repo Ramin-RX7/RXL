@@ -97,59 +97,9 @@ class ArgumentParser:
         """
         Returns a dictionary of how argument shoud be when no arguments are given from terminal
         """
-        # return {'module_test': False, 'debug': False, 'cache': True, 'verbose': False, 'file': None, 'compile': False, 'translate_only': False}
+        # return {'module_test': False, 'debug': False, 'cache': True, 'verbose': False,
+        #         'file': None, 'compile': False, 'translate_only': False}
         return ArgumentParser.Parser(underscores_to_dashes=True).parse_args({}).as_dict()
-
-
-    @staticmethod
-    def detect_task(args:Addict):
-        """detects what task shoud be run from given arguments
-
-        Args:
-            args (Addict): dotted-dictionary of parsed arguments of terminal
-
-        Returns:
-            tuple: task:str, task_args:list of args that needs to be passed to task function
-        """
-        # if len(sys.argv) == 1:
-            # task = "console"
-            # task_args = []
-        if args.file:
-            if args.translate_only:
-                task = "translate"
-                task_args = [args.file, args.cache, args.debug, args.verbose, args.compile]
-            elif args.compile:
-                task = "compile"
-                task_args = [args.file]
-            else:
-                task = "runfile"
-                task_args = [args.file, args.cache, args.debug, args.verbose]
-
-        else:
-            task = "console"
-            task_args = []
-
-        return (task,task_args)
-
-
-    @staticmethod
-    def run_task(task:str,args:list) -> bool:
-        """calls the given task function with passing *args to it
-
-        Args:
-            task (str): name of the task
-            args (list): list of arguments that are needed for the task's function
-
-        Returns:
-            bool: whether the task ran successfully or not
-        """
-        tasks_dict = {
-            "console"  :  Tasks.Console,
-            "translate":  Tasks.translate_only,
-            "compile"  :  NotImplemented,
-            "runfile"  :  Tasks.runfile,
-        }
-        return tasks_dict[task](*args)
 
 
 
@@ -172,6 +122,15 @@ class Tasks:
     @staticmethod
     def compile(file=None):
         raise NotImplementedError
+        """
+        --standalone   (creates a `myfile.dist` directory that contains all files to run on any machine)
+        --onefile
+        --follow-imports
+        --disable-console
+        --windows-icon-from-ico  --linux-icon
+        --file-version  --product-version
+        --copyright  --trademark
+        """
 
 
     #] only translating file to python code (if compile==True also compiles it)
@@ -265,6 +224,57 @@ class Tasks:
         return True
 
 
+    @staticmethod
+    def detect_task(args:Addict) -> tuple:
+        """detects what task shoud be run from given arguments
+
+        Args:
+            args (Addict): dotted-dictionary of parsed arguments of terminal
+
+        Returns:
+            tuple: task:str, task_args:list of args that needs to be passed to task function
+        """
+        # if len(sys.argv) == 1:
+            # task = "console"
+            # task_args = []
+        if args.file:
+            if args.translate_only:
+                task = "translate"
+                task_args = [args.file, args.cache, args.debug, args.verbose, args.compile]
+            elif args.compile:
+                task = "compile"
+                task_args = [args.file]
+            else:
+                task = "runfile"
+                task_args = [args.file, args.cache, args.debug, args.verbose]
+
+        else:
+            task = "console"
+            task_args = []
+
+        return (task,task_args)
+
+
+    @staticmethod
+    def run_task(task:str,args:list) -> bool:
+        """calls the given task function with passing *args to it
+
+        Args:
+            task (str): name of the task
+            args (list): list of arguments that are needed for the task's function
+
+        Returns:
+            bool: whether the task ran successfully or not
+        """
+        tasks_dict = {
+            "console"  :  Tasks.Console,
+            "translate":  Tasks.translate_only,
+            "compile"  :  NotImplemented,
+            "runfile"  :  Tasks.runfile,
+        }
+        return tasks_dict[task](*args)
+
+
 
 #< Make Things Ready For Running >#
 def Setup_Env() -> None:     #]  0.000 (with .hide():0.003)
@@ -272,8 +282,6 @@ def Setup_Env() -> None:     #]  0.000 (with .hide():0.003)
     if not rx.files.exists(CACHE_DIR):
         rx.files.mkdir(CACHE_DIR)
         # rx.files.hide(CACHE_DIR)
-        return False
-    return True
 
 
 def set_working_path(path) -> None:
@@ -409,9 +417,9 @@ def main():
 
         ARGS  = ArgumentParser.parse_args()
         # print(ARGS)
-        TASK,TASK_ARGS = ArgumentParser.detect_task(Addict(ARGS))
+        TASK,TASK_ARGS = Tasks.detect_task(Addict(ARGS))
         TIMES['ARGS  '] = time.time()-START_TIME
-        ArgumentParser.run_task(TASK,TASK_ARGS)
+        Tasks.run_task(TASK,TASK_ARGS)
         # print(TIMES)
 
 

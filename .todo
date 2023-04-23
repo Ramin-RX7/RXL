@@ -1,4 +1,6 @@
 [MAIN]
+    ☐ @med @easy Save cache in the file directory instead of cwd
+    ☐ @high @easy Remove str.format()  (Raising AttributeError when calling it)
     ☐ @med @easy Array should have rest of the members as None if not all is given
     ☐ create_MiniStd implementation
     ☐ @med @easy EOL error in red
@@ -121,6 +123,7 @@
         default python path (for python runs like nuitka)
         pre-run command   (also a condition e.g: only run when `file` arg is given)
         post-run command  (also a condition e.g: only run when `file` arg is given)
+        Shortcut to files (run files without giving the path to the file)
 
 
 
