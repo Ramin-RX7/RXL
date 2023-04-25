@@ -25,7 +25,10 @@
         ☐ @easy @alpha Update RXL_CSG
         ☐ @hard @alpha add a README
         ☐ @high @norm @alpha Make a detailed documentation
-            (even about smallest things)
+            runtime
+            translation
+            usage
+            code (bit-by-bit)
         ☐ @low @easy Run file with double clicking
 
     Compile implementation:
@@ -89,6 +92,7 @@
 [Definde-Structure]
     ☐ allow-reload implementation
     ☐ @beta lib-version implementation
+    ? Remove `print` and set it by default to stylized
     ?✘ make a module out of defined structures and add `from module import *`
         (so only one line would be added to the file)
     ✔ improve regex
