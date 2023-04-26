@@ -24,11 +24,6 @@
     Out-of-Code:
         ☐ @easy @alpha Update RXL_CSG
         ☐ @hard @alpha add a README
-        ☐ @high @norm @alpha Make a detailed documentation
-            runtime
-            translation
-            usage
-            code (bit-by-bit)
         ☐ @low @easy Run file with double clicking
 
     Compile implementation:
@@ -54,6 +49,12 @@
 
 
 [Syntax]
+    ☐ @med @norm increment and decrement operators (++/--)
+    ?  check import instead of load
+        if a module is found with rx/rxl extension, import that
+    ? change `do while` loop syntax to just simply add a `do ` before `while`
+        + it is easier to read
+        + easier to implement
     ☐ foreach:  `foreach i:items` or `foreach i of items`
     ☐ @low @norm @beta Check syntax erros with fuzzy string matching
     ☐ @med @easy Using re.compile instead of re.match/re.search
@@ -128,6 +129,15 @@
         pre-run command   (also a condition e.g: only run when `file` arg is given)
         post-run command  (also a condition e.g: only run when `file` arg is given)
         Shortcut to files (run files without giving the path to the file)
+
+
+
+[Docs]
+    runtime:
+    translation:
+        ☐ Go more into details of how each syntax are translated
+    usage:
+    code:
 
 
 
