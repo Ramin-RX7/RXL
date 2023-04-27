@@ -1,8 +1,5 @@
 [MAIN]
-    ☐ @med @easy Save cache in the file directory instead of cwd
-    ☐ @high @easy Remove str.format()  (Raising AttributeError when calling it)
-    ☐ @med @easy Array should have rest of the members as None if not all is given
-    ☐ create_MiniStd implementation
+    ☐ @med @easy Remove str.format()  (Raising AttributeError when calling it)
     ☐ @med @easy EOL error in red
     ☐ @high @hard Improve Exception Catching when runing file
     ☐ @med @easy Ignore module loading output error
@@ -12,6 +9,8 @@
     ✘?  A file to repair files (save all files in a zipfile)
     ✘?  Stop Imports
     ✘  No Break if there is python code in Base Lines
+    ✔ @med @easy Array should have rest of the members as None if not all is given
+    ✔ @high @easy Save cache in the file directory instead of cwd
     ✔ @high @easy Convert relative file paths to absolute
     ✔ @high @easy Annotations and Documentation (Docstring/Help)
     ✔ @low @easy apply the own type of iterable after using apply()
@@ -101,6 +100,7 @@
 
 
 [New Features]
+    ☐ create_MiniStd implementation
     ☐ @med @hard Add/Remove/Change some built-in objects methods ('forbiddenfruit')
         ☐ lock and unlock iterables
     ☐ dotted-dict

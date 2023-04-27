@@ -25,8 +25,8 @@ class array(list):
             if len(__iterable) > max_length:
                 raise MemoryError("Length of given iterable is more that `_max_length`")
             self._max_length = max_length
-
-            return super().__init__(__iterable)
+            final_iterable = [item for item in __iterable] + [None for _ in range(max_length-len(__iterable))]
+            return super().__init__(final_iterable)
 
         else:
             if max_length < 0:
