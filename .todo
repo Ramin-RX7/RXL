@@ -3,6 +3,7 @@
     ☐ @med @easy EOL error in red
     ☐ @high @hard Improve Exception Catching when runing file
     ☐ @med @easy Ignore module loading output error
+    ?  Change terminal title
     ?  @easy Check for cache in local directory of RXL (not relative to running file)
     ?  @easy Blank line before all errors
     ?✘  @easy Cache use `hash` of file instead of `mdftime` :: Takes time to import hashlib
@@ -48,13 +49,14 @@
 
 
 [Syntax]
+    ☐ @low @hard `Exec()` and `eval()` support
     ☐ @med @norm increment and decrement operators (++/--)
     ?  check import instead of load
         if a module is found with rx/rxl extension, import that
     ? change `do while` loop syntax to just simply add a `do ` before `while`
         + it is easier to read
         + easier to implement
-    ☐ foreach:  `foreach i:items` or `foreach i of items`
+    ☐ @med @norm foreach:  `foreach i:items` or `foreach i of items`
     ☐ @low @norm @beta Check syntax erros with fuzzy string matching
     ☐ @med @easy Using re.compile instead of re.match/re.search
     ☐ @med @easy Check lines for all conditions until there's nothing to translate
@@ -81,11 +83,12 @@
         ?  All `$commands` be in one condition (faster or not?)
 
     Include:
-        ☐ Re-implementation
-        ☐ @med @easy *:*
-        ☐ @med @easy class:*
-        ☐ @high @norm Very Very Slow
-        ☐ @med @hard Wrong translation when using '#'
+        ☐ @high @easy Does not work with `#` in the end of the line
+        ☐ @low @norm `from CLASS include FUNCTION` syntax
+        ✔ Re-implementation
+        ✘ @med @easy class:*
+        ! @high @norm Very Very Slow
+        ! @med @hard Wrong translation when using '#'
 
 
 

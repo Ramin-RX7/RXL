@@ -1,9 +1,11 @@
 import re
 import tokenize
 
+
 from .Lib import *
 from . import Errors as ERRORS
 
+import rx7 as rx
 
 
 print = rx.style.print
@@ -350,51 +352,38 @@ def syntax(SOURCE,
 
         #] Include
         elif Stripped.startswith('include ')  or  Stripped=='include':
+            attrs = dir(rx)
             Regex=re.match(r'(?P<Indent>\s*)include \s*(?P<objects>.+)\s*', Text)
             if not Regex:
                 raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'include'")
             Indent = Regex.group('Indent')
-            OBJECTS = Regex.group('objects')
-            To_Add = str(Indent)
-
-            if OBJECTS == '*':
-                Type = 'Class'
-                Packages = list(CLASSES[0])
-            elif not ':' in OBJECTS:
-                Type = 'Class'
-                Packages = re.split(r'\s*,\s*', Text)
-                Packages[0]= Packages[0][len(Indent)+8:].strip()
-            elif Reg2:=re.search(r'(?P<CLASS>\w+)\s*:\s*(?P<OBJECTS>.+)',OBJECTS):
-                Type = 'Object'
-                import rx7# as RX_M
-                global RX_M
-                RX_M = rx7
-                CLASS = Reg2.group('CLASS')
-                OBJ2  = Reg2.group('OBJECTS')
-
-                method_list = [func for func in dir(eval(f'RX_M.{CLASS}')) if (
-                    callable(getattr(eval(f'RX_M.{CLASS}'), func))  and  not func.startswith("__"))]
-                if CLASS not in CLASSES[0]+CLASSES[1]:
-                    raise ERRORS.AttributeError(FILE,Line_Nom,Text,MODULE_VERSION,package)
-                OBJ_of_OBJS2 = re.split(r'\s*,\s*',OBJ2)
-                for obj in OBJ_of_OBJS2:
-                    if not obj in method_list:
-                        raise ERRORS.AttributeError(FILE,Line_Nom,Text,MODULE_VERSION,obj,'class')
-                    To_Add += f'{obj}={MODULE_SHORTCUT}.{CLASS}.{obj};'
-            else:
-                raise ERRORS.RaiseError('IncludeError',
-                        "Syntax is not recognized for 'include'. (Make sure it is true, then report it)",
-                        Text,Line_Nom,FILE)
-
-            if Type == 'Class':
-                for package in Packages:
-                    if package not in CLASSES[0]+CLASSES[1]:
-                        raise ERRORS.AttributeError(FILE,Line_Nom,Text,MODULE_VERSION,package)
-                    #SOURCE.insert(Line_Nom-1, f'{Indent}{package} = {MODULE_SHORTCUT}.{package}')
-                    To_Add += f'{package}={MODULE_SHORTCUT}.{package};'
-
-            SOURCE[Line_Nom-1] = To_Add
-            # continue  # do it to all?
+            items = Regex.group('objects').split(",")
+            new_items = []
+            print(Text)
+            print(items)
+            for item in items:
+                if item.startswith("*"):
+                    if item[1:] in attrs:
+                        new_items.append(f"from rx7.{item[1:]} import *")
+                    else:
+                        raise AttributeError("Class not found to get all")
+                elif ":" in item:
+                    class_ = item[:item.index(":")].strip()
+                    if class_ not in attrs:
+                        raise AttributeError("Class not found to get some")
+                    new_item = f"from rx7.{class_} import "
+                    items_inside = item[item.index(":")+1:].replace(" ","").split("&")
+                    for item_inside in items_inside:
+                        if item_inside in dir(eval(f"rx.{class_}")):
+                            new_item += item_inside + ","
+                        else:
+                            raise AttributeError("Not in class")
+                    new_items.append(new_item[:-1])
+                elif item in attrs:
+                    new_items.append(f"from rx7 import {item}")
+                else:
+                    raise AttributeError("None")
+            SOURCE[Line_Nom-1] = ";".join(new_items)
 
 
         #] Func Type checker
