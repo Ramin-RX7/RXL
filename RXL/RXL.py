@@ -13,7 +13,7 @@ from . import Grammar
 
 __version__ = '0.0.1'
 
-START_TIME = time.time()
+START_TIME = time.perf_counter()
 
 print = rx.style.print
 Error = rx.style.log_error
@@ -65,6 +65,9 @@ class ArgumentParser:
             if self.file and  not rx.files.exists(self.file):
                 Error(f"can't open file '{rx.files.abspath(self.file)}':  No such file or directory",
                       add_time=False)
+                exit()
+            if self.file and  (not rx.files.isfile(self.file)):
+                Error(f"can't open file '{rx.files.abspath(self.file)}':  Not a file",add_time=False)
                 exit()
             if not self.file and (self.translate_only or self.compile):
                 Error(f"`file` should be specified when `--translate-only` or `--compile` arguments are given",
@@ -163,7 +166,7 @@ class Tasks:
         if compile:
             Tasks.compile()
 
-        TIMES["TRANSLATE_ONLY"] = time.time()-START_TIME
+        TIMES["TRANSLATE_ONLY"] = time.perf_counter()-START_TIME
         return True
 
     #] running the file given as terminal argument
@@ -199,7 +202,7 @@ class Tasks:
             # print(f'Running  "{INFO["Title"]}" v{INFO["Version"]}  by "{INFO["Author"]}"')
             print('\n')
 
-        TIMES['B_Run '] = time.time()-START_TIME
+        TIMES['B_Run '] = time.perf_counter()-START_TIME
         for k,v in TIMES.items(): print(f'{k} :: {v}','green')
 
         try:
@@ -216,7 +219,7 @@ class Tasks:
             rx.files.remove(ready_file_name)
 
         if verbose:
-            EXECUTION_TIME_TEXT = round(time.time()-START_TIME,3)
+            EXECUTION_TIME_TEXT = round(time.perf_counter()-START_TIME,3)
             print(f'\n\nExecution Time:  {EXECUTION_TIME_TEXT}\n')
             #print(START_TIME)
             #print(EXECUTION_TIME_TEXT)
@@ -307,7 +310,8 @@ def get_cache(cache:bool, path:str, debug:bool, verbose:bool) -> str|None:
     if cache is False:
         return None
 
-    full_ready_path = f"{WORKING_PATH}/{CACHE_DIR}/{convert_file_name(rx.files.basename(path))}"
+    FILE_DIR = rx.files.dirname(rx.files.abspath(path))
+    full_ready_path = f"{FILE_DIR}/{CACHE_DIR}/{convert_file_name(rx.files.basename(path))}"
     cache_file =  rx.files.exists(full_ready_path)
     if cache_file:
         if debug or verbose:
@@ -321,7 +325,7 @@ def get_cache(cache:bool, path:str, debug:bool, verbose:bool) -> str|None:
     else:
         if debug:
             print("[*] No Cache were found")
-    TIMES["CACHE "] = time.time()-START_TIME
+    TIMES["CACHE "] = time.perf_counter()-START_TIME
     return None
 
 
@@ -336,7 +340,8 @@ def save_cache(path:str, source:str, cache_dir:str=CACHE_DIR) -> None:
     """
     id = str(int(rx.files.mdftime(path)))
     source = id + "\n" + source
-    rx.write(f"{WORKING_PATH}/{cache_dir}/{convert_file_name(rx.files.basename(path))}",source)
+    FILE_DIR = rx.files.dirname(rx.files.abspath(path))
+    rx.write(f"{FILE_DIR}/{cache_dir}/{convert_file_name(rx.files.basename(path))}", source)
 
 
 
@@ -356,11 +361,11 @@ def translate(source:list, path:str, cache:bool, debug:bool, verbose:bool) -> tu
     """
     source, lib_version, lib_shortcut, \
         type_scanner, info = Grammar.define_structure(source, path, debug)
-    TIMES['DefStr'] = time.time()-START_TIME
+    TIMES['DefStr'] = time.perf_counter()-START_TIME
 
     source, threads = Grammar.syntax(source, lib_version, lib_shortcut,
                              type_scanner, path, debug)
-    TIMES['Syntax'] = time.time()-START_TIME
+    TIMES['Syntax'] = time.perf_counter()-START_TIME
 
     source = '\n'.join(source)
     rx.write('translated', source)
@@ -410,15 +415,15 @@ def main():
         All errors will be raised right now as RXL is still in alpha stages
     """
     try:
-        TIMES['Start '] = time.time()-START_TIME
+        TIMES['Start '] = time.perf_counter()-START_TIME
 
         Setup_Env()
-        TIMES['SetEnv'] = time.time()-START_TIME
+        TIMES['SetEnv'] = time.perf_counter()-START_TIME
 
         ARGS  = ArgumentParser.parse_args()
         # print(ARGS)
         TASK,TASK_ARGS = Tasks.detect_task(Addict(ARGS))
-        TIMES['ARGS  '] = time.time()-START_TIME
+        TIMES['ARGS  '] = time.perf_counter()-START_TIME
         Tasks.run_task(TASK,TASK_ARGS)
         # print(TIMES)
 
