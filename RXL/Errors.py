@@ -1,8 +1,12 @@
 import sys
+
+import rx7 as rx
+
 from .Lib import *
 
-Error = rx.style.log_error
 
+
+Error = rx.style.log_error
 
 
 #< List of all errors >#
@@ -57,11 +61,11 @@ class UndefinedError(Exception):
         print(f'  File "{File}", in/out <module>')
         print( 'UndefinedError: Something Went Wrong. ')#, end='')
         if msg:
-            print('  Possible Error: ','red')
-            print('    '+msg, 'red')
+            print('  Possible Error: ', color='red')
+            print('    '+msg, color='red')
         else:
-            print('  Please Check Your code for Possible Issues','red')
-            print('  If You are Sure It is a Bug Please Report This to the Maintainer','red')
+            print('  Please Check Your code for Possible Issues', color='red')
+            print('  If You are Sure It is a Bug Please Report This to the Maintainer', color='red')
         # Clean_Up(File)
         sys.exit()
 

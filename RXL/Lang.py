@@ -53,6 +53,8 @@ def constant(f):
     def fget(self):
         return f()
     return property(fget, fset)
+
+
 class Singleton(type):
     _instances = {}
     def __call__(cls, *args, **kwargs):

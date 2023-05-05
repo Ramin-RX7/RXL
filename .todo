@@ -28,7 +28,7 @@
 
     Compile implementation:
         ☐ @med @norm @alpha Switch to `nuitka` from `pyinstaller` and `cxfreeze`
-        ☐ .exe doesn't accept args in `pyinstaller`
+        ☐ .exe does not accept args in `pyinstaller`
         ☐ @low @easy "apply" instead of "map" --> Does not work when compiling with "pyinstaller"
 
     Load Modules:
@@ -49,7 +49,7 @@
 
 
 [Syntax]
-    ☐ @low @hard `Exec()` and `eval()` support
+    ☐ @low @hard `exec()` and `eval()` support
     ☐ @med @norm increment and decrement operators (++/--)
     ?  check import instead of load
         if a module is found with rx/rxl extension, import that
@@ -93,6 +93,7 @@
 
 
 [Definde-Structure]
+    ☐ @med @easy add `pprint` to print types
     ☐ allow-reload implementation
     ☐ @beta lib-version implementation
     ? Remove `print` and set it by default to stylized
@@ -103,6 +104,7 @@
 
 
 [New Features]
+    ☐ Tables (using `tabulate`)
     ☐ create_MiniStd implementation
     ☐ @med @hard Add/Remove/Change some built-in objects methods ('forbiddenfruit')
         ☐ lock and unlock iterables

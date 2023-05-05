@@ -135,3 +135,9 @@ def find_parens(s):
 
     return toret
 """
+
+"""
+def run():
+    __builtins__["map"] = NotImplementedError
+    curse(str, "format", NotImplemented)
+"""

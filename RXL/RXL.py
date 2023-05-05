@@ -1,17 +1,20 @@
 import time
 import sys
 
+import rx7 as rx
+
 from addict import Addict
 from tap import Tap
 
-from .Lib import rx,convert_file_name
+from .Lib import convert_file_name
 from . import Grammar
 
 
-
-
-
 __version__ = '0.0.1'
+
+
+
+
 
 START_TIME = time.perf_counter()
 
@@ -21,12 +24,10 @@ Error = rx.style.log_error
 RX_PATH = rx.files.dirname(rx.files.abspath(__file__))
 
 
-Lines_Added = 0
 TIMES = {}
 CACHE_DIR = "__pycache__"
 CONSOLE_FILE = "_console_.py"
 WORKING_PATH = ...
-
 
 
 
@@ -198,12 +199,12 @@ class Tasks:
             #rx.cls()
             NOW = str(__import__('datetime').datetime.now())
             # probably consider changing next line from "NOW" to "START_TIME"
-            print(f'''Start `RXL` at "{NOW[:NOW.rindex('.')+5]}"''')
+            print(f'Start `RXL` at "{NOW[:NOW.rindex(".")+5]}"')
             # print(f'Running  "{INFO["Title"]}" v{INFO["Version"]}  by "{INFO["Author"]}"')
             print('\n')
 
         TIMES['B_Run '] = time.perf_counter()-START_TIME
-        for k,v in TIMES.items(): print(f'{k} :: {v}','green')
+        for k,v in TIMES.items(): print(f'{k} :: {v}',color='green')
 
         try:
             import runpy
@@ -280,11 +281,10 @@ class Tasks:
 
 
 #< Make Things Ready For Running >#
-def Setup_Env() -> None:     #]  0.000 (with .hide():0.003)
+def setup_env() -> None:     #]  0.000 (with .hide():0.003)
     """Setups the environment for RXL to run."""
     if not rx.files.exists(CACHE_DIR):
         rx.files.mkdir(CACHE_DIR)
-        # rx.files.hide(CACHE_DIR)
 
 
 def set_working_path(path) -> None:
@@ -407,8 +407,7 @@ def convert_source(path:str, cache:bool, debug:bool, verbose:bool) -> str:
 
 
 #< START OF THE CODE >#
-# if __name__ == "__main__":
-def main():
+def main():     # if __name__ == "__main__":
     """Main function of the module that will be run from script of the package
 
     Raises:
@@ -417,7 +416,7 @@ def main():
     try:
         TIMES['Start '] = time.perf_counter()-START_TIME
 
-        Setup_Env()
+        setup_env()
         TIMES['SetEnv'] = time.perf_counter()-START_TIME
 
         ARGS  = ArgumentParser.parse_args()
@@ -428,18 +427,15 @@ def main():
         # print(TIMES)
 
 
-    except KeyboardInterrupt:
-        Error('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)')
-
-
+    # except KeyboardInterrupt:
+        # Error('\nExiting Because of KeyboardInterrupt Error (Ctrl+C)')
     except Exception as E:
-        raise E# from None
+        raise E
         print('Traceback (most recent call last):')
         print('  Error occured when making environment ready to run')
-        print('SystemError: '+str(E), 'red', style='bold')
+        print('SystemError: '+str(E), color='red', style='bold')
         print('Please report this in https://github.com/Ramin-RX7/RX-Language/issues, along with the traceback and version')
 
 
     finally:
         pass
-        # rx.terminal.set_title(title)
