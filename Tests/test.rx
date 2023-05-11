@@ -24,10 +24,10 @@ print(std.Title, std.Version, std.Author)
 
 
 #] Include
-#include Progressbar
-#include Progressbar,download
-#include Files:move & copy
-#include *System
+# include Progressbar
+# include Progressbar,download
+# include files:move/copy
+# include *system
 
 
 #] Func-Type-Checker

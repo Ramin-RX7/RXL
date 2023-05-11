@@ -3,6 +3,7 @@
     ☐ @med @easy EOL error in red
     ☐ @high @hard Improve Exception Catching when runing file
     ☐ @med @easy Ignore module loading output error
+    ?  @norm Add a logger?
     ?  Change terminal title
     ?  @easy Check for cache in local directory of RXL (not relative to running file)
     ?  @easy Blank line before all errors

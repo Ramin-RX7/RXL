@@ -12,12 +12,8 @@ print = rx.style.print
 Error = rx.style.log_error
 
 CLASSES = (
-           ['Files'   , 'System', 'Random'    , 'Record', 'Style'   ,
-            'Terminal', 'Tuple' , 'Decorator' , 'IO'    , 'Internet',
-            'Date_Time'],
-           ['files'   , 'system', 'random'    , 'record', 'style'   ,
-            'terminal', 'Tuple' , 'decorator' , 'io'    , 'internet',
-            'date_time'],
+    'date_time', 'system', 'terminal', 'style', 'io',
+    'decorator', 'random', 'internet', 'files',
 )
 LOADED_PACKAGES = []
 Lines_Added = 0
@@ -318,9 +314,6 @@ def syntax(SOURCE,
     THREADS = []
 
     for Line_Nom,Text in enumerate(SOURCE, 1):
-        #t = time.time()
-        #print(str(Line_Nom)+' '+Text)
-
         Stripped = Text.strip()
 
         #] When Adding An Extra Line Like Decorators
@@ -359,30 +352,30 @@ def syntax(SOURCE,
             Indent = Regex.group('Indent')
             items = Regex.group('objects').split(",")
             new_items = []
-            print(Text)
-            print(items)
+            # print(items)
             for item in items:
                 if item.startswith("*"):
-                    if item[1:] in attrs:
-                        new_items.append(f"from rx7.{item[1:]} import *")
+                    class_ = item[1:]
+                    if class_ in CLASSES:
+                        new_items.append(f"from rx7.{class_} import *")
                     else:
                         raise AttributeError("Class not found to get all")
                 elif ":" in item:
                     class_ = item[:item.index(":")].strip()
-                    if class_ not in attrs:
+                    if class_ not in CLASSES:
                         raise AttributeError("Class not found to get some")
                     new_item = f"from rx7.{class_} import "
-                    items_inside = item[item.index(":")+1:].replace(" ","").split("&")
+                    items_inside = item[item.index(":")+1:].replace(" ","").split("/")
                     for item_inside in items_inside:
                         if item_inside in dir(eval(f"rx.{class_}")):
                             new_item += item_inside + ","
                         else:
                             raise AttributeError("Not in class")
-                    new_items.append(new_item[:-1])
+                    new_items.append(new_item[:-1])  # [:-1] to remove last `,`
                 elif item in attrs:
                     new_items.append(f"from rx7 import {item}")
                 else:
-                    raise AttributeError("None")
+                    raise AttributeError("Not found in standard library")
             SOURCE[Line_Nom-1] = ";".join(new_items)
 
 
