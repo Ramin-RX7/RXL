@@ -1,11 +1,11 @@
 import re
 import tokenize
 
+import rx7 as rx
 
 from .Lib import *
 from . import Errors as ERRORS
 
-import rx7 as rx
 
 
 print = rx.style.print
@@ -32,7 +32,7 @@ class REGEX:
         default = re.compile(r'^default\s*:\s*')
         case = re.compile(r'case\s+(?P<Nobreak>(nobreak)?)(?P<VALUE>.+):')
 
-    load = re.compile(r'(?P<indent>\s*)load \s*(\w+,?)?')
+    load = re.compile(r'(?P<indent>\s*)load \s*(?P<packages>\w+,?)?')
 
     memory_loc = re.compile(r'[,\(\[\{\+=: ]&(?P<var>\w+)')
 
@@ -301,17 +301,10 @@ def syntax(SOURCE,
            MODULE_VERSION ,  MODULE_SHORTCUT,
            TYPE_SCANNER   ,
            FILE           ,  DEBUG):
-
     global Lines_Added
-    '''
-     #print(TYPE_SCANNER,'red')
-     Keywords = ('if' , 'elif' , 'except' , 'def',
-                'for', 'while', 'foreach', 'until', 'unless',
-                'try', 'else' , 'switch' , 'class', 'case',
-                )
-    '''
     Skip = 0
     THREADS = []
+    working_path = rx.files.dirname(FILE)
 
     for Line_Nom,Text in enumerate(SOURCE, 1):
         Stripped = Text.strip()
@@ -386,8 +379,8 @@ def syntax(SOURCE,
                 indent = Text.index("func ")
             else:
                 indent = Text.index('def ')
-            if SOURCE[Line_Nom-2].strip().endswith('Check_Type'):
-               SOURCE[Line_Nom-2]= re.search(r'(\s*)',Text).group(1)+f'@std.Check_Type'
+            # if SOURCE[Line_Nom-2].strip().endswith('Check_Type'):
+            #    SOURCE[Line_Nom-2]= re.search(r'(\s*)',Text).group(1)+f'@std.Check_Type'
             if SOURCE[Line_Nom-2].strip().startswith('@'):
                 continue
             SOURCE.insert(Line_Nom-1, f'{" "*indent}@{MODULE_SHORTCUT}.Check_Type')
@@ -395,47 +388,21 @@ def syntax(SOURCE,
             Lines_Added += 1
 
 
-        #] Load User-Defined Modules        # TODO: Better regex to get packages
+        #] Load User-Defined Modules
         elif Stripped.startswith('load ')  or  Stripped=='load':
-            raise NotImplementedError
-            #elif Regex:=re.match(r'(?P<indent>\s*)load \s*(\w+,?)?', Text):
-            Regex = re.match(r'(?P<indent>\s*)load \s*(\w+,?)?', Text)
+            Regex = re.match(r'(?P<indent>\s*)load \s*(?P<packages>\w+,?)?', Text)
             if not Regex:
                 raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'load'")
-            #t = time.time()
-            Indent = Regex.group('indent')
-            Packages = re.split(r'\s*,\s*', Text)
-            Packages[0]= Packages[0][4:].strip()
-
-            #SOURCE.remove(Text)
-            #SOURCE[Line_Nom-1]=''
-            To_Add = str(Indent)
-            #rx.files.mkdir('__RX_LC__')
-            #if not rx.files.exists('__RX_LC__/__init__.py'):
-            #    rx.write('__RX_LC__/__init__.py')
-
+            Packages = re.split(r'\s*,\s*', Regex.group("packages"))
             for package in Packages:
-                if rx.files.exists(f'{package}.rx7'):
-                    import threading
-                    #print(package,'green')
-                    def TEST():
-                        pack_out = rx.terminal.getoutput(f'python RX.py -MT {package}.rx7').strip()
-
-                        if len(pack_out):
-                            #print(pack_out)
-                            if re.match(r'\w+Error', pack_out.splitlines()[-1]):
-                                raise ERRORS.LoadError(package,FILE,pack_out.splitlines()[-1])
-                            else:
-                                raise ERRORS.LoadError(package,FILE)
-                    thread = threading.Thread(target=TEST)
-                    thread.start()
-                    THREADS.append(thread)
-                    LOADED_PACKAGES.append(package)
-                    To_Add += f"{package}={MODULE_SHORTCUT}.import_module('__RX_LC__/{package}');"
-                else:
+                path = f"{working_path}/{package}.rxl"
+                if not rx.files.exists(path):
                     raise ERRORS.ModuleNotFoundError(FILE, package, Text, Line_Nom)
-            SOURCE[Line_Nom-1]=str(To_Add)
-            #print(f'Load: {time.time()-t}','green')
+                full_path = rx.files.abspath(path)
+                from .RXL import convert_source
+                source = convert_source(full_path,True,DEBUG,False)
+                rx.write(full_path.replace(".rxl",".py"), source)
+            SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace("load","import",1)
 
 
         #] Memory Location of Object
@@ -465,6 +432,7 @@ def syntax(SOURCE,
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('func', 'def', 1)
 
 
+        #] Foreach loop
         elif Stripped.startswith('foreach ')  or  Stripped=='foreach':
             Regex=re.match(r'(?P<indent>\s*)foreach \s*(?P<iterable>.+)\[(?P<forvar>\w+)\]:\s*', Text)
             if not Regex:
