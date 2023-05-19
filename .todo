@@ -46,6 +46,9 @@
 
 
 [Syntax]
+    ☐ Threading
+        dynamic:   thread th1(target=f, kwargs={})
+        static:    a class that overrides `__init__` and `run`. then must be instanciated
     ☐ @low @hard `exec()` and `eval()` support
     ☐ @med @norm increment and decrement operators (++/--)
     ?  check import instead of load
@@ -101,6 +104,8 @@
 
 
 [New Features]
+    ☐ Threads
+        returning result of a thread as a dictionary of variables
     ☐ Tables (using `tabulate`)
     ☐ create_MiniStd implementation
     ☐ @med @hard Add/Remove/Change some built-in objects methods ('forbiddenfruit')
