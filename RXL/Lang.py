@@ -27,14 +27,16 @@ class array(list):
             self._max_length = max_length
             final_iterable = ([item for item in __iterable] +
                               [None for _ in range(max_length-len(__iterable))])
-            return super().__init__(final_iterable)
-
         else:
+            if type_ is _auto:
+                raise ValueError("In empty array, type must be set")
             if max_length < 0:
                 raise ValueError("In empty array, max_length has to be set")
-
+            final_iterable = []
+            self._type = type_
             self._max_length = max_length
-            return super().__init__()
+
+        super().__init__(final_iterable)
 
 
     def __str__(self) -> str:

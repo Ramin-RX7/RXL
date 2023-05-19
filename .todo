@@ -1,4 +1,5 @@
 [MAIN]
+    ☐ @high @norm Use `pathlib.Path` to handle files path
     ☐ @med @easy Remove str.format()  (Raising AttributeError when calling it)
     ☐ @med @easy EOL error in red
     ☐ @high @hard Improve Exception Catching when runing file
@@ -21,11 +22,6 @@
     ✔ Better terminal argument parser implementation (maybe even using 3rd party modules)
     ✔ @easy Using __pycache__ dir for as cache dir
     ✔ @high @norm @RXL-Lib better `array` implementation
-
-    Out-of-Code:
-        ☐ @easy @alpha Update RXL_CSG
-        ☐ @hard @alpha add a README
-        ☐ @low @easy Run file with double clicking
 
     Compile implementation:
         ☐ @med @norm @alpha Switch to `nuitka` from `pyinstaller` and `cxfreeze`
@@ -138,12 +134,16 @@
 
 
 
-[Docs]
-    runtime:
-    translation:
-        ☐ Go more into details of how each syntax are translated
-    usage:
-    code:
+[Out-of-Code]
+    ☐ @easy @alpha Update RXL_CSG
+    ☐ @hard @alpha add a README
+    ☐ @low @easy Run file with double clicking
+    Docs:
+        runtime:
+        translation:
+            ☐ Go more into details of how each syntax are translated
+        usage:
+        code:
 
 
 
