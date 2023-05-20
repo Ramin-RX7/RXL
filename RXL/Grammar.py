@@ -49,11 +49,10 @@ class REGEX:
             ignore_pattern = r'(?P<Indent>\s*)\$check \s*(?P<Test>.+)'
             then_pattern = r'\s* then (?P<Then>.+)'
             anyway_pattern = r'\s* anyway(s)? (?P<Anyway>.+)'
-            ignore = re.compile(ignore_pattern)
-            then =   re.compile(ignore_pattern + then_pattern)
-            anyway = re.compile(ignore_pattern + anyway_pattern)
+            ignore =  re.compile(ignore_pattern)
+            then   =  re.compile(ignore_pattern + then_pattern)
+            anyway =  re.compile(ignore_pattern + anyway_pattern)
             thenanyway = re.compile(ignore_pattern + then_pattern + anyway_pattern)
-
 
         _checkwait = re.compile(r'')
 
@@ -63,6 +62,25 @@ class REGEX:
 
         _clear = NotImplemented
 
+
+
+def get_regex(
+        pattern_name:str,
+        text:str,
+        file:str,
+        line_nom:int,
+        msg:str=None):
+    if pattern_name.startswith("$"):
+        pattern = pattern_name[1:]
+    else:
+        pattern = str(pattern_name)
+    if regex:= REGEX.__dict__[pattern].match(text):
+        return regex
+    if msg is None:
+        msg = f"Wrong usage of {pattern_name.split('.')[-1]}"
+    raise ERRORS.SyntaxError(
+        file,line_nom,text.strip(),msg
+    )
 
 
 
@@ -344,9 +362,7 @@ def syntax(SOURCE         ,
 
         #] Include
         elif Stripped.startswith('include ')  or  Stripped=='include':
-            Regex = REGEX.include.match(Text)
-            if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'include'")
+            Regex = get_regex('include', Text, FILE, Line_Nom)
             attrs = dir(rx)
             Indent = Regex.group('Indent')
             items = Regex.group('objects').split(",")
@@ -395,9 +411,7 @@ def syntax(SOURCE         ,
 
         #] Load User-Defined Modules
         elif Stripped.startswith('load ')  or  Stripped=='load':
-            Regex = REGEX.load.match(Text)
-            if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'load'")
+            Regex = get_regex('load', Text, FILE, Line_Nom)
             Packages = re.split(r'\s*,\s*', Regex.group("packages"))
             for package in Packages:
                 path = f"{working_path}/{package}.rxl"
@@ -417,28 +431,19 @@ def syntax(SOURCE         ,
 
         #] until & unless & foreach & func
         elif Stripped.startswith('until '  )  or  Stripped=='until':
-            Regex = REGEX.until.match(Text)
-            if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'until'")
+            Regex = get_regex('until', Text, FILE, Line_Nom)
             SOURCE[Line_Nom-1] = f"{Regex.group('Indent')}while not ({Regex.group('Expression')}):{Regex.group('Rest')}"
-            # or i can replace "until" with "while not" (but still have to put paranthesis around condition)
         elif Stripped.startswith('unless ' )  or  Stripped=='unless':
-            Regex = REGEX.unless.match(Text)
-            if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'unless'")
+            Regex = get_regex('unless', Text, FILE, Line_Nom)
             SOURCE[Line_Nom-1] = f"{Regex.group('Indent')}if not ({Regex.group('Expression')}):{Regex.group('Rest')}"
         elif Stripped.startswith('func '   )  or  Stripped=='func':
-            Regex = REGEX.func.match(Text)
-            if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'func'")
+            Regex = get_regex('func', Text, FILE, Line_Nom)
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('func', 'def', 1)
 
 
         #] Foreach loop
         elif Stripped.startswith('foreach ')  or  Stripped=='foreach':
-            Regex = REGEX.foreach.match(Text)
-            if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'foreach'")
+            Regex = get_regex('foreach', Text, FILE, Line_Nom)
             indent, iterable, forvar = Regex.groups()
             modified = f"{indent}for {forvar} in {iterable}:"
             SOURCE[Line_Nom-1] = modified
@@ -481,9 +486,7 @@ def syntax(SOURCE         ,
 
         #] Array
         elif Stripped.startswith('array '  )  or  Stripped=='array':
-            Regex = REGEX.array.match(Text)
-            if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'array'")
+            Regex = get_regex('array', Text, FILE, Line_Nom)
 
             Indent  = Regex.group('Indent')
             VarName = Regex.group('VarName')
@@ -639,17 +642,13 @@ def syntax(SOURCE         ,
 
         #] $CMD
         elif Stripped.startswith('$cmd '   )  or  Stripped=='$cmd' :
-            Regex = REGEX.Commands.cmd.match(Text)
-            if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of '$cmd'")
+            Regex = get_regex('$cmd', Text, FILE, Line_Nom)
             SOURCE[Line_Nom-1] = f'{Regex.group("Indent")}std.terminal.run("{Regex.group("Command") if Regex else "cmd"}")'
 
 
         #] $CALL
         elif Stripped.startswith('$call '  )  or  Stripped=='$call':
-            Regex = REGEX.Commands.call.match(Text)
-            if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of '$call'")
+            Regex = get_regex('$call', Text, FILE, Line_Nom)
             Indent = Regex.group('Indent'  )
             Delay  = Regex.group('Time'    )
             Func   = Regex.group('Function')
