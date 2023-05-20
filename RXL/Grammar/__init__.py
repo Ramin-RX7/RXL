@@ -3,8 +3,7 @@ import tokenize
 
 import rx7 as rx
 
-from . import Errors as ERRORS
-
+from .. import Errors as ERRORS
 
 
 print = rx.style.print
@@ -38,11 +37,11 @@ class REGEX:
 
     func = re.compile(r'func \s*(?P<Expression>.+)')
 
+    array = re.compile(r'(?P<Indent>\s*)array \s*(?P<VarName>\w+)\s*\[\s*((?P<Length>\w+)?\s*(:?\s*(?P<Type>\w+))?\s*)?\]\s*=\s*{(?P<Content>.*)}\s*')
+
     class DoWhile:
         do = re.compile(r'(?P<Indent>\s*)do\s*:\s*')
         _while = re.compile(r'while\s*\(.+\)')
-
-    array = re.compile(r'(?P<Indent>\s*)array \s*(?P<VarName>\w+)\s*\[\s*((?P<Length>\w+)?\s*(:?\s*(?P<Type>\w+))?\s*)?\]\s*=\s*{(?P<Content>.*)}\s*')
 
     class Commands:
         class Check:
@@ -71,13 +70,13 @@ def get_regex(
         line_nom:int,
         msg:str=None):
     if pattern_name.startswith("$"):
-        pattern = pattern_name[1:]
+        pattern = REGEX.Commands.__dict__[pattern_name[1:]]
     else:
-        pattern = str(pattern_name)
-    if regex:= REGEX.__dict__[pattern].match(text):
+        pattern = REGEX.__dict__[pattern_name]
+    if regex:= pattern.match(text):
         return regex
     if msg is None:
-        msg = f"Wrong usage of {pattern_name.split('.')[-1]}"
+        msg = f"Wrong usage of {pattern_name}"
     raise ERRORS.SyntaxError(
         file,line_nom,text.strip(),msg
     )
@@ -90,13 +89,13 @@ def define_structure(SOURCE, FILE, DEBUG):
     """"""
     """
     BASE OPTIONS:
-      OPTION NAME        DEFAULT VALUE       DESCRYPTION"
+      OPTION NAME        DEFAULT VALUE       DESCRYPTION
       Lib-Name           sc                  Shortcut for RXL Tools and functions (also "Modulename")'
       Print              stylized            Print function to use. Valid Choices: [normal,stylized]'
       func-type-checker  True                Check if arguments of a function are in wrong type'
       End-Exit           True                Exit after executing the code or not'
-      #Method            normal              Method of loading tools.'
-      #                                        Valid Choices: [normal,[lite,fast]] (also "Package-Version)"'
+      Method            normal               Method of loading tools.'
+                                               Valid Choices: [normal,[lite,fast]] (also "Package-Version)"'
 
     "OPTIONS" SHOULD BE DEFINED AFTER "BASE OPTIONS"'
     """
@@ -418,7 +417,7 @@ def syntax(SOURCE         ,
                 if not rx.files.exists(path):
                     raise ERRORS.ModuleNotFoundError(FILE, package, Text, Line_Nom)
                 full_path = rx.files.abspath(path)
-                from .RXL import convert_source
+                from ..RXL import convert_source
                 source = convert_source(full_path,True,DEBUG,False)
                 rx.write(full_path.replace(".rxl",".py"), source)
             SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace("load","import",1)
