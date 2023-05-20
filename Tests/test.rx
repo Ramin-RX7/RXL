@@ -78,7 +78,8 @@ array myarray[7:int] = {1,2,3,4,5}
 
 #< $ >#
 #] $check
-...
+$check a =""+1  then print(a) anyway print("end of $check")
+
 
 
 #] $checkwait

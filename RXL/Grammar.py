@@ -34,7 +34,7 @@ class REGEX:
 
     unless = re.compile(r'(?P<Indent>\s*)unless \s*(?P<Expression>.+):(?P<Rest>.*)')
 
-    foreach = re.compile(r'(?P<indent>\s*)foreach \s*(?P<iterable>.+)\[(?P<forvar>\w+)\]:\s*')
+    foreach = re.compile(r'(?P<indent>\s*)foreach \s*(?P<iterable>.+)\[(?P<forvar>(?:\w|,)+)\]:\s*')
 
     func = re.compile(r'func \s*(?P<Expression>.+)')
 
@@ -42,13 +42,20 @@ class REGEX:
         do = re.compile(r'(?P<Indent>\s*)do\s*:\s*')
         _while = re.compile(r'while\s*\(.+\)')
 
-    _array = re.compile(r'(?P<Indent>\s*)array \s*(?P<VarName>\w+)\s*\[\s*((?P<Length>\w+)?\s*(:?\s*(?P<Type>\w+))?\s*)?\]\s*=\s*{(?P<Content>.*)}\s*')
+    array = re.compile(r'(?P<Indent>\s*)array \s*(?P<VarName>\w+)\s*\[\s*((?P<Length>\w+)?\s*(:?\s*(?P<Type>\w+))?\s*)?\]\s*=\s*{(?P<Content>.*)}\s*')
 
     class Commands:
+        class Check:
+            ignore_pattern = r'(?P<Indent>\s*)\$check \s*(?P<Test>.+)'
+            then_pattern = r'\s* then (?P<Then>.+)'
+            anyway_pattern = r'\s* anyway(s)? (?P<Anyway>.+)'
+            ignore = re.compile(ignore_pattern)
+            then =   re.compile(ignore_pattern + then_pattern)
+            anyway = re.compile(ignore_pattern + anyway_pattern)
+            thenanyway = re.compile(ignore_pattern + then_pattern + anyway_pattern)
 
-        check = re.compile(r'(?P<Indent>\s*)\$check \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?( \s*anyway(s)? (?P<Anyway>.+))?')
 
-        checkwait = re.compile(r'(?P<Indent>\s*)\$checkwait \s*(?P<Test>[^\s]+)(\s* then (?P<Then>.+))?( \s*anyway(s)? (?P<Anyway>.+))?')
+        _checkwait = re.compile(r'')
 
         cmd = re.compile(r'(?P<Indent>\s*)\$cmd \s*(?P<Command>.+)')
 
@@ -303,7 +310,7 @@ def syntax(SOURCE         ,
 
     global Lines_Added
     Skip = 0
-    THREADS = []
+    threads = []
     working_path = rx.files.dirname(FILE)
 
 
@@ -313,19 +320,19 @@ def syntax(SOURCE         ,
         #] When Adding An Extra Line Like Decorators
         if Skip:
             Skip = Skip-1
-            #print(Skip)
             continue
 
         # Ignore Docstrings and Comments
-        if Stripped.startswith('#')  or  not Stripped:
+        elif (not Stripped)  or  Stripped.startswith('#'):
             continue
-        elif '"""' in Text  and  not ("'''" in Text and Text.index('"""')>Text.index("'''")):
+
+        elif '"""' in Text  and  not (("'''" in Text)  and  (Text.index('"""')>Text.index("'''"))):
             if not '"""' in Text[Text.index('"""')+3:]:
                 for line_in_str,text_in_str in enumerate(SOURCE[Line_Nom:],1):
                     if '"""' in text_in_str:
                         Skip = line_in_str
-                        #print(Skip)
                 continue
+
         elif "'''" in Text:
             if not "'''" in Text[Text.index("'''")+3:]:
                 for line_in_str,text_in_str in enumerate(SOURCE[Line_Nom:],1):
@@ -334,8 +341,6 @@ def syntax(SOURCE         ,
                         #print(Skip)
                 continue
 
-
-        if False: pass   # Just to make rest of the conditions look similar
 
         #] Include
         elif Stripped.startswith('include ')  or  Stripped=='include':
@@ -346,7 +351,6 @@ def syntax(SOURCE         ,
             Indent = Regex.group('Indent')
             items = Regex.group('objects').split(",")
             new_items = []
-            # print(items)
             for item in items:
                 if item.startswith("*"):
                     class_ = item[1:]
@@ -407,7 +411,7 @@ def syntax(SOURCE         ,
 
 
         #] Memory Location of Object
-        elif Regex:=re.search(r'[,\(\[\{\+=: ]&(?P<var>\w+)', Text): #[^a-zA-Z0-9'"]
+        elif Regex:=re.search(r'[,\(\[\{\+=: ]&(?P<var>.+)', Text): #[^a-zA-Z0-9'"]
             SOURCE[Line_Nom-1] = Text.replace("&"+Regex.group("var"),f'hex(id({Regex.group("var")}))')
 
 
@@ -477,7 +481,7 @@ def syntax(SOURCE         ,
 
         #] Array
         elif Stripped.startswith('array '  )  or  Stripped=='array':
-            Regex = REGEX._array.match(Text)
+            Regex = REGEX.array.match(Text)
             if not Regex:
                 raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'array'")
 
@@ -490,7 +494,6 @@ def syntax(SOURCE         ,
             Type    =  '' if not Type    else ', type_='+Type
             # if not any([Length, Type]):
                 # raise ERRORS.SyntaxError("length and type of the array elements should be set")
-            print(f'{Indent}{VarName} = std.array({Content}{Type}{Length})')
             SOURCE[Line_Nom-1] = f'{Indent}{VarName} = std.array(({Content},){Type}{Length})'
 
 
@@ -498,21 +501,28 @@ def syntax(SOURCE         ,
 
         #] $check
         elif Stripped.startswith('$check ')  or  Stripped=='$check':
-            Regex = REGEX.Commands.check.match(Text)
+            Regex = (
+                REGEX.Commands.Check.thenanyway.match(Text) or
+                REGEX.Commands.Check.anyway.match(Text) or
+                REGEX.Commands.Check.then.match(Text) or
+                REGEX.Commands.Check.ignore.match(Text)
+            )
             if not Regex:
                 raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of '$check'")
-            Indent   =   Regex.group('Indent')
+            regex_dict = Regex.groupdict()
+            print(Regex.groupdict())
+            Indent   =   regex_dict.get('Indent', '')
             needed_lines = 2
-            if Regex.group("Then"):
+            if regex_dict.get('Then', ''):
                 #print('Then True')
                 needed_lines += 1
-                else_ =  f'{Indent}else: {Regex.group("Then")}'
+                else_ =  f'{Indent}else: {regex_dict["Then"]}'
             else:
                 else_ = ''
-            if Regex.group('Anyway'):
+            if regex_dict.get('Anyway', ''):
                 #print('Anyway True')
                 needed_lines += 1
-                finally_ =  f'{Indent}finally: {Regex.group("Anyway")}'
+                finally_ =  f'{Indent}finally: {regex_dict["Anyway"]}'
             else:
                 #print('Anyway False')
                 finally_ = ''
@@ -544,7 +554,7 @@ def syntax(SOURCE         ,
                 #print(free_lines,'red')
                 ERRORS.RaiseError('SpaceError',f"'$check' should have one extra blank line around it " +
                                                f"per any extra keywords ({needed_lines-1} lines needed)",
-                                  Text,Line_Nom,FILE)
+                                  Text,Line_Nom,FILE,Lines_Added)
 
             free_lines.sort()
             Indent   =   Regex.group('Indent')
@@ -556,13 +566,14 @@ def syntax(SOURCE         ,
             if else_:
                 SOURCE[free_lines[2]] =  Indent+else_
             if finally_:
-                SOURCE[free_lines[3]] =  Indent+finally_
+                l = 3 if else_ else 2
+                SOURCE[free_lines[l]] =  Indent+finally_
 
             Lines_Added += needed_lines
 
 
         elif Stripped.startswith('$checkwait ')  or  Stripped=='$checkwait':
-
+            raise NotImplementedError
             Regex = REGEX.Commands.checkwait.match(Text)
             if not Regex:
                 raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of '$checkwait'")
@@ -650,7 +661,7 @@ def syntax(SOURCE         ,
             SOURCE[Line_Nom-1] = f"{' '*Text.index('$')}std.cls()"
 
         #print(f"{Line_Nom} :: {time.time()-t} {Striped[:5]}",'red')
-    return SOURCE,THREADS
+    return SOURCE,threads
 
 
 
@@ -672,9 +683,9 @@ class IndentCheck:
         def get_line(self):
             return self.line
 
+
     @staticmethod
     def check(file):
-
         try:
             f = tokenize.open(file)
         except OSError as msg:
@@ -682,20 +693,16 @@ class IndentCheck:
 
         try:
             IndentCheck.process_tokens(tokenize.generate_tokens(f.readline))
-
         except tokenize.TokenError as msg:
             return (False,f"Token Error: {msg}")
-
         except IndentationError as msg:
             return (False,f"Indentation Error: {msg}")
-
         except IndentCheck.NannyNag as nag:
             badline = nag.get_lineno()
             line = nag.get_line()
             if ' ' in file: file = '"' + file + '"'
             else: print(file, badline, repr(line))
             return (False,)
-
         finally:
             f.close()
 
@@ -776,6 +783,7 @@ class IndentCheck:
                             other.indent_level(ts)) )
             return a
 
+
     @staticmethod
     def format_witnesses(w):
         firsts = (str(tup[0]) for tup in w)
@@ -783,6 +791,7 @@ class IndentCheck:
         if len(w) > 1:
             prefix = prefix + "s"
         return prefix + " " + ', '.join(firsts)
+
 
     @staticmethod
     def process_tokens(tokens):
