@@ -1,9 +1,11 @@
 import re
 import tokenize
+from typing import Callable
 
 import rx7 as rx
 
 from .. import Errors as ERRORS
+from . import functions
 
 
 print = rx.style.print
@@ -17,6 +19,18 @@ LOADED_PACKAGES = []
 Lines_Added = 0
 
 
+
+functions_dict = [
+    # "include",
+    # "load"   ,
+    "until"  ,
+    "unless" ,
+    "func"   ,
+    "foreach",
+    "array"  ,
+    "$cmd"   ,
+    "$call"  ,
+]
 
 
 
@@ -318,7 +332,7 @@ def define_structure(SOURCE, FILE, DEBUG):
 
 
 #< Syntax >#
-def syntax(SOURCE         ,
+def check_syntax(SOURCE         ,
            MODULE_VERSION ,
            MODULE_SHORTCUT,
            TYPE_SCANNER   ,
@@ -330,8 +344,9 @@ def syntax(SOURCE         ,
     threads = []
     working_path = rx.files.dirname(FILE)
 
+    source = functions.Source(SOURCE)
 
-    for Line_Nom,Text in enumerate(SOURCE, 1):
+    for Line_Nom,Text in enumerate(source, 1):
         Stripped = Text.strip()
 
         #] When Adding An Extra Line Like Decorators
@@ -345,22 +360,85 @@ def syntax(SOURCE         ,
 
         elif '"""' in Text  and  not (("'''" in Text)  and  (Text.index('"""')>Text.index("'''"))):
             if not '"""' in Text[Text.index('"""')+3:]:
-                for line_in_str,text_in_str in enumerate(SOURCE[Line_Nom:],1):
+                for line_in_str,text_in_str in enumerate(source[Line_Nom:],1):
                     if '"""' in text_in_str:
                         Skip = line_in_str
                 continue
 
         elif "'''" in Text:
             if not "'''" in Text[Text.index("'''")+3:]:
-                for line_in_str,text_in_str in enumerate(SOURCE[Line_Nom:],1):
+                for line_in_str,text_in_str in enumerate(source[Line_Nom:],1):
                     if "'''" in text_in_str:
                         Skip = line_in_str
                         #print(Skip)
                 continue
 
 
+        for name in functions_dict:
+            if Stripped.startswith(f'{name} ')  or  Stripped==name:
+                Regex = get_regex(name, Text, FILE, Line_Nom)
+                source.call_syntax_f(name, Line_Nom, Regex)
+                break
+
+
+        #] Memory Location of Object
+        if Regex:=re.search(r'[,\(\[\{\+=: ]&(?P<var>.+)', Text): #[^a-zA-Z0-9'"]
+            source[Line_Nom-1] = Text.replace("&"+Regex.group("var"),f'hex(id({Regex.group("var")}))')
+
+
+        #] Func Type checker
+        elif (Stripped.startswith('def ') or Stripped.startswith('func '))  and  TYPE_SCANNER:  # Make it regex?
+            if Stripped.startswith("func "):
+                source[Line_Nom-1] = source[Line_Nom-1].replace('func', 'def', 1)
+                indent = Text.index("func ")
+            else:
+                indent = Text.index('def ')
+            # if SOURCE[Line_Nom-2].strip().endswith('Check_Type'):
+            #    SOURCE[Line_Nom-2]= re.search(r'(\s*)',Text).group(1)+f'@std.Check_Type'
+            if source[Line_Nom-2].strip().startswith('@'):
+                continue
+            source.insert(Line_Nom-1, f'{" "*indent}@{MODULE_SHORTCUT}.Check_Type')
+            Skip = 1
+            Lines_Added += 1
+
+
+        #] do_while
+        elif Stripped.startswith('do '     )  or  Stripped=='do':
+            if not (Regex:=REGEX.DoWhile.do.match(Text)):
+                raise SyntaxError
+
+            Indent = Regex.group('Indent')
+
+            LN = int(Line_Nom)
+            while not (Regex:=re.search(r'(?P<Indent>\s*).+', source[LN])):
+                LN += 1
+            Indent_Content = Regex.group('Indent')
+
+            WHILE_LINE = 0
+            LINE = int(Line_Nom)
+            while not WHILE_LINE:
+                try:
+                    if re.search(Indent+r'while\s*\(.+\)',source[LINE]):
+                        WHILE_LINE = int(LINE)
+                    else:
+                        LINE += 1
+                except IndexError:
+                    raise ERRORS.SyntaxError(FILE,Line_Nom,Text,"'do' defined without 'while'")
+
+            i = 1
+            for ln in range(Line_Nom,WHILE_LINE):
+                source.insert(WHILE_LINE+i, source[ln])
+                i+=1
+
+            for ln in range(Line_Nom,WHILE_LINE):
+                source[ln] = source[ln].replace(Indent_Content,'',1)
+
+            source[Line_Nom-1] = ''
+            source[WHILE_LINE] = source[WHILE_LINE]+':'
+
+
         #] Include
-        elif Stripped.startswith('include ')  or  Stripped=='include':
+        if Stripped.startswith('include ')  or  Stripped=='include':
             Regex = get_regex('include', Text, FILE, Line_Nom)
             attrs = dir(rx)
             Indent = Regex.group('Indent')
@@ -389,27 +467,11 @@ def syntax(SOURCE         ,
                     new_items.append(f"from rx7 import {item}")
                 else:
                     raise AttributeError("Not found in standard library")
-            SOURCE[Line_Nom-1] = ";".join(new_items)
-
-
-        #] Func Type checker
-        elif (Stripped.startswith('def ') or Stripped.startswith('func '))  and  TYPE_SCANNER:  # Make it regex?
-            if Stripped.startswith("func "):
-                SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('func', 'def', 1)
-                indent = Text.index("func ")
-            else:
-                indent = Text.index('def ')
-            # if SOURCE[Line_Nom-2].strip().endswith('Check_Type'):
-            #    SOURCE[Line_Nom-2]= re.search(r'(\s*)',Text).group(1)+f'@std.Check_Type'
-            if SOURCE[Line_Nom-2].strip().startswith('@'):
-                continue
-            SOURCE.insert(Line_Nom-1, f'{" "*indent}@{MODULE_SHORTCUT}.Check_Type')
-            Skip = 1
-            Lines_Added += 1
+            source[Line_Nom-1] = ";".join(new_items)
 
 
         #] Load User-Defined Modules
-        elif Stripped.startswith('load ')  or  Stripped=='load':
+        elif Stripped.startswith('load ' )  or  Stripped=='load':
             Regex = get_regex('load', Text, FILE, Line_Nom)
             Packages = re.split(r'\s*,\s*', Regex.group("packages"))
             for package in Packages:
@@ -419,87 +481,9 @@ def syntax(SOURCE         ,
                 full_path = rx.files.abspath(path)
                 from ..RXL import convert_source
                 source = convert_source(full_path,True,DEBUG,False)
-                rx.write(full_path.replace(".rxl",".py"), source)
-            SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace("load","import",1)
+                rx.write(full_path.removesuffix(".rxl")+".py", source)
+            source[Line_Nom-1] = source[Line_Nom-1].replace("load","import",1)
 
-
-        #] Memory Location of Object
-        elif Regex:=re.search(r'[,\(\[\{\+=: ]&(?P<var>.+)', Text): #[^a-zA-Z0-9'"]
-            SOURCE[Line_Nom-1] = Text.replace("&"+Regex.group("var"),f'hex(id({Regex.group("var")}))')
-
-
-        #] until & unless & foreach & func
-        elif Stripped.startswith('until '  )  or  Stripped=='until':
-            Regex = get_regex('until', Text, FILE, Line_Nom)
-            SOURCE[Line_Nom-1] = f"{Regex.group('Indent')}while not ({Regex.group('Expression')}):{Regex.group('Rest')}"
-        elif Stripped.startswith('unless ' )  or  Stripped=='unless':
-            Regex = get_regex('unless', Text, FILE, Line_Nom)
-            SOURCE[Line_Nom-1] = f"{Regex.group('Indent')}if not ({Regex.group('Expression')}):{Regex.group('Rest')}"
-        elif Stripped.startswith('func '   )  or  Stripped=='func':
-            Regex = get_regex('func', Text, FILE, Line_Nom)
-            SOURCE[Line_Nom-1] = SOURCE[Line_Nom-1].replace('func', 'def', 1)
-
-
-        #] Foreach loop
-        elif Stripped.startswith('foreach ')  or  Stripped=='foreach':
-            Regex = get_regex('foreach', Text, FILE, Line_Nom)
-            indent, iterable, forvar = Regex.groups()
-            modified = f"{indent}for {forvar} in {iterable}:"
-            SOURCE[Line_Nom-1] = modified
-
-
-        #] do_while
-        elif Stripped.startswith('do '     )  or  Stripped=='do':
-            if not (Regex:=REGEX.DoWhile.do.match(Text)):
-                raise SyntaxError
-
-            Indent = Regex.group('Indent')
-
-            LN = int(Line_Nom)
-            while not (Regex:=re.search(r'(?P<Indent>\s*).+', SOURCE[LN])):
-                LN += 1
-            Indent_Content = Regex.group('Indent')
-
-            WHILE_LINE = 0
-            LINE = int(Line_Nom)
-            while not WHILE_LINE:
-                try:
-                    if re.search(Indent+r'while\s*\(.+\)',SOURCE[LINE]):
-                        WHILE_LINE = int(LINE)
-                    else:
-                        LINE += 1
-                except IndexError:
-                    raise ERRORS.SyntaxError(FILE,Line_Nom,Text,"'do' defined without 'while'")
-
-            i = 1
-            for ln in range(Line_Nom,WHILE_LINE):
-                SOURCE.insert(WHILE_LINE+i, SOURCE[ln])
-                i+=1
-
-            for ln in range(Line_Nom,WHILE_LINE):
-                SOURCE[ln] = SOURCE[ln].replace(Indent_Content,'',1)
-
-            SOURCE[Line_Nom-1] = ''
-            SOURCE[WHILE_LINE] = SOURCE[WHILE_LINE]+':'
-
-
-        #] Array
-        elif Stripped.startswith('array '  )  or  Stripped=='array':
-            Regex = get_regex('array', Text, FILE, Line_Nom)
-
-            Indent  = Regex.group('Indent')
-            VarName = Regex.group('VarName')
-            Length  = Regex.group('Length')
-            Type    = Regex.group('Type')
-            Content = Regex.group('Content')
-            Length  =  '' if not Length  else ', max_length='+Length
-            Type    =  '' if not Type    else ', type_='+Type
-            # if not any([Length, Type]):
-                # raise ERRORS.SyntaxError("length and type of the array elements should be set")
-            SOURCE[Line_Nom-1] = f'{Indent}{VarName} = std.array(({Content},){Type}{Length})'
-
-
-        #] $Commands
 
         #] $check
         elif Stripped.startswith('$check ')  or  Stripped=='$check':
@@ -512,7 +496,6 @@ def syntax(SOURCE         ,
             if not Regex:
                 raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of '$check'")
             regex_dict = Regex.groupdict()
-            print(Regex.groupdict())
             Indent   =   regex_dict.get('Indent', '')
             needed_lines = 2
             if regex_dict.get('Then', ''):
@@ -534,8 +517,8 @@ def syntax(SOURCE         ,
             pos_lines = 0
             free_lines = []
             free_lines.append(line-1)
-            while (nofound and line!=len(SOURCE)):
-                if  SOURCE[line].strip() or pos_lines>=needed_lines:
+            while (nofound and line!=len(source)):
+                if  source[line].strip() or pos_lines>=needed_lines:
                     nofound = False
                 else:
                     free_lines.append(line)
@@ -545,7 +528,7 @@ def syntax(SOURCE         ,
             pre_lines = 0
             nofound = True
             while (nofound and line!=1):
-                if SOURCE[line].strip() or len(free_lines)>=needed_lines:
+                if source[line].strip() or len(free_lines)>=needed_lines:
                     nofound = False
                 else:
                     free_lines.append(line)
@@ -563,16 +546,15 @@ def syntax(SOURCE         ,
             try_     =   f'{Indent}try: {Regex.group("Test")}'
             except_  =   f'{Indent}except: pass'
 
-            SOURCE[free_lines[0]] =  Indent+try_
-            SOURCE[free_lines[1]] =  Indent+except_
+            source[free_lines[0]] =  Indent+try_
+            source[free_lines[1]] =  Indent+except_
             if else_:
-                SOURCE[free_lines[2]] =  Indent+else_
+                source[free_lines[2]] =  Indent+else_
             if finally_:
                 l = 3 if else_ else 2
-                SOURCE[free_lines[l]] =  Indent+finally_
+                source[free_lines[l]] =  Indent+finally_
 
             Lines_Added += needed_lines
-
 
         elif Stripped.startswith('$checkwait ')  or  Stripped=='$checkwait':
             raise NotImplementedError
@@ -599,8 +581,8 @@ def syntax(SOURCE         ,
             pos_lines = 0
             free_lines = []
             free_lines.append(line-1)
-            while (nofound and line!=len(SOURCE)):
-                if  SOURCE[line].strip() or pos_lines>=needed_lines:
+            while (nofound and line!=len(source)):
+                if  source[line].strip() or pos_lines>=needed_lines:
                     nofound = False
                 else:
                     free_lines.append(line)
@@ -610,7 +592,7 @@ def syntax(SOURCE         ,
             pre_lines = 0
             nofound = True
             while (nofound and line!=1):
-                if SOURCE[line].strip() or len(free_lines)>=needed_lines:
+                if source[line].strip() or len(free_lines)>=needed_lines:
                     nofound = False
                 else:
                     free_lines.append(line)
@@ -628,38 +610,23 @@ def syntax(SOURCE         ,
             try_     =   f' {Indent}try: {Regex.group("Test")}'
             except_  =   f' {Indent}except: pass'
 
-            SOURCE[free_lines[0]] =  Indent+"while True:"
-            SOURCE[free_lines[1]] =  Indent+try_+";break"
-            SOURCE[free_lines[2]] =  Indent+except_
+            source[free_lines[0]] =  Indent+"while True:"
+            source[free_lines[1]] =  Indent+try_+";break"
+            source[free_lines[2]] =  Indent+except_
             if else_:
-                SOURCE[free_lines[3]] =  Indent+else_
+                source[free_lines[3]] =  Indent+else_
             if finally_:
-                SOURCE[free_lines[4]] =  Indent+finally_
+                source[free_lines[4]] =  Indent+finally_
 
             Lines_Added += needed_lines
 
 
-        #] $CMD
-        elif Stripped.startswith('$cmd '   )  or  Stripped=='$cmd' :
-            Regex = get_regex('$cmd', Text, FILE, Line_Nom)
-            SOURCE[Line_Nom-1] = f'{Regex.group("Indent")}std.terminal.run("{Regex.group("Command") if Regex else "cmd"}")'
-
-
-        #] $CALL
-        elif Stripped.startswith('$call '  )  or  Stripped=='$call':
-            Regex = get_regex('$call', Text, FILE, Line_Nom)
-            Indent = Regex.group('Indent'  )
-            Delay  = Regex.group('Time'    )
-            Func   = Regex.group('Function')
-            SOURCE[Line_Nom-1] = f"{Indent}std.call({Func},delay={Delay})"
-
-
         #] $CLEAR
         elif Stripped in ('$cls','$clear'):
-            SOURCE[Line_Nom-1] = f"{' '*Text.index('$')}std.cls()"
+            source[Line_Nom-1] = f"{' '*Text.index('$')}std.cls()"
 
         #print(f"{Line_Nom} :: {time.time()-t} {Striped[:5]}",'red')
-    return SOURCE,threads
+    return source,threads
 
 
 

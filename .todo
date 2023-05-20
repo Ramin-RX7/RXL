@@ -64,11 +64,12 @@
             func, Check_Type, &memory, until, unless, foreach
     ☐ @high @hard Not all conditions should be 'elif' in Syntax()
     ☐ @low @easy Use re.X as flag for better regex
-    ?  check import instead of load
-        if a module is found with rx/rxl extension, import that
-    ? change `do while` loop syntax to just simply add a `do ` before `while`
+    ☐ change `do while` loop syntax to just simply add a `do ` before `while`
         + it is easier to read
         + easier to implement
+    ☐ Change `until` to `do until`
+    ?  check import instead of load
+        if a module is found with rx/rxl extension, import that
     ?  @easy "until & unless & foreach & func" replace or regex
     ?  &&  ---  ||
     ✘ @high @hard There couldnt be nested Switch-Case statements
@@ -76,12 +77,12 @@
     ✔ @high @easy 'foreach' New Syntax:  "foreach iterable[item]:"
 
     $ family:
-        ☐ @easy $check & $ $checkwait should be combined and be in the same "if" in Syntax()
-            also $test
+        ☐ extra lines in `check` that are needed should be removed and instead we must
+            check for them and if there are no blank lines we should insert them
+        checkwait:
+            ☐ make while true to only break when there's no exception
+            ☐ add delay and maximum attempt number
         ☐ @easy $call: accept args ('with')
-        ☐ checkwait: add delay and maximum attempt number
-        ☐ @easy $checkwait: make while true to only break when there's no exception
-            extra lines that are needed in "check" and "checkwait" should be removed
         ?  All `$commands` be in one condition (faster or not?)
 
     Include:
