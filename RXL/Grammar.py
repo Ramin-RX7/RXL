@@ -3,7 +3,6 @@ import tokenize
 
 import rx7 as rx
 
-from .Lib import *
 from . import Errors as ERRORS
 
 
@@ -257,7 +256,10 @@ def define_structure(SOURCE, FILE, DEBUG):
     STRING.append(f"import {LIB_VERSION} as {LIB_SHORTCUT}")
     STRING.append(f"std = rx = {LIB_SHORTCUT};import importlib;"
                    "std.RXL = importlib.import_module('RXL');"
-                   "std.RXL.Lang = importlib.import_module('RXL.Lang')")
+                   "std.RXL.Lang = importlib.import_module('RXL.Lang');"
+                   "std.RXL.NewFeatures = importlib.import_module('RXL.NewFeatures');"
+                   "std.array = std.RXL.NewFeatures.array"
+                   )
     STRING.append(f"print = {LIB_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}")
     #] Direct Attributes
     STRING.append(F"input = {LIB_SHORTCUT}.IO.selective_input")
@@ -292,14 +294,18 @@ def define_structure(SOURCE, FILE, DEBUG):
 
 
 #< Syntax >#
-def syntax(SOURCE,
-           MODULE_VERSION ,  MODULE_SHORTCUT,
+def syntax(SOURCE         ,
+           MODULE_VERSION ,
+           MODULE_SHORTCUT,
            TYPE_SCANNER   ,
-           FILE           ,  DEBUG):
+           FILE           ,
+           DEBUG ):
+
     global Lines_Added
     Skip = 0
     THREADS = []
     working_path = rx.files.dirname(FILE)
+
 
     for Line_Nom,Text in enumerate(SOURCE, 1):
         Stripped = Text.strip()
@@ -471,21 +477,21 @@ def syntax(SOURCE,
 
         #] Array
         elif Stripped.startswith('array '  )  or  Stripped=='array':
-            raise NotImplementedError
+            Regex = REGEX._array.match(Text)
             if not Regex:
                 raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of 'array'")
+
             Indent  = Regex.group('Indent')
             VarName = Regex.group('VarName')
             Length  = Regex.group('Length')
             Type    = Regex.group('Type')
             Content = Regex.group('Content')
-
             Length  =  '' if not Length  else ', max_length='+Length
-            Type    =  '' if not Length  else ', type_='+Length
-
-
-            # SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}._Lang.Array({Content},{Type},{Length})'
-            SOURCE[Line_Nom-1] = f'{Indent}{VarName} = {MODULE_SHORTCUT}.RXL.array({Content}{Type}{Length})'
+            Type    =  '' if not Type    else ', type_='+Type
+            # if not any([Length, Type]):
+                # raise ERRORS.SyntaxError("length and type of the array elements should be set")
+            print(f'{Indent}{VarName} = std.array({Content}{Type}{Length})')
+            SOURCE[Line_Nom-1] = f'{Indent}{VarName} = std.array(({Content},){Type}{Length})'
 
 
         #] $Commands
@@ -554,6 +560,7 @@ def syntax(SOURCE,
 
             Lines_Added += needed_lines
 
+
         elif Stripped.startswith('$checkwait ')  or  Stripped=='$checkwait':
 
             Regex = REGEX.Commands.checkwait.match(Text)
@@ -618,12 +625,14 @@ def syntax(SOURCE,
 
             Lines_Added += needed_lines
 
+
         #] $CMD
         elif Stripped.startswith('$cmd '   )  or  Stripped=='$cmd' :
             Regex = REGEX.Commands.cmd.match(Text)
             if not Regex:
                 raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of '$cmd'")
             SOURCE[Line_Nom-1] = f'{Regex.group("Indent")}std.terminal.run("{Regex.group("Command") if Regex else "cmd"}")'
+
 
         #] $CALL
         elif Stripped.startswith('$call '  )  or  Stripped=='$call':
@@ -634,6 +643,7 @@ def syntax(SOURCE,
             Delay  = Regex.group('Time'    )
             Func   = Regex.group('Function')
             SOURCE[Line_Nom-1] = f"{Indent}std.call({Func},delay={Delay})"
+
 
         #] $CLEAR
         elif Stripped in ('$cls','$clear'):

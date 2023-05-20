@@ -4,6 +4,7 @@
     ☐ @med @easy EOL error in red
     ☐ @high @hard Improve Exception Catching when runing file
     ☐ @med @easy Ignore module loading output error
+    ?  Use `asyncio` instead of `thread`
     ?  @norm Add a logger?
     ?  Change terminal title
     ?  @easy Check for cache in local directory of RXL (not relative to running file)
@@ -29,10 +30,11 @@
         ☐ @low @easy "apply" instead of "map" --> Does not work when compiling with "pyinstaller"
 
     Load Modules:
+        ☐ use threading to wait for `load`
         ☐ @med What happens if we use cache and loaded module has changed
         ☐ @med Load modules with default Options
         ✘ switch-case works fine in normal run but is not translated when loading
-        ☐ @critical @med `load` is unsafe (as it will be run from terminal)
+        ✘ @critical @med `load` is unsafe (as it will be run from terminal)
 
     Full debug:
         ☐ @med Synchronize all DEBUGs
@@ -51,15 +53,9 @@
         static:    a class that overrides `__init__` and `run`. then must be instanciated
     ☐ @low @hard `exec()` and `eval()` support
     ☐ @med @norm increment and decrement operators (++/--)
-    ?  check import instead of load
-        if a module is found with rx/rxl extension, import that
-    ? change `do while` loop syntax to just simply add a `do ` before `while`
-        + it is easier to read
-        + easier to implement
     ☐ @med @norm foreach:  `foreach i:items` or `foreach i of items`
     ☐ @low @norm @beta Check syntax erros with fuzzy string matching
-    ☐ @med @easy Using re.compile instead of re.match/re.search
-    ☐ @med @easy Check lines for all conditions until there's nothing to translate
+    ☐ @high @easy Check lines for all conditions until there's nothing to translate
     ☐ @med @easy `Syntax` Conditions Order (By Usage)
     ☐ @high @hard Console support RX syntax ( '\n'.join(Syntax([line])) )
     ☐ @high @hard Split line by strings, check_syntax spliteds ,connect them again
@@ -68,9 +64,15 @@
             func, Check_Type, &memory, until, unless, foreach
     ☐ @high @hard Not all conditions should be 'elif' in Syntax()
     ☐ @low @easy Use re.X as flag for better regex
+    ?  check import instead of load
+        if a module is found with rx/rxl extension, import that
+    ? change `do while` loop syntax to just simply add a `do ` before `while`
+        + it is easier to read
+        + easier to implement
     ?  @easy "until & unless & foreach & func" replace or regex
     ?  &&  ---  ||
     ✘ @high @hard There couldnt be nested Switch-Case statements
+    ✔ @med @easy Using re.compile instead of re.match/re.search
     ✔ @high @easy 'foreach' New Syntax:  "foreach iterable[item]:"
 
     $ family:
@@ -105,7 +107,7 @@
 
 [New Features]
     ☐ Threads
-        returning result of a thread as a dictionary of variables
+        ✔ returning result of a thread as a dictionary of variables
     ☐ Tables (using `tabulate`)
     ☐ create_MiniStd implementation
     ☐ @med @hard Add/Remove/Change some built-in objects methods ('forbiddenfruit')
