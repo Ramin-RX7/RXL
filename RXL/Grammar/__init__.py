@@ -5,7 +5,8 @@ from typing import Callable
 import rx7 as rx
 
 from .. import Errors as ERRORS
-from . import functions
+from .source import Source
+from .regex import REGEX,get_regex
 
 
 print = rx.style.print
@@ -19,81 +20,23 @@ LOADED_PACKAGES = []
 Lines_Added = 0
 
 
-
-functions_dict = [
-    # "include",
-    # "load"   ,
-    "until"  ,
-    "unless" ,
-    "func"   ,
-    "foreach",
-    "array"  ,
-    "$cmd"   ,
-    "$call"  ,
-]
-
-
-
-#< List of all regex patterns >#
-class REGEX:
-
-    include = re.compile(r'(?P<Indent>\s*)include \s*(?P<objects>.+)\s*')
-
-    load = re.compile(r'(?P<indent>\s*)load \s*(?P<packages>\w+,?)?')
-
-    _memory_loc = re.compile(r'[,\(\[\{\+=: ]&(?P<var>\w+)')
-
-    until = re.compile(r'(?P<Indent>\s*)until \s*(?P<Expression>.+):(?P<Rest>.*)')
-
-    unless = re.compile(r'(?P<Indent>\s*)unless \s*(?P<Expression>.+):(?P<Rest>.*)')
-
-    foreach = re.compile(r'(?P<indent>\s*)foreach \s*(?P<iterable>.+)\[(?P<forvar>(?:\w|,)+)\]:\s*')
-
-    func = re.compile(r'func \s*(?P<Expression>.+)')
-
-    array = re.compile(r'(?P<Indent>\s*)array \s*(?P<VarName>\w+)\s*\[\s*((?P<Length>\w+)?\s*(:?\s*(?P<Type>\w+))?\s*)?\]\s*=\s*{(?P<Content>.*)}\s*')
-
-    class DoWhile:
-        do = re.compile(r'(?P<Indent>\s*)do\s*:\s*')
-        _while = re.compile(r'while\s*\(.+\)')
-
-    class Commands:
-        class Check:
-            ignore_pattern = r'(?P<Indent>\s*)\$check \s*(?P<Test>.+)'
-            then_pattern = r'\s* then (?P<Then>.+)'
-            anyway_pattern = r'\s* anyway(s)? (?P<Anyway>.+)'
-            ignore =  re.compile(ignore_pattern)
-            then   =  re.compile(ignore_pattern + then_pattern)
-            anyway =  re.compile(ignore_pattern + anyway_pattern)
-            thenanyway = re.compile(ignore_pattern + then_pattern + anyway_pattern)
-
-        _checkwait = re.compile(r'')
-
-        cmd = re.compile(r'(?P<Indent>\s*)\$cmd \s*(?P<Command>.+)')
-
-        call = re.compile(r'(?P<Indent>\s*)\$call (?P<Function>.+) \s*in \s*(?P<Time>.+)')
-
-        _clear = NotImplemented
+grammars = {
+    "include" : True,
+    # "load"  : True  ,
+    "until"   : True,
+    "unless"  : True,
+    "func"    : True,
+    "foreach" : True,
+    "array"   : True,
+    "$cmd"    : True,
+    "$call"   : True,
+    "$check"  : False,
+}
 
 
 
-def get_regex(
-        pattern_name:str,
-        text:str,
-        file:str,
-        line_nom:int,
-        msg:str=None):
-    if pattern_name.startswith("$"):
-        pattern = REGEX.Commands.__dict__[pattern_name[1:]]
-    else:
-        pattern = REGEX.__dict__[pattern_name]
-    if regex:= pattern.match(text):
-        return regex
-    if msg is None:
-        msg = f"Wrong usage of {pattern_name}"
-    raise ERRORS.SyntaxError(
-        file,line_nom,text.strip(),msg
-    )
+
+
 
 
 
@@ -344,7 +287,8 @@ def check_syntax(SOURCE         ,
     threads = []
     working_path = rx.files.dirname(FILE)
 
-    source = functions.Source(SOURCE)
+    source:Source[str] = Source(SOURCE, FILE)
+
 
     for Line_Nom,Text in enumerate(source, 1):
         Stripped = Text.strip()
@@ -374,11 +318,15 @@ def check_syntax(SOURCE         ,
                 continue
 
 
-        for name in functions_dict:
+        for name,regex_check in grammars.items():
             if Stripped.startswith(f'{name} ')  or  Stripped==name:
-                Regex = get_regex(name, Text, FILE, Line_Nom)
+                if regex_check:
+                    Regex = get_regex(name, Text, FILE, Line_Nom)
+                else:
+                    Regex = Text
                 source.call_syntax_f(name, Line_Nom, Regex)
                 break
+
 
 
         #] Memory Location of Object
@@ -437,39 +385,6 @@ def check_syntax(SOURCE         ,
             source[WHILE_LINE] = source[WHILE_LINE]+':'
 
 
-        #] Include
-        if Stripped.startswith('include ')  or  Stripped=='include':
-            Regex = get_regex('include', Text, FILE, Line_Nom)
-            attrs = dir(rx)
-            Indent = Regex.group('Indent')
-            items = Regex.group('objects').split(",")
-            new_items = []
-            for item in items:
-                if item.startswith("*"):
-                    class_ = item[1:]
-                    if class_ in CLASSES:
-                        new_items.append(f"from rx7.{class_} import *")
-                    else:
-                        raise AttributeError("Class not found to get all")
-                elif ":" in item:
-                    class_ = item[:item.index(":")].strip()
-                    if class_ not in CLASSES:
-                        raise AttributeError("Class not found to get some")
-                    new_item = f"from rx7.{class_} import "
-                    items_inside = item[item.index(":")+1:].replace(" ","").split("/")
-                    for item_inside in items_inside:
-                        if item_inside in dir(eval(f"rx.{class_}")):
-                            new_item += item_inside + ","
-                        else:
-                            raise AttributeError("Not in class")
-                    new_items.append(new_item[:-1])  # [:-1] to remove last `,`
-                elif item in attrs:
-                    new_items.append(f"from rx7 import {item}")
-                else:
-                    raise AttributeError("Not found in standard library")
-            source[Line_Nom-1] = ";".join(new_items)
-
-
         #] Load User-Defined Modules
         elif Stripped.startswith('load ' )  or  Stripped=='load':
             Regex = get_regex('load', Text, FILE, Line_Nom)
@@ -485,76 +400,6 @@ def check_syntax(SOURCE         ,
             source[Line_Nom-1] = source[Line_Nom-1].replace("load","import",1)
 
 
-        #] $check
-        elif Stripped.startswith('$check ')  or  Stripped=='$check':
-            Regex = (
-                REGEX.Commands.Check.thenanyway.match(Text) or
-                REGEX.Commands.Check.anyway.match(Text) or
-                REGEX.Commands.Check.then.match(Text) or
-                REGEX.Commands.Check.ignore.match(Text)
-            )
-            if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of '$check'")
-            regex_dict = Regex.groupdict()
-            Indent   =   regex_dict.get('Indent', '')
-            needed_lines = 2
-            if regex_dict.get('Then', ''):
-                #print('Then True')
-                needed_lines += 1
-                else_ =  f'{Indent}else: {regex_dict["Then"]}'
-            else:
-                else_ = ''
-            if regex_dict.get('Anyway', ''):
-                #print('Anyway True')
-                needed_lines += 1
-                finally_ =  f'{Indent}finally: {regex_dict["Anyway"]}'
-            else:
-                #print('Anyway False')
-                finally_ = ''
-
-            nofound = True
-            line = int(Line_Nom)
-            pos_lines = 0
-            free_lines = []
-            free_lines.append(line-1)
-            while (nofound and line!=len(source)):
-                if  source[line].strip() or pos_lines>=needed_lines:
-                    nofound = False
-                else:
-                    free_lines.append(line)
-                    pos_lines+=1
-                line+=1
-            line = int(Line_Nom-2)
-            pre_lines = 0
-            nofound = True
-            while (nofound and line!=1):
-                if source[line].strip() or len(free_lines)>=needed_lines:
-                    nofound = False
-                else:
-                    free_lines.append(line)
-                    pre_lines+=1
-                line-=1
-
-            if len(free_lines)<needed_lines:
-                #print(free_lines,'red')
-                ERRORS.RaiseError('SpaceError',f"'$check' should have one extra blank line around it " +
-                                               f"per any extra keywords ({needed_lines-1} lines needed)",
-                                  Text,Line_Nom,FILE,Lines_Added)
-
-            free_lines.sort()
-            Indent   =   Regex.group('Indent')
-            try_     =   f'{Indent}try: {Regex.group("Test")}'
-            except_  =   f'{Indent}except: pass'
-
-            source[free_lines[0]] =  Indent+try_
-            source[free_lines[1]] =  Indent+except_
-            if else_:
-                source[free_lines[2]] =  Indent+else_
-            if finally_:
-                l = 3 if else_ else 2
-                source[free_lines[l]] =  Indent+finally_
-
-            Lines_Added += needed_lines
 
         elif Stripped.startswith('$checkwait ')  or  Stripped=='$checkwait':
             raise NotImplementedError

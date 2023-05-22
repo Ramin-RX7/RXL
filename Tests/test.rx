@@ -24,8 +24,8 @@ print(std.Title, std.Version, std.Author)
 
 
 #] Include
-# include Progressbar
-# include Progressbar,download
+include Progressbar
+include Progressbar,download
 # include files:move/copy
 # include *system
 
@@ -45,7 +45,7 @@ def f(x:str):
 
 #] Until
 i = 0
-until i != 3:
+until i == 3:
     print("until: ", i)
     i += 1
 
@@ -78,7 +78,7 @@ array myarray[7:int] = {1,2,3,4,5}
 
 #< $ >#
 #] $check
-$check a =""+1  then print(a) anyway print("end of $check")
+$check a =""+1  then print(a) anyway print("$check : ok")
 
 
 

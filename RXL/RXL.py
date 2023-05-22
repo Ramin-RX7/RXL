@@ -207,7 +207,7 @@ class Tasks:
         for k,v in TIMES.items(): print(f'{k} :: {v}',color='green')
 
         try:
-            import runpy
+            # import runpy
             # runpy.run_path(ready_file_name)
             rx.terminal.run(f"python {ready_file_name}")
         except Exception as e:
@@ -363,7 +363,7 @@ def translate(source:list, path:str, cache:bool, debug:bool, verbose:bool) -> tu
         type_scanner, info = Grammar.define_structure(source, path, debug)
     TIMES['DefStr'] = time.perf_counter()-START_TIME
 
-    source, threads = Grammar.syntax(source, lib_version, lib_shortcut,
+    source, threads = Grammar.check_syntax(source, lib_version, lib_shortcut,
                              type_scanner, path, debug)
     TIMES['Syntax'] = time.perf_counter()-START_TIME
 

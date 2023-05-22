@@ -1,4 +1,8 @@
 [MAIN]
+    ☐ `Lines_Added` should be inside functions and be returned instead being global variable
+    ☐ Re-structure the grammar package
+        regex module:  `REGEX` class, `check_regex()`,
+        source module: ready
     ☐ @high @norm Use `pathlib.Path` to handle files path
     ☐ @med @easy Remove str.format()  (Raising AttributeError when calling it)
     ☐ @med @easy EOL error in red
