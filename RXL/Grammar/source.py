@@ -10,13 +10,10 @@ class Source(list):
         self.lines_added = 0
         self.file = file
 
-
-
-
     def call_syntax_f(self, name, line_nom, regex):
         if name.startswith("$"):
             name = name[1:]
-        # print(name)
+        print(name)
         eval(f"self.{name}")(line_nom,regex)
 
 
@@ -166,3 +163,9 @@ class Source(list):
             self[free_lines[l]] =  Indent+finally_
 
         self.lines_added += needed_lines
+
+
+    def cls(self, line_nom, regex):
+        print("in cls")
+        self[line_nom-1] = f"{regex.group('Indent')}std.cls()"
+    clear = cls

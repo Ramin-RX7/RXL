@@ -31,6 +31,8 @@ grammars = {
     "$cmd"    : True,
     "$call"   : True,
     "$check"  : False,
+    "$cls"    : True,
+    "$clear"  : True
 }
 
 
@@ -318,6 +320,7 @@ def check_syntax(SOURCE         ,
                 continue
 
 
+
         for name,regex_check in grammars.items():
             if Stripped.startswith(f'{name} ')  or  Stripped==name:
                 if regex_check:
@@ -400,7 +403,6 @@ def check_syntax(SOURCE         ,
             source[Line_Nom-1] = source[Line_Nom-1].replace("load","import",1)
 
 
-
         elif Stripped.startswith('$checkwait ')  or  Stripped=='$checkwait':
             raise NotImplementedError
             Regex = REGEX.Commands.checkwait.match(Text)
@@ -464,11 +466,6 @@ def check_syntax(SOURCE         ,
                 source[free_lines[4]] =  Indent+finally_
 
             Lines_Added += needed_lines
-
-
-        #] $CLEAR
-        elif Stripped in ('$cls','$clear'):
-            source[Line_Nom-1] = f"{' '*Text.index('$')}std.cls()"
 
         #print(f"{Line_Nom} :: {time.time()-t} {Striped[:5]}",'red')
     return source,threads

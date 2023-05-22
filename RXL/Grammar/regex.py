@@ -43,7 +43,7 @@ class REGEX:
 
         call = re.compile(r'(?P<Indent>\s*)\$call (?P<Function>.+) \s*in \s*(?P<Time>.+)')
 
-        _clear = NotImplemented
+        clear = re.compile(r'(?P<Indent>\s*)\$(clear)|(cls)')
 
 
 
