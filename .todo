@@ -134,10 +134,13 @@
 
 [Config]
     a file named `RXLconfig.toml`
-    different config types:  Default/Global/Project
-    importable with a syntax:
+    ☐ @med @norm different config types:  Default/Global/Custom
+        custom file with giving the path to the file (if it is a directory then path+defaultConfigName)
+    ☐ @low @norm importable with a syntax:
         `config {type}` (where type can be global/project/default)
+        ?  is this really useful?
     ☐ Move `define_structure` to configs
+        what should we do about consts?
     Configs list:
         Verbose, Debug, Cache default values when not given in terminal
         Lib-Name, Print, Func-Type-Checker, End-Exit

@@ -9,6 +9,7 @@ from tap import Tap
 from .Lib import convert_file_name
 from . import Grammar
 from .Grammar.source import Source
+from .Configs import get_configs
 
 
 __version__ = '0.0.1'
@@ -46,7 +47,6 @@ class ArgumentParser:
         """
         file    : str  =  None      # path to `RXL` file to run
         cache   : bool =  True      # whether to use cache or not (using this will prevent using cache)
-        verbose : bool =  False     # Verbose (Prints information when running RXL)
         debug   : bool =  False     # Debug file/code/syntax Before running it and print Mistakes in Red color
         compile : bool =  False     # Goes to `compile` menu
         translate_only: bool = False    # Translate file to python (without running it)
@@ -58,7 +58,6 @@ class ArgumentParser:
         def configure(self):
             self.add_argument("file", nargs="?")
             self.add_argument("-c", "--cache")
-            self.add_argument("-v", "--verbose")
             self.add_argument("-d", "--debug")
             self.add_argument("-t", "--translate-only")
             # self.add_argument('file_args',nargs=argparse.REMAINDER)
@@ -102,7 +101,7 @@ class ArgumentParser:
         """
         Returns a dictionary of how argument shoud be when no arguments are given from terminal
         """
-        # return {'module_test': False, 'debug': False, 'cache': True, 'verbose': False,
+        # return {'module_test': False, 'debug': False, 'cache': True,
         #         'file': None, 'compile': False, 'translate_only': False}
         return ArgumentParser.Parser(underscores_to_dashes=True).parse_args({}).as_dict()
 
@@ -140,14 +139,13 @@ class Tasks:
 
     #] only translating file to python code (if compile==True also compiles it)
     @staticmethod
-    def translate_only(path:str, cache:bool, debug:bool, verbose:bool, compile:bool) -> bool:
+    def translate_only(path:str, cache:bool, debug:bool, compile:bool) -> bool:
         """only translates the script (does not run it), also compiles it if compile is true
 
         Args:
             path (str): path to the file
             cache (bool): wether should use cache or not
             debug (bool): debug flag
-            verbose (bool): verbose flag
             compile (bool): compile flag
 
         Returns:
@@ -156,7 +154,7 @@ class Tasks:
         path = rx.files.abspath(path)
         set_working_path(rx.files.dirname(path))
 
-        source = convert_source(path, cache, debug, verbose)
+        source = convert_source(path, cache, debug)
         py_file_path = path.removesuffix(".rx")+".py"
         # if rx.files.exists(py_file_path):
             # print(f"{py_file_path} Already exists...")
@@ -173,14 +171,13 @@ class Tasks:
 
     #] running the file given as terminal argument
     @staticmethod
-    def runfile(path:str, cache:bool, debug:bool, verbose:bool) -> bool:
+    def runfile(path:str, cache:bool, debug:bool) -> bool:
         """runs the given file (path)
 
         Args:
             path (str): path to file that should be run
             cache (bool): cache flag
             debug (bool): debug flag
-            verbose (bool): verbose flag
 
         Raises:
             e: the exception that will be raised when running python on file
@@ -191,12 +188,12 @@ class Tasks:
         path = rx.files.abspath(path)
         set_working_path(rx.files.dirname(path))
 
-        source = convert_source(path, cache, debug, verbose)
+        source = convert_source(path, cache, debug)
         ready_file_name = convert_file_name(path)
 
         rx.write(ready_file_name, source)
 
-        if verbose:
+        if debug:
             #rx.cls()
             NOW = str(__import__('datetime').datetime.now())
             # probably consider changing next line from "NOW" to "START_TIME"
@@ -220,7 +217,7 @@ class Tasks:
         finally:
             rx.files.remove(ready_file_name)
 
-        if verbose:
+        if debug:
             EXECUTION_TIME_TEXT = round(time.perf_counter()-START_TIME,3)
             print(f'\n\nExecution Time:  {EXECUTION_TIME_TEXT}\n')
             #print(START_TIME)
@@ -245,13 +242,13 @@ class Tasks:
         if args.file:
             if args.translate_only:
                 task = "translate"
-                task_args = [args.file, args.cache, args.debug, args.verbose, args.compile]
+                task_args = [args.file, args.cache, args.debug, args.compile]
             elif args.compile:
                 task = "compile"
                 task_args = [args.file]
             else:
                 task = "runfile"
-                task_args = [args.file, args.cache, args.debug, args.verbose]
+                task_args = [args.file, args.cache, args.debug]
 
         else:
             task = "console"
@@ -296,14 +293,13 @@ def set_working_path(path) -> None:
 
 
 #< Check cache availablity >#
-def get_cache(cache:bool, path:str, debug:bool, verbose:bool) -> str|None:
+def get_cache(cache:bool, path:str, debug:bool) -> str|None:
     """check to see if suitable cache can be found for `path` to use
 
     Args:
         cache (bool): cache flag from terminal
         path (str): path to the file to check for cache
         debug (bool): debug flag from terminal
-        verbose (bool): verbose flag from terminal
 
     Returns:
         str|None: if cache is true and a suitable cache exists returns source for path else None
@@ -315,7 +311,7 @@ def get_cache(cache:bool, path:str, debug:bool, verbose:bool) -> str|None:
     full_ready_path = f"{FILE_DIR}/{CACHE_DIR}/{convert_file_name(rx.files.basename(path))}"
     cache_file =  rx.files.exists(full_ready_path)
     if cache_file:
-        if debug or verbose:
+        if debug:
             print("[*] Found Cache")
         source = rx.files.read(full_ready_path).split("\n")
         cache_id = int(source.pop(0))
@@ -347,7 +343,7 @@ def save_cache(path:str, source:str, cache_dir:str=CACHE_DIR) -> None:
 
 
 #< Translate Source (and write cache) >#
-def translate(source:list[str], path:str, cache:bool, debug:bool, verbose:bool) -> tuple:
+def translate(source:list[str], path:str, debug:bool, configs:dict) -> tuple:
     """transalte given source (that comes from path)
 
     Args:
@@ -355,46 +351,44 @@ def translate(source:list[str], path:str, cache:bool, debug:bool, verbose:bool) 
         path (str): path to the file that source comes from
         cache (bool): cache flag from terminal
         debug (bool): debug flag from terminal
-        verbose (bool): verbose flag from terminal
 
     Returns:
         tuple: translated source, list of threads created during translation, info of app
     """
-    source = Source(source)
-    source, lib_version, lib_shortcut, \
-        type_scanner, info = Grammar.define_structure(source, path, debug)
+    source = Source(source, path)
+    source = Grammar.define_structure(source, path, debug, configs)
     TIMES['DefStr'] = time.perf_counter()-START_TIME
 
-    source, threads = Grammar.check_syntax(source, lib_version, lib_shortcut,
-                             type_scanner, path, debug)
+    source, threads = Grammar.check_syntax(source, path, debug, configs)
     TIMES['Syntax'] = time.perf_counter()-START_TIME
 
     source = '\n'.join(source)
     rx.write('translated', source)
 
-    return source,threads,info
+    return source,threads,configs["info"]
 
 
 
 #< Translate >#
-def convert_source(path:str, cache:bool, debug:bool, verbose:bool) -> str:
+def convert_source(path:str, cache:bool, debug:bool, configs:dict={}) -> str:
     """gets the translated source for path. waits for all threads to join
 
     Args:
         path (str): path to the file to convert the source
         cache (bool): cache flag from terminal
         debug (bool): debug flag from terminal
-        verbose (bool): verbose flag from terminal
 
     Returns:
         str: translated source for path
     """
-    source = get_cache(cache, path, debug, verbose)
+    source = get_cache(cache, path, debug)
+    configs = configs if configs else get_configs()
     threads = []
     info = {}
     if not source:
+        Grammar.IndentCheck.check(source)
         source = rx.read(path).split("\n")
-        source,threads,info = translate(source, path, cache, debug, verbose)
+        source,threads,info = translate(source, path, debug, configs)
         if cache:
             if debug:
                 print("[*] Creating Cache")

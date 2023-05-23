@@ -45,7 +45,7 @@ grammars = {
 
 
 #< Method,Module_Name,Print,Indent,Const >#
-def define_structure(SOURCE, FILE, DEBUG):
+def define_structure(SOURCE, FILE, DEBUG,CONFIGS:dict,):
     """"""
     """
     BASE OPTIONS:
@@ -61,30 +61,13 @@ def define_structure(SOURCE, FILE, DEBUG):
     """
     global Lines_Added
 
-    IndentCheck.check(FILE)
-
-
-    #< OPTIONS >#
-    LIB_VERSION  = 'rx7'
-    LIB_SHORTCUT = 'std'
-    PRINT_TYPE = 'stylized'
-    TYPE_SCANNER = False
-    # Allow_Reload = False
     Changeable = []
-    INFO = {
-        'Version':  '1.0.0',
-        'Author' :  rx.system.accname(),
-        'Title'  :  rx.files.basename(FILE).split(".")[0]}
     Skip = 0
-    end = False
-
     for nom,line in enumerate(SOURCE[:20]):
 
         rstrip = line.rstrip()
         Stripped = line.strip()
 
-        # if end:   # When all remaining lines are docstring
-            # break
         if Skip:  # When Adding An Extra Line Like Decorators
             Skip = Skip-1
             continue
@@ -94,76 +77,16 @@ def define_structure(SOURCE, FILE, DEBUG):
             continue
         elif '"""' in line  and  not ("'''" in line and line.index('"""')>line.index("'''")):
             if not '"""' in line[line.index('"""')+3:]:
-                for line_in_str,line_in_str in enumerate(SOURCE[nom:],1):
+                for line_in_str,line_in_str in enumerate(SOURCE[nom:20],1):
                     if '"""' in line_in_str:
                         Skip = line_in_str
-                # if Skip > (10-nom):
-                    # end = True
                 continue
         elif "'''" in line:
             if not "'''" in line[line.index("'''")+3:]:
-                for line_in_str,text_in_str in enumerate(SOURCE[nom:10],1):
+                for line_in_str,text_in_str in enumerate(SOURCE[nom:20],1):
                     if "'''" in text_in_str:
                         Skip = line_in_str
-                # if Skip > (10-nom):
-                    # end = True
                 continue
-
-        #] Get Shortcut Name
-        elif regex:=re.match(r'Lib-?Name\s*:\s*(?P<name>.+)', rstrip, re.IGNORECASE):
-            LIB_SHORTCUT = regex.group("name")
-            if not re.match(r'\w+', LIB_SHORTCUT):
-                raise ERRORS.ValueError(msg='Invalid Value For `Lib-Name`',
-                                        File=FILE)
-
-        #] Print Function Method
-        elif regex:=re.match(r'(P|p)rint\s*:\s*(?P<type>.+)', rstrip, re.IGNORECASE):
-            PRINT_TYPE = regex.group("type").lower()
-            if not (PRINT_TYPE in ("normal","stylized")):
-                raise ERRORS.ValueError(FILE, 'print', PRINT_TYPE, line,
-                                       nom+1, ['stylized','normal'])
-
-        #] Function Type Scanner
-        elif regex:=re.match(r'func(tion)?-?type-?checker\s*:\s*(?P<flag>.+)',rstrip,re.IGNORECASE):
-            TYPE_SCANNER = regex.group("flag").capitalize()
-            if TYPE_SCANNER not in ("True","False"):
-                raise ERRORS.ValueError(FILE, 'func_type_checker', TYPE_SCANNER, line,
-                                       nom+1, "[True,False]")
-
-        #] Exit at the end
-        elif regex:=re.match(r'End-?Exit\s*:\s*(?P<flag>.+)', rstrip, re.IGNORECASE):
-            flag = regex.group("flag").capitalize()
-            if flag in ("True","False"):
-                if flag == "False":
-                    SOURCE.append('std.io.getpass("Press [Enter] to Exit")')
-            else:
-                raise ERRORS.ValueError(FILE, 'Exit', flag, line,
-                                       nom+1, "[True,False]")
-
-        #] Reload Module
-        elif regex:=re.match(r'Allow-?Reload\s*:(?P<flag>.+)', rstrip, re.IGNORECASE):
-            raise NotImplementedError
-            flag = regex.group("flag").capitalize()
-            if flag in ("False","True")  and  flag=="True":
-                Allow_Reload = True
-            else:
-                raise ERRORS.ValueError(FILE, 'Allow-Reload', flag, line,
-                                        SOURCE.index(line)  , "[True,False]")
-
-        #] Get Version (Method) of Tools
-        elif regex:=re.match(r'Lib-?Version\s*:\s*\w+', rstrip, re.IGNORECASE):
-            raise NotImplementedError
-            #if BASED:
-            #    raise ERRORS.BaseDefinedError('Method/Version', line, SOURCE[:5].index(line), FILE)
-            StripLow = line.strip().lower()
-            if StripLow.endswith('lite') or StripLow.endswith('fast'):
-                LIB_VERSION = 'rx7.lite'
-            elif not StripLow.endswith('normal'):
-                stripped = line[line.index(':')+1:].strip()
-                raise ERRORS.ValueError(FILE, 'Method', stripped, line,
-                                    SOURCE[:5].index(line), ['lite','normal'])
-            SOURCE[nom] = ''
-            Changeable.append(nom)
 
         #] Consts definition
         elif regex:=re.match(r"CONSTS:", rstrip, re.IGNORECASE):
@@ -210,45 +133,31 @@ def define_structure(SOURCE, FILE, DEBUG):
             Skip = until - nom
             continue
 
-
-        #] Version
-        elif Regex:=re.match(r'Version\s*:\s*(?P<Version>[0-9]+(\.[0-9]+)?(\.[0-9]+)?)',
-                             rstrip, re.IGNORECASE):
-            INFO['Version'] = Regex.group('Version')
-        #] Title
-        elif Regex:=re.match(r'Title\s*:\s*(?P<Title>[^>]+)(>.+)?',
-                             rstrip, re.IGNORECASE):
-            INFO['Title'] = Regex.group('Title')
-        #] Author
-        elif Regex:=re.match(r'Author\s*:\s*(?P<Author>.+)',
-                             rstrip, re.IGNORECASE):
-            INFO['Author'] = Regex.group('Author')
-
-
         else:
             break
 
         Changeable.append(nom)
         SOURCE[nom] = ''
 
-
+    CONFIGS["structure"]['lib_version'] = "rx7"
+    LIB_NAME = CONFIGS["lib_name"]
     #] Bases
     STRING = []
-    STRING.append(f"import {LIB_VERSION} as {LIB_SHORTCUT}")
-    STRING.append(f"std = rx = {LIB_SHORTCUT};import importlib;"
+    STRING.append(f"import {CONFIGS['structure']['lib_version']} as {LIB_NAME}")
+    STRING.append(f"std = rx = {LIB_NAME};import importlib;"
                    "std.RXL = importlib.import_module('RXL');"
                    "std.RXL.Lang = importlib.import_module('RXL.Lang');"
                    "std.RXL.NewFeatures = importlib.import_module('RXL.NewFeatures');"
                    "std.array = std.RXL.NewFeatures.array"
                    )
-    STRING.append(f"print = {LIB_SHORTCUT+'.style.print' if PRINT_TYPE=='stylized' else 'print'}")
+    STRING.append(f"print = {f'{LIB_NAME}.style.print' if CONFIGS['structure']['print']=='stylized' else 'print'}")
     #] Direct Attributes
-    STRING.append(F"input = {LIB_SHORTCUT}.IO.selective_input")
-    STRING.append(f"Check_Type = {LIB_SHORTCUT}.Check_Type")
+    STRING.append(F"input = {LIB_NAME}.IO.selective_input")
+    STRING.append(f"Check_Type = {LIB_NAME}.Check_Type")
     STRING.append("apply = lambda f,iterable: type(iterable)(__import__('builtins').map(f,iterable)) ; map = None")
 
     #] App Info
-    for key,value in INFO.items():
+    for key,value in CONFIGS['info'].items():
         STRING.append(f"setattr(std,'{key}','{value}')")
 
     if len(Changeable):
@@ -265,9 +174,10 @@ def define_structure(SOURCE, FILE, DEBUG):
             Error(f'{FILE}> No (Enough) Base-Option/Empty-lines at begining of file',add_time=False)
         SOURCE.insert(0, ';'.join(STRING))
 
-    return (SOURCE,
-            LIB_VERSION, LIB_SHORTCUT,
-            TYPE_SCANNER, INFO)
+    if CONFIGS["structure"]["end_exit"]:
+        SOURCE.append(f'{LIB_NAME}.io.getpass("Press [Enter] to Exit")')
+
+    return SOURCE
 
 
 
@@ -276,11 +186,10 @@ def define_structure(SOURCE, FILE, DEBUG):
 #< Syntax >#
 def check_syntax(
            SOURCE:Source       ,
-           MODULE_VERSION:str  ,
-           MODULE_SHORTCUT:str ,
-           TYPE_SCANNER:bool   ,
            FILE :str           ,
-           DEBUG:bool ) -> tuple[Source,list[Thread]]:
+           DEBUG:bool,
+           CONFIGS:dict,
+            ) -> tuple[Source,list[Thread]]:
 
     threads = []
     working_path = rx.files.dirname(FILE)
@@ -332,7 +241,7 @@ def check_syntax(
 
 
         #] Func Type checker
-        elif (Stripped.startswith('def ') or Stripped.startswith('func '))  and  TYPE_SCANNER:  # Make it regex?
+        elif (Stripped.startswith('def ') or Stripped.startswith('func '))  and  CONFIGS["structure"]["func_type_checker"]:  # Make it regex?
             if Stripped.startswith("func "):
                 source[Line_Nom-1] = source[Line_Nom-1].replace('func', 'def', 1)
                 indent = Text.index("func ")
@@ -342,7 +251,7 @@ def check_syntax(
             #    SOURCE[Line_Nom-2]= re.search(r'(\s*)',Text).group(1)+f'@std.Check_Type'
             if source[Line_Nom-2].strip().startswith('@'):
                 continue
-            source.insert(Line_Nom-1, f'{" "*indent}@{MODULE_SHORTCUT}.Check_Type')
+            source.insert(Line_Nom-1, f'{" "*indent}@std.Check_Type')
             source.skip = 1
             source.lines_added += 1
 
