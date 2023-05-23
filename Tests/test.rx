@@ -1,11 +1,3 @@
-Title  :  AppTitle> Short description of app
-Version:  0.1.2
-Author :  Ramin-RX7
-
-Lib-Name : sc
-Print : Stylized
-Func-Type-Checker: True
-End-Exit : True
 
 #] Const
 CONSTS:
@@ -18,9 +10,9 @@ CONSTS:
 print('START\n')
 
 #] Lib-Name and Print-Style
-print(sc.system.cwd(), style="bold")
+print(std.system.cwd(), style="bold")
 #] Info
-print(std.Title, std.Version, std.Author)
+print(std.title, std.version, std.author)
 
 
 #] Include

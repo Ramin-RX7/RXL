@@ -39,13 +39,30 @@ grammars = {
 
 
 
+def get_skips(source:Source, index_line:str, stripped:str):
+    if (not stripped) or stripped.startswith('#'):
+            return True
+    if ('"""' in stripped  and
+        not (("'''" in stripped)  and
+        (stripped.index('"""')>stripped.index("'''")))):
+        if not '"""' in stripped[stripped.index('"""')+3:]:
+            for line_in_str,text_in_str in enumerate(source[index_line+1:],1):
+                if '"""' in text_in_str:
+                    skip = line_in_str
+            return skip
+    elif "'''" in stripped:
+        if not "'''" in stripped[stripped.index("'''")+3:]:
+            for line_in_str,text_in_str in enumerate(source[index_line+1:],1):
+                if "'''" in text_in_str:
+                    skip = line_in_str
+            return skip
 
-
+    return 0
 
 
 
 #< Method,Module_Name,Print,Indent,Const >#
-def define_structure(SOURCE, FILE, DEBUG,CONFIGS:dict,):
+def define_structure(SOURCE:Source, FILE, DEBUG,CONFIGS:dict,):
     """"""
     """
     BASE OPTIONS:
@@ -62,34 +79,21 @@ def define_structure(SOURCE, FILE, DEBUG,CONFIGS:dict,):
     global Lines_Added
 
     Changeable = []
-    Skip = 0
     for nom,line in enumerate(SOURCE[:20]):
-
-        rstrip = line.rstrip()
         Stripped = line.strip()
 
-        if Skip:  # When Adding An Extra Line Like Decorators
-            Skip = Skip-1
+        if SOURCE.skip:  # When Adding An Extra Line Like Decorators
+            SOURCE.skip -= 1
             continue
         # Ignore Docstrings and Comments
-        if (not Stripped)  or  Stripped.startswith('#'):
-            Changeable.append(nom)
+        if skips := get_skips(source, nom, Stripped):
+            if skips is True:
+                continue
+            source.skip = skips
             continue
-        elif '"""' in line  and  not ("'''" in line and line.index('"""')>line.index("'''")):
-            if not '"""' in line[line.index('"""')+3:]:
-                for line_in_str,line_in_str in enumerate(SOURCE[nom:20],1):
-                    if '"""' in line_in_str:
-                        Skip = line_in_str
-                continue
-        elif "'''" in line:
-            if not "'''" in line[line.index("'''")+3:]:
-                for line_in_str,text_in_str in enumerate(SOURCE[nom:20],1):
-                    if "'''" in text_in_str:
-                        Skip = line_in_str
-                continue
 
         #] Consts definition
-        elif regex:=re.match(r"CONSTS:", rstrip, re.IGNORECASE):
+        elif regex:=re.match(r"CONSTS:", Stripped, re.IGNORECASE):
             consts = {}
             SOURCE[nom] = "class CONSTS(metaclass=std.RXL.Lang.Singleton):"
             last_line = nom
@@ -129,18 +133,13 @@ def define_structure(SOURCE, FILE, DEBUG,CONFIGS:dict,):
                 Lines_Added += 1
             else:
                 SOURCE[until-1] = "CONSTS = CONSTS()"
-
-            Skip = until - nom
-            continue
+            break
 
         else:
             break
 
-        Changeable.append(nom)
-        SOURCE[nom] = ''
-
     CONFIGS["structure"]['lib_version'] = "rx7"
-    LIB_NAME = CONFIGS["lib_name"]
+    LIB_NAME = CONFIGS["structure"]["lib_name"]
     #] Bases
     STRING = []
     STRING.append(f"import {CONFIGS['structure']['lib_version']} as {LIB_NAME}")
@@ -174,7 +173,7 @@ def define_structure(SOURCE, FILE, DEBUG,CONFIGS:dict,):
             Error(f'{FILE}> No (Enough) Base-Option/Empty-lines at begining of file',add_time=False)
         SOURCE.insert(0, ';'.join(STRING))
 
-    if CONFIGS["structure"]["end_exit"]:
+    if not CONFIGS["structure"]["end_exit"]:
         SOURCE.append(f'{LIB_NAME}.io.getpass("Press [Enter] to Exit")')
 
     return SOURCE
@@ -185,11 +184,11 @@ def define_structure(SOURCE, FILE, DEBUG,CONFIGS:dict,):
 
 #< Syntax >#
 def check_syntax(
-           SOURCE:Source       ,
-           FILE :str           ,
-           DEBUG:bool,
-           CONFIGS:dict,
-            ) -> tuple[Source,list[Thread]]:
+            SOURCE:Source       ,
+            FILE :str           ,
+            DEBUG:bool,
+            CONFIGS:dict,
+        ) -> tuple[Source,list[Thread]]:
 
     threads = []
     working_path = rx.files.dirname(FILE)
@@ -202,26 +201,13 @@ def check_syntax(
         #] When Adding An Extra Line Like Decorators
         if source.skip:
             source.skip -= 1
-
-        # Ignore Docstrings and Comments
-        elif (not Stripped)  or  Stripped.startswith('#'):
             continue
-
-        elif '"""' in Text  and  not (("'''" in Text)  and  (Text.index('"""')>Text.index("'''"))):
-            if not '"""' in Text[Text.index('"""')+3:]:
-                for line_in_str,text_in_str in enumerate(source[Line_Nom:],1):
-                    if '"""' in text_in_str:
-                        source.skip = line_in_str
+        # Ignore Docstrings and Comments
+        if skips := get_skips(source,Line_Nom-1, Stripped):
+            if skips is True:
                 continue
-
-        elif "'''" in Text:
-            if not "'''" in Text[Text.index("'''")+3:]:
-                for line_in_str,text_in_str in enumerate(source[Line_Nom:],1):
-                    if "'''" in text_in_str:
-                        source.skip = line_in_str
-                        #print(source.skip)
-                continue
-
+            source.skip = skips
+            continue
 
 
         for name,regex_check in grammars.items():
@@ -234,11 +220,9 @@ def check_syntax(
                 break
 
 
-
         #] Memory Location of Object
         if Regex:=re.search(r'[,\(\[\{\+=: ]&(?P<var>.+)', Text): #[^a-zA-Z0-9'"]
             source[Line_Nom-1] = Text.replace("&"+Regex.group("var"),f'hex(id({Regex.group("var")}))')
-
 
         #] Func Type checker
         elif (Stripped.startswith('def ') or Stripped.startswith('func '))  and  CONFIGS["structure"]["func_type_checker"]:  # Make it regex?
@@ -254,7 +238,6 @@ def check_syntax(
             source.insert(Line_Nom-1, f'{" "*indent}@std.Check_Type')
             source.skip = 1
             source.lines_added += 1
-
 
         #] do_while
         elif Stripped.startswith('do '     )  or  Stripped=='do':
@@ -290,7 +273,6 @@ def check_syntax(
             source[Line_Nom-1] = ''
             source[WHILE_LINE] = source[WHILE_LINE]+':'
 
-
         #] Load User-Defined Modules
         elif Stripped.startswith('load ' )  or  Stripped=='load':
             Regex = get_regex('load', Text, FILE, Line_Nom)
@@ -304,7 +286,6 @@ def check_syntax(
                 source = convert_source(full_path,True,DEBUG,False)
                 rx.write(full_path.removesuffix(".rxl")+".py", source)
             source[Line_Nom-1] = source[Line_Nom-1].replace("load","import",1)
-
 
         elif Stripped.startswith('$checkwait ')  or  Stripped=='$checkwait':
             raise NotImplementedError

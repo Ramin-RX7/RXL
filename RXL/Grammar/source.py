@@ -14,7 +14,7 @@ class Source(list):
     def call_syntax_f(self, name, line_nom, regex):
         if name.startswith("$"):
             name = name[1:]
-        print(name)
+        # print(name)
         eval(f"self.{name}")(line_nom,regex)
 
 
@@ -66,7 +66,7 @@ class Source(list):
 
 
     def func(self, line_nom, regex):
-        self[line_nom-1].replace('func', 'def', 1)
+        self[line_nom-1] = self[line_nom-1].replace('func', 'def', 1)
 
 
     def foreach(self, line_nom, regex):

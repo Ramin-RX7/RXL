@@ -382,11 +382,12 @@ def convert_source(path:str, cache:bool, debug:bool, configs:dict={}) -> str:
         str: translated source for path
     """
     source = get_cache(cache, path, debug)
-    configs = configs if configs else get_configs()
+    configs = configs if configs else get_configs(rx.files.dirname(path))
+    # print(configs)
     threads = []
     info = {}
     if not source:
-        Grammar.IndentCheck.check(source)
+        Grammar.IndentCheck.check(path)
         source = rx.read(path).split("\n")
         source,threads,info = translate(source, path, debug, configs)
         if cache:
