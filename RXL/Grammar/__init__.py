@@ -18,7 +18,6 @@ CLASSES = (
     'decorator', 'random', 'internet', 'files',
 )
 LOADED_PACKAGES = []
-Lines_Added = 0
 
 
 grammars = {
@@ -38,26 +37,25 @@ grammars = {
 
 
 
-
 def get_skips(source:Source, index_line:str, stripped:str):
     if (not stripped) or stripped.startswith('#'):
-            return True
+            return 1
     if ('"""' in stripped  and
         not (("'''" in stripped)  and
         (stripped.index('"""')>stripped.index("'''")))):
         if not '"""' in stripped[stripped.index('"""')+3:]:
-            for line_in_str,text_in_str in enumerate(source[index_line+1:],1):
+            for line_in_str,text_in_str in enumerate(source[index_line+1:],2):
                 if '"""' in text_in_str:
                     skip = line_in_str
             return skip
     elif "'''" in stripped:
         if not "'''" in stripped[stripped.index("'''")+3:]:
-            for line_in_str,text_in_str in enumerate(source[index_line+1:],1):
+            for line_in_str,text_in_str in enumerate(source[index_line+1:],2):
                 if "'''" in text_in_str:
                     skip = line_in_str
             return skip
-
     return 0
+
 
 
 
@@ -76,20 +74,18 @@ def define_structure(SOURCE:Source, FILE, DEBUG,CONFIGS:dict,):
 
     "OPTIONS" SHOULD BE DEFINED AFTER "BASE OPTIONS"'
     """
-    global Lines_Added
 
     Changeable = []
-    for nom,line in enumerate(SOURCE[:20]):
+    for nom,line in enumerate(SOURCE[:15]):
         Stripped = line.strip()
 
-        if SOURCE.skip:  # When Adding An Extra Line Like Decorators
+        #] Skips
+        if SOURCE.skip:
             SOURCE.skip -= 1
             continue
-        # Ignore Docstrings and Comments
         if skips := get_skips(source, nom, Stripped):
-            if skips is True:
-                continue
-            source.skip = skips
+            source.skip = skips - 1
+            Changeable += list(range(nom,nom+skips))
             continue
 
         #] Consts definition
@@ -130,13 +126,14 @@ def define_structure(SOURCE:Source, FILE, DEBUG,CONFIGS:dict,):
 
             if SOURCE[until-1].strip():
                 SOURCE.insert(until, "CONSTS = CONSTS()")
-                Lines_Added += 1
+                SOURCE.lines_added += 1
             else:
                 SOURCE[until-1] = "CONSTS = CONSTS()"
             break
 
         else:
             break
+
 
     CONFIGS["structure"]['lib_version'] = "rx7"
     LIB_NAME = CONFIGS["structure"]["lib_name"]
@@ -157,7 +154,7 @@ def define_structure(SOURCE:Source, FILE, DEBUG,CONFIGS:dict,):
 
     #] App Info
     for key,value in CONFIGS['info'].items():
-        STRING.append(f"setattr(std,'{key}','{value}')")
+        STRING.append(f"setattr(std,'{key}',{value})")
 
     if len(Changeable):
         for line_nom in Changeable:
@@ -194,15 +191,13 @@ def check_syntax(
     working_path = rx.files.dirname(FILE)
 
     source:Source[str] = Source(SOURCE, FILE)
-
     for Line_Nom,Text in enumerate(source, 1):
         Stripped = Text.strip()
 
-        #] When Adding An Extra Line Like Decorators
+        #] Check for skips
         if source.skip:
             source.skip -= 1
             continue
-        # Ignore Docstrings and Comments
         if skips := get_skips(source,Line_Nom-1, Stripped):
             if skips is True:
                 continue
@@ -349,7 +344,7 @@ def check_syntax(
             if finally_:
                 source[free_lines[4]] =  Indent+finally_
 
-            Lines_Added += needed_lines
+            source.lines_added += needed_lines
 
         #print(f"{Line_Nom} :: {time.time()-t} {Striped[:5]}",'red')
     return source,threads
