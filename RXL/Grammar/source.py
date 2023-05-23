@@ -7,8 +7,9 @@ from .regex import REGEX
 class Source(list):
     def __init__(self, __iterable, file):
         super().__init__(__iterable)
-        self.lines_added = 0
         self.file = file
+        self.lines_added = 0
+        self.skip = 0
 
     def call_syntax_f(self, name, line_nom, regex):
         if name.startswith("$"):

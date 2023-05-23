@@ -8,6 +8,7 @@ from tap import Tap
 
 from .Lib import convert_file_name
 from . import Grammar
+from .Grammar.source import Source
 
 
 __version__ = '0.0.1'
@@ -346,7 +347,7 @@ def save_cache(path:str, source:str, cache_dir:str=CACHE_DIR) -> None:
 
 
 #< Translate Source (and write cache) >#
-def translate(source:list, path:str, cache:bool, debug:bool, verbose:bool) -> tuple:
+def translate(source:list[str], path:str, cache:bool, debug:bool, verbose:bool) -> tuple:
     """transalte given source (that comes from path)
 
     Args:
@@ -359,6 +360,7 @@ def translate(source:list, path:str, cache:bool, debug:bool, verbose:bool) -> tu
     Returns:
         tuple: translated source, list of threads created during translation, info of app
     """
+    source = Source(source)
     source, lib_version, lib_shortcut, \
         type_scanner, info = Grammar.define_structure(source, path, debug)
     TIMES['DefStr'] = time.perf_counter()-START_TIME

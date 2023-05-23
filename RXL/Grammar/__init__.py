@@ -1,6 +1,7 @@
 import re
 import tokenize
 from typing import Callable
+from threading import Thread
 
 import rx7 as rx
 
@@ -69,7 +70,6 @@ def define_structure(SOURCE, FILE, DEBUG):
     PRINT_TYPE = 'stylized'
     TYPE_SCANNER = False
     # Allow_Reload = False
-    map_defd = False
     Changeable = []
     INFO = {
         'Version':  '1.0.0',
@@ -121,24 +121,24 @@ def define_structure(SOURCE, FILE, DEBUG):
             PRINT_TYPE = regex.group("type").lower()
             if not (PRINT_TYPE in ("normal","stylized")):
                 raise ERRORS.ValueError(FILE, 'print', PRINT_TYPE, line,
-                                       SOURCE.index(line), ['stylized','normal'])
+                                       nom+1, ['stylized','normal'])
 
         #] Function Type Scanner
         elif regex:=re.match(r'func(tion)?-?type-?checker\s*:\s*(?P<flag>.+)',rstrip,re.IGNORECASE):
             TYPE_SCANNER = regex.group("flag").capitalize()
             if TYPE_SCANNER not in ("True","False"):
                 raise ERRORS.ValueError(FILE, 'func_type_checker', TYPE_SCANNER, line,
-                                       SOURCE.index(line), "[True,False]")
+                                       nom+1, "[True,False]")
 
         #] Exit at the end
         elif regex:=re.match(r'End-?Exit\s*:\s*(?P<flag>.+)', rstrip, re.IGNORECASE):
             flag = regex.group("flag").capitalize()
             if flag in ("True","False"):
                 if flag == "False":
-                    SOURCE.append('__import__("getpass").getpass("Press [Enter] to Exit")')
+                    SOURCE.append('std.io.getpass("Press [Enter] to Exit")')
             else:
                 raise ERRORS.ValueError(FILE, 'Exit', flag, line,
-                                       SOURCE.index(line), "[True,False]")
+                                       nom+1, "[True,False]")
 
         #] Reload Module
         elif regex:=re.match(r'Allow-?Reload\s*:(?P<flag>.+)', rstrip, re.IGNORECASE):
@@ -224,8 +224,6 @@ def define_structure(SOURCE, FILE, DEBUG):
                              rstrip, re.IGNORECASE):
             INFO['Author'] = Regex.group('Author')
 
-        elif re.search(r'^(def)|(class)\s+map\s*\(',Stripped)  or  re.search(r'^map\s*=',Stripped):
-            map_defd = True
 
         else:
             break
@@ -247,20 +245,19 @@ def define_structure(SOURCE, FILE, DEBUG):
     #] Direct Attributes
     STRING.append(F"input = {LIB_SHORTCUT}.IO.selective_input")
     STRING.append(f"Check_Type = {LIB_SHORTCUT}.Check_Type")
-    #]
-    if not map_defd:
-        STRING.append("apply = lambda f,iterable: type(iterable)(__import__('builtins').map(f,iterable)) ; map = None")
+    STRING.append("apply = lambda f,iterable: type(iterable)(__import__('builtins').map(f,iterable)) ; map = None")
+
     #] App Info
     for key,value in INFO.items():
         STRING.append(f"setattr(std,'{key}','{value}')")
 
     if len(Changeable):
-        for line in Changeable:
-            if line == Changeable[-1]:
-                SOURCE[line] = ';'.join(STRING)
+        for line_nom in Changeable:
+            if line_nom == Changeable[-1]:
+                SOURCE[line_nom] = ';'.join(STRING)
             else:
                 try:
-                    SOURCE[line] = STRING.pop(0)
+                    SOURCE[line_nom] = STRING.pop(0)
                 except IndexError:
                     break
     else:
@@ -277,28 +274,25 @@ def define_structure(SOURCE, FILE, DEBUG):
 
 
 #< Syntax >#
-def check_syntax(SOURCE         ,
-           MODULE_VERSION ,
-           MODULE_SHORTCUT,
-           TYPE_SCANNER   ,
-           FILE           ,
-           DEBUG ):
+def check_syntax(
+           SOURCE:Source       ,
+           MODULE_VERSION:str  ,
+           MODULE_SHORTCUT:str ,
+           TYPE_SCANNER:bool   ,
+           FILE :str           ,
+           DEBUG:bool ) -> tuple[Source,list[Thread]]:
 
-    global Lines_Added
-    Skip = 0
     threads = []
     working_path = rx.files.dirname(FILE)
 
     source:Source[str] = Source(SOURCE, FILE)
 
-
     for Line_Nom,Text in enumerate(source, 1):
         Stripped = Text.strip()
 
         #] When Adding An Extra Line Like Decorators
-        if Skip:
-            Skip = Skip-1
-            continue
+        if source.skip:
+            source.skip -= 1
 
         # Ignore Docstrings and Comments
         elif (not Stripped)  or  Stripped.startswith('#'):
@@ -308,15 +302,15 @@ def check_syntax(SOURCE         ,
             if not '"""' in Text[Text.index('"""')+3:]:
                 for line_in_str,text_in_str in enumerate(source[Line_Nom:],1):
                     if '"""' in text_in_str:
-                        Skip = line_in_str
+                        source.skip = line_in_str
                 continue
 
         elif "'''" in Text:
             if not "'''" in Text[Text.index("'''")+3:]:
                 for line_in_str,text_in_str in enumerate(source[Line_Nom:],1):
                     if "'''" in text_in_str:
-                        Skip = line_in_str
-                        #print(Skip)
+                        source.skip = line_in_str
+                        #print(source.skip)
                 continue
 
 
@@ -349,8 +343,8 @@ def check_syntax(SOURCE         ,
             if source[Line_Nom-2].strip().startswith('@'):
                 continue
             source.insert(Line_Nom-1, f'{" "*indent}@{MODULE_SHORTCUT}.Check_Type')
-            Skip = 1
-            Lines_Added += 1
+            source.skip = 1
+            source.lines_added += 1
 
 
         #] do_while

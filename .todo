@@ -1,4 +1,5 @@
 [MAIN]
+    ☐ try to catch exceptions when runnung python file
     ☐ `Lines_Added` should be inside functions and be returned instead being global variable
     ☐ Re-structure the grammar package
         regex module:  `REGEX` class, `check_regex()`,
@@ -136,6 +137,7 @@
     different config types:  Default/Global/Project
     importable with a syntax:
         `config {type}` (where type can be global/project/default)
+    ☐ Move `define_structure` to configs
     Configs list:
         Verbose, Debug, Cache default values when not given in terminal
         Lib-Name, Print, Func-Type-Checker, End-Exit
