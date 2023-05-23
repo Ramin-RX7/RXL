@@ -39,14 +39,19 @@ def default_config():
 
 
 def get_configs(dir_path):
+
     if not rx.files.exists(dir_path+"/"+DEFAULT_CONFIG_PATH):
         return default_config()
 
-    with open(dir_path+"/RXLconfig.toml") as f:
-        configs = tomllib.load(f)
+    with open(dir_path+"/RXLconfig.toml", 'rb') as f:
+        user_configs = tomllib.load(f)
+    default_configs = default_config()
+
+    configs = {}
+    for table in ['info', 'structure']:
+        configs[table] = {**default_configs[table], **user_configs.get(table,{})}
 
 
 
 
-
-    return {**default_config(), **configs}
+    return configs

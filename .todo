@@ -139,14 +139,13 @@
     ☐ @low @norm importable with a syntax:
         `config {type}` (where type can be global/project/default)
         ?  is this really useful?
-    ☐ Move `define_structure` to configs
+    ✔ Move `define_structure` to configs
         what should we do about consts?
     Configs list:
-        Verbose, Debug, Cache default values when not given in terminal
-        Lib-Name, Print, Func-Type-Checker, End-Exit
-        default python path (for python runs like nuitka)
         pre-run command   (also a condition e.g: only run when `file` arg is given)
         post-run command  (also a condition e.g: only run when `file` arg is given)
+        Verbose, Debug, Cache default values when not given in terminal
+        default python path (for python runs like nuitka)
         Shortcut to files (run files without giving the path to the file)
 
 
