@@ -60,14 +60,13 @@ def get_skips(source:Source, index_line:str, stripped:str):
 
 
 #< Method,Module_Name,Print,Indent,Const >#
-def define_structure(SOURCE:Source, FILE, DEBUG,CONFIGS:dict,):
+def define_structure(source:Source, file:str, debug:bool, configs:dict):
     Changeable = []
-    for nom,line in enumerate(SOURCE[:15]):
+    for nom,line in enumerate(source[:15]):
         Stripped = line.strip()
-
         #] Skips
-        if SOURCE.skip:
-            SOURCE.skip -= 1
+        if source.skip:
+            source.skip -= 1
             continue
         elif skips := get_skips(source, nom, Stripped):
             source.skip = skips - 1
@@ -77,24 +76,24 @@ def define_structure(SOURCE:Source, FILE, DEBUG,CONFIGS:dict,):
         #] Consts definition
         elif regex:=re.match(r"CONSTS:", Stripped, re.IGNORECASE):
             consts = {}
-            SOURCE[nom] = "class CONSTS(metaclass=std.RXL.Lang.Singleton):"
+            source[nom] = "class CONSTS(metaclass=std.RXL.Lang.Singleton):"
             last_line = nom
             until = nom
             indent = "  "
             while True:
                 until += 1
-                if (not SOURCE[until].strip()) or (SOURCE[until].lstrip().startswith("#")):
+                if (not source[until].strip()) or (source[until].lstrip().startswith("#")):
                     # print(f"Skip {until}")
-                    if not SOURCE[until].strip():
+                    if not source[until].strip():
                         last_line = until
                     continue
-                elif len(SOURCE[until].lstrip()) == len(SOURCE[until]):
+                elif len(source[until].lstrip()) == len(source[until]):
                     break
 
                 if line_regex := re.match(r"(?P<indent>\s+)(?P<varname>\w+)\s*=\s*(?P<value>.+)",
-                                          SOURCE[until]):
+                                          source[until]):
                     consts[line_regex.group("varname")] = line_regex.group("value")
-                    SOURCE[until] = f"{indent}{line_regex.group('varname')} = " \
+                    source[until] = f"{indent}{line_regex.group('varname')} = " \
                                     f"std.RXL.Lang.constant(lambda:({line_regex.group('value')}))"
                     last_line = until
                     # indent = line_regex.group('indent')
@@ -102,30 +101,30 @@ def define_structure(SOURCE:Source, FILE, DEBUG,CONFIGS:dict,):
                     # print(f"Unknown: {until}")
                     pass
             # text = text.encode('unicode-escape').decode().replace('\\\\', '\\')
-            if SOURCE[last_line].strip():
-                SOURCE[last_line] = SOURCE[last_line]+ ";  __slots__ = {}"
+            if source[last_line].strip():
+                source[last_line] = source[last_line]+ ";  __slots__ = {}"
             else:
-                if SOURCE[last_line-1]:
-                    SOURCE[last_line-1] = SOURCE[last_line-1]+";  __slots__ = {}"
+                if source[last_line-1]:
+                    source[last_line-1] = source[last_line-1]+";  __slots__ = {}"
                 else:
-                    SOURCE[last_line-1] = indent+"__slots__ = {}"
+                    source[last_line-1] = indent+"__slots__ = {}"
 
-            if SOURCE[until-1].strip():
-                SOURCE.insert(until, "CONSTS = CONSTS()")
-                SOURCE.lines_added += 1
+            if source[until-1].strip():
+                source.insert(until, "CONSTS = CONSTS()")
+                source.lines_added += 1
             else:
-                SOURCE[until-1] = "CONSTS = CONSTS()"
+                source[until-1] = "CONSTS = CONSTS()"
             break
 
         else:
             break
 
 
-    CONFIGS["structure"]['lib_version'] = "rx7"
-    LIB_NAME = CONFIGS["structure"]["lib_name"]
+    configs["structure"]['lib_version'] = "rx7"
+    LIB_NAME = configs["structure"]["lib_name"]
     #] Bases
     STRUCTURES = [
-       f"import {CONFIGS['structure']['lib_version']} as {LIB_NAME}",
+       f"import {configs['structure']['lib_version']} as {LIB_NAME}",
        f"std = rx = {LIB_NAME}",
         "import importlib",
         "std.RXL = importlib.import_module('RXL')",
@@ -137,7 +136,7 @@ def define_structure(SOURCE:Source, FILE, DEBUG,CONFIGS:dict,):
        f"Check_Type = {LIB_NAME}.Check_Type",
         "apply = std.RXL.Lang.apply; map = NotImplemented"
     ]
-    match CONFIGS["structure"]['print']:
+    match configs["structure"]['print']:
         case 'stylized':
             STRUCTURES.append(f"print = {LIB_NAME}.style.print")
         case 'pprint':
@@ -145,7 +144,7 @@ def define_structure(SOURCE:Source, FILE, DEBUG,CONFIGS:dict,):
         case _:
             pass
     #] App Info
-    for key,value in CONFIGS['info'].items():
+    for key,value in configs['info'].items():
         STRUCTURES.append(f"setattr(std,'{key}',{value})")
 
     if len(Changeable):
@@ -153,36 +152,31 @@ def define_structure(SOURCE:Source, FILE, DEBUG,CONFIGS:dict,):
             if not STRUCTURES:
                 break
             if line_nom == Changeable[-1]:
-                SOURCE[line_nom] = ';'.join(STRUCTURES)
+                source[line_nom] = ';'.join(STRUCTURES)
                 break
             else:
-                SOURCE[line_nom] = STRUCTURES.pop(0)
+                source[line_nom] = STRUCTURES.pop(0)
     else:
-        if DEBUG:
-            Error(f'{FILE}> Not (Enough) Empty-lines at begining of file',add_time=False)
-        SOURCE.insert(0, ';'.join(STRUCTURES))
+        if debug:
+            Error(f'{file}> Not (Enough) Empty-lines at begining of file',add_time=False)
+        source.insert(0, ';'.join(STRUCTURES))
 
-    if not CONFIGS["structure"]["end_exit"]:
-        SOURCE.append(f'{LIB_NAME}.io.getpass("Press [Enter] to Exit")')
+    if not configs["structure"]["end_exit"]:
+        source.append(f'{LIB_NAME}.io.getpass("Press [Enter] to Exit")')
 
-    return SOURCE
+    return source
 
 
 
 
 
 #< Syntax >#
-def check_syntax(
-            SOURCE:Source       ,
-            FILE :str           ,
-            DEBUG:bool,
-            CONFIGS:dict,
-        ) -> tuple[Source,list[Thread]]:
+def check_synta(source:Source, file:str, debug:bool, configs:dict) -> tuple[Source,list[Thread]]:
 
     threads = []
-    working_path = rx.files.dirname(FILE)
+    working_path = rx.files.dirname(file)
 
-    source:Source[str] = Source(SOURCE, FILE)
+    source:Source[str] = Source(source, file)
     for Line_Nom,Text in enumerate(source, 1):
         Stripped = Text.strip()
 
@@ -200,7 +194,7 @@ def check_syntax(
         for name,regex_check in grammars.items():
             if Stripped.startswith(f'{name} ')  or  Stripped==name:
                 if regex_check:
-                    Regex = get_regex(name, Text, FILE, Line_Nom)
+                    Regex = get_regex(name, Text, file, Line_Nom)
                 else:
                     Regex = Text
                 source.call_syntax_f(name, Line_Nom, Regex)
@@ -212,7 +206,7 @@ def check_syntax(
             source[Line_Nom-1] = Text.replace("&"+Regex.group("var"),f'hex(id({Regex.group("var")}))')
 
         #] Func Type checker
-        elif (Stripped.startswith('def ') or Stripped.startswith('func '))  and  CONFIGS["structure"]["func_type_checker"]:  # Make it regex?
+        elif (Stripped.startswith('def ') or Stripped.startswith('func '))  and  configs["structure"]["func_type_checker"]:  # Make it regex?
             if Stripped.startswith("func "):
                 source[Line_Nom-1] = source[Line_Nom-1].replace('func', 'def', 1)
                 indent = Text.index("func ")
@@ -247,7 +241,7 @@ def check_syntax(
                     else:
                         LINE += 1
                 except IndexError:
-                    raise ERRORS.SyntaxError(FILE,Line_Nom,Text,"'do' defined without 'while'")
+                    raise ERRORS.SyntaxError(file,Line_Nom,Text,"'do' defined without 'while'")
 
             i = 1
             for ln in range(Line_Nom,WHILE_LINE):
@@ -262,15 +256,15 @@ def check_syntax(
 
         #] Load User-Defined Modules
         elif Stripped.startswith('load ' )  or  Stripped=='load':
-            Regex = get_regex('load', Text, FILE, Line_Nom)
+            Regex = get_regex('load', Text, file, Line_Nom)
             Packages = re.split(r'\s*,\s*', Regex.group("packages"))
             for package in Packages:
                 path = f"{working_path}/{package}.rxl"
                 if not rx.files.exists(path):
-                    raise ERRORS.ModuleNotFoundError(FILE, package, Text, Line_Nom)
+                    raise ERRORS.ModuleNotFoundError(file, package, Text, Line_Nom)
                 full_path = rx.files.abspath(path)
                 from ..RXL import convert_source
-                source = convert_source(full_path,True,DEBUG,False)
+                source = convert_source(full_path,True,debug,False)
                 rx.write(full_path.removesuffix(".rxl")+".py", source)
             source[Line_Nom-1] = source[Line_Nom-1].replace("load","import",1)
 
@@ -278,7 +272,7 @@ def check_syntax(
             raise NotImplementedError
             Regex = REGEX.Commands.checkwait.match(Text)
             if not Regex:
-                raise ERRORS.SyntaxError(FILE,Line_Nom,Stripped,f"Wrong use of '$checkwait'")
+                raise ERRORS.SyntaxError(file,Line_Nom,Stripped,f"Wrong use of '$checkwait'")
             needed_lines = 3
             if Regex.group("Then"):
                 #print('Then True')
@@ -321,7 +315,7 @@ def check_syntax(
                 #print(free_lines,'red')
                 ERRORS.RaiseError('SpaceError',f"'$check' should have one extra blank line around it " +
                                                f"per any extra keywords ({needed_lines-1} lines needed)",
-                                  Text,Line_Nom,FILE)
+                                  Text,Line_Nom,file)
 
             free_lines.sort()
             Indent   =   Regex.group('Indent')

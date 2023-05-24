@@ -7,7 +7,6 @@ import threading
 apply = lambda f,iterable: type(iterable)(__import__("builtins").map(f,iterable))
 
 
-
 def constant(f):
     def fset(self, value):
         raise PermissionError

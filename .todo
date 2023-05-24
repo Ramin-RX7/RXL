@@ -53,6 +53,7 @@
 
 
 [Syntax]
+    ☐ `while` and `if` syntax after `for` loops
     ☐ Threading
         dynamic:   thread th1(target=f, kwargs={})
         static:    a class that overrides `__init__` and `run`. then must be instanciated
