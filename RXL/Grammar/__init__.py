@@ -61,20 +61,6 @@ def get_skips(source:Source, index_line:str, stripped:str):
 
 #< Method,Module_Name,Print,Indent,Const >#
 def define_structure(SOURCE:Source, FILE, DEBUG,CONFIGS:dict,):
-    """"""
-    """
-    BASE OPTIONS:
-      OPTION NAME        DEFAULT VALUE       DESCRYPTION
-      Lib-Name           sc                  Shortcut for RXL Tools and functions (also "Modulename")'
-      Print              stylized            Print function to use. Valid Choices: [normal,stylized]'
-      func-type-checker  True                Check if arguments of a function are in wrong type'
-      End-Exit           True                Exit after executing the code or not'
-      Method            normal               Method of loading tools.'
-                                               Valid Choices: [normal,[lite,fast]] (also "Package-Version)"'
-
-    "OPTIONS" SHOULD BE DEFINED AFTER "BASE OPTIONS"'
-    """
-
     Changeable = []
     for nom,line in enumerate(SOURCE[:15]):
         Stripped = line.strip()
@@ -83,7 +69,7 @@ def define_structure(SOURCE:Source, FILE, DEBUG,CONFIGS:dict,):
         if SOURCE.skip:
             SOURCE.skip -= 1
             continue
-        if skips := get_skips(source, nom, Stripped):
+        elif skips := get_skips(source, nom, Stripped):
             source.skip = skips - 1
             Changeable += list(range(nom,nom+skips))
             continue
@@ -138,37 +124,43 @@ def define_structure(SOURCE:Source, FILE, DEBUG,CONFIGS:dict,):
     CONFIGS["structure"]['lib_version'] = "rx7"
     LIB_NAME = CONFIGS["structure"]["lib_name"]
     #] Bases
-    STRING = []
-    STRING.append(f"import {CONFIGS['structure']['lib_version']} as {LIB_NAME}")
-    STRING.append(f"std = rx = {LIB_NAME};import importlib;"
-                   "std.RXL = importlib.import_module('RXL');"
-                   "std.RXL.Lang = importlib.import_module('RXL.Lang');"
-                   "std.RXL.NewFeatures = importlib.import_module('RXL.NewFeatures');"
-                   "std.array = std.RXL.NewFeatures.array"
-                   )
-    STRING.append(f"print = {f'{LIB_NAME}.style.print' if CONFIGS['structure']['print']=='stylized' else 'print'}")
-    #] Direct Attributes
-    STRING.append(F"input = {LIB_NAME}.IO.selective_input")
-    STRING.append(f"Check_Type = {LIB_NAME}.Check_Type")
-    STRING.append("apply = lambda f,iterable: type(iterable)(__import__('builtins').map(f,iterable)) ; map = None")
-
+    STRUCTURES = [
+       f"import {CONFIGS['structure']['lib_version']} as {LIB_NAME}",
+       f"std = rx = {LIB_NAME}",
+        "import importlib",
+        "std.RXL = importlib.import_module('RXL')",
+        "std.RXL.Lang = importlib.import_module('RXL.Lang')",
+        "std.RXL.NewFeatures = importlib.import_module('RXL.NewFeatures')",
+        "del importlib"
+        "std.array = std.RXL.NewFeatures.array",
+       f"input = {LIB_NAME}.IO.selective_input",
+       f"Check_Type = {LIB_NAME}.Check_Type",
+        "apply = std.RXL.Lang.apply; map = NotImplemented"
+    ]
+    match CONFIGS["structure"]['print']:
+        case 'stylized':
+            STRUCTURES.append(f"print = {LIB_NAME}.style.print")
+        case 'pprint':
+            STRUCTURES.append(f"print = {LIB_NAME}.style.pprint")
+        case _:
+            pass
     #] App Info
     for key,value in CONFIGS['info'].items():
-        STRING.append(f"setattr(std,'{key}',{value})")
+        STRUCTURES.append(f"setattr(std,'{key}',{value})")
 
     if len(Changeable):
         for line_nom in Changeable:
+            if not STRUCTURES:
+                break
             if line_nom == Changeable[-1]:
-                SOURCE[line_nom] = ';'.join(STRING)
+                SOURCE[line_nom] = ';'.join(STRUCTURES)
+                break
             else:
-                try:
-                    SOURCE[line_nom] = STRING.pop(0)
-                except IndexError:
-                    break
+                SOURCE[line_nom] = STRUCTURES.pop(0)
     else:
         if DEBUG:
-            Error(f'{FILE}> No (Enough) Base-Option/Empty-lines at begining of file',add_time=False)
-        SOURCE.insert(0, ';'.join(STRING))
+            Error(f'{FILE}> Not (Enough) Empty-lines at begining of file',add_time=False)
+        SOURCE.insert(0, ';'.join(STRUCTURES))
 
     if not CONFIGS["structure"]["end_exit"]:
         SOURCE.append(f'{LIB_NAME}.io.getpass("Press [Enter] to Exit")')
